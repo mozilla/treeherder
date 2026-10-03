@@ -262,6 +262,13 @@ LOGGING = {
             "level": LOGGING_LEVEL,
             "propagate": LOGGING_LEVEL != "WARNING",
         },
+        # Celery's own loggers. The worker's --loglevel overrides this level
+        # (see treeherder.celery.configure_logging).
+        "celery": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "kombu": {
             "handlers": ["console"],
             "level": "WARNING",
@@ -282,6 +289,9 @@ if GCP_STRUCTURED_LOGGING:
         "level": "DEBUG",
     }
     LOGGING["loggers"]["treeherder"]["handlers"] = ["gcp_structured"]
+    # Celery's own records otherwise land on stderr as plain text, which Cloud
+    # Logging reports as severity ERROR whatever the record's level.
+    LOGGING["loggers"]["celery"]["handlers"] = ["gcp_structured"]
 
 # SECURITY
 
