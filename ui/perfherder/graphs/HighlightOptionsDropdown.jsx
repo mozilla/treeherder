@@ -34,7 +34,7 @@ const HighlightOptionsDropdown = ({
     },
     {
       key: 'highlightMissingJobs',
-      label: 'Highlight missing data points',
+      label: 'Highlight missing data',
       isChecked: highlightMissingJobs,
     },
   ];
