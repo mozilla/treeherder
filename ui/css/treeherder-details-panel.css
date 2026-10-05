@@ -580,9 +580,17 @@ div.performance-panel {
   position: relative;
 }
 
-.artifacts-table td a:not(.overlay-link) {
+.artifacts-table td a:not(.overlay-link),
+.artifacts-table td button {
   position: relative;
   z-index: 1;
+}
+
+/* Link-styled buttons (e.g. the APK QR code link) match the artifact names. */
+.artifacts-table td .btn-link {
+  font-size: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
 }
 
 .artifacts-table .overlay-link {

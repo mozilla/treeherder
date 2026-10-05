@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
+import { QRCodeSVG } from 'qrcode.react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExternalLinkAlt,
@@ -43,6 +45,49 @@ ArtifactLink.propTypes = {
   children: PropTypes.node,
 };
 
+// Android builds that can be installed on a device straight from the artifact
+const isApkArtifact = (artifact) =>
+  !!artifact.url && artifact.value.toLowerCase().endsWith('.apk');
+
+// QR code of an APK artifact's URL, so it can be downloaded and installed on
+// a phone by scanning it instead of downloading it and running `adb install`
+const ApkQrCodeModal = ({ artifact, onHide }) => (
+  <Modal show={!!artifact} onHide={onHide} centered>
+    <Modal.Header closeButton>
+      <Modal.Title className="font-size-16">Install on an Android device</Modal.Title>
+    </Modal.Header>
+    {artifact && (
+      <Modal.Body className="text-center">
+        <QRCodeSVG
+          data-testid="apk-qr-code"
+          value={artifact.url}
+          size={256}
+          marginSize={2}
+          title={`QR code for ${artifact.value}`}
+        />
+        <p className="mt-3 mb-2">
+          Scan this code with your device&apos;s camera to download{' '}
+          <strong>{artifact.value}</strong>, then open it to install.
+        </p>
+        <p className="text-muted small mb-2">
+          Your browser may ask for permission to install unknown apps.
+        </p>
+        <a href={artifact.url} target="_blank" rel="noopener noreferrer">
+          Download link
+        </a>
+      </Modal.Body>
+    )}
+  </Modal>
+);
+
+ApkQrCodeModal.propTypes = {
+  artifact: PropTypes.shape({
+    url: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+  }),
+  onHide: PropTypes.func.isRequired,
+};
+
 // Invisible <a> filling the cell, so hover shows the URL and clicks on
 // otherwise-inert text (path prefix, size, expires) navigate there.
 const CellLink = ({ href, label }) => (
@@ -58,7 +103,7 @@ const CellLink = ({ href, label }) => (
 );
 
 export default class JobArtifacts extends React.PureComponent {
-  state = { sortKey: 'name', sortDir: 'asc' };
+  state = { sortKey: 'name', sortDir: 'asc', qrArtifact: null };
 
   sort = (key) => {
     this.setState((prev) => {
@@ -282,6 +327,20 @@ export default class JobArtifacts extends React.PureComponent {
                         <span className="text-muted">{line.path}/</span>
                       )}
                       {!!line.url && <ArtifactLink artifact={line} />}
+                      {isApkArtifact(line) && (
+                        <>
+                          {' '}
+                          -{' '}
+                          <button
+                            type="button"
+                            className="btn btn-link p-0 border-0 align-baseline"
+                            title={`Show a QR code to download ${line.value} on an Android device`}
+                            onClick={() => this.setState({ qrArtifact: line })}
+                          >
+                            Download on device QR code
+                          </button>
+                        </>
+                      )}
                       {isProfileArtifact && (
                         <>
                           {' '}
@@ -317,6 +376,10 @@ export default class JobArtifacts extends React.PureComponent {
             </tbody>
           </table>
         )}
+        <ApkQrCodeModal
+          artifact={this.state.qrArtifact}
+          onHide={() => this.setState({ qrArtifact: null })}
+        />
       </div>
     );
   }
