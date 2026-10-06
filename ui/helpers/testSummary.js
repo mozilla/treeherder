@@ -145,6 +145,22 @@ const tallyStatus = (counts, status) => {
   }
 };
 
+// Compared without trailing punctuation, so the same text reported as both a
+// subtest ("Test timed out.") and a `test_end` message ("Test timed out") is
+// one line.
+const messageKey = (message) => (message || '').replace(/[.\s]+$/, '');
+
+// Drops the failures with an empty or repeated message, keeping order.
+const dedupeFailures = (failures) => {
+  const seen = new Set();
+  return failures.filter(({ message }) => {
+    const key = messageKey(message);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
 const durationOf = (start, end) =>
   Number.isFinite(start) && Number.isFinite(end) ? end - start : null;
 
@@ -417,6 +433,10 @@ export const buildTestSummary = (content) => {
           closed.messages = [];
           closed.logTimes = [];
         }
+        const key = messageKey(failure.message);
+        if (closed.messages.some((message) => messageKey(message) === key)) {
+          return;
+        }
         closed.messages.push(failure.message);
         closed.logTimes.push(failure.logTime);
         closed.message = closed.messages.join(' | ');
@@ -429,15 +449,16 @@ export const buildTestSummary = (content) => {
         const end = finiteOrNull(line.time);
         const success = !('expected' in line);
         const subtestFailures = run?.subtestFailures || [];
-        // For a failing test prefer the (more informative) subtest messages,
-        // keeping each one separate so the Summary tab can render one failure
-        // line per message; otherwise fall back to the test_end message.
-        const failures =
-          !success && subtestFailures.length
-            ? subtestFailures
-            : line.message
-              ? [{ message: line.message, logTime: end }]
-              : [];
+        // A failing test keeps its subtest messages and the test_end one,
+        // which names the failure mode ("Test timed out") and is a line of
+        // the classic Failure Summary too. Each stays separate so the Summary
+        // tab renders one failure line per message.
+        const endFailures = line.message
+          ? [{ message: line.message, logTime: end }]
+          : [];
+        const failures = dedupeFailures(
+          success ? endFailures : [...subtestFailures, ...endFailures],
+        );
         const messages = failures.map((failure) => failure.message);
         const message = messages.length ? messages.join(' | ') : null;
         const result = recordEntry({
