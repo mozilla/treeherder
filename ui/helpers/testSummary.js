@@ -387,12 +387,12 @@ export const buildTestSummary = (content) => {
         // A subtest result. We only keep the unexpected ones (those carrying an
         // `expected` field) to enrich the parent test's failure message. The
         // pending run's *first* queued start owns the in-progress subtests.
-        if (!line.test || !('expected' in line) || !line.message) return;
-        const label = line.subtest ? `${line.subtest} - ` : '';
-        const failure = {
-          message: `${label}${line.message}`,
-          logTime: logTimeOf(line),
-        };
+        if (!line.test || !('expected' in line)) return;
+        // Either field alone can carry the whole signal: mochitest reports a
+        // timeout as `subtest: 'Test timed out.'` with an empty `message`.
+        const text = [line.subtest, line.message].filter(Boolean).join(' - ');
+        if (!text) return;
+        const failure = { message: text, logTime: logTimeOf(line) };
         const queue = pending.get(line.test);
         const run = queue && queue.length ? queue[0] : null;
         if (run) {

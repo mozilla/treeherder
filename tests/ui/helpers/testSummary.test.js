@@ -145,6 +145,32 @@ describe('buildTestSummary', () => {
     );
   });
 
+  test('keeps an unexpected subtest status that carries no message', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'browser_slow.js' },
+      {
+        action: 'test_status',
+        time: 5,
+        group: 'g',
+        test: 'browser_slow.js',
+        subtest: 'Test timed out',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: '',
+      },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'browser_slow.js',
+        status: 'FAIL',
+        expected: 'PASS',
+      },
+    ]);
+    const test = findTest(summary, 'g', 'browser_slow.js');
+    expect(test.results[0].messages).toEqual(['Test timed out']);
+  });
+
   test('ignores passing (expected) subtest statuses', () => {
     const summary = buildTestSummary([
       { action: 'test_start', time: 0, group: 'g', test: 'browser_y.js' },
