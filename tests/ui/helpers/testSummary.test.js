@@ -115,7 +115,7 @@ describe('buildTestSummary', () => {
     expect(findTest(summary, 'manifest.toml', 'orphan')).toBeTruthy();
   });
 
-  test('enriches a failing test_end message with unexpected subtest messages', () => {
+  test('keeps the unexpected subtest messages before the failing test_end one', () => {
     const summary = buildTestSummary([
       { action: 'test_start', time: 0, group: 'g', test: 'browser_x.js' },
       {
@@ -140,9 +140,38 @@ describe('buildTestSummary', () => {
     ]);
     const test = findTest(summary, 'g', 'browser_x.js');
     expect(test.success).toBe(false);
-    expect(test.results[0].message).toBe(
+    expect(test.results[0].messages).toEqual([
       'This test exceeded the timeout threshold.',
-    );
+      'finished in 452487ms',
+    ]);
+  });
+
+  test('lists a message reported as both a subtest and the test_end once', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'browser_t.js' },
+      {
+        action: 'test_status',
+        time: 5,
+        group: 'g',
+        test: 'browser_t.js',
+        subtest: 'Test timed out.',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: '',
+      },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'browser_t.js',
+        status: 'TIMEOUT',
+        expected: 'PASS',
+        message: 'Test timed out',
+      },
+    ]);
+    const test = findTest(summary, 'g', 'browser_t.js');
+    expect(test.results[0].messages).toEqual(['Test timed out.']);
+    expect(test.results[0].logTimes).toEqual([5]);
   });
 
   test('keeps an unexpected subtest status that carries no message', () => {
@@ -241,13 +270,11 @@ describe('buildFailureSuggestions', () => {
     ]);
 
     const suggestions = buildFailureSuggestions(summary);
-    expect(suggestions).toHaveLength(2);
-    expect(suggestions[0].search).toBe(
+    expect(suggestions.map(s => s.search)).toEqual([
       'TEST-UNEXPECTED-FAIL | browser_all.js | there should be no unreferenced files - Got 1, expected +0',
-    );
-    expect(suggestions[1].search).toBe(
       'TEST-UNEXPECTED-FAIL | browser_all.js | file only referenced from unreferenced files',
-    );
+      'TEST-UNEXPECTED-FAIL | browser_all.js | finished',
+    ]);
     // Both lines point at the same test path for bug matching / path filtering.
     expect(suggestions.every(s => s.path_end === 'browser_all.js')).toBe(true);
   });
@@ -620,11 +647,12 @@ describe('matchBugSuggestions', () => {
       buildFailureSuggestions(summary),
       bugSuggestions,
     );
-    expect(failures).toHaveLength(2);
+    expect(failures).toHaveLength(3);
     expect(failures[0].bugs.open_recent).toHaveLength(1);
     expect(failures[0].showBugSuggestions).toBe(true);
     expect(failures[1].bugs.open_recent).toHaveLength(0);
     expect(failures[1].showBugSuggestions).toBe(false);
+    expect(failures[2].showBugSuggestions).toBe(false);
   });
 
   describe('new failure fields', () => {
