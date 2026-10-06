@@ -55,10 +55,11 @@ const AlertHeader = ({
     const trimmedRevisionFrom = newRevisionFrom.trim();
 
     const longHashMatch = /\b[a-f0-9]{40}\b/;
+    const isInvalidRevision = (revision) =>
+      revision !== '' && !longHashMatch.test(revision);
     if (
-      [trimmedRevisionTo, trimmedRevisionFrom].some(
-        (revision) => revision !== '' && !longHashMatch.test(revision),
-      )
+      isInvalidRevision(trimmedRevisionTo) ||
+      isInvalidRevision(trimmedRevisionFrom)
     ) {
       updateViewState({
         errorMessages: [
