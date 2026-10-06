@@ -8,6 +8,7 @@ export const treeOptions = [
   'mozilla-esr153',
   'autoland',
   'firefox-releases',
+  'comm-autoland',
   'comm-central',
   'comm-esr115',
   'comm-esr140',

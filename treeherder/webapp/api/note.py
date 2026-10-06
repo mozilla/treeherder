@@ -84,7 +84,7 @@ class NoteViewSet(viewsets.ViewSet):
         # Bug 2026428 - this is so slow the request times out
         # if fc_id == 2:  # this is for fixed_by_commit (backout | follow_up_commit)
         #     # remove cached failure line counts
-        #     if current_job.repository == "comm-central":
+        #     if current_job.repository in ["comm-autoland", "comm-central"]:
         #         lcache = MemDBCache("cc_error_lines")
         #     else:
         #         lcache = MemDBCache("mc_error_lines")

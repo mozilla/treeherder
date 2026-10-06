@@ -132,7 +132,7 @@ def get_error_summary(job, queryset=None):
     # the instance itself (which is never equal to a string). Without .name,
     # comm-central jobs fell through to the "mc_error_lines" cache and shared a
     # namespace with mozilla-central/autoland error-line counts.
-    if job.repository.name == "comm-central":
+    if job.repository.name in ["comm-autoland", "comm-central"]:
         lcache = MemDBCache("cc_error_lines")
     else:
         lcache = MemDBCache("mc_error_lines")

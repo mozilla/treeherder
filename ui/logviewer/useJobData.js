@@ -18,7 +18,7 @@ const startArtifactsRequests = (taskId, run, rootUrl, repoName) => {
   const jobArtifactsPromise = getData(getArtifactsUrl(params));
 
   let builtFromArtifactPromise;
-  if (repoName === 'comm-central' || repoName === 'try-comm-central') {
+  if (['comm-autoland', 'comm-central', 'try-comm-central'].includes(repoName)) {
     builtFromArtifactPromise = getData(
       getArtifactsUrl({
         ...params,
