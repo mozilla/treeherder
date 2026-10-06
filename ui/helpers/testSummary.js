@@ -30,6 +30,11 @@ import { thBugSuggestionLimit } from './constants';
 //    "bytes": 856, "threshold": 0, "objects": ["CondVar", ...],
 //    "scope": "<manifest>", "induced_crash": false, "ignore_missing": false}
 //
+//   {"action": "lsan_summary", "time": <ms>, "bytes": 488, "allocations": 3}
+//
+//   {"action": "lsan_leak", "time": <ms>, "frames": ["Ensure", ...],
+//    "kind": "Direct", "bytes": 168, "objects": 1, "scope": "<manifest>"}
+//
 // A record does not know its line in the task log: the worker owns that file
 // and adds lines of its own. The log viewer finds it from the text the record
 // printed and its `time`, which run-task stamps on every log line.
@@ -50,6 +55,12 @@ import { thBugSuggestionLimit } from './constants';
 // log once the browser exited, scoped to the manifest that was running. Only
 // the failing ones reach the artifact. The classic Failure Summary shows the
 // line the TBPL formatter prints for it, so that text is rebuilt here.
+//
+// `lsan_summary` and `lsan_leak` lines are a LeakSanitizer report found once
+// the browser exited: its SUMMARY line, and one line per leaking stack. Only
+// the failing ones reach the artifact (an `allowed` summary or a leak with an
+// `allowed_match` does not). They are rebuilt as the TBPL formatter prints
+// them, like `mozleak_total`.
 //
 // The `end` event is not guaranteed: a test that crashes or hangs gets a
 // `test_start` with no matching `test_end`. We pair the two events to recover
@@ -260,6 +271,20 @@ const leakcheckLine = (record) => {
   const shown = objects.slice(0, 5).join(', ');
   const summary = objects.length > 5 ? `${shown}, ...` : shown;
   return `TEST-UNEXPECTED-FAIL | leakcheck | ${process} ${bytes} bytes leaked (${summary})`;
+};
+
+// The ERROR line TbplFormatter.lsan_summary prints, or null when every leak
+// was allowed.
+const lsanSummaryLine = (record) => {
+  if (record.allowed) return null;
+  return `ERROR | LeakSanitizer | SUMMARY: AddressSanitizer: ${record.bytes} byte(s) leaked in ${record.allocations} allocation(s).`;
+};
+
+// The TEST-UNEXPECTED-FAIL line TbplFormatter.lsan_leak prints, or null when
+// the leak matched an allow rule.
+const lsanLeakLine = (record) => {
+  if (record.allowed_match) return null;
+  return `TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at ${(record.frames ?? []).join(', ')}`;
 };
 
 /**
@@ -532,6 +557,27 @@ export const buildTestSummary = (content) => {
         // Shown as the line the TBPL formatter prints, which is what the
         // classic Failure Summary has for it.
         const message = leakcheckLine(line);
+        if (!message) return;
+        recordHarnessLine({
+          message,
+          group: knownGroups.has(line.scope) ? line.scope : currentGroup,
+          logTime: logTimeOf(line),
+        });
+        return;
+      }
+      case 'lsan_summary': {
+        // The report's totals carry no scope: filed under the open group.
+        const message = lsanSummaryLine(line);
+        if (!message) return;
+        recordHarnessLine({
+          message,
+          group: currentGroup,
+          logTime: logTimeOf(line),
+        });
+        return;
+      }
+      case 'lsan_leak': {
+        const message = lsanLeakLine(line);
         if (!message) return;
         recordHarnessLine({
           message,
