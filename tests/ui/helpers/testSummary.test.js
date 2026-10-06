@@ -1147,6 +1147,138 @@ describe('leak totals (mozleak_total records)', () => {
   });
 });
 
+describe('LeakSanitizer reports (lsan_summary and lsan_leak records)', () => {
+  // Records of try task WAXPZP4HQ92mvK6TJYvNgg (linux asan bc-swr-40).
+  const group =
+    'browser/components/aiwindow/ui/test/browser/browser_smartwindow.toml';
+  const ensureFrames = [
+    'Ensure',
+    'mozilla::dom::FileSystemBackgroundRequestHandler::CreateFileSystemManagerChild',
+    'mozilla::dom::FileSystemManager::BeginRequest',
+    'mozilla::dom::fs::FileSystemRequestHandler::GetRootHandle',
+  ];
+  const thenFrames = [
+    'Then',
+    'mozilla::dom::FileSystemManager::BeginRequest',
+    'mozilla::dom::fs::FileSystemRequestHandler::GetRootHandle',
+    'mozilla::dom::FileSystemManager::GetDirectory',
+  ];
+  const lsanSummary = {
+    action: 'lsan_summary',
+    time: 3,
+    bytes: 488,
+    allocations: 3,
+  };
+  const ensureLeak = {
+    action: 'lsan_leak',
+    time: 4,
+    frames: ensureFrames,
+    kind: 'Direct',
+    bytes: 168,
+    objects: 1,
+    scope: group,
+  };
+  const thenLeak = {
+    ...ensureLeak,
+    time: 5,
+    frames: thenFrames,
+    kind: 'Indirect',
+    bytes: 160,
+  };
+  const summaryClassic =
+    'ERROR | LeakSanitizer | SUMMARY: AddressSanitizer: 488 byte(s) leaked in 3 allocation(s).';
+  const ensureClassic = `TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at ${ensureFrames.join(', ')}`;
+  const thenClassic = `TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at ${thenFrames.join(', ')}`;
+  const ensureLog = `TEST-UNEXPECTED-FAIL | LeakSanitizer leak at ${ensureFrames.join(', ')} | ${group}`;
+  const thenLog = `TEST-UNEXPECTED-FAIL | LeakSanitizer leak at ${thenFrames.join(', ')} | ${group}`;
+  const summaryLines = [
+    { action: 'group_start', time: 1, name: group },
+    { action: 'test_start', time: 1, group, test: 'browser_smartwindow_a.js' },
+    {
+      action: 'test_end',
+      time: 2,
+      group,
+      test: 'browser_smartwindow_a.js',
+      status: 'PASS',
+    },
+    lsanSummary,
+    ensureLeak,
+    thenLeak,
+    { ...thenLeak, time: 6 },
+    { action: 'log', time: 7, level: 'ERROR', message: ensureLog },
+    { action: 'log', time: 7, level: 'ERROR', message: thenLog },
+    { action: 'group_end', time: 8, name: group },
+  ];
+
+  const harnessEntries = (summary, groupName) =>
+    summary.groups
+      .find(g => g.name === groupName)
+      .tests.filter(t => t.harness);
+
+  test('files the SUMMARY line and each leak as the classic lines', () => {
+    const summary = buildTestSummary(summaryLines);
+    const entries = harnessEntries(summary, group);
+
+    expect(entries.map(e => e.results[0].message)).toEqual([
+      summaryClassic,
+      ensureClassic,
+      thenClassic,
+      thenClassic,
+      ensureLog,
+      thenLog,
+    ]);
+    expect(entries.map(e => e.pathEnd).slice(0, 4)).toEqual([
+      'LeakSanitizer',
+      null,
+      null,
+      null,
+    ]);
+    expect(entries.every(e => e.status === HARNESS_STATUS)).toBe(true);
+    expect(entries[0].results[0].logTime).toBe(3);
+    // The test that ran in that browser still passed: a leak is not a test.
+    expect(summary.counts).toMatchObject({ total: 1, PASS: 1, ERROR: 0 });
+  });
+
+  test('matches the classic summary of the same job', () => {
+    const failures = buildFailureSuggestions(buildTestSummary(summaryLines));
+    // The job's /bug_suggestions/ for these lines (Treeherder collapses the
+    // two identical "leak at Then" lines into one).
+    const classic = [
+      [summaryClassic, 'LeakSanitizer'],
+      [ensureClassic, null],
+      [thenClassic, null],
+      [ensureLog, `LeakSanitizer leak at ${ensureFrames.join(', ')}`],
+      [thenLog, `LeakSanitizer leak at ${thenFrames.join(', ')}`],
+    ].map(([search, pathEnd]) => ({
+      search,
+      path_end: pathEnd,
+      bugs: { open_recent: [], all_others: [] },
+    }));
+
+    expect(computeSummaryDivergence(failures, classic).diverged).toBe(false);
+  });
+
+  test('ignores an allowed summary and a leak that matched an allow rule', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: group },
+      { ...lsanSummary, allowed: true },
+      { ...ensureLeak, allowed_match: 'Ensure' },
+    ]);
+
+    expect(summary.groups).toEqual([]);
+  });
+
+  test('files a leak whose scope is unknown under the open group', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: 'g' },
+      lsanSummary,
+      { ...ensureLeak, scope: 'elsewhere.toml' },
+    ]);
+
+    expect(harnessEntries(summary, 'g')).toHaveLength(2);
+  });
+});
+
 describe('classic failure summary helpers', () => {
   const line = (search, pathEnd = null, extra = {}) => ({
     search,
