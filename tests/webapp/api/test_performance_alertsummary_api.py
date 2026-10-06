@@ -551,6 +551,34 @@ def test_performance_alert_summary_change_revision_onto_existing_summary(
     assert PerformanceAlertSummary.objects.get(id=1).push_id == test_perf_alert_summary.push_id
 
 
+def test_performance_alert_summary_change_from_revision_with_shared_to_revision(
+    client, test_perf_alert_summary, test_sheriff, create_push
+):
+    client.force_authenticate(user=test_sheriff)
+    repository = test_perf_alert_summary.repository
+    now = datetime.now()
+    free_push = create_push(repository, revision="a" * 40, time=now - timedelta(days=30))
+    taken_push = create_push(repository, revision="b" * 40, time=now - timedelta(days=29))
+    # another summary with the same To, so only its exact pair is off limits
+    sibling = PerformanceAlertSummary.objects.create(
+        repository=repository,
+        framework=test_perf_alert_summary.framework,
+        prev_push=taken_push,
+        push=test_perf_alert_summary.push,
+        manually_created=False,
+        created=now,
+    )
+    url = reverse("performance-alert-summaries-list") + "1/"
+
+    resp = client.put(url, {"prev_push_revision": free_push.revision})
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push == free_push
+
+    resp = client.put(url, {"prev_push_revision": taken_push.revision})
+    assert resp.status_code == 400
+    assert f"Alert summary #{sibling.id} already uses these revisions" in resp.content.decode()
+
+
 @pytest.fixture
 def duplicated_push(create_push, test_push, test_repository_2):
     return create_push(test_repository_2, revision=test_push.revision)

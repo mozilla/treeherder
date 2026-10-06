@@ -387,19 +387,19 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("From and To revisions should be distinct.")
 
         if "push" in data or "prev_push" in data:
-            existing = (
-                PerformanceAlertSummary.objects.filter(
-                    repository_id=self.instance.repository_id,
-                    framework_id=self.instance.framework_id,
-                    sheriffed=self.instance.sheriffed,
-                    push=push,
-                )
-                .exclude(id=self.instance.id)
-                .first()
-            )
+            existing = PerformanceAlertSummary.objects.filter(
+                repository_id=self.instance.repository_id,
+                framework_id=self.instance.framework_id,
+                sheriffed=self.instance.sheriffed,
+                push=push,
+            ).exclude(id=self.instance.id)
+            if "push" not in data:
+                existing = existing.filter(prev_push=prev_push)
+            existing = existing.first()
             if existing:
+                revisions = "this To revision" if "push" in data else "these revisions"
                 raise serializers.ValidationError(
-                    f"Alert summary #{existing.id} already uses this To revision, "
+                    f"Alert summary #{existing.id} already uses {revisions}, "
                     "reassign the alerts to it instead."
                 )
         return data
