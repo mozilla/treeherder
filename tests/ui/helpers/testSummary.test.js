@@ -7,6 +7,8 @@ import {
   computeSummaryDivergence,
   isNewFailureLine,
   findNewFailureLines,
+  isWorkerLine,
+  withWorkerLines,
   NO_GROUP,
   INCOMPLETE_STATUS,
   HARNESS_STATUS,
@@ -1503,6 +1505,141 @@ describe('classic failure summary helpers', () => {
     test('null inputs are treated as empty and do not diverge', () => {
       expect(computeSummaryDivergence(null, null).diverged).toBe(false);
       expect(computeSummaryDivergence(undefined, []).diverged).toBe(false);
+    });
+
+    test('worker lines added by withWorkerLines do not diverge', () => {
+      const classic = [
+        line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js'),
+        line('[taskcluster:error] Aborting task...'),
+        line('[taskcluster:error] task aborted - max run time exceeded'),
+      ];
+      const summary = [
+        summarySide('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js'),
+      ];
+
+      expect(computeSummaryDivergence(summary, classic).onlyInClassic).toEqual([
+        '[taskcluster:error] Aborting task...',
+        '[taskcluster:error] task aborted - max run time exceeded',
+      ]);
+      expect(
+        computeSummaryDivergence(withWorkerLines(summary, classic), classic)
+          .diverged,
+      ).toBe(false);
+    });
+  });
+
+  describe('withWorkerLines', () => {
+    const internalIssue = {
+      id: null,
+      internal_id: 1964836,
+      summary: 'Intermittent [taskcluster:error] Aborting task...',
+      resolution: '',
+      occurrences: 0,
+    };
+    const abortLine = () =>
+      line('[taskcluster:error] Aborting task...', null, {
+        line_number: 17752,
+        bugs: {
+          open_recent: [
+            internalIssue,
+            {
+              id: 2073425,
+              summary: 'Talos [taskcluster:error] Aborting task...',
+              resolution: '',
+            },
+          ],
+          all_others: [],
+        },
+      });
+    const maxRunTimeLine = () =>
+      line('[taskcluster:error] task aborted - max run time exceeded', null, {
+        line_number: 17768,
+      });
+    const summaryLine = () => ({
+      search: 'TEST-UNEXPECTED-FAIL | path/a.js | oops',
+      path_end: 'path/a.js',
+      bugs: { open_recent: [], all_others: [] },
+    });
+
+    test('recognizes the lines the worker writes', () => {
+      expect(isWorkerLine('[taskcluster:error] Aborting task...')).toBe(true);
+      expect(isWorkerLine('[taskcluster:error] exit status 1')).toBe(true);
+      expect(
+        isWorkerLine('TEST-UNEXPECTED-FAIL | a.js | [taskcluster:error] x'),
+      ).toBe(false);
+      expect(isWorkerLine(undefined)).toBe(false);
+    });
+
+    test('appends the worker lines after the summary lines, with their bugs', () => {
+      const result = withWorkerLines(
+        [summaryLine()],
+        [
+          line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js'),
+          abortLine(),
+          maxRunTimeLine(),
+        ],
+      );
+
+      expect(result.map((suggestion) => suggestion.search)).toEqual([
+        'TEST-UNEXPECTED-FAIL | path/a.js | oops',
+        '[taskcluster:error] Aborting task...',
+        '[taskcluster:error] task aborted - max run time exceeded',
+      ]);
+      expect(result[1].line_number).toBe(17752);
+      expect(result[1].bugs.open_recent).toEqual([
+        internalIssue,
+        expect.objectContaining({ id: 2073425 }),
+      ]);
+      expect(result[1].showBugSuggestions).toBe(true);
+      expect(result[2].showBugSuggestions).toBe(false);
+    });
+
+    test('never adds a classic line the worker did not write', () => {
+      const result = withWorkerLines(
+        [summaryLine()],
+        [line('PROCESS-CRASH | application crashed | path/a.js', 'path/a.js')],
+      );
+
+      expect(result).toEqual([summaryLine()]);
+    });
+
+    test('drops `exit status N` when other lines exist, like the classic tab', () => {
+      const exitStatus = line('[taskcluster:error] exit status 2', null, {
+        line_number: 17769,
+      });
+
+      expect(
+        withWorkerLines([summaryLine()], [abortLine(), exitStatus]).map(
+          (suggestion) => suggestion.search,
+        ),
+      ).toEqual([
+        'TEST-UNEXPECTED-FAIL | path/a.js | oops',
+        '[taskcluster:error] Aborting task...',
+      ]);
+      expect(
+        withWorkerLines([], [exitStatus]).map(
+          (suggestion) => suggestion.search,
+        ),
+      ).toEqual(['[taskcluster:error] exit status 2']);
+    });
+
+    test('leaves its inputs untouched, so a second call adds nothing twice', () => {
+      const summary = [summaryLine()];
+      const classic = [abortLine()];
+
+      withWorkerLines(summary, classic);
+      const result = withWorkerLines(summary, classic);
+
+      expect(summary).toHaveLength(1);
+      expect(result).toHaveLength(2);
+      expect(result[1]).not.toBe(classic[0]);
+      expect(result[1].bugs).not.toBe(classic[0].bugs);
+      expect(classic[0].showBugSuggestions).toBeUndefined();
+    });
+
+    test('treats missing inputs as empty', () => {
+      expect(withWorkerLines(null, null)).toEqual([]);
+      expect(withWorkerLines(undefined, [abortLine()])).toHaveLength(1);
     });
   });
 });

@@ -905,6 +905,40 @@ export const filterGenericFailureLines = (suggestions) => {
   });
 };
 
+// A line the Taskcluster worker wrote itself, e.g. `[taskcluster:error] task
+// aborted - max run time exceeded`. The worker writes it outside the harness,
+// after it killed the task's processes, so no summary.jsonl can hold it.
+export const isWorkerLine = (search) =>
+  /^\[taskcluster:error\] /.test(search || '');
+
+/**
+ * Append the worker lines of the classic `/bug_suggestions/` list, with their
+ * bugs and line numbers, to the summary's failure lines. A line is taken only
+ * when the classic Failure Summary shows it (`exit status N` is dropped when
+ * other lines exist). Returns a new array; the inputs are not modified.
+ *
+ * @param {ReturnType<typeof matchBugSuggestions>} failureSuggestions
+ * @param {Array<{ search: string, line_number: number, bugs: { open_recent: [], all_others: [] } }>} bugSuggestions
+ * @returns {typeof failureSuggestions}
+ */
+export const withWorkerLines = (failureSuggestions, bugSuggestions) => {
+  const workerLines = filterGenericFailureLines(bugSuggestions)
+    .filter((suggestion) => isWorkerLine(suggestion.search))
+    .map((suggestion) => {
+      const workerLine = {
+        ...suggestion,
+        bugs: {
+          open_recent: [...(suggestion.bugs?.open_recent || [])],
+          all_others: [...(suggestion.bugs?.all_others || [])],
+        },
+      };
+      decorateBugs(workerLine);
+      return workerLine;
+    });
+
+  return [...(failureSuggestions || []), ...workerLines];
+};
+
 // Exact behavior of the classic Failure Summary's filtering: drop generic
 // lines, then mark the first occurrence of each test path to show its bugs.
 // Mutates `showBugSuggestions` on the kept suggestions.
@@ -960,8 +994,9 @@ export const prepareBugSuggestions = (suggestions) => {
 /**
  * Compare the testsummary-derived failure lines with the classic
  * `/bug_suggestions/` ones. Both sides go through the same generic-line
- * filter, so noise lines (`finished in Nms`, `[taskcluster:error] ...`) never
- * count as a divergence; the normalized `search` strings are then set-diffed.
+ * filter, so noise lines (`finished in Nms`, `[taskcluster:error] exit status
+ * N`) never count as a divergence; the normalized `search` strings are then
+ * set-diffed. Other worker lines only match once withWorkerLines added them.
  *
  * @param {ReturnType<typeof buildFailureSuggestions>} failureSuggestions
  * @param {Array<{ search: string, path_end: ?string }>} bugSuggestions
