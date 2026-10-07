@@ -14,7 +14,7 @@ TASKCLUSTER_INDEX_URL = "https://firefox-ci-tc.services.mozilla.com/api/index/v1
 
 def _taskcluster_runnable_jobs(project):
     decision_task_id = query_latest_gecko_decision_task_id(project)
-    # Some trees (e.g. comm-central) don't have a decision task, which means there are no taskcluster runnable jobs
+    # Some trees don't have a decision task, which means there are no taskcluster runnable jobs
     if not decision_task_id:
         return []
 

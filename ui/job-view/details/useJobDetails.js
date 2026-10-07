@@ -247,6 +247,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
 
         let builtFromArtifactPromise;
         if (
+          currentRepo.name === 'comm-autoland' ||
           currentRepo.name === 'comm-central' ||
           currentRepo.name === 'try-comm-central'
         ) {
