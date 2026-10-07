@@ -100,6 +100,11 @@ class BackfillRecordSerializer(serializers.Serializer):
         detected = instance.get_latest_detected_push()
         data["detected_push_id"] = detected["detected_push_id"] if detected else None
         data["detected_push_revision"] = detected["detected_push_revision"] if detected else None
+        failed_jobs_map = self.context.get("failed_backfill_jobs_map")
+        if failed_jobs_map is not None:
+            data["failed_jobs_count"] = failed_jobs_map.get(instance.alert_id, 0)
+        else:
+            data["failed_jobs_count"] = instance.get_failed_backfill_jobs_count()
 
         return data
 
