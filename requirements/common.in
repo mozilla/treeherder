@@ -41,7 +41,7 @@ mozci[cache]==2.4.3
 dockerflow==2026.3.4
 
 # Structured logging to GCP Cloud Logging (task_id/run_id labels)
-google-cloud-logging==3.16.0
+google-cloud-logging==3.17.0
 
 # Measuring noise of perf data
 moz-measure-noise==2.70.0
