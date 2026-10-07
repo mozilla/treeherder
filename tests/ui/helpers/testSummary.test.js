@@ -1281,6 +1281,201 @@ describe('LeakSanitizer reports (lsan_summary and lsan_leak records)', () => {
   });
 });
 
+describe('console lines (error_line records)', () => {
+  // Records of try task RhowshF1Rv-t91R27yTs5A (linux debug mochitest-chrome),
+  // with the error_line records mozharness writes since bug 2071871.
+  const group = 'dom/canvas/test/chrome/chrome.toml';
+  const testPath = 'dom/canvas/test/chrome/test_drawWindow_widget_layers.html';
+  const subrect =
+    'reftest comparison: == draw of subrect of source with different background reference';
+  const reftestLine =
+    'REFTEST TEST-UNEXPECTED-FAIL | draw of subrect of source with different background | image comparison (==), max difference: 1, number of differing pixels: 1175';
+  const image1 = 'REFTEST   IMAGE 1 (TEST): data:image/png;base64,iVBORw0KGgo=';
+  const image2 =
+    'REFTEST   IMAGE 2 (REFERENCE): data:image/png;base64,iVBORw0KGgp=';
+  const errorLine = (time, message, level = 'ERROR') => ({
+    action: 'error_line',
+    time,
+    level,
+    message,
+  });
+  // The image comparison report assertSnapshots() logs at INFO level, which
+  // mozharness raises to ERROR: no other record holds it.
+  const reportLines = time => [
+    errorLine(time, reftestLine),
+    errorLine(time, image1),
+    errorLine(time, image2),
+    errorLine(time, ''),
+  ];
+  const summaryLines = [
+    { action: 'group_start', time: 1, name: group },
+    { action: 'test_start', time: 2, group, test: testPath },
+    {
+      action: 'test_status',
+      time: 3,
+      group,
+      test: testPath,
+      subtest: null,
+      status: 'FAIL',
+      expected: 'PASS',
+      message: subrect,
+    },
+    errorLine(4, `TEST-UNEXPECTED-FAIL | ${testPath} | ${subrect}`, 'INFO'),
+    ...reportLines(5),
+    {
+      action: 'test_end',
+      time: 6,
+      group,
+      test: testPath,
+      status: 'FAIL',
+      expected: 'PASS',
+      message: 'Finished in 468ms',
+    },
+    errorLine(7, `TEST-UNEXPECTED-FAIL | ${testPath} | Finished in 468ms`, 'INFO'),
+    { action: 'group_end', time: 8, name: group },
+  ];
+  const withoutConsoleLines = records =>
+    records.filter(record => record.action !== 'error_line');
+
+  const harnessEntries = (summary, groupName) =>
+    summary.groups
+      .find(g => g.name === groupName)
+      .tests.filter(t => t.harness);
+
+  test('files the lines no record holds under the group of the test', () => {
+    const summary = buildTestSummary(summaryLines);
+    const entries = harnessEntries(summary, group);
+
+    expect(entries.map(e => e.results[0].message)).toEqual([
+      reftestLine,
+      image1,
+      image2,
+    ]);
+    entries.forEach(entry => {
+      expect(entry.status).toBe(HARNESS_STATUS);
+      expect(entry.results[0].logTime).toBe(5);
+    });
+    expect(summary.counts).toMatchObject({ total: 1, FAIL: 1, ERROR: 0 });
+    expect(summary.realFailCounts).toEqual({ FAIL: 1, ERROR: 3 });
+  });
+
+  test('drops the lines repeating a failing test result', () => {
+    const covered = summaryLines.filter(
+      record => !reportLines(5).some(r => r.message === record.message),
+    );
+
+    expect(buildFailureSuggestions(buildTestSummary(covered))).toEqual(
+      buildFailureSuggestions(buildTestSummary(withoutConsoleLines(covered))),
+    );
+  });
+
+  test('drops the lines of a multi-line ERROR log record', () => {
+    const message =
+      'TEST-UNEXPECTED-FAIL | leakcheck | default 856 bytes leaked (CondVar)\n  first frame';
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: 'g' },
+      { action: 'log', time: 2, level: 'ERROR', message },
+      errorLine(3, 'TEST-UNEXPECTED-FAIL | leakcheck | default 856 bytes leaked (CondVar)'),
+      errorLine(3, '  first frame'),
+    ]);
+
+    expect(harnessEntries(summary, 'g')).toHaveLength(1);
+  });
+
+  test('keeps two identical lines as two entries', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: 'g' },
+      errorLine(2, reftestLine),
+      errorLine(3, reftestLine),
+    ]);
+
+    expect(harnessEntries(summary, 'g')).toHaveLength(2);
+  });
+
+  test('files a line printed between tests under the open group', () => {
+    const summary = buildTestSummary([
+      ...summaryLines.slice(0, -1),
+      errorLine(9, "PID 1456 | DBG-TEST: head.js:287: error: NotFoundError: No such JSProcessActor 'BrowserToolboxDevToolsProcess'", 'INFO'),
+    ]);
+
+    expect(harnessEntries(summary, group)).toHaveLength(4);
+  });
+
+  test('shows a line as the classic summary does, linked by its printed text', () => {
+    const printed =
+      'PID 20070 | TEST-UNEXPECTED-FAIL | shutdown hang | profile uploaded in profile_shutdown_hang_20089.json';
+    const assertion =
+      'GECKO(6374) | [6374] Assertion failure: mFullscreenChangeState == FullscreenChangeState::NotChanging, at checkouts/gecko/xpfe/appshell/AppWindow.cpp:285';
+    const failures = buildFailureSuggestions(
+      buildTestSummary([
+        { action: 'group_start', time: 1, name: 'g' },
+        errorLine(2, printed, 'INFO'),
+        errorLine(3, assertion, 'INFO'),
+      ]),
+    );
+
+    expect(failures.map(f => [f.search, f.path_end, f.logTarget.texts])).toEqual([
+      [
+        'TEST-UNEXPECTED-FAIL | shutdown hang | profile uploaded in profile_shutdown_hang_20089.json',
+        'shutdown hang',
+        [printed],
+      ],
+      [
+        'Assertion failure: mFullscreenChangeState == FullscreenChangeState::NotChanging, at checkouts/gecko/xpfe/appshell/AppWindow.cpp:X',
+        null,
+        [assertion],
+      ],
+    ]);
+  });
+
+  test('matches a line the classic summary cut on its first 443 characters', () => {
+    const printed = `REFTEST   IMAGE 1 (TEST): data:image/png;base64,${'A'.repeat(600)}`;
+    const failures = buildFailureSuggestions(
+      buildTestSummary([
+        { action: 'group_start', time: 1, name: 'g' },
+        errorLine(2, printed),
+      ]),
+    );
+    const classic = [
+      {
+        search: printed.slice(0, 443),
+        path_end: null,
+        bugs: { open_recent: [], all_others: [] },
+      },
+    ];
+
+    expect(failures[0].search).toBe(printed);
+    expect(computeSummaryDivergence(failures, classic).diverged).toBe(false);
+  });
+
+  test('matches the classic summary of the same job', () => {
+    const failures = buildFailureSuggestions(buildTestSummary(summaryLines));
+    // The job's /bug_suggestions/ for these lines.
+    const classic = [
+      `TEST-UNEXPECTED-FAIL | ${testPath} | ${subrect}`,
+      reftestLine,
+      image1,
+      image2,
+      '23:04:03    ERROR -',
+      `TEST-UNEXPECTED-FAIL | ${testPath} | Finished in 468ms`,
+    ].map(search => ({
+      search,
+      path_end: null,
+      bugs: { open_recent: [], all_others: [] },
+    }));
+
+    expect(computeSummaryDivergence(failures, classic).diverged).toBe(false);
+    expect(
+      computeSummaryDivergence(
+        buildFailureSuggestions(
+          buildTestSummary(withoutConsoleLines(summaryLines)),
+        ),
+        classic,
+      ).onlyInClassic,
+    ).toEqual([reftestLine, image1, image2].map(l => l.replace(/\s+/g, ' ')));
+  });
+});
+
 describe('classic failure summary helpers', () => {
   const line = (search, pathEnd = null, extra = {}) => ({
     search,
@@ -1497,6 +1692,18 @@ describe('classic failure summary helpers', () => {
       const result = computeSummaryDivergence(
         [summarySide('TEST-UNEXPECTED-FAIL | path/a.js |  oops ', 'path/a.js')],
         [line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js')],
+      );
+
+      expect(result.diverged).toBe(false);
+    });
+
+    test('a bare mozharness prefix line is not a divergence', () => {
+      const result = computeSummaryDivergence(
+        [summarySide('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js')],
+        [
+          line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js'),
+          line('23:04:03    ERROR -'),
+        ],
       );
 
       expect(result.diverged).toBe(false);
