@@ -35,6 +35,9 @@ import { thBugSuggestionLimit } from './constants';
 //   {"action": "lsan_leak", "time": <ms>, "frames": ["Ensure", ...],
 //    "kind": "Direct", "bytes": 168, "objects": 1, "scope": "<manifest>"}
 //
+//   {"action": "error_line", "time": <ms>, "level": "ERROR",
+//    "message": "<console line, without its HH:MM:SS LEVEL prefix>"}
+//
 // A record does not know its line in the task log: the worker owns that file
 // and adds lines of its own. The log viewer finds it from the text the record
 // printed and its `time`, which run-task stamps on every log line.
@@ -61,6 +64,15 @@ import { thBugSuggestionLimit } from './constants';
 // the failing ones reach the artifact (an `allowed` summary or a leak with an
 // `allowed_match` does not). They are rebuilt as the TBPL formatter prints
 // them, like `mozleak_total`.
+//
+// An `error_line` is a console line of the run the classic Failure Summary
+// shows, written by mozharness after the record that printed it. Most repeat
+// a record above (a failing subtest, a harness ERROR line), and are dropped.
+// The others are failures no record holds, e.g. the image comparison report a
+// mochitest reftest assertion logs at INFO level and mozharness raises to
+// ERROR, or a child process's output: each is filed like a harness line. An
+// empty one is the bare prefix mozharness prints for a message's trailing
+// newline, and is dropped too.
 //
 // The `end` event is not guaranteed: a test that crashes or hangs gets a
 // `test_start` with no matching `test_end`. We pair the two events to recover
@@ -191,6 +203,28 @@ const PYTHON_LINE_BREAK_RE = /\r\n|[\n\r\v\f\x85\u2028\u2029]/;
 const firstLogLineOf = (text) =>
   text.split(PYTHON_LINE_BREAK_RE)[0].slice(0, MAX_LOG_TEXT_LENGTH);
 
+// Mirrors get_cleaned_line() of the backend (treeherder/model/error_summary.py),
+// which turns a log line into the text the classic Failure Summary shows. An
+// `error_line` message has no mozharness prefix to strip already.
+const cleanedLine = (message) =>
+  message
+    .trim()
+    .replace(/(?:PID \d+|GECKO\(\d+\)) \| +/g, '')
+    .replace(/.cpp:[0-9]+/g, '.cpp:X')
+    .replace(/\[Child [0-9]+, [a-zA-Z]+ Thread/g, '[Child X, Y Thread')
+    .replace(/\[Parent [0-9]+, [a-zA-Z]+ Thread/g, '[Parent X, Y Thread')
+    .replace(/^\[\d+\] +/, '');
+
+// The log parser keeps the first 500 characters of a line (MAX_LINE_LENGTH in
+// treeherder/log_parser/artifactbuilders.py), run-task's "[task <time>] "
+// stamp (37) and mozharness's "HH:MM:SS LEVEL - " prefix (20) included.
+const CLASSIC_MESSAGE_LENGTH = 500 - 37 - 20;
+
+// The classic "TEST-UNEXPECTED-<status> | test | msg" failure line of a test
+// result.
+const testFailureLine = (status, testName, message) =>
+  `TEST-UNEXPECTED-${status} | ${testName}${message ? ` | ${message}` : ''}`;
+
 // Mirrors the "FAILURE-TYPE | testNameOrFilePath | message" branch of the
 // backend's get_error_search_term_and_path() (treeherder/model/error_summary.py)
 // so a harness failure line gets the same `path_end` the bug_suggestions API
@@ -303,7 +337,7 @@ const lsanLeakLine = (record) => {
  *       retried: boolean,
  *       harness?: true,
  *       pathEnd?: ?string,
- *       results: Array<{ status: string, success: boolean, message: ?string, messages: string[], logTime: ?number, logTimes: Array<?number>, start: ?number, end: ?number, duration: ?number, classicLine?: string }>,
+ *       results: Array<{ status: string, success: boolean, message: ?string, messages: string[], logTime: ?number, logTimes: Array<?number>, start: ?number, end: ?number, duration: ?number, classicLine?: string, logText?: string }>,
  *     }>,
  *   }>,
  *   counts: Object,
@@ -348,6 +382,8 @@ export const buildTestSummary = (content) => {
     // The text the classic Failure Summary shows for this result, when it is
     // not the message itself.
     if (entry.classicLine) result.classicLine = entry.classicLine;
+    // The text the record printed in the task log, when it is neither.
+    if (entry.logText) result.logText = entry.logText;
     tests.get(key).results.push(result);
     return result;
   };
@@ -362,6 +398,20 @@ export const buildTestSummary = (content) => {
   // even when it arrives after that group's `group_end`.
   const knownGroups = new Set();
   let harnessLines = 0;
+  // The run of the latest `test_start` until its `test_end`, to file an
+  // `error_line` under the group of the test that printed it.
+  let openRun = null;
+  // Normalized text of every console line the records so far printed as a
+  // failure, one per line of a multi-line message, to drop the `error_line`
+  // records repeating one.
+  const coveredLines = new Set();
+
+  const cover = (text) => {
+    if (!text) return;
+    text.split(PYTHON_LINE_BREAK_RE).forEach((part) => {
+      coveredLines.add(normalizeSearchLine(part));
+    });
+  };
 
   // The result each test's latest `test_end` produced, so the subtest results
   // the harness replays after that `test_end` can still enrich it.
@@ -376,8 +426,20 @@ export const buildTestSummary = (content) => {
 
   // File a failure that is not a test result (a harness line, a sanitizer
   // report, a leak total) as its own entry: two identical lines are two
-  // failures, not one test run twice.
-  const recordHarnessLine = ({ message, group, logTime, classicLine }) => {
+  // failures, not one test run twice. An `error_line` (`consoleLine`) covers
+  // nothing, so a second identical one is still filed.
+  const recordHarnessLine = ({
+    message,
+    group,
+    logTime,
+    classicLine,
+    logText,
+    consoleLine = false,
+  }) => {
+    if (!consoleLine) {
+      cover(message);
+      cover(classicLine);
+    }
     const pathEnd = pathEndOfLine(message);
     harnessLines += 1;
     recordEntry(
@@ -395,6 +457,7 @@ export const buildTestSummary = (content) => {
         harness: true,
         pathEnd,
         classicLine,
+        logText,
       },
       `harness:${harnessLines}`,
     );
@@ -422,6 +485,7 @@ export const buildTestSummary = (content) => {
         };
         if (!pending.has(line.test)) pending.set(line.test, []);
         pending.get(line.test).push(run);
+        openRun = run;
         return;
       }
       case 'test_status': {
@@ -432,6 +496,7 @@ export const buildTestSummary = (content) => {
         // Either field alone can carry the whole signal: mochitest reports a
         // timeout as `subtest: 'Test timed out.'` with an empty `message`.
         const text = [line.subtest, line.message].filter(Boolean).join(' - ');
+        cover(testFailureLine(line.status, line.test, text));
         if (!text) return;
         const failure = { message: text, logTime: logTimeOf(line) };
         const queue = pending.get(line.test);
@@ -470,9 +535,13 @@ export const buildTestSummary = (content) => {
       case 'test_end': {
         if (!line.test) return;
         const run = takePending(line.test);
+        if (run && run === openRun) openRun = null;
         const start = run ? run.start : null;
         const end = finiteOrNull(line.time);
         const success = !('expected' in line);
+        if (!success) {
+          cover(testFailureLine(line.status, line.test, line.message));
+        }
         const subtestFailures = run?.subtestFailures || [];
         // A failing test keeps its subtest messages and the test_end one,
         // which names the failure mode ("Test timed out") and is a line of
@@ -586,6 +655,26 @@ export const buildTestSummary = (content) => {
         });
         return;
       }
+      case 'error_line': {
+        const printed = (line.message || '').trimEnd();
+        const covered = coveredLines.has(normalizeSearchLine(printed));
+        if (!printed.trim() || covered) return;
+        // Shown as the classic Failure Summary shows it, which also gives it
+        // the backend's path_end; a line it cut is matched on the cut text.
+        const message = cleanedLine(printed);
+        const classicLine = cleanedLine(
+          printed.slice(0, CLASSIC_MESSAGE_LENGTH),
+        );
+        recordHarnessLine({
+          message,
+          group: openRun?.group || currentGroup,
+          logTime: logTimeOf(line),
+          classicLine: classicLine === message ? undefined : classicLine,
+          logText: printed === message ? undefined : printed,
+          consoleLine: true,
+        });
+        return;
+      }
       default:
     }
   });
@@ -675,9 +764,7 @@ export const buildFailureSuggestions = (summary) => {
         // is rebuilt into the classic "TEST-UNEXPECTED-<status> | test | msg".
         const search = test.harness
           ? message
-          : `TEST-UNEXPECTED-${test.status} | ${test.name}${
-              message ? ` | ${message}` : ''
-            }`;
+          : testFailureLine(test.status, test.name, message);
         const suggestion = {
           search,
           path_end: test.harness ? test.pathEnd : test.name,
@@ -688,7 +775,7 @@ export const buildFailureSuggestions = (summary) => {
           logTarget: {
             texts: [
               ...(test.harness ? [] : [test.name]),
-              ...[lastResult.classicLine ?? message]
+              ...[lastResult.logText ?? lastResult.classicLine ?? message]
                 .filter(Boolean)
                 .map(firstLogLineOf),
             ],
@@ -991,12 +1078,18 @@ export const prepareBugSuggestions = (suggestions) => {
   return filterGenericFailures(list);
 };
 
+// A classic line that is only mozharness's "HH:MM:SS LEVEL -" prefix: the
+// empty line printed for a message's trailing newline, which the summary
+// drops.
+const BARE_PREFIX_LINE_RE = /^\d\d:\d\d:\d\d (?:ERROR|CRITICAL|FATAL) -$/;
+
 /**
  * Compare the testsummary-derived failure lines with the classic
  * `/bug_suggestions/` ones. Both sides go through the same generic-line
  * filter, so noise lines (`finished in Nms`, `[taskcluster:error] exit status
- * N`) never count as a divergence; the normalized `search` strings are then
- * set-diffed. Other worker lines only match once withWorkerLines added them.
+ * N`, a bare mozharness prefix) never count as a divergence; the normalized
+ * `search` strings are then set-diffed. Other worker lines only match once
+ * withWorkerLines added them.
  *
  * @param {ReturnType<typeof buildFailureSuggestions>} failureSuggestions
  * @param {Array<{ search: string, path_end: ?string }>} bugSuggestions
@@ -1012,7 +1105,7 @@ export const computeSummaryDivergence = (
         .map((suggestion) =>
           normalizeSearchLine(suggestion.classicLine ?? suggestion.search),
         )
-        .filter(Boolean),
+        .filter((line) => line && !BARE_PREFIX_LINE_RE.test(line)),
     );
 
   const summaryLines = toLineSet(failureSuggestions);
