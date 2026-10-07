@@ -13,16 +13,21 @@ strong {
   color: #337ab7;
 }
 
-#details-panel a:visited:not(.btn-darker-secondary):not(.text-darker-secondary) {
+#details-panel
+  a:visited:not(.btn-darker-secondary):not(.text-darker-secondary) {
   color: purple;
 }
 
 /* Override link colors for actionbar-nav */
-#details-panel .actionbar-nav a:not(.btn-darker-secondary):not(.text-darker-secondary) {
+#details-panel
+  .actionbar-nav
+  a:not(.btn-darker-secondary):not(.text-darker-secondary) {
   color: #9fa3a5;
 }
 
-#details-panel .actionbar-nav a:visited:not(.btn-darker-secondary):not(.text-darker-secondary) {
+#details-panel
+  .actionbar-nav
+  a:visited:not(.btn-darker-secondary):not(.text-darker-secondary) {
   color: #9fa3a5;
 }
 
@@ -276,6 +281,143 @@ div#details-panel-content .actionbar-nav > li > button:focus {
   min-height: 33px;
 }
 
+@media (max-width: 767.98px) {
+  .mobile-job-details {
+    max-width: 100vw;
+  }
+
+  .mobile-details-resize {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 12px;
+    border: 0;
+    background: transparent;
+    touch-action: none;
+    cursor: ns-resize;
+  }
+
+  .mobile-details-resize::after {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: auto;
+    border-radius: 2px;
+    background: #6f7780;
+  }
+
+  .mobile-job-details .offcanvas-header {
+    min-height: 44px;
+    height: 44px;
+    padding: 12px 12px 0;
+    flex: none;
+    touch-action: none;
+    cursor: ns-resize;
+    user-select: none;
+  }
+
+  .mobile-job-details .offcanvas-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-job-details .offcanvas-body {
+    padding: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .mobile-job-details #details-panel-content {
+    --mobile-summary-width: min(310px, calc(100% - 44px));
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .mobile-job-details #summary-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 101;
+    width: var(--mobile-summary-width);
+    min-width: 0;
+    background: #fff;
+    box-shadow: 2px 0 8px #0003;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0.2s ease;
+  }
+
+  .mobile-job-details
+    #details-panel-content.mobile-summary-open
+    #summary-panel {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .mobile-job-details .mobile-summary-toggle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 102;
+    width: 44px;
+    height: 33px;
+    border: 0;
+    background: #252c33;
+    color: #fff;
+    transition: left 0.2s ease;
+  }
+
+  .mobile-job-details .mobile-summary-toggle.is-open {
+    left: var(--mobile-summary-width);
+  }
+
+  .mobile-job-details #tabs-panel {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-height: 100%;
+  }
+
+  .mobile-job-details .tab-headers-wrapper {
+    padding-left: 44px;
+  }
+
+  .mobile-job-details #details-panel-content ul.tab-headers {
+    min-width: 0;
+  }
+
+  .mobile-job-details .details-panel-close-btn {
+    display: none;
+  }
+
+  .mobile-job-details .tab-header-tabs {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .mobile-job-details .tab-header-tabs > li.selected-tab {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-job-details .tab-overflow-menu {
+    --th-dropdown-item-color: #fff;
+  }
+
+  .mobile-job-details .job-tabs-divider {
+    display: none;
+  }
+}
+
 /*
  * action bar
  */
@@ -516,6 +658,51 @@ div.similar-jobs .similar-job-detail-panel .similar_job_detail table {
 div.similar-jobs .similar-job-list {
   overflow: auto;
   flex: 1 1;
+}
+
+@media (max-width: 767.98px) {
+  .mobile-job-details .similar-jobs {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .mobile-job-details div.similar-jobs .similar-job-list {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .mobile-job-details .similar-job-list form {
+    padding: 8px;
+    background-color: #f2f4f5;
+  }
+
+  .mobile-job-details div.similar-jobs .similar-job-detail-panel {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    margin: 0;
+    border-left: 0;
+    background-color: #fff;
+    transform: translateX(100%);
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0.2s ease;
+  }
+
+  .mobile-job-details div.similar-jobs .similar-job-detail-panel.is-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .mobile-job-details .similar-job-detail-close {
+    display: block;
+    min-width: 44px;
+    min-height: 44px;
+    margin-left: auto;
+  }
 }
 
 /* Override the default display:none on job-btn so similar job buttons are visible */

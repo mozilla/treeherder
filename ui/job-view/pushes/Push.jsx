@@ -667,10 +667,10 @@ function Push({
       />
       <div className="push-body-divider" />
       {!collapsed ? (
-        <Row className="push g-1 flex-nowrap ms-5">
+        <Row className="push g-1 flex-wrap flex-md-nowrap ms-md-5">
           {currentRepo ? (
             <>
-              <Col xs={5}>
+              <Col xs={12} md={5}>
                 <RevisionList
                   revision={revision}
                   revisions={revisions}
@@ -689,7 +689,7 @@ function Push({
                   )}
                 </RevisionList>
               </Col>
-              <Col xs={7} className="job-list job-list-pad">
+              <Col xs={12} md={7} className="job-list job-list-pad">
                 <PushJobs
                   push={push}
                   platforms={platforms}

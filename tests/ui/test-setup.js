@@ -7,6 +7,13 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
+window.matchMedia ??= jest.fn().mockImplementation((media) => ({
+  media,
+  matches: false,
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+}));
+
 // Configure React 18 act environment for testing
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
