@@ -143,6 +143,32 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             "search_term": ["pointerevent_touch-action-table-test_touch-manual.html"],
         },
     ),
+    (
+        (
+            "PROCESS-CRASH "
+            "| 2b81f563-8ae7-3b04-a638-914a564ffb12 "
+            "| application crashed [@ linux-vdso.so.1 + 0x0000000000000c4b] "
+            "| dom/animation/test/mochitest.toml"
+        ),
+        {
+            "path_end": "dom/animation/test/mochitest.toml",
+            "search_term": ["application crashed [@ linux-vdso.so.1 + 0x0000000000000c4b]"],
+        },
+    ),
+    (
+        (
+            "PROCESS-CRASH "
+            "| 1FC759EC-5164-4A18-AB68-35A904906A7E "
+            "| MOZ_CRASH(Crash via about:crashparent) [@ CrashChannel::OpenContentStream] "
+            "| /_mozilla/webdriver/harness/detect_crash.py"
+        ),
+        {
+            "path_end": "/_mozilla/webdriver/harness/detect_crash.py",
+            "search_term": [
+                "MOZ_CRASH(Crash via about:crashparent) [@ CrashChannel::OpenContentStream]"
+            ],
+        },
+    ),
 )
 
 
@@ -312,6 +338,14 @@ CRASH_LINE_TEST_CASES = (
         ),
         "nsInputStreamPump::OnStateStop()",
     ),
+    (
+        (
+            "PROCESS-CRASH | 2b81f563-8ae7-3b04-a638-914a564ffb12 "
+            "| application crashed [@ linux-vdso.so.1 + 0x0000000000000c4b] "
+            "| dom/animation/test/mochitest.toml"
+        ),
+        "linux-vdso.so.1 + 0x0000000000000c4b",
+    ),
 )
 
 
@@ -372,6 +406,20 @@ LINES_TO_CACHE_TEST_CASES = (
     (
         "TEST-UNEXPECT-FAIL | test_complete.html | finished in 617ms.",
         "TEST-UNEXPECT-FAIL | test_complete.html | finished.",
+    ),
+    (
+        (
+            "PROCESS-CRASH | 0771674a-3778-569b-4f6a-6409b46cc033 "
+            "| Shutdown hanging at step XPCOMShutdownFinal. Something is blocking the main-thread. "
+            "[@ mozilla::(anonymous namespace)::RunWatchdog] "
+            "| browser/components/asrouter/tests/browser/browser_asrouter_universal_infobar.js"
+        ),
+        (
+            "PROCESS-CRASH "
+            "| Shutdown hanging at step XPCOMShutdownFinal. Something is blocking the main-thread. "
+            "[@ mozilla::(anonymous namespace)::RunWatchdog] "
+            "| browser/components/asrouter/tests/browser/browser_asrouter_universal_infobar.js"
+        ),
     ),
 )
 

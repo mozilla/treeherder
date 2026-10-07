@@ -26,6 +26,12 @@ PROCESS_ID_RE_1 = re.compile(r"(?:PID \d+|GECKO\(\d+\)) \| +")
 PROCESS_ID_RE_2 = re.compile(r"^\[\d+\] +")
 REFTEST_RE = re.compile(r"\s+[=!]=\s+.*")
 PREFIX_PATTERN = r"^(TEST-UNEXPECTED-\S+|PROCESS-CRASH)\s+\|\s+"
+# mozlog puts the minidump UUID right after the PROCESS-CRASH prefix so the UI can
+# link to the crash viewer. It differs in every run, so it must not take part in
+# bug suggestions or new failure detection.
+CRASH_DUMP_ID_RE = re.compile(
+    r"(PROCESS-CRASH \| )[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12} \| ", re.IGNORECASE
+)
 
 
 class MemDBCache:
@@ -312,7 +318,8 @@ def get_cleaned_line(line):
 
 
 def cache_clean_error_line(line):
-    cache_clean_line = re.sub(r" [0-9]+\.[0-9]+ ", " X ", line)
+    cache_clean_line = CRASH_DUMP_ID_RE.sub(r"\1", line)
+    cache_clean_line = re.sub(r" [0-9]+\.[0-9]+ ", " X ", cache_clean_line)
     cache_clean_line = re.sub(r" leaked [0-9]+ window(s)", " leaked X window(s)", cache_clean_line)
     cache_clean_line = re.sub(r" [0-9]+ bytes leaked", " X bytes leaked", cache_clean_line)
     cache_clean_line = re.sub(r" value=[0-9]+", " value=*", cache_clean_line)
@@ -337,6 +344,7 @@ def get_error_search_term_and_path(error_line):
     # This is strongly inspired by
     # https://hg.mozilla.org/webtools/tbpl/file/tip/php/inc/AnnotatedSummaryGenerator.php#l73
 
+    error_line = CRASH_DUMP_ID_RE.sub(r"\1", error_line)
     tokens = error_line.split(" | ")
     search_term = None
     path_end = None
