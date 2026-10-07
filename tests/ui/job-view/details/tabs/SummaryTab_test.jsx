@@ -152,6 +152,82 @@ describe('SummaryTab log viewer links', () => {
   });
 });
 
+describe('SummaryTab worker lines', () => {
+  // What the worker writes once a task outlives its max run time: after it
+  // killed the harness, so the artifact cannot have it.
+  const abortSuggestion = () => ({
+    search: '[taskcluster:error] Aborting task...',
+    path_end: null,
+    line_number: 17752,
+    bugs: {
+      open_recent: [
+        {
+          id: 2073425,
+          summary: 'High freq Talos [taskcluster:error] Aborting task...',
+          resolution: '',
+        },
+      ],
+      all_others: [],
+    },
+  });
+
+  const passingJsonl = [
+    '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html"}',
+    '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html","status":"PASS"}',
+  ].join('\n');
+
+  afterEach(cleanup);
+
+  test('lists them after the failures, linked to their log line', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([matchingSuggestion(), abortSuggestion()]),
+    );
+
+    // Shown once: in the summary, the classic section being folded.
+    expect(screen.getAllByText(/Aborting task/)).toHaveLength(1);
+    expect(screen.getByText(/High freq Talos/)).toBeInTheDocument();
+    const urls = screen
+      .getAllByTitle('Go to this line in the log viewer')
+      .map(
+        (img) =>
+          new URL(
+            img.closest('a').getAttribute('href'),
+            'https://treeherder.test',
+          ),
+      );
+    expect(urls).toHaveLength(2);
+    expect(urls[1].searchParams.get('lineNumber')).toBe('17753');
+    expect(urls[1].searchParams.get('lineText')).toBeNull();
+
+    expandClassic();
+    expect(screen.queryByText(/differs from the summary above/)).toBeNull();
+  });
+
+  test('lists them when every test passed', () => {
+    renderSummaryTab(prepareBugSuggestions([abortSuggestion()]), passingJsonl);
+
+    expect(screen.queryByText('No failures found in the summary.')).toBeNull();
+    expect(screen.getAllByText(/Aborting task/)).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('adds nothing for a job with no summary artifact', () => {
+    renderWith({
+      summary: null,
+      summaryError: null,
+      bugSuggestions: prepareBugSuggestions([abortSuggestion()]),
+    });
+
+    expect(
+      screen.getByText('No summary artifact for this job.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
+    expect(screen.getAllByText(/Aborting task/)).toHaveLength(1);
+  });
+});
+
 describe('SummaryTab loading and error states', () => {
   afterEach(cleanup);
 
