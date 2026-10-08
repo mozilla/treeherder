@@ -10,7 +10,7 @@ from collections.abc import Iterable, Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any
+from typing import Any, NoReturn
 from urllib.parse import urlencode
 
 import django_filters
@@ -46,7 +46,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf import stats
-from treeherder.perf.alerts import get_alert_properties
+from treeherder.perf.alerts import AlertProperties, get_alert_properties
 from treeherder.perf.models import (
     IssueTracker,
     OptionCollection,

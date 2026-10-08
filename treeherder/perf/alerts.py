@@ -42,6 +42,10 @@ DETECTION_INDEX_TOLERANCE = 1
 # Toggles whether raw repeated measurements are passed to the detectors instead of aggregated values.
 REPLICATES = False
 
+AlertProperties = namedtuple(
+    "AlertProperties", "pct_change delta is_regression prev_value new_value"
+)
+
 
 def send_alert_emails(emails, alert, alert_summary):
     notify_client = taskcluster.notify_client_factory()
@@ -60,9 +64,6 @@ def geomean(iterable):
 
 
 def get_alert_properties(prev_value, new_value, lower_is_better):
-    AlertProperties = namedtuple(
-        "AlertProperties", "pct_change delta is_regression prev_value new_value"
-    )
     if prev_value != 0:
         pct_change = 100.0 * abs(new_value - prev_value) / float(prev_value)
     else:
