@@ -756,7 +756,7 @@ export const buildTestSummary = (content) => {
  * reuses BugFiler/InternalIssueFiler but has no Bugzilla suggestion data).
  *
  * @param {ReturnType<typeof buildTestSummary>|null} summary
- * @returns {Array<{ search: string, path_end: ?string, search_terms: string[], logTarget: { texts: string[], time: ?number }, classicLine?: string, bugs: { open_recent: [], all_others: [] } }>}
+ * @returns {Array<{ search: string, path_end: ?string, search_terms: string[], logTarget: { texts: string[], time: ?number, after?: string[] }, classicLine?: string, bugs: { open_recent: [], all_others: [] } }>}
  */
 export const buildFailureSuggestions = (summary) => {
   if (!summary) return [];
@@ -773,6 +773,12 @@ export const buildFailureSuggestions = (summary) => {
         ? lastResult.messages
         : [lastResult.message].filter(Boolean);
       if (!messages.length) messages.push(null);
+      const logTextsOf = (message) => [
+        ...(test.harness ? [] : [test.name]),
+        ...[lastResult.logText ?? lastResult.classicLine ?? message]
+          .filter(Boolean)
+          .map(firstLogLineOf),
+      ];
       messages.forEach((message, index) => {
         // A harness line already is a complete failure line; a test result
         // is rebuilt into the classic "TEST-UNEXPECTED-<status> | test | msg".
@@ -787,13 +793,14 @@ export const buildFailureSuggestions = (summary) => {
           // in the task log: the text it printed, the test path first (on its
           // own it still finds the test), and when.
           logTarget: {
-            texts: [
-              ...(test.harness ? [] : [test.name]),
-              ...[lastResult.logText ?? lastResult.classicLine ?? message]
-                .filter(Boolean)
-                .map(firstLogLineOf),
-            ],
+            texts: logTextsOf(message),
             time: lastResult.logTimes?.[index] ?? lastResult.logTime ?? null,
+            // The later lines of a harness entry (its stack) were printed
+            // right under its first one, and are looked for from there: a
+            // generic frame such as `@-e:1:1` is found elsewhere in the log.
+            ...(test.harness && index > 0
+              ? { after: logTextsOf(messages[0]) }
+              : {}),
           },
           // Bug suggestions match on test path, so every line of a test would
           // otherwise get the same bugs. Only the first line carries them.
