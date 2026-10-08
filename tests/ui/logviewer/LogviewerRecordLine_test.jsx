@@ -31,15 +31,18 @@ describe('Logviewer record line resolution', () => {
     '[task 2026-09-07T09:17:09.000+00:00] 09:17:09  WARNING - TEST-UNEXPECTED-FAIL | a.html | boom',
   ].join('\n');
 
-  const openLogviewer = (testPath) => {
+  const openLogviewer = (
+    testPath,
+    { texts = [testPath, 'TEST-START'], after = [] } = {},
+  ) => {
     const params = new URLSearchParams({
       job_id: jobId,
       repo: repoName,
       task: `${taskId}.0`,
       lineTime: Date.parse('2026-09-07T09:17:07.900Z'),
     });
-    params.append('lineText', testPath);
-    params.append('lineText', 'TEST-START');
+    texts.forEach((text) => params.append('lineText', text));
+    after.forEach((text) => params.append('afterText', text));
     window.history.replaceState(null, '', `/logviewer?${params}`);
     render(
       <MemoryRouter>
@@ -88,6 +91,22 @@ describe('Logviewer record line resolution', () => {
     expect(params.get('lineTime')).toBeNull();
     expect(params.get('job_id')).toBe(jobId);
     expect(params.get('task')).toBe(`${taskId}.0`);
+  });
+
+  test('looks for a line printed under another one from that line on', async () => {
+    // On its own, the test path is found on the TEST-START line first.
+    openLogviewer('a.html', {
+      texts: ['a.html'],
+      after: ['TEST-START | a.html'],
+    });
+
+    await waitFor(() => {
+      const params = new URLSearchParams(window.location.search);
+      expect(params.get('lineNumber')).toBe('7');
+    });
+    expect(
+      new URLSearchParams(window.location.search).getAll('afterText'),
+    ).toEqual([]);
   });
 
   test('falls back to the first error line when the text is not in the log', async () => {

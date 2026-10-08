@@ -938,9 +938,16 @@ describe('the stack of a harness failure (log records)', () => {
       true,
       ...frames.map(() => false),
     ]);
+    expect(suggestions[0].logTarget).toEqual({
+      texts: [message],
+      time: 1791156063780,
+    });
+    // A generic frame is found elsewhere in the log: each one is looked
+    // for under the message.
     expect(suggestions[2].logTarget).toEqual({
       texts: [frames[1]],
       time: 1791156063780,
+      after: [message],
     });
   });
 
