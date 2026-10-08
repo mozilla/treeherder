@@ -46,15 +46,20 @@ export const writeLineNumberParam = (highlight) => {
 
 /**
  * Read the record URL params written by getLogViewerRecordUrl:
- * `{ texts, time }`, or null when absent. `time` is null when not given.
+ * `{ texts, time, after? }`, or null when absent. `time` is null when not
+ * given.
  */
 export const getUrlLogTarget = () => {
-  const texts = getAllUrlParams()
-    .getAll('lineText')
-    .filter((text) => text);
+  const params = getAllUrlParams();
+  const texts = params.getAll('lineText').filter((text) => text);
   if (!texts.length) return null;
   const time = parseInt(getUrlParam('lineTime'), 10);
-  return { texts, time: Number.isFinite(time) ? time : null };
+  const after = params.getAll('afterText').filter((text) => text);
+  return {
+    texts,
+    time: Number.isFinite(time) ? time : null,
+    ...(after.length ? { after } : {}),
+  };
 };
 
 /**
@@ -65,6 +70,7 @@ export const writeResolvedLogTarget = (lineNumber) => {
   const params = getAllUrlParams();
   params.delete('lineText');
   params.delete('lineTime');
+  params.delete('afterText');
   if (lineNumber) {
     params.set('lineNumber', lineNumber);
   }
@@ -97,9 +103,20 @@ const CLOCK_TOLERANCE_MS = 20;
  * (xpcshell replays a failing test's statuses when the test ends). The first
  * match run-task stamped from that time on wins, else the last one before it.
  * Without a time or stamps, the first match is returned.
+ *
+ * A line printed under another one of the same record (a frame of its stack)
+ * may be generic enough to appear anywhere in the log, so it is looked for
+ * from that line on, found with `after` and `time`, when given.
  */
-export const resolveLogLine = (lines, texts, time) => {
+export const resolveLogLine = (lines, texts, time, after = null) => {
   if (!lines || !texts || !texts.length) return null;
+  const anchor = after?.length ? resolveLogLine(lines, after, time) : null;
+  if (anchor) {
+    const index = lines.findIndex(
+      (line, at) => at >= anchor && texts.every((text) => line.includes(text)),
+    );
+    if (index !== -1) return index + 1;
+  }
   const matching = (needles) => {
     const found = [];
     lines.forEach((line, index) => {
