@@ -904,7 +904,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
     def calculate_alert_properties(
         self, alert_summary: PerformanceAlertSummary, series_signature: PerformanceSignature
-    ) -> Any:
+    ) -> AlertProperties:
         prev_range = series_signature.max_back_window
         if not prev_range:
             prev_range = settings.PERFHERDER_ALERTS_MAX_BACK_WINDOW
@@ -933,7 +933,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def nudge(
         self, alert: PerformanceAlert, new_push_id: int | None, new_prev_push_id: int | None
-    ) -> Response:
+    ) -> NoReturn:
         # Bug 1532230 disabled nudging because it broke links
         # Bug 1532283 will re enable a better version of it
         raise exceptions.APIException("Nudging has been disabled", 400)
@@ -1170,7 +1170,7 @@ class PerformanceSummary(generics.ListAPIView):
         but the subtests do not have the `should_alert` set to True, then those subtests will not trigger an alert.
         A null value for these subtests indicates that the `should_alert` parameter is set to False.
         """
-        for signature in list(signatures):
+        for signature in signatures:
             if (
                 signature["should_alert"] is None
                 and signature["parent_signature_id"] is not None
