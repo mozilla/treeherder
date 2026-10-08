@@ -15,9 +15,22 @@ import { processErrors, getData } from '../../helpers/http';
 import { updateUrlSearch } from '../../helpers/router';
 
 import { notify } from './notificationStore';
-import { clearJobViaUrl, setSelectedJob } from './selectedJobStore';
+import {
+  clearJobViaUrl,
+  setSelectedJob,
+  useSelectedJobStore,
+} from './selectedJobStore';
+import { usePinnedJobsStore } from './pinnedJobsStore';
 
 const DEFAULT_PUSH_COUNT = 10;
+// Rolling cap on pushes retained while polling. autoland gets a larger window
+// (sheriffs watch it closely); other repos are capped tighter. This is only a
+// floor: explicit "get more pushes" loads raise retainedPushLimit above it, so
+// polling growth is bounded while the user can still browse deeper history.
+const AUTOLAND_PUSH_CAP = 200;
+const DEFAULT_PUSH_CAP = 100;
+export const getRepoPushCap = () =>
+  getUrlParam('repo') === 'autoland' ? AUTOLAND_PUSH_CAP : DEFAULT_PUSH_CAP;
 const PUSH_POLLING_KEYS = ['tochange', 'enddate', 'revision', 'author'];
 const PUSH_FETCH_KEYS = [...PUSH_POLLING_KEYS, 'fromchange', 'startdate'];
 
@@ -99,6 +112,64 @@ const doRecalculateUnclassifiedCounts = (jobMap) => {
   };
 };
 
+// Pushes that must never be evicted: the selected push and any push with a
+// pinned job. Read from the other stores at call time (no circular import).
+const getProtectedPushIds = () => {
+  const ids = new Set();
+  const { selectedJob } = useSelectedJobStore.getState();
+  if (selectedJob) {
+    ids.add(selectedJob.push_id);
+  }
+  const { pinnedJobs } = usePinnedJobsStore.getState();
+  Object.values(pinnedJobs).forEach((job) => ids.add(job.push_id));
+  return ids;
+};
+
+// Bound retained pushes so a long-open, polling tab does not grow unbounded.
+// Keeps the newest `retainedPushLimit` pushes plus any protected push, and
+// prunes the evicted pushes' jobs from jobMap/decisionTaskMap. Returns a
+// partial state object (empty when nothing needs evicting).
+export const enforcePushLimit = (state) => {
+  const { pushList, jobMap, decisionTaskMap, retainedPushLimit } = state;
+  // A falsy limit (unset before the first fetchPushes) means "no eviction yet".
+  if (!retainedPushLimit || pushList.length <= retainedPushLimit) {
+    return {};
+  }
+
+  const protectedIds = getProtectedPushIds();
+  // pushList is sorted newest-first; keep the newest retainedPushLimit, plus
+  // any protected push that would otherwise be evicted.
+  const kept = pushList.slice(0, retainedPushLimit);
+  const protectedOverflow = pushList
+    .slice(retainedPushLimit)
+    .filter((push) => protectedIds.has(push.id));
+  const newPushList = [...kept, ...protectedOverflow];
+  const keptPushIds = new Set(newPushList.map((push) => push.id));
+
+  const newJobMap = {};
+  for (const [id, job] of Object.entries(jobMap)) {
+    if (keptPushIds.has(job.push_id)) {
+      newJobMap[id] = job;
+    }
+  }
+
+  const newDecisionTaskMap = {};
+  for (const [pushId, entry] of Object.entries(decisionTaskMap)) {
+    if (keptPushIds.has(Number(pushId))) {
+      newDecisionTaskMap[pushId] = entry;
+    }
+  }
+
+  return {
+    pushList: newPushList,
+    jobMap: newJobMap,
+    decisionTaskMap: newDecisionTaskMap,
+    oldestPushTimestamp: newPushList[newPushList.length - 1].push_timestamp,
+    ...getRevisionTips(newPushList),
+    ...doRecalculateUnclassifiedCounts(newJobMap),
+  };
+};
+
 const addPushes = (data, pushList, jobMap, setFromchange, oldBugSummaryMap) => {
   if (data.results.length > 0) {
     const pushIds = pushList.map((push) => push.id);
@@ -175,6 +246,9 @@ export const initialState = {
   oldestPushTimestamp: null,
   allUnclassifiedFailureCount: 0,
   filteredUnclassifiedFailureCount: 0,
+  // Effective eviction limit; raised to at least getRepoPushCap() (and to any
+  // larger explicit "load more" count) on the first fetchPushes.
+  retainedPushLimit: 0,
 };
 
 export const usePushesStore = create(
@@ -219,7 +293,19 @@ export const usePushesStore = create(
             setFromchange,
             bugSummaryMap,
           );
-          set({ loadingPushes: false, ...pushResults });
+          // The eviction limit is at least the repo cap, and rises with explicit
+          // push loads (initial load and the "get more pushes" button) so those
+          // are never fought.
+          const nextPushList = pushResults.pushList || pushList;
+          set({
+            loadingPushes: false,
+            ...pushResults,
+            retainedPushLimit: Math.max(
+              get().retainedPushLimit,
+              getRepoPushCap(),
+              nextPushList.length,
+            ),
+          });
         } else {
           notify('Error retrieving push data!', 'danger', { sticky: true });
           set({ loadingPushes: false });
@@ -258,6 +344,8 @@ export const usePushesStore = create(
               bugSummaryMap,
             );
             set({ loadingPushes: false, ...pushResults });
+            // Bound poll-driven push growth before fetching jobs for them.
+            set((state) => enforcePushLimit(state));
             fetchNewJobs();
           } else {
             notify('Error fetching new push data', 'danger', { sticky: true });
