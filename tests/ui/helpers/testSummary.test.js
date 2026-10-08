@@ -889,6 +889,107 @@ describe('harness failures (ERROR/CRITICAL log lines)', () => {
   });
 });
 
+describe('the stack of a harness failure (log records)', () => {
+  // The record of try task W5irUugIQUCRa8vxFV1OXg (linux tsan xpcshell): an
+  // unexpected exception xpcshell's head.js reports with its stack.
+  const group = 'toolkit/components/downloads/test/unit/xpcshell.toml';
+  const message =
+    'Unexpected exception NS_ERROR_FAILURE: Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIGIOService.createHandlerAppFromAppId]';
+  const frames = [
+    'promiseStartLegacyDownload@/builds/worker/workspace/build/tests/xpcshell/tests/toolkit/components/downloads/test/unit/head.js:282:8',
+    'test_launch_id@file:///builds/worker/workspace/build/tests/xpcshell/tests/toolkit/components/downloads/test/unit/common_test_Download.js:2629:26',
+    'async*_run_next_test/<@/builds/worker/workspace/build/tests/xpcshell/head.js:1875:22',
+    '_run_next_test@/builds/worker/workspace/build/tests/xpcshell/head.js:1875:38',
+    'run@/builds/worker/workspace/build/tests/xpcshell/head.js:897:9',
+    '_do_main@/builds/worker/workspace/build/tests/xpcshell/head.js:287:6',
+    '_execute_test@/builds/worker/workspace/build/tests/xpcshell/head.js:675:5',
+    '@-e:1:1',
+  ];
+  const logRecord = (stack) => ({
+    action: 'log',
+    time: 1791156063780,
+    level: 'ERROR',
+    message,
+    exc_info: false,
+    test: 'toolkit/components/downloads/test/unit/test_DownloadLegacy.js',
+    stack,
+  });
+  const summaryLines = [
+    { action: 'group_start', time: 1791156058700, name: group },
+    logRecord(`${frames.join('\n')}\n`),
+  ];
+
+  const harnessEntries = (summary) =>
+    summary.groups.find(g => g.name === group).tests.filter(t => t.harness);
+
+  test('files each line of the stack after the message', () => {
+    const summary = buildTestSummary(summaryLines);
+    const entries = harnessEntries(summary);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].name).toBe(message);
+    expect(entries[0].results[0].message).toBe(message);
+    expect(entries[0].results[0].messages).toEqual([message, ...frames]);
+    expect(summary.realFailCounts).toEqual({ ERROR: 1 });
+
+    const suggestions = buildFailureSuggestions(summary);
+    expect(suggestions.map(s => s.search)).toEqual([message, ...frames]);
+    expect(suggestions.map(s => s.primary)).toEqual([
+      true,
+      ...frames.map(() => false),
+    ]);
+    expect(suggestions[2].logTarget).toEqual({
+      texts: [frames[1]],
+      time: 1791156063780,
+    });
+  });
+
+  test('keeps only the message when the stack is not a string', () => {
+    const summary = buildTestSummary([
+      summaryLines[0],
+      logRecord([{ function: 'run_test' }]),
+    ]);
+
+    expect(harnessEntries(summary)[0].results[0].messages).toEqual([message]);
+  });
+
+  test('drops the console lines repeating the stack', () => {
+    const errorLine = (line) => ({
+      action: 'error_line',
+      time: 1791156065628,
+      level: 'ERROR',
+      message: line,
+    });
+    const summary = buildTestSummary([
+      ...summaryLines,
+      ...[message, ...frames, ''].map(errorLine),
+    ]);
+
+    expect(harnessEntries(summary)).toHaveLength(1);
+  });
+
+  test('matches the classic summary of the same job', () => {
+    // The job's /bug_suggestions/ for these lines.
+    const classic = [message, ...frames, '23:21:05    ERROR -'].map(
+      search => ({
+        search,
+        path_end: null,
+        bugs: { open_recent: [], all_others: [] },
+      }),
+    );
+    const divergence = (stack) =>
+      computeSummaryDivergence(
+        buildFailureSuggestions(
+          buildTestSummary([summaryLines[0], logRecord(stack)]),
+        ),
+        classic,
+      );
+
+    expect(divergence(`${frames.join('\n')}\n`).diverged).toBe(false);
+    expect(divergence(undefined).onlyInClassic).toEqual(frames);
+  });
+});
+
 describe('UBSan reports (ubsan_error records)', () => {
   const group = 'toolkit/components/ml/tests/browser_models/browser_models.toml';
   const testPath = 'toolkit/components/ml/tests/browser_models/browser_ml_smollm2_chat.js';
