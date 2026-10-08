@@ -966,6 +966,7 @@ class PerformanceSummary(generics.ListAPIView):
         all_data = query_params.validated_data["all_data"]
         no_retriggers = query_params.validated_data["no_retriggers"]
         replicates = query_params.validated_data["replicates"]
+        include_missing_data = query_params.validated_data["include_missing_data"]
 
         signature_data = PerformanceSignature.objects.select_related(
             "framework", "repository", "platform", "push", "job"
@@ -1004,8 +1005,10 @@ class PerformanceSummary(generics.ListAPIView):
             "suite",
             "signature_hash",
             "platform__platform",
+            "platform_id",
             "test",
             "option_collection_id",
+            "option_collection__option_collection_hash",
             "parent_signature_id",
             "repository_id",
             "tags",
@@ -1046,71 +1049,225 @@ class PerformanceSummary(generics.ListAPIView):
             item["id"]: item["option__name"] for item in list(option_collection)
         }
 
+        # --- Batch pre-fetch for the missing-data overlay (avoids N+1 DB queries) ---
+        # Step 1: fetch all datum columns needed by both the existing_by_sig grouping
+        # and the main data loop in a single DB round-trip, then reuse the result for
+        # both purposes to avoid evaluating the datum queryset twice.
+        existing_by_sig = defaultdict(list)
+        prefetched_datum_rows = None  # list of dicts; set only when include_missing_data
+
+        if include_missing_data:
+            _datum_columns = [
+                "signature_id",
+                "push_id",
+                "job__job_type_id",
+                "push_timestamp",
+                "value",
+                "job_id",
+                "id",
+                "push__revision",
+                "job__submit_time",
+                "job__machine__name",
+            ]
+            if replicates:
+                _datum_columns.append("performancedatumreplicate__value")
+
+            prefetched_datum_rows = list(
+                data.values(*_datum_columns).order_by("push_timestamp", "push_id", "job_id")
+            )
+            for row in prefetched_datum_rows:
+                existing_by_sig[row["signature_id"]].append(
+                    (row["push_id"], row["job__job_type_id"], row["push_timestamp"])
+                )
+
+        # Step 2: for each signature, derive the metadata needed to filter pushes and jobs:
+        # which push_ids already have data, which job types produced data, and the time range.
+        # Stored in sig_meta keyed by signature id so _compute_missing_data_from_cache can
+        # look up the right filters without touching the database.
+        sig_meta = {}
+        if include_missing_data and existing_by_sig:
+            for item in self.queryset:
+                sig_id = item["id"]
+                rows = existing_by_sig.get(sig_id, [])
+                if not rows:
+                    continue
+                push_ids = {push_id for (push_id, job_type_id, push_timestamp) in rows}
+                job_type_ids = {
+                    job_type_id
+                    for (push_id, job_type_id, push_timestamp) in rows
+                    if job_type_id is not None
+                }
+                timestamps = [
+                    push_timestamp
+                    for (push_id, job_type_id, push_timestamp) in rows
+                    if push_timestamp is not None
+                ]
+                if not job_type_ids or not timestamps:
+                    continue
+                sig_meta[sig_id] = {
+                    "existing_push_ids": push_ids,
+                    "expected_job_type_ids": job_type_ids,
+                    "min_ts": min(timestamps),
+                    "max_ts": max(timestamps),
+                    "platform_id": item["platform_id"],
+                    "option_hash": item["option_collection__option_collection_hash"],
+                    "repository_id": item["repository_id"],
+                }
+
+        # Step 3: one Push query covering the combined time range of all signatures.
+        # Using the global min/max avoids one query per signature.
+        # All signatures in a request share the same repository (filtered at query time).
+        # A push is excluded only when ALL signatures already have a datum for it —
+        # using intersection rather than union so a push that is missing from signature B
+        # is still a candidate even if signature A already has data for it.
+        all_candidate_pushes = {}
+        if sig_meta:
+            _push_id_sets = [info["existing_push_ids"] for info in sig_meta.values()]
+            all_existing_push_ids = set.intersection(*_push_id_sets)
+            global_min_ts = min(sig_info["min_ts"] for sig_info in sig_meta.values())
+            global_max_ts = max(sig_info["max_ts"] for sig_info in sig_meta.values())
+            repo_id = next(iter(sig_meta.values()))["repository_id"]
+            all_candidate_pushes = {
+                push["id"]: push
+                for push in models.Push.objects.filter(
+                    repository_id=repo_id,
+                    time__gte=global_min_ts,
+                    time__lte=global_max_ts,
+                )
+                .exclude(id__in=all_existing_push_ids)
+                .values("id", "revision", "time")
+            }
+
+        # Step 4: one Job query for all candidate pushes at once.
+        # DB-level filters for job type, platform, and option hash restrict the result
+        # to only the job kinds that can produce performance data for the requested
+        # signatures, avoiding a full-push job scan on busy repos.
+        # _compute_missing_data_from_cache applies per-signature Python filters to
+        # disambiguate between signatures that share a push.
+        all_jobs_by_push = defaultdict(list)
+        if all_candidate_pushes:
+            all_expected_job_type_ids = set().union(
+                *(meta["expected_job_type_ids"] for meta in sig_meta.values())
+            )
+            all_platform_ids = {meta["platform_id"] for meta in sig_meta.values()}
+            all_option_hashes = {meta["option_hash"] for meta in sig_meta.values()}
+            for job in models.Job.objects.filter(
+                push_id__in=all_candidate_pushes.keys(),
+                state__in=("pending", "running", "completed"),
+                job_type_id__in=all_expected_job_type_ids,
+                machine_platform_id__in=all_platform_ids,
+                option_collection_hash__in=all_option_hashes,
+            ).values(
+                "id",
+                "push_id",
+                "result",
+                "state",
+                "job_type_id",
+                "machine_platform_id",
+                "option_collection_hash",
+            ):
+                all_jobs_by_push[job["push_id"]].append(job)
+        # --- end of missing-data pre-fetch ---
+
         if signature and all_data:
             for item in self.queryset:
                 if replicates:
                     item["data"] = list()
-                    for (
-                        value,
-                        job_id,
-                        datum_id,
-                        push_id,
-                        push_timestamp,
-                        push_revision,
-                        replicate_value,
-                        submit_time,
-                        machine_name,
-                    ) in data.values_list(
-                        "value",
-                        "job_id",
-                        "id",
-                        "push_id",
-                        "push_timestamp",
-                        "push__revision",
-                        "performancedatumreplicate__value",
-                        "job__submit_time",
-                        "job__machine__name",
-                    ).order_by("push_timestamp", "push_id", "job_id"):
-                        if replicate_value is not None:
-                            item["data"].append(
-                                {
-                                    "value": replicate_value,
-                                    "job_id": job_id,
-                                    "id": datum_id,
-                                    "push_id": push_id,
-                                    "push_timestamp": push_timestamp,
-                                    "push__revision": push_revision,
-                                    "job__submit_time": submit_time,
-                                    "job__machine__name": machine_name,
-                                }
-                            )
-                        elif value is not None:
-                            item["data"].append(
-                                {
-                                    "value": value,
-                                    "job_id": job_id,
-                                    "id": datum_id,
-                                    "push_id": push_id,
-                                    "push_timestamp": push_timestamp,
-                                    "push__revision": push_revision,
-                                    "job__submit_time": submit_time,
-                                    "job__machine__name": machine_name,
-                                }
-                            )
+                    if prefetched_datum_rows is not None:
+                        for row in prefetched_datum_rows:
+                            if row["signature_id"] != item["id"]:
+                                continue
+                            replicate_value = row["performancedatumreplicate__value"]
+                            value = row["value"]
+                            if replicate_value is not None or value is not None:
+                                item["data"].append(
+                                    {
+                                        "value": replicate_value
+                                        if replicate_value is not None
+                                        else value,
+                                        "job_id": row["job_id"],
+                                        "id": row["id"],
+                                        "push_id": row["push_id"],
+                                        "push_timestamp": row["push_timestamp"],
+                                        "push__revision": row["push__revision"],
+                                        "job__submit_time": row["job__submit_time"],
+                                        "job__machine__name": row["job__machine__name"],
+                                    }
+                                )
+                    else:
+                        for (
+                            value,
+                            job_id,
+                            datum_id,
+                            push_id,
+                            push_timestamp,
+                            push_revision,
+                            replicate_value,
+                            submit_time,
+                            machine_name,
+                        ) in data.values_list(
+                            "value",
+                            "job_id",
+                            "id",
+                            "push_id",
+                            "push_timestamp",
+                            "push__revision",
+                            "performancedatumreplicate__value",
+                            "job__submit_time",
+                            "job__machine__name",
+                        ).order_by("push_timestamp", "push_id", "job_id"):
+                            if replicate_value is not None:
+                                item["data"].append(
+                                    {
+                                        "value": replicate_value,
+                                        "job_id": job_id,
+                                        "id": datum_id,
+                                        "push_id": push_id,
+                                        "push_timestamp": push_timestamp,
+                                        "push__revision": push_revision,
+                                        "job__submit_time": submit_time,
+                                        "job__machine__name": machine_name,
+                                    }
+                                )
+                            elif value is not None:
+                                item["data"].append(
+                                    {
+                                        "value": value,
+                                        "job_id": job_id,
+                                        "id": datum_id,
+                                        "push_id": push_id,
+                                        "push_timestamp": push_timestamp,
+                                        "push__revision": push_revision,
+                                        "job__submit_time": submit_time,
+                                        "job__machine__name": machine_name,
+                                    }
+                                )
                 else:
-                    item["data"] = data.values(
-                        "value",
-                        "job_id",
-                        "id",
-                        "push_id",
-                        "push_timestamp",
-                        "push__revision",
-                        "job__submit_time",
-                        "job__machine__name",
-                    ).order_by("push_timestamp", "push_id", "job_id")
+                    if prefetched_datum_rows is not None:
+                        item["data"] = [
+                            row
+                            for row in prefetched_datum_rows
+                            if row["signature_id"] == item["id"]
+                        ]
+                    else:
+                        item["data"] = data.values(
+                            "value",
+                            "job_id",
+                            "id",
+                            "push_id",
+                            "push_timestamp",
+                            "push__revision",
+                            "job__submit_time",
+                            "job__machine__name",
+                        ).order_by("push_timestamp", "push_id", "job_id")
 
                 item["option_name"] = option_collection_map[item["option_collection_id"]]
                 item["repository_name"] = repository_name
+
+                if include_missing_data:
+                    item["missing_data"] = self._compute_missing_data_from_cache(
+                        item, sig_meta, all_candidate_pushes, all_jobs_by_push
+                    )
 
         else:
             grouped_values = defaultdict(list)
@@ -1163,16 +1320,118 @@ class PerformanceSummary(generics.ListAPIView):
         but the subtests do not have the `should_alert` set to True, then those subtests will not trigger an alert.
         A null value for these subtests indicates that the `should_alert` parameter is set to False.
         """
+        candidate_parent_ids = {
+            signature["parent_signature_id"]
+            for signature in self.queryset
+            if signature["should_alert"] is None
+            and signature["parent_signature_id"] is not None
+            and signature["parent_signature__should_alert"] is not False
+        }
+
+        parents_with_data = set(
+            PerformanceDatum.objects.filter(
+                signature_id__in=candidate_parent_ids, value__isnull=False
+            )
+            .values_list("signature_id", flat=True)
+            .distinct()
+        )
+
         for signature in list(self.queryset):
             if (
                 signature["should_alert"] is None
                 and signature["parent_signature_id"] is not None
                 and signature["parent_signature__should_alert"] is not False
-                and PerformanceDatum.objects.filter(
-                    signature_id=signature["parent_signature_id"], value__isnull=False
-                ).exists()
+                and signature["parent_signature_id"] in parents_with_data
             ):
                 signature["should_alert"] = False
+
+    # Job results for the missing-jobs overlay: ran but produced no PerformanceDatum.
+    _MISSING_FAILED_RESULTS = frozenset({"testfailed", "busted", "exception"})
+    # Results with no definitive outcome — skip rather than flag a false positive.
+    _MISSING_INCONCLUSIVE_RESULTS = frozenset({"retry", "superseded", "usercancel"})
+
+    @staticmethod
+    def _compute_missing_data_from_cache(item, sig_meta, all_candidate_pushes, all_jobs_by_push):
+        """
+        Return a list of pushes within the data's time range that produced no
+        PerformanceDatum for this signature, classified as 'failed' or 'not_run'.
+        One entry per push (deduped).
+
+        Uses pre-fetched dicts built before the loop so no DB queries are made here.
+        Per-signature filters (job type, platform, option hash) are applied in Python.
+        """
+        # Look up the pre-computed metadata for this specific signature.
+        # If absent, the signature had no existing data so there's nothing to compare against.
+        meta = sig_meta.get(item["id"])
+        if not meta:
+            return []
+
+        # Narrow the globally fetched pushes down to the time range of this signature
+        # and exclude pushes that already have a datum.
+        candidate_pushes = [
+            push
+            for push in all_candidate_pushes.values()
+            if meta["min_ts"] <= push["time"] <= meta["max_ts"]
+            and push["id"] not in meta["existing_push_ids"]
+        ]
+        if not candidate_pushes:
+            return []
+
+        # Apply per-signature filters (job type, platform, option hash) in Python
+        # since the DB query intentionally fetched all jobs for all signatures at once.
+        completed_by_push = defaultdict(list)
+        in_progress_push_ids = set()
+        for push in candidate_pushes:
+            for job in all_jobs_by_push.get(push["id"], []):
+                if (
+                    job["job_type_id"] not in meta["expected_job_type_ids"]
+                    or job["machine_platform_id"] != meta["platform_id"]
+                    or job["option_collection_hash"] != meta["option_hash"]
+                ):
+                    continue
+                if job["state"] == "completed":
+                    completed_by_push[push["id"]].append(job)
+                else:
+                    in_progress_push_ids.add(push["id"])
+
+        failed = PerformanceSummary._MISSING_FAILED_RESULTS
+        inconclusive = PerformanceSummary._MISSING_INCONCLUSIVE_RESULTS
+        missing = []
+        for push in candidate_pushes:
+            jobs = completed_by_push.get(push["id"], [])
+            if not jobs:
+                # No completed jobs: either still running or never scheduled.
+                status = "in_progress" if push["id"] in in_progress_push_ids else "not_run"
+                job_id = None
+            elif all(job["result"] in inconclusive for job in jobs):
+                # All completed jobs are inconclusive (retried, superseded, cancelled).
+                # If a retry is still running, surface it as in_progress; otherwise skip
+                # to avoid a false-positive missing entry.
+                if push["id"] in in_progress_push_ids:
+                    status = "in_progress"
+                    job_id = None
+                else:
+                    continue
+            elif any(job["result"] in failed for job in jobs):
+                status = "failed"
+                job_id = min(job["id"] for job in jobs if job["result"] in failed)
+            else:
+                # Jobs completed with success but produced no datum — data-collection gap.
+                status = "not_run"
+                job_id = None
+
+            missing.append(
+                {
+                    "push_id": push["id"],
+                    "push_timestamp": push["time"],
+                    "revision": push["revision"],
+                    "job_id": job_id,
+                    "status": status,
+                }
+            )
+
+        missing.sort(key=lambda entry: entry["push_timestamp"])
+        return missing
 
     @staticmethod
     def _filter_out_retriggers(serialized_data):

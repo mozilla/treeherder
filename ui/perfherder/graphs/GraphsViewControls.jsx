@@ -74,6 +74,7 @@ export default class GraphsViewControls extends React.Component {
       highlightAlerts,
       highlightChangelogData,
       highlightInitialDataPoints,
+      highlightMissingJobs,
       highlightedRevisions,
       highlightCommonAlerts,
       updateTimeRange,
@@ -176,6 +177,7 @@ export default class GraphsViewControls extends React.Component {
                     highlightChangelogData={highlightChangelogData}
                     highlightCommonAlerts={highlightCommonAlerts}
                     highlightInitialDataPoints={highlightInitialDataPoints}
+                    highlightMissingJobs={highlightMissingJobs}
                     updateStateParams={updateStateParams}
                   />
 
@@ -208,6 +210,7 @@ GraphsViewControls.propTypes = {
   highlightAlerts: PropTypes.bool.isRequired,
   highlightChangelogData: PropTypes.bool.isRequired,
   highlightInitialDataPoints: PropTypes.bool.isRequired,
+  highlightMissingJobs: PropTypes.bool.isRequired,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),

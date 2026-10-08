@@ -21,6 +21,7 @@ import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';
+import MissingJobTooltip from './MissingJobTooltip';
 
 const DOT_SIZE = 5;
 const CHART_WIDTH = 1350;
@@ -39,6 +40,7 @@ class GraphsContainer extends React.Component {
     const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
+    this.hasVisibleData = scatterPlotData.length > 0;
     const scatterPlotMap = scatterPlotData.reduce((acc, datum) => {
       if (datum?.dataPointId != null) acc[datum.dataPointId] = datum;
       return acc;
@@ -58,6 +60,8 @@ class GraphsContainer extends React.Component {
       width: window.innerWidth,
       hoverId: null,
       lockedId: null,
+      hoverMissingDatum: null,
+      lockedMissingDatum: null,
     };
   }
 
@@ -88,6 +92,7 @@ class GraphsContainer extends React.Component {
       highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
+      highlightMissingJobs,
       testData,
       changelogData,
       timeRange,
@@ -98,7 +103,8 @@ class GraphsContainer extends React.Component {
       prevProps.highlightAlerts !== highlightAlerts ||
       prevProps.highlightCommonAlerts !== highlightCommonAlerts ||
       prevProps.highlightChangelogData !== highlightChangelogData ||
-      prevProps.highlightedRevisions !== highlightedRevisions
+      prevProps.highlightedRevisions !== highlightedRevisions ||
+      prevProps.highlightMissingJobs !== highlightMissingJobs
     ) {
       this.addHighlights();
     }
@@ -253,6 +259,22 @@ class GraphsContainer extends React.Component {
 
     if (found) {
       this.setState({ lockedId: selectedDataPoint.dataPointId });
+      return;
+    }
+
+    // Restore a locked missing-data tooltip when the user navigates back via URL.
+    const allMissing = (testData || []).flatMap((series) =>
+      Array.isArray(series?.missingData) ? series.missingData : [],
+    );
+
+    const foundMissing = allMissing.find(
+      (missingDatum) =>
+        missingDatum.signature_id === selectedDataPoint.signature_id &&
+        missingDatum.pushId === selectedDataPoint.dataPointId,
+    );
+
+    if (foundMissing) {
+      this.setState({ lockedMissingDatum: foundMissing, lockedId: null });
     } else {
       updateStateParams({
         errorMessages: [
@@ -302,6 +324,7 @@ class GraphsContainer extends React.Component {
     if (scatterPlotData.length) {
       zoomDomain = this.updateZoomDomain(scatterPlotData);
     }
+    this.hasVisibleData = scatterPlotData.length > 0;
     this.setState({
       scatterPlotData,
       scatterPlotMap,
@@ -320,6 +343,7 @@ class GraphsContainer extends React.Component {
       highlightAlerts,
       highlightCommonAlerts,
       highlightedRevisions,
+      highlightMissingJobs,
     } = this.props;
     let highlights = [];
     let highlightCommonAlertsData = [];
@@ -342,6 +366,16 @@ class GraphsContainer extends React.Component {
           ...highlightCommonAlertsData,
           ...dataPoints,
         ];
+
+        if (series.missingData) {
+          const missingPoints = series.missingData.filter(
+            (item) => item.commonAlert,
+          );
+          highlightCommonAlertsData = [
+            ...highlightCommonAlertsData,
+            ...missingPoints,
+          ];
+        }
       }
 
       for (const rev of highlightedRevisions) {
@@ -355,6 +389,15 @@ class GraphsContainer extends React.Component {
 
         if (dataPoint) {
           highlights.push(dataPoint);
+        }
+
+        if (highlightMissingJobs && series.missingData) {
+          const missingPoint = series.missingData.find(
+            (item) => item.revision?.includes(rev),
+          );
+          if (missingPoint) {
+            highlights.push(missingPoint);
+          }
         }
       }
     }
@@ -387,11 +430,7 @@ class GraphsContainer extends React.Component {
   };
 
   checkDate = (x) => {
-    const graphData = this.props.testData.filter(
-      (item) => item.visible === true && item.data.length > 0,
-    );
-
-    return graphData.length > 0
+    return this.hasVisibleData
       ? dayjs.utc(x).format('MMM DD')
       : dayjs.utc().format('MMM DD');
   };
@@ -409,6 +448,92 @@ class GraphsContainer extends React.Component {
     this.setState({ lockedId: null });
     this.props.updateStateParams?.({ selectedDataPoint: null });
   };
+
+  clearMissingLock = () => {
+    this.setState({ lockedMissingDatum: null });
+    this.props.updateStateParams?.({ selectedDataPoint: null });
+  };
+
+  // color is [cssClassName, hexValue]; index 1 is the hex value used for SVG.
+  _getMissingDatumColor(datum) {
+    return (
+      this.props.testData.find((series) => series.signature_id === datum?.signature_id)
+        ?.color[1] ?? '#888'
+    );
+  }
+
+  // Renders a semi-transparent filled ring around a missing-data dot to indicate
+  // hover or locked state, matching the colour of its parent series.
+  renderMissingHighlightRing(datum, locked) {
+    const color = this._getMissingDatumColor(datum);
+    return (
+      <VictoryScatter
+        name={locked ? 'lock-missing-ring' : 'hover-missing-ring'}
+        data={[datum]}
+        size={() => DOT_SIZE}
+        symbol="circle"
+        groupComponent={<g pointerEvents="none" />}
+        style={{
+          data: {
+            pointerEvents: 'none',
+            fill: color,
+            stroke: color,
+            strokeOpacity: 0.3,
+            strokeWidth: 12,
+          },
+        }}
+      />
+    );
+  }
+
+  // Renders an invisible scatter point on top of a missing-data dot that owns the
+  // VictoryTooltip. Kept separate from the visible dot so Victory's tooltip portal
+  // renders above all other chart layers.
+  renderMissingTooltipLayer(datum, locked) {
+    const { width } = this.state;
+    const color = this._getMissingDatumColor(datum);
+    return (
+      <VictoryScatter
+        name={locked ? 'lock-missing-layer' : 'hover-missing-layer'}
+        data={[datum]}
+        size={() => DOT_SIZE}
+        symbol="circle"
+        groupComponent={<g pointerEvents="none" />}
+        style={{
+          data: {
+            pointerEvents: 'none',
+            fill: 'transparent',
+            stroke: color,
+            strokeWidth: 2,
+            strokeDasharray: '2,2',
+            opacity: 0.7,
+          },
+        }}
+        labels={() => ' '}
+        labelComponent={
+          <VictoryTooltip
+            active
+            renderInPortal
+            activateData={false}
+            pointerLength={0}
+            flyoutStyle={{ pointerEvents: 'none' }}
+            style={{ pointerEvents: 'none' }}
+            flyoutComponent={
+              <MissingJobTooltip
+                lockTooltip={locked}
+                closeTooltip={locked ? this.clearMissingLock : () => this.setState({ hoverMissingDatum: null })}
+                windowWidth={width}
+                testData={this.props.testData}
+                user={this.props.user}
+                projects={this.props.projects}
+                datum={datum}
+              />
+            }
+          />
+        }
+      />
+    );
+  }
 
   updateZoom = (zoom) => {
     const { lockedId } = this.state;
@@ -450,6 +575,7 @@ class GraphsContainer extends React.Component {
       highlightChangelogData,
       highlightCommonAlerts,
       highlightInitialDataPoints,
+      highlightMissingJobs,
     } = this.props;
     const {
       highlights,
@@ -458,6 +584,8 @@ class GraphsContainer extends React.Component {
       width,
       scatterPlotData,
       infraAffectedData,
+      hoverMissingDatum,
+      lockedMissingDatum,
     } = this.state;
 
     const hoverDatum = this.state.hoverId ? this.state.scatterPlotMap[this.state.hoverId] : null;
@@ -664,6 +792,88 @@ class GraphsContainer extends React.Component {
                     />
                   )}
 
+                  {highlightMissingJobs &&
+                    testData.map((series) => {
+                      if (
+                        !series.visible ||
+                        !series.missingData ||
+                        series.missingData.length === 0
+                      )
+                        return null;
+                      // color is [cssClassName, hexValue]; index 1 is the hex for SVG stroke.
+                      const seriesColor = series.color[1];
+                      return (
+                        <VictoryScatter
+                          key={`missing-${series.id}`}
+                          name={`missing-${series.id}`}
+                          data={series.missingData}
+                          size={() => DOT_SIZE}
+                          symbol="circle"
+                          style={{
+                            data: {
+                              fill: 'transparent',
+                              stroke: seriesColor,
+                              strokeWidth: 2,
+                              strokeDasharray: '2,2',
+                              opacity: 0.7,
+                            },
+                          }}
+                          events={[
+                            {
+                              target: 'data',
+                              eventHandlers: {
+                                onMouseOver: (_evt, props) => {
+                                  this.setState({
+                                    hoverMissingDatum: props.datum,
+                                  });
+                                  return null;
+                                },
+                                onMouseOut: () => {
+                                  this.setState({ hoverMissingDatum: null });
+                                  return null;
+                                },
+                                onMouseDown: (evt) =>
+                                  evt.stopPropagation(),
+                                onClick: (_evt, props) => {
+                                  const clickedDatum = props.datum;
+                                  // Toggle off if the user clicks the already-locked dot;
+                                  // otherwise lock onto the new dot and sync the URL.
+                                  const isToggleOff =
+                                    this.state.lockedMissingDatum
+                                      ?.signature_id === clickedDatum.signature_id &&
+                                    this.state.lockedMissingDatum?.pushId ===
+                                      clickedDatum.pushId;
+                                  this.setState({
+                                    lockedMissingDatum: isToggleOff ? null : clickedDatum,
+                                    lockedId: null,
+                                  });
+                                  this.props.updateStateParams?.({
+                                    selectedDataPoint: isToggleOff
+                                      ? null
+                                      : {
+                                          signature_id: clickedDatum.signature_id,
+                                          dataPointId: clickedDatum.pushId,
+                                        },
+                                  });
+                                  // Victory event handlers must return a value; null means no chart state mutation.
+                                  return null;
+                                },
+                              },
+                            },
+                          ]}
+                        />
+                      );
+                    })}
+
+                  {hoverMissingDatum &&
+                    this.renderMissingHighlightRing(hoverMissingDatum, false)}
+                  {hoverMissingDatum &&
+                    this.renderMissingTooltipLayer(hoverMissingDatum, false)}
+                  {lockedMissingDatum &&
+                    this.renderMissingHighlightRing(lockedMissingDatum, true)}
+                  {lockedMissingDatum &&
+                    this.renderMissingTooltipLayer(lockedMissingDatum, true)}
+
                   <VictoryScatter
                     name="scatter-plot"
                     symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
@@ -726,6 +936,7 @@ class GraphsContainer extends React.Component {
                                 if (id == null) return null;
                                 this.setState((prev) => ({
                                   lockedId: prev.lockedId === id ? null : id,
+                                  lockedMissingDatum: null,
                                 }));
                                 const signatureId =
                                   props?.datum?.signature_id ?? null;
@@ -866,6 +1077,7 @@ GraphsContainer.propTypes = {
   selectedDataPoint: PropTypes.shape({}),
   highlightAlerts: PropTypes.bool,
   highlightInitialDataPoints: PropTypes.bool,
+  highlightMissingJobs: PropTypes.bool,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
