@@ -16,7 +16,8 @@ import { thBugSuggestionLimit } from './constants';
 //    "expected": "<status>"}   // `expected` present only when unexpected
 //
 //   {"action": "crash", "group": "<manifest>", "test": "<path>",
-//    "signature": "<crash signature>", ...}
+//    "signature": "<crash signature>", "reason": "<MOZ_CRASH reason>",
+//    ...}   // `minidump_path` is stripped
 //
 //   {"action": "log", "time": <ms>, "level": "ERROR" | "CRITICAL",
 //    "message": "TEST-UNEXPECTED-FAIL | <what> | <detail>",
@@ -324,6 +325,26 @@ const lsanLeakLine = (record) => {
   return `TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at ${(record.frames ?? []).join(', ')}`;
 };
 
+// The first line TbplFormatter.crash prints for a crash, which the classic
+// Failure Summary shows, less the minidump name summary.jsonl strips: the
+// message the Summary tab shows, that classic line, and the part of it the
+// task log holds as is.
+const crashLineOf = (record) => {
+  const scope = record.test || `pid: ${record.process}`;
+  let message;
+  let logText;
+  if (record.java_stack) {
+    message = record.java_stack.split('\n').slice(0, 2).join(' ');
+    logText = `${scope} | ${message}`;
+  } else {
+    message = `${record.reason ?? 'application crashed'} [${
+      record.signature || 'unknown top frame'
+    }]`;
+    logText = `${message} | ${scope}`;
+  }
+  return { message, classicLine: `PROCESS-CRASH | ${logText}`, logText };
+};
+
 /**
  * Build the Summary tab data from a `*_testsummary.jsonl` artifact.
  *
@@ -412,7 +433,7 @@ export const buildTestSummary = (content) => {
   const cover = (text) => {
     if (!text) return;
     text.split(PYTHON_LINE_BREAK_RE).forEach((part) => {
-      coveredLines.add(normalizeSearchLine(part));
+      coveredLines.add(comparableLine(part));
     });
   };
 
@@ -578,16 +599,20 @@ export const buildTestSummary = (content) => {
       }
       case 'crash': {
         const testName = line.test || line.signature || '(unknown test)';
+        const { message, classicLine, logText } = crashLineOf(line);
+        cover(classicLine);
         recordEntry({
           test: testName,
           group: line.group || currentGroup,
           status: 'CRASH',
           success: false,
-          message: line.signature || null,
+          message,
           logTime: logTimeOf(line),
           start: null,
           end: null,
           duration: null,
+          classicLine,
+          logText,
         });
         return;
       }
@@ -671,7 +696,7 @@ export const buildTestSummary = (content) => {
       }
       case 'error_line': {
         const printed = (line.message || '').trimEnd();
-        const covered = coveredLines.has(normalizeSearchLine(printed));
+        const covered = coveredLines.has(comparableLine(printed));
         if (!printed.trim() || covered) return;
         // Shown as the classic Failure Summary shows it, which also gives it
         // the backend's path_end; a line it cut is matched on the cut text.
@@ -900,6 +925,16 @@ export const findNewFailureLines = (suggestions, repoName) => {
 const normalizeSearchLine = (search) =>
   (search || '').trim().replace(/\s+/g, ' ');
 
+// The minidump name TbplFormatter puts after PROCESS-CRASH: summary.jsonl
+// strips `minidump_path`, so crash lines are compared without it.
+const MINIDUMP_NAME_RE =
+  /^PROCESS-CRASH \| [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} \| /i;
+
+// The text two summaries are compared on: what a line says, not how it is
+// spaced or which minidump it names.
+const comparableLine = (search) =>
+  normalizeSearchLine(search).replace(MINIDUMP_NAME_RE, 'PROCESS-CRASH | ');
+
 /**
  * Enrich the testsummary-derived failure suggestions with the Bugzilla bug
  * suggestions returned by the `/bug_suggestions/` API, matching on test path.
@@ -1124,7 +1159,7 @@ export const computeSummaryDivergence = (
     new Set(
       filterGenericFailureLines(suggestions || [])
         .map((suggestion) =>
-          normalizeSearchLine(suggestion.classicLine ?? suggestion.search),
+          comparableLine(suggestion.classicLine ?? suggestion.search),
         )
         .filter((line) => line && !BARE_PREFIX_LINE_RE.test(line)),
     );

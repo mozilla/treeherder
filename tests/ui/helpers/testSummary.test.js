@@ -1389,6 +1389,106 @@ describe('LeakSanitizer reports (lsan_summary and lsan_leak records)', () => {
   });
 });
 
+describe('crashes (crash records)', () => {
+  // The crash of try task RhowshF1Rv-t91R27yTs5A (linux debug
+  // mochitest-chrome), as summary.jsonl holds it.
+  const testPath = 'dom/base/test/fullscreen/test_fullscreen.xhtml';
+  const reason =
+    'MOZ_ASSERT(mFullscreenChangeState == FullscreenChangeState::NotChanging)';
+  const signature = '@ mozilla::AppWindow::FullscreenWillChange';
+  const crash = {
+    action: 'crash',
+    time: 2,
+    process: null,
+    test: testPath,
+    signature,
+    process_type: 'main',
+    reason,
+  };
+  const classicLine = `PROCESS-CRASH | ${reason} [${signature}] | ${testPath}`;
+  // The line TbplFormatter printed, with the minidump name.
+  const printed = `PROCESS-CRASH | 1575f4b0-c85b-f593-605b-156884ade80b | ${reason} [${signature}] | ${testPath} `;
+  const crashFailures = records =>
+    buildFailureSuggestions(
+      buildTestSummary([{ action: 'group_start', time: 1, name: 'g' }, ...records]),
+    );
+
+  test('shows the reason and signature, linked by the text the log holds', () => {
+    const [failure] = crashFailures([crash]);
+
+    expect(failure.search).toBe(
+      `TEST-UNEXPECTED-CRASH | ${testPath} | ${reason} [${signature}]`,
+    );
+    expect(failure.classicLine).toBe(classicLine);
+    expect(failure.logTarget.texts).toEqual([
+      testPath,
+      `${reason} [${signature}] | ${testPath}`,
+    ]);
+    failure.logTarget.texts.forEach(text => expect(printed).toContain(text));
+  });
+
+  test('falls back as TbplFormatter does without a reason, signature or test', () => {
+    const [failure] = crashFailures([
+      { action: 'crash', time: 2, process: '6374', signature: '' },
+    ]);
+
+    expect(failure.classicLine).toBe(
+      'PROCESS-CRASH | application crashed [unknown top frame] | pid: 6374',
+    );
+  });
+
+  test('shows a Java exception by its first two lines', () => {
+    const [failure] = crashFailures([
+      {
+        action: 'crash',
+        time: 2,
+        process: 'org.mozilla.geckoview.test',
+        test: testPath,
+        signature: 'java-exception',
+        java_stack:
+          'java.lang.IllegalStateException: boom\n\tat org.mozilla.Foo.bar(Foo.java:12)\n\tat org.mozilla.Foo.baz(Foo.java:34)',
+      },
+    ]);
+
+    expect(failure.classicLine).toBe(
+      `PROCESS-CRASH | ${testPath} | java.lang.IllegalStateException: boom \tat org.mozilla.Foo.bar(Foo.java:12)`,
+    );
+  });
+
+  test('drops the console line of the crash it repeats', () => {
+    const consoleLine = { action: 'error_line', time: 3, level: 'INFO', message: printed };
+
+    expect(crashFailures([crash, consoleLine])).toEqual(crashFailures([crash]));
+  });
+
+  test('matches the classic summary of the same job, minidump name aside', () => {
+    const crashGroup = 'processing 1 crash';
+    const failures = crashFailures([
+      { action: 'test_start', time: 1, test: testPath },
+      { action: 'group_start', time: 2, name: crashGroup },
+      crash,
+      { action: 'group_end', time: 3, name: crashGroup },
+      {
+        action: 'test_end',
+        time: 4,
+        status: 'CRASH',
+        expected: 'PASS',
+        test: testPath,
+        message: 'application terminated with exit code 1',
+      },
+    ]);
+    const classic = [
+      { search: printed.trim(), path_end: 'MOZ_ASSERT(mFullscreenChangeState' },
+      {
+        search: `TEST-UNEXPECTED-CRASH | ${testPath} | application terminated with exit code 1`,
+        path_end: testPath,
+      },
+    ];
+
+    expect(computeSummaryDivergence(failures, classic).diverged).toBe(false);
+  });
+});
+
 describe('console lines (error_line records)', () => {
   // Records of try task RhowshF1Rv-t91R27yTs5A (linux debug mochitest-chrome),
   // with the error_line records mozharness writes since bug 2071871.
@@ -2040,8 +2140,10 @@ describe('log targets', () => {
       buildFailureSuggestions(summary).map(s => [s.search, s.logTarget]),
     );
 
-    expect(byTest['TEST-UNEXPECTED-CRASH | crashed.html | sig']).toEqual({
-      texts: ['crashed.html', 'sig'],
+    expect(
+      byTest['TEST-UNEXPECTED-CRASH | crashed.html | application crashed [sig]'],
+    ).toEqual({
+      texts: ['crashed.html', 'application crashed [sig] | crashed.html'],
       time: 4,
     });
     // A harness line is searched for as it is: it names no test.
