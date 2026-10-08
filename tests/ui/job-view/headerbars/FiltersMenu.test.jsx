@@ -259,6 +259,27 @@ describe('FiltersMenu', () => {
     expect(mockFilterModel.resetNonFieldFilters).toHaveBeenCalled();
   });
 
+  it('calls openFilterPanel when "Advanced Filters…" is clicked', () => {
+    const mockOpenFilterPanel = jest.fn();
+
+    renderWithRouter(
+      <FiltersMenu
+        filterModel={mockFilterModel}
+        getAllShownJobs={mockGetAllShownJobs}
+        user={mockUser}
+        openFilterPanel={mockOpenFilterPanel}
+      />,
+    );
+
+    // Open the dropdown
+    fireEvent.click(screen.getByText('Filters'));
+
+    // Click on "Advanced Filters…"
+    fireEvent.click(screen.getByText('Advanced Filters…'));
+
+    expect(mockOpenFilterPanel).toHaveBeenCalled();
+  });
+
   it('renders My pushes only option', () => {
     renderWithRouter(
       <FiltersMenu
