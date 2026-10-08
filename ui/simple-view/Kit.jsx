@@ -1,16 +1,10 @@
 import { useState } from 'react';
 
-import alert from './kit/alert.svg';
-import inquisitive from './kit/inquisitive.svg';
-import sittingLookingForward from './kit/sitting-looking-forward.svg';
-import sittingLookingUp from './kit/sitting-looking-up.svg';
-import { KIT_ALT } from './strings';
-
-const POSES = [sittingLookingUp, sittingLookingForward, inquisitive, alert];
+import { KIT_ALT, KIT_POSES } from './constants';
 
 const Kit = () => {
   const [pose] = useState(
-    () => POSES[Math.floor(Math.random() * POSES.length)],
+    () => KIT_POSES[Math.floor(Math.random() * KIT_POSES.length)],
   );
 
   return <img className="sv-kit" src={pose} alt={KIT_ALT} />;

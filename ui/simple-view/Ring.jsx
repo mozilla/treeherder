@@ -1,29 +1,15 @@
 
+import { NAMED_RESULTS, RING, RING_ORDER } from './constants';
 import { finishedCount } from './helpers';
 
-const ORDER = [
-  'testfailed',
-  'busted',
-  'exception',
-  'success',
-  'retry',
-  'usercancel',
-  'superseded',
-  'other',
-  'running',
-  'pending',
-  'unscheduled',
-];
-const NAMED = new Set(ORDER.slice(0, 7));
-
 export const allocateTicks = (status, ticks) => {
-  const counts = Object.fromEntries(ORDER.map((k) => [k, status?.[k] || 0]));
+  const counts = Object.fromEntries(RING_ORDER.map((k) => [k, status?.[k] || 0]));
   counts.other = Math.max(
     0,
     finishedCount(status) -
-      ORDER.filter((k) => NAMED.has(k)).reduce((n, k) => n + counts[k], 0),
+      RING_ORDER.filter((k) => NAMED_RESULTS.has(k)).reduce((n, k) => n + counts[k], 0),
   );
-  const parts = ORDER.map((k) => [k, counts[k]]);
+  const parts = RING_ORDER.map((k) => [k, counts[k]]);
   const total = parts.reduce((n, [, c]) => n + c, 0);
   if (!total) return Array(ticks).fill('pending');
 
@@ -41,7 +27,14 @@ export const allocateTicks = (status, ticks) => {
   return shares.flatMap((s) => Array(s.n).fill(s.kind));
 };
 
-const Ring = ({ status, ticks = 90, size = 240, weight = 3, loading, children }) => {
+const Ring = ({
+  status,
+  ticks = RING.ticks,
+  size = RING.size,
+  weight = RING.weight,
+  loading,
+  children,
+}) => {
   const kinds = loading ? Array(ticks).fill('loading') : allocateTicks(status, ticks);
   const outer = 96;
   const inner = outer - Math.max(14, 1200 / ticks / 2);

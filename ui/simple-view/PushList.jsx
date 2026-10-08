@@ -13,7 +13,7 @@ import {
 } from './helpers';
 import { queued, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
-import { LIST, PICKER } from './strings';
+import { LIST, MINI_RING, PICKER, POLL_MS } from './constants';
 import Kit from './Kit';
 import Nav from './Nav';
 import {
@@ -84,7 +84,13 @@ const PushRow = ({ push, repo, author, refreshKey, index }) => {
         }}
         onClick={() => rememberPush(repo, push)}
       >
-        <Ring status={summary?.status} loading={!summary} ticks={24} size={38} weight={7} />
+        <Ring
+          status={summary?.status}
+          loading={!summary}
+          ticks={MINI_RING.ticks}
+          size={MINI_RING.size}
+          weight={MINI_RING.weight}
+        />
         <span className="sv-row-body">
           <span className="sv-row-title">{pushTitle(push)}</span>
           <span className="sv-row-meta">
@@ -186,7 +192,7 @@ const PushList = ({ repo, author, theme }) => {
     setPushes(cachedPushes(repo, author));
     load();
   }, [load, repo, author]);
-  usePoll(load, 90 * 1000);
+  usePoll(load, POLL_MS.list);
 
   const own = pushes?.find((p) => p.author?.toLowerCase() === author);
   const name = own ? authorName(own) : null;

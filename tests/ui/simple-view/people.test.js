@@ -1,4 +1,5 @@
-import { authorName, pushUrl, pushesOf } from '../../../ui/simple-view/helpers';
+import { authorName, pushUrl } from '../../../ui/simple-view/helpers';
+import { LIST } from '../../../ui/simple-view/constants';
 import {
   clearRecentPeople,
   personName,
@@ -44,7 +45,7 @@ test('links carry the author, and an empty one asks', () => {
   );
   expect(pushUrl({ repo: 'try', author: '' })).toBe('/simple?repo=try&author=');
   expect(pushUrl({ repo: 'try', author: null })).toBe('/simple?repo=try');
-  expect(pushesOf('Florian Quèze')).toBe('Florian’s pushes');
+  expect(LIST.title('Florian Quèze')).toBe('Florian’s pushes');
 });
 
 test('clearing forgets everyone', () => {

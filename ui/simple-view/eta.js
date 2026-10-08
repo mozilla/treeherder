@@ -5,29 +5,14 @@ import { getData } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';
 import { createQueryParams } from '../helpers/url';
 
-const COLUMNS = {
-  id: 'id',
-  state: 'state',
-  result: 'result',
-  symbol: 'job_type_symbol',
-  classification: 'failure_classification_id',
-  tier: 'tier',
-  platform: 'platform',
-  platformOption: 'platform_option',
-  jobTypeName: 'job_type_name',
-  submit: 'submit_timestamp',
-  start: 'start_timestamp',
-  end: 'end_timestamp',
-};
-
-const STATES = new Set(['pending', 'running', 'completed', 'unscheduled']);
+import { ETA_MODEL, JOB_COLUMNS, JOB_PAGE_SIZE, JOB_STATES } from './constants';
 
 const stamp = (v) => (typeof v === 'number' && v > 0 ? v : null);
 
 export const parseJobRows = ({ job_property_names: names, results }) => {
   if (!Array.isArray(names) || !Array.isArray(results)) return [];
   const at = Object.fromEntries(
-    Object.entries(COLUMNS).map(([key, name]) => [key, names.indexOf(name)]),
+    Object.entries(JOB_COLUMNS).map(([key, name]) => [key, names.indexOf(name)]),
   );
   const get = (row, key) => (at[key] >= 0 ? row[at[key]] : undefined);
 
@@ -41,7 +26,7 @@ export const parseJobRows = ({ job_property_names: names, results }) => {
     }
     jobs.push({
       id,
-      state: STATES.has(state) ? state : 'pending',
+      state: JOB_STATES.has(state) ? state : 'pending',
       result: get(row, 'result') || 'unknown',
       symbol: get(row, 'symbol') || '',
       classification: get(row, 'classification') ?? 1,
@@ -57,16 +42,14 @@ export const parseJobRows = ({ job_property_names: names, results }) => {
   return jobs;
 };
 
-const PAGE = 2000;
-
 export const fetchPushJobs = async (repo, pushId) => {
   const jobs = new Map();
-  for (let offset = 0; ; offset += PAGE) {
+  for (let offset = 0; ; offset += JOB_PAGE_SIZE) {
     const { data, failureStatus } = await getData(
       getProjectUrl(
         `/jobs/${createQueryParams({
           push_id: pushId,
-          count: PAGE,
+          count: JOB_PAGE_SIZE,
           offset,
           return_type: 'list',
           exclusion_profile: false,
@@ -77,7 +60,7 @@ export const fetchPushJobs = async (repo, pushId) => {
     if (failureStatus) return null;
     const before = jobs.size;
     for (const job of parseJobRows(data)) jobs.set(job.id, job);
-    if (data.results.length < PAGE || jobs.size === before) break;
+    if (data.results.length < JOB_PAGE_SIZE || jobs.size === before) break;
   }
   return [...jobs.values()];
 };
@@ -92,8 +75,6 @@ export const loadDurationTable = () => {
   return tablePromise;
 };
 
-const HARD_FALLBACK_MINUTES = 20.8;
-
 export const familyKey = (name) => name.replace(/-\d+$/, '');
 
 export const expectedRunTime = (job, table) => {
@@ -102,7 +83,7 @@ export const expectedRunTime = (job, table) => {
     table?.family?.[familyKey(job.jobTypeName)] ??
     table?.platform?.[`${job.platform}|${job.platformOption}`] ??
     table?.global ??
-    HARD_FALLBACK_MINUTES;
+    ETA_MODEL.fallbackMinutes;
   return minutes * 60;
 };
 
@@ -132,12 +113,6 @@ const median = (values) => {
   const mid = Math.floor(s.length / 2);
   return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 };
-
-const TAIL_CALIBRATION = 1.25;
-
-const FIRM_COVERAGE = 0.6;
-
-const MINIMUM_ELAPSED = 8 * 60;
 
 const buildGate = (unresolved, poolWaits, globalWait, now, table) => {
   let frontier = null;
@@ -230,18 +205,18 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
 
   projected.sort((a, b) => a - b);
   const p90 =
-    projected[Math.min(projected.length - 1, Math.floor(projected.length * 0.9))];
+    projected[Math.min(projected.length - 1, Math.floor(projected.length * ETA_MODEL.mostResultsQuantile))];
   const last = projected[projected.length - 1];
   const mostS = Math.max(nowS, p90);
   const allS = Math.max(
     mostS,
-    nowS + Math.max(0, last - nowS) * TAIL_CALIBRATION,
+    nowS + Math.max(0, last - nowS) * ETA_MODEL.tailCalibration,
   );
 
   const coverage = observed / unresolved.length;
   let confidence = 'estimating';
   let blockingBuild = null;
-  if (nowS - pushedS >= MINIMUM_ELAPSED && coverage >= FIRM_COVERAGE) {
+  if (nowS - pushedS >= ETA_MODEL.minimumElapsedSeconds && coverage >= ETA_MODEL.firmCoverage) {
     confidence = 'firm';
   } else if (gate && gate.releasesAt > nowS) {
     confidence = 'blockedOnBuild';

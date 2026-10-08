@@ -4,7 +4,7 @@ import logo from '../img/treeherder-logo.png';
 
 import { pushUrl } from './helpers';
 import { chooseFullView } from './phone';
-import { NAV } from './strings';
+import { NAV } from './constants';
 
 const Moon = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">

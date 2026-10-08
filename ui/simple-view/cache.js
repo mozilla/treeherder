@@ -1,11 +1,8 @@
-
-const PREFIX = 'simpleView:';
-const MAX_HEALTH = 8;
-const MAX_SUMMARIES = 60;
+import { CACHE_LIMITS, STORAGE_PREFIX } from './constants';
 
 const read = (key) => {
   try {
-    return JSON.parse(localStorage.getItem(PREFIX + key));
+    return JSON.parse(localStorage.getItem(STORAGE_PREFIX + key));
   } catch {
     return null;
   }
@@ -13,7 +10,7 @@ const read = (key) => {
 
 const write = (key, value) => {
   try {
-    localStorage.setItem(PREFIX + key, JSON.stringify(value));
+    localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
   } catch {
   }
 };
@@ -30,9 +27,9 @@ const boundedMap = (key, max) => ({
   },
 });
 
-const summaries = boundedMap('summaries', MAX_SUMMARIES);
-const healths = boundedMap('health', MAX_HEALTH);
-const pushRecords = boundedMap('push', MAX_SUMMARIES);
+const summaries = boundedMap('summaries', CACHE_LIMITS.summaries);
+const healths = boundedMap('health', CACHE_LIMITS.health);
+const pushRecords = boundedMap('push', CACHE_LIMITS.summaries);
 
 export const cachedPushes = (repo, author) => read(`pushes:${repo}:${author}`);
 export const rememberPushes = (repo, author, pushes) =>
@@ -62,8 +59,6 @@ export const shared = (key, start, freshMs = 5000) => {
   return promise;
 };
 
-const MAX_PEOPLE = 8;
-
 export const recentPeople = () => read('people') || [];
 
 export const rememberPerson = (email, name) => {
@@ -74,7 +69,7 @@ export const rememberPerson = (email, name) => {
   const next = [
     { email: key, name: name || known?.name || null },
     ...people.filter((p) => p.email !== key),
-  ].slice(0, MAX_PEOPLE);
+  ].slice(0, CACHE_LIMITS.people);
   write('people', next);
 };
 

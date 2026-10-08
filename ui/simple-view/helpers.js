@@ -5,9 +5,15 @@ import { thPlatformMap } from '../helpers/constants';
 import PushModel from '../models/push';
 
 import { rememberHealth, rememberSummary, shared } from './cache';
-import { ETA, LIST, RESULT_WORDS, TIME, countWord } from './strings';
-
-export { countWord };
+import {
+  ETA,
+  NOT_RESULTS,
+  PUSH_LIST_COUNT,
+  RESULT_WORDS,
+  SHORT_REVISION_LENGTH,
+  TIME,
+  UNCLASSIFIED_IDS,
+} from './constants';
 
 export const pushUrl = ({ repo, author, revision, job }) => {
   const q = new URLSearchParams({ repo });
@@ -16,8 +22,6 @@ export const pushUrl = ({ repo, author, revision, job }) => {
   if (author !== undefined && author !== null) q.set('author', author);
   return `/simple?${q}`;
 };
-
-export const pushesOf = LIST.title;
 
 export const authorName = (push) => {
   const people = (push?.revisions || [])
@@ -30,7 +34,7 @@ export const authorName = (push) => {
   return names.size === 1 ? [...names][0] : null;
 };
 
-export const fetchPushes = (repo, author, count = 15) =>
+export const fetchPushes = (repo, author, count = PUSH_LIST_COUNT) =>
   getData(
     getProjectUrl(`${pushEndpoint}${createQueryParams({ author, count })}`, repo),
   );
@@ -67,7 +71,7 @@ export const pushTitle = (push) => {
   if (human) return human;
   const query = lines[0]?.match(/^Fuzzy query=(.*)/);
   if (query) return query[1].replace(/&query=/g, ' · ').replace(/[\^$'"]/g, '');
-  return push.revision.slice(0, 12);
+  return push.revision.slice(0, SHORT_REVISION_LENGTH);
 };
 
 export const jobShortName = (name) =>
@@ -93,14 +97,6 @@ export const duration = (epochSeconds) => {
   return TIME.hoursMinutes(Math.floor(minutes / 60), minutes % 60);
 };
 
-const NOT_RESULTS = new Set([
-  'completed',
-  'pending',
-  'running',
-  'unscheduled',
-  'coalesced',
-]);
-
 export const finishedCount = (status) =>
   Object.entries(status || {})
     .filter(([key]) => !NOT_RESULTS.has(key))
@@ -120,8 +116,6 @@ export const statusFromJobs = (jobs) => {
   }
   return status;
 };
-
-export const FAILED_RESULTS = new Set(['testfailed', 'busted', 'exception']);
 
 export const testFromErrorLine = (line = '') => {
   const parts = line.split(' | ');
@@ -214,8 +208,6 @@ export const groupByTest = (failures) => {
   return [...groups.values()].sort((a, b) => b.jobIds.size - a.jobIds.size);
 };
 
-const UNCLASSIFIED = new Set([1, 6]);
-
 export const retriggerableJobs = (jobs, pushId) => {
   const runs = new Map();
   for (const j of jobs) {
@@ -231,7 +223,7 @@ export const retriggerableJobs = (jobs, pushId) => {
         j.platform !== 'lint' &&
         j.symbol !== 'mozlint' &&
         !j.jobTypeName.includes('build') &&
-        UNCLASSIFIED.has(j.classification) &&
+        UNCLASSIFIED_IDS.has(j.classification) &&
         runs.get(j.jobTypeName) === 1,
     )
     .map((j) => ({ id: j.id, push_id: pushId, job_type_name: j.jobTypeName }));

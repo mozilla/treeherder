@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Nav from './Nav';
 import { clearRecentPeople, recentPeople } from './cache';
 import { chooseFullView } from './phone';
-import { PICKER } from './strings';
+import { PICKER } from './constants';
 
 const AuthorPrompt = ({ repo, theme, onSubmit }) => {
   const [email, setEmail] = useState('');

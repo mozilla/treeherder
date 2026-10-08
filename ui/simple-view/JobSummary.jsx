@@ -6,7 +6,12 @@ import { bzBaseUrl } from '../helpers/url';
 
 import Nav from './Nav';
 import { chooseFullView } from './phone';
-import { JOB } from './strings';
+import {
+  FILLER_LINE,
+  JOB,
+  SHORT_REVISION_LENGTH,
+  SHOWN_BUGS,
+} from './constants';
 import {
   pushUrl,
   testFromErrorLine,
@@ -24,8 +29,6 @@ const messageOf = (search) => {
   const parts = search.split(' | ');
   return parts.length > 2 ? parts.slice(2).join(' | ') : search;
 };
-
-const FILLER = /^(profile uploaded in |finished in \d+ms$)/;
 
 export const groupFailureLines = (lines) => {
   const tests = new Map();
@@ -61,7 +64,7 @@ export const groupFailureLines = (lines) => {
     tests.set(path, g);
   }
   const groups = [...tests.values()].map((g) => {
-    const real = g.messages.filter((m) => !FILLER.test(m));
+    const real = g.messages.filter((m) => !FILLER_LINE.test(m));
     return { ...g, messages: real.length ? real : g.messages, bugs: [...g.bugs.values()] };
   });
   groups.sort((a, b) => Number(b.isNew) - Number(a.isNew));
@@ -76,8 +79,6 @@ const bugSummary = (summary, path) => {
     .trim();
   return trimmed || summary;
 };
-
-const SHOWN_BUGS = 3;
 
 const Bug = ({ bug, path }) => {
   const text = bugSummary(bug.summary || '', path);
@@ -285,7 +286,7 @@ const JobSummary = ({ repo, author, theme, revision, jobId }) => {
         back={pushUrl({ repo, author, revision })}
         backLabel={JOB.backToPush}
         full={full}
-        filter={`revision: ${revision.slice(0, 12)}${job ? ` · ${job.job_type_symbol}` : ''}`}
+        filter={`revision: ${revision.slice(0, SHORT_REVISION_LENGTH)}${job ? ` · ${job.job_type_symbol}` : ''}`}
       />
       {error && <p className="sv-sub">{error}</p>}
       {job && (

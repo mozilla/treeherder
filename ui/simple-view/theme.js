@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const THEME_KEY = 'simpleViewTheme';
+import { THEME_KEY } from './constants';
 
 const stored = () => {
   try {

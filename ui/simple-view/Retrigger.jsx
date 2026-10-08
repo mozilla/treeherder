@@ -10,7 +10,7 @@ import {
   tcClientIdMap,
 } from '../taskcluster-auth-callback/constants';
 
-import { RETRIGGER } from './strings';
+import { RETRIGGER, RETRIGGER_RESET_MS } from './constants';
 
 export const canRetrigger = () => !!tcClientIdMap[window.location.origin];
 
@@ -31,8 +31,6 @@ const getRepo = async (name) => {
   return RepositoryModel.getRepo(name, await repos);
 };
 
-const LABELS = RETRIGGER;
-
 const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
   const [state, setState] = useState('idle');
   const timer = useRef();
@@ -51,8 +49,8 @@ const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
     const currentRepo = await getRepo(repo);
     JobModel.retrigger(jobs, currentRepo, (message, severity) => {
       if (String(message).includes(tcCredentialsMessage)) settle('signin');
-      else if (severity === 'danger') settle('failed', 6000);
-      else if (String(message).startsWith('Request sent')) settle('sent', 8000);
+      else if (severity === 'danger') settle('failed', RETRIGGER_RESET_MS.failed);
+      else if (String(message).startsWith('Request sent')) settle('sent', RETRIGGER_RESET_MS.sent);
     });
   };
 
@@ -68,8 +66,8 @@ const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
   };
 
   const onClick = () => {
-    if (!live) settle(state === 'elsewhere' ? 'idle' : 'elsewhere', 6000);
-    else if (state === 'idle') settle('confirm', 4000);
+    if (!live) settle(state === 'elsewhere' ? 'idle' : 'elsewhere', RETRIGGER_RESET_MS.elsewhere);
+    else if (state === 'idle') settle('confirm', RETRIGGER_RESET_MS.confirm);
     else if (['confirm', 'signin', 'failed'].includes(state)) sendOrSignIn();
   };
 
@@ -81,7 +79,7 @@ const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
       disabled={state === 'sending' || state === 'sent'}
       aria-live="polite"
     >
-      {LABELS[state](n)}
+      {RETRIGGER[state](n)}
     </button>
   );
 };

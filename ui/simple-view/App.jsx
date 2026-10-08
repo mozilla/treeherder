@@ -10,23 +10,25 @@ import JobSummary from './JobSummary';
 import AuthorPrompt from './AuthorPrompt';
 import { pushUrl } from './helpers';
 import { useTheme } from './theme';
-import { BETA, FEEDBACK_URL } from './strings';
+import {
+  BETA,
+  FEEDBACK_URL,
+  TOOLBAR_COLOR_VAR,
+  VIEWPORT_TAG,
+} from './constants';
 
 import '../css/treeherder-job-buttons.css';
 import '../css/simple-view.css';
 
-const HEAD_TAGS = [
-  {
-    name: 'viewport',
-    content:
-      'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
-  },
-  { name: 'theme-color', content: 'rgb(34, 34, 34)' },
-];
-
 const useMobileHead = () => {
   useEffect(() => {
-    const tags = HEAD_TAGS.map((attrs) => {
+    const toolbarColor = getComputedStyle(document.documentElement)
+      .getPropertyValue(TOOLBAR_COLOR_VAR)
+      .trim();
+    const tags = [
+      VIEWPORT_TAG,
+      { name: 'theme-color', content: toolbarColor },
+    ].map((attrs) => {
       const meta = document.createElement('meta');
       for (const [k, v] of Object.entries(attrs)) meta.setAttribute(k, v);
       document.head.appendChild(meta);

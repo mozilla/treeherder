@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   ago,
   authorName,
-  FAILED_RESULTS,
   describeEta,
   fetchFirstFailingTest,
   duration,
@@ -22,7 +21,14 @@ import {
 } from './helpers';
 import { queued, useCountUp, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
-import { LIST, PUSH, VERDICT } from './strings';
+import {
+  FAILED_RESULTS,
+  LIST,
+  POLL_MS,
+  PUSH,
+  SHORT_REVISION_LENGTH,
+  VERDICT,
+} from './constants';
 import Retrigger from './Retrigger';
 import Nav from './Nav';
 import { JobFailures } from './JobSummary';
@@ -107,11 +113,9 @@ const RingCenter = ({ progress }) => {
   );
 };
 
-const LEGEND = Object.entries(PUSH.legend);
-
 const Legend = ({ status }) => (
   <ul className="sv-legend">
-    {LEGEND.map(([kind, label]) => {
+    {Object.entries(PUSH.legend).map(([kind, label]) => {
       const n = status[kind] || 0;
       return n ? (
         <li key={kind} className={`sv-legend-${kind}`}>
@@ -409,7 +413,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
       loadHealth();
       loadJobs();
     },
-    60 * 1000,
+    POLL_MS.push,
     !health || running,
   );
   const eta = running
@@ -469,7 +473,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
         back={pushUrl({ repo, author })}
         backLabel={LIST.title(personName(author))}
         full={`/jobs?repo=${repo}&revision=${revision}`}
-        filter={`revision: ${revision.slice(0, 12)}`}
+        filter={`revision: ${revision.slice(0, SHORT_REVISION_LENGTH)}`}
       />
 
       {error && <p className="sv-sub">{error}</p>}
@@ -479,7 +483,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
           <span className="sv-eyebrow">
             {ago(push.push_timestamp)} · {authorName(push) || push.author}
           </span>
-          {pushTitle(push) !== revision.slice(0, 12) && (
+          {pushTitle(push) !== revision.slice(0, SHORT_REVISION_LENGTH) && (
             <p className="sv-push-title">{pushTitle(push)}</p>
           )}
         </header>

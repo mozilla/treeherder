@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { COUNT_UP_MS, MAX_REQUESTS_IN_FLIGHT, PULSE_MS } from './constants';
+
 export const usePoll = (load, intervalMs, enabled = true) => {
   const saved = useRef(load);
   saved.current = load;
@@ -25,7 +27,7 @@ export const usePulse = (key) => {
   useEffect(() => {
     if (previous.current !== undefined && previous.current !== key) {
       setPulsing(true);
-      const id = setTimeout(() => setPulsing(false), 1200);
+      const id = setTimeout(() => setPulsing(false), PULSE_MS);
       previous.current = key;
       return () => clearTimeout(id);
     }
@@ -36,7 +38,6 @@ export const usePulse = (key) => {
   return pulsing;
 };
 
-const MAX_IN_FLIGHT = 4;
 let inFlight = 0;
 const waiting = [];
 
@@ -51,11 +52,11 @@ export const queued = (task) =>
           if (waiting.length) waiting.shift()();
         });
     };
-    if (inFlight < MAX_IN_FLIGHT) run();
+    if (inFlight < MAX_REQUESTS_IN_FLIGHT) run();
     else waiting.push(run);
   });
 
-export const useCountUp = (target, ms = 900) => {
+export const useCountUp = (target, ms = COUNT_UP_MS) => {
   const [value, setValue] = useState(0);
   const shown = useRef(0);
 
