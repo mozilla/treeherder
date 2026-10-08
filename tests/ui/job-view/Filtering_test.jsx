@@ -86,6 +86,10 @@ describe('Filtering', () => {
   });
   beforeEach(() => {
     locationTracker = null;
+    // Selection clicks in prior tests write params (e.g. selectedTaskRun)
+    // into the shared window.location; a fresh App mount would otherwise
+    // treat them as a deep link to a job.
+    window.history.replaceState(null, null, `/jobs?repo=${repoName}`);
   });
 
   afterEach(async () => {
