@@ -6,11 +6,11 @@ import multiprocessing
 import time
 import warnings
 from collections import defaultdict
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any
+from typing import Any, NoReturn
 from urllib.parse import urlencode
 
 import django_filters
@@ -46,7 +46,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf import stats
-from treeherder.perf.alerts import get_alert_properties
+from treeherder.perf.alerts import AlertProperties, get_alert_properties
 from treeherder.perf.models import (
     IssueTracker,
     OptionCollection,
@@ -639,7 +639,9 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     ordering = ("-created", "-id")
     pagination_class = AlertSummaryPagination
 
-    def _build_duplicated_summaries_map(self, page):
+    def _build_duplicated_summaries_map(
+        self, page: list[PerformanceAlertSummary]
+    ) -> dict[tuple[int, int], list[dict[str, Any]]]:
         """
         Returns a dict mapping (push_id, framework_id) -> list of {"id": ..., "status": ...}
         for summaries sharing the same (push, framework), replacing per-object queries in the serializer.
@@ -662,7 +664,9 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             result[key].append({"id": row["id"], "status": row["status"]})
         return dict(result)
 
-    def _build_tc_metadata_map(self, page):
+    def _build_tc_metadata_map(
+        self, page: list[PerformanceAlertSummary]
+    ) -> dict[tuple[int, int], dict[str, Any]]:
         """
         Returns a dict mapping (signature_id, push_id) -> {"task_id": ..., "retry_id": ...}
         for all alerts on this page, replacing per-alert TC metadata queries.
@@ -718,7 +722,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
                 result[key] = {"task_id": task_id, "retry_id": retry_id}
         return result
 
-    def _build_sxs_availability_map(self, page):
+    def _build_sxs_availability_map(self, page: list[PerformanceAlertSummary]) -> dict[int, bool]:
         """
         Returns a dict mapping alert_id -> bool, indicating whether a successful
         side-by-side job for that alert's platform + suite exists on its summary's
@@ -761,7 +765,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             )
         return result
 
-    def get_serializer_context(self):
+    def get_serializer_context(self) -> dict[str, Any]:
         ctx = super().get_serializer_context()
         ctx["duplicated_summaries_map"] = None
         ctx["tc_metadata_map"] = None
@@ -769,13 +773,13 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         return ctx
 
     @staticmethod
-    def _fetch_profile_urls(alert):
+    def _fetch_profile_urls(alert: dict[str, Any]) -> tuple[str | None, str | None]:
         return (
             get_profile_artifact_url(alert, metadata_key="taskcluster_metadata"),
             get_profile_artifact_url(alert, metadata_key="prev_taskcluster_metadata"),
         )
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = self.filter_queryset(self.queryset)
         pk = request.query_params.get("id")
         if not pk:
@@ -812,7 +816,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(many=True, data=queryset)
         return Response(serializer.data)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         data = request.data
 
         if data["push_id"] == data["prev_push_id"]:
@@ -830,7 +834,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
         return Response({"alert_summary_id": alert_summary.id})
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         PUT method custom implementation, which allows the status to update itself.
         """
@@ -854,7 +858,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
     pagination_class = AlertPagination
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         new_push_id = request.data.get("push_id")
         new_prev_push_id = request.data.get("prev_push_id")
 
@@ -868,7 +872,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
             return Response({"message": "Incorrect push was provided"}, status=HTTP_400_BAD_REQUEST)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         data = request.data
         if "summary_id" not in data or "signature_id" not in data:
             return Response(
@@ -898,7 +902,9 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
         return Response({"alert_id": alert.id})
 
-    def calculate_alert_properties(self, alert_summary, series_signature):
+    def calculate_alert_properties(
+        self, alert_summary: PerformanceAlertSummary, series_signature: PerformanceSignature
+    ) -> AlertProperties:
         prev_range = series_signature.max_back_window
         if not prev_range:
             prev_range = settings.PERFHERDER_ALERTS_MAX_BACK_WINDOW
@@ -925,7 +931,9 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         return get_alert_properties(prev_value, new_value, series_signature.lower_is_better)
 
     @transaction.atomic
-    def nudge(self, alert, new_push_id, new_prev_push_id):
+    def nudge(
+        self, alert: PerformanceAlert, new_push_id: int | None, new_prev_push_id: int | None
+    ) -> NoReturn:
         # Bug 1532230 disabled nudging because it broke links
         # Bug 1532283 will re enable a better version of it
         raise exceptions.APIException("Nudging has been disabled", 400)
@@ -947,9 +955,8 @@ class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
 
 class PerformanceSummary(generics.ListAPIView):
     serializer_class = PerformanceSummarySerializer
-    queryset = None
 
-    def list(self, request):
+    def list(self, request: Request) -> Response:
         query_params = PerformanceQueryParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
@@ -995,7 +1002,7 @@ class PerformanceSummary(generics.ListAPIView):
             )
 
         # TODO signature_hash is being returned for legacy support - should be removed at some point
-        self.queryset = signature_data.values(
+        signature_data = signature_data.values(
             "framework_id",
             "id",
             "lower_is_better",
@@ -1017,9 +1024,9 @@ class PerformanceSummary(generics.ListAPIView):
             "parent_signature__should_alert",
         )
 
-        self.check_and_update_should_alert()
+        self.check_and_update_should_alert(signature_data)
 
-        signature_ids = [item["id"] for item in list(self.queryset)]
+        signature_ids = [item["id"] for item in list(signature_data)]
 
         data = (
             PerformanceDatum.objects.select_related("push", "repository", "job")
@@ -1047,7 +1054,7 @@ class PerformanceSummary(generics.ListAPIView):
         }
 
         if signature and all_data:
-            for item in self.queryset:
+            for item in signature_data:
                 if replicates:
                     item["data"] = list()
                     for (
@@ -1142,14 +1149,14 @@ class PerformanceSummary(generics.ListAPIView):
                         grouped_submit_times[signature_id].append(submit_time)
 
             # name field is created in the serializer
-            for item in self.queryset:
+            for item in signature_data:
                 item["values"] = grouped_values.get(item["id"], [])
                 item["job_ids"] = grouped_job_ids.get(item["id"], [])
                 item["submit_times"] = grouped_submit_times.get(item["id"], [])
                 item["option_name"] = option_collection_map[item["option_collection_id"]]
                 item["repository_name"] = repository_name
 
-        serializer = self.get_serializer(self.queryset, many=True)
+        serializer = self.get_serializer(signature_data, many=True)
         serialized_data = serializer.data
 
         if no_retriggers:
@@ -1157,13 +1164,13 @@ class PerformanceSummary(generics.ListAPIView):
 
         return Response(data=serialized_data)
 
-    def check_and_update_should_alert(self):
+    def check_and_update_should_alert(self, signatures: Iterable[dict[str, Any]]) -> None:
         """
         If a suite has a `should_alert` value of either null or True and there is a suite-level value set,
         but the subtests do not have the `should_alert` set to True, then those subtests will not trigger an alert.
         A null value for these subtests indicates that the `should_alert` parameter is set to False.
         """
-        for signature in list(self.queryset):
+        for signature in signatures:
             if (
                 signature["should_alert"] is None
                 and signature["parent_signature_id"] is not None
@@ -1175,7 +1182,9 @@ class PerformanceSummary(generics.ListAPIView):
                 signature["should_alert"] = False
 
     @staticmethod
-    def _filter_out_retriggers(serialized_data):
+    def _filter_out_retriggers(
+        serialized_data: Sequence[dict[str, Any]],
+    ) -> Sequence[dict[str, Any]]:
         """
         Removes data points resulted from retriggers
         """
@@ -1200,9 +1209,8 @@ class PerformanceSummary(generics.ListAPIView):
 
 class PerformanceAlertSummaryTasks(generics.ListAPIView):
     serializer_class = PerformanceAlertSummaryTasksSerializer
-    queryset = None
 
-    def list(self, request):
+    def list(self, request: Request) -> Response:
         query_params = PerfAlertSummaryTasksQueryParamSerializer(data=request.query_params)
         if not query_params.is_valid():
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
@@ -1218,8 +1226,8 @@ class PerformanceAlertSummaryTasks(generics.ListAPIView):
             .order_by("job__job_type__name")
             .distinct()
         )
-        self.queryset = {"id": alert_summary_id, "tasks": tasks}
-        serializer = self.get_serializer(self.queryset)
+        alert_summary_data = {"id": alert_summary_id, "tasks": tasks}
+        serializer = self.get_serializer(alert_summary_data)
 
         return Response(data=serializer.data)
 
@@ -2111,14 +2119,14 @@ class PerfCompareResults(generics.ListAPIView):
 
 
 class DecimalEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj: Any) -> Any:
         if isinstance(obj, Decimal):
             return float(obj)
         return super().default(obj)
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
-    def list(self, request):
+    def list(self, request: Request) -> Response:
         query_params = TestSuiteHealthParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
