@@ -62,7 +62,13 @@ class NoteViewSet(viewsets.ViewSet):
 
         push = Push.objects.get(repository__name=project, revision=revision)
         notes = JobNote.objects.filter(job__push=push).select_related(
-            "job", "job__push", "job__job_type", "job__taskcluster_metadata"
+            "job",
+            "job__push",
+            "job__job_type",
+            "job__taskcluster_metadata",
+            # JobNoteDetailSerializer reads failure_classification.name; join it
+            # so the name isn't fetched with a separate query per note.
+            "failure_classification",
         )
         serializer = JobNoteDetailSerializer(notes, many=True)
         return Response(serializer.data)
