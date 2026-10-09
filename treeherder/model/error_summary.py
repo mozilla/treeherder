@@ -1,6 +1,9 @@
 import datetime
+import hashlib
+import json
 import logging
 import re
+from types import SimpleNamespace
 
 import newrelic.agent
 from django.core.cache import caches
@@ -115,6 +118,17 @@ class MemDBCache:
         return keys
 
 
+def error_line_cache(job):
+    """The cache of error line counts the job's repository shares."""
+    # job.repository is a Repository instance, so compare its name rather than
+    # the instance itself (which is never equal to a string). Without .name,
+    # comm-central jobs fell through to the "mc_error_lines" cache and shared a
+    # namespace with mozilla-central/autoland error-line counts.
+    if job.repository.name in ["comm-autoland", "comm-central"]:
+        return MemDBCache("cc_error_lines")
+    return MemDBCache("mc_error_lines")
+
+
 def get_error_summary(job, queryset=None):
     """
     Create a list of bug suggestions for a job.
@@ -128,14 +142,7 @@ def get_error_summary(job, queryset=None):
         return cached_error_summary
 
     # add support for error line caching
-    # job.repository is a Repository instance, so compare its name rather than
-    # the instance itself (which is never equal to a string). Without .name,
-    # comm-central jobs fell through to the "mc_error_lines" cache and shared a
-    # namespace with mozilla-central/autoland error-line counts.
-    if job.repository.name in ["comm-autoland", "comm-central"]:
-        lcache = MemDBCache("cc_error_lines")
-    else:
-        lcache = MemDBCache("mc_error_lines")
+    lcache = error_line_cache(job)
 
     date = str(job.submit_time.date())
     line_cache = lcache.get_cache()
@@ -190,6 +197,64 @@ def get_error_summary(job, queryset=None):
         logger.error("error caching error_lines for job %s: %s", job.id, e, exc_info=True)
 
     return error_summary
+
+
+def get_line_bug_suggestions(job, lines):
+    """
+    Create bug suggestions for failure lines of a job given as text, such as
+    the lines the UI builds from the job's structured summary when its log
+    was not parsed. Returns one suggestion per line, in order.
+
+    The error line counts are read, never written: `counter` and
+    `failure_new_in_rev` reflect what other jobs' logs recorded, and these
+    lines are not counted themselves.
+    """
+    digest = hashlib.sha1(json.dumps(lines).encode("utf-8")).hexdigest()
+    cache_key = f"line-bug-suggestions-{job.id}-{digest}"
+    cached_suggestions = cache.get(cache_key)
+    if cached_suggestions is not None:
+        return cached_suggestions
+
+    # A day the memory cache evicted reads as None.
+    line_cache = {
+        day: counts
+        for day, counts in error_line_cache(job).get_cache().items()
+        if counts is not None
+    }
+    term_cache = {}
+
+    suggestions = []
+    for line in lines:
+        if not get_cleaned_line(line):
+            suggestions.append(
+                {
+                    "search": "",
+                    "search_terms": [],
+                    "path_end": None,
+                    "bugs": {"open_recent": [], "all_others": []},
+                    "line_number": None,
+                    "counter": 0,
+                    "failure_new_in_rev": False,
+                }
+            )
+            continue
+        # Without a project, bug_suggestions_line only reads the counts.
+        summary, line_cache = bug_suggestions_line(
+            SimpleNamespace(line=line, line_number=None),
+            project=None,
+            logdate=job.submit_time,
+            term_cache=term_cache,
+            line_cache=line_cache,
+            revision=job.push.revision,
+        )
+        suggestions.append(summary)
+
+    try:
+        cache.set(cache_key, suggestions, BUG_SUGGESTION_CACHE_TIMEOUT)
+    except Exception as e:
+        logger.error("error caching line bug suggestions for job %s: %s", job.id, e, exc_info=True)
+
+    return suggestions
 
 
 def bug_suggestions_line(
