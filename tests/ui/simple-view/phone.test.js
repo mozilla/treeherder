@@ -11,10 +11,10 @@ test('a desktop keeps the jobs view', () => {
   ).toBe(null);
 });
 
-test('a phone opening a shared push lands on that push', () => {
+test('a phone opening a shared push lands on that push, keeping every parameter', () => {
   expect(
     simpleViewFor('?repo=try&revision=41f3091&selectedTaskRun=x.0', phone),
-  ).toBe('/simple?repo=try&revision=41f3091');
+  ).toBe('/simple?repo=try&revision=41f3091&selectedTaskRun=x.0');
 });
 
 test('a phone opening a tree lands on the push list for that repo', () => {
