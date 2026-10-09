@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { COUNT_UP_MS, MAX_REQUESTS_IN_FLIGHT, PULSE_MS } from './constants';
 
+// Polls while the tab is visible, and once more the moment it becomes
+// visible again (a phone coming out of a pocket).
 export const usePoll = (load, intervalMs, enabled = true) => {
   const saved = useRef(load);
   saved.current = load;
@@ -20,6 +22,7 @@ export const usePoll = (load, intervalMs, enabled = true) => {
   }, [intervalMs, enabled]);
 };
 
+// True for one beat whenever `key` changes after its first value.
 export const usePulse = (key) => {
   const previous = useRef(key);
   const [pulsing, setPulsing] = useState(false);
@@ -38,6 +41,7 @@ export const usePulse = (key) => {
   return pulsing;
 };
 
+// Keeps a list of pushes from asking for every summary at once.
 let inFlight = 0;
 const waiting = [];
 

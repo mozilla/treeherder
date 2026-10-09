@@ -21,6 +21,8 @@ export const chooseFullView = () => {
   }
 };
 
+// Where a jobs-view URL goes on a phone, or null to stay put. Every parameter
+// is kept so a link still points at what it was for.
 export const simpleViewFor = (search, { phone, fullView }) => {
   if (!phone || fullView) return null;
   const query = new URLSearchParams(search).toString();

@@ -27,6 +27,8 @@ import {
 export const describeSummary = (summary) => {
   if (!summary) return { tone: 'quiet', text: '' };
   const progress = progressOf(summary.status);
+  // testFailureCount is per test per config, so it would disagree with the
+  // detail screen's count. Say what's failing; the detail screen counts it.
   const broken = [
     [summary.testFailureCount, LIST.failingKinds.tests],
     [summary.buildFailureCount, LIST.failingKinds.build],
@@ -201,6 +203,7 @@ const PushList = ({ repo, author, theme }) => {
   }, [load, repo, author]);
   usePoll(load, POLL_MS.list);
 
+  // Just after switching person, the list can still hold the last one's pushes.
   const own = pushes?.find((p) => p.author?.toLowerCase() === author);
   const name = own ? authorName(own) : null;
   useEffect(() => {

@@ -15,6 +15,8 @@ import {
   UNCLASSIFIED_IDS,
 } from './constants';
 
+// The author rides along so any screen can be shared or bookmarked and still
+// say whose pushes it's seen from.
 export const pushUrl = ({ repo, author, revision, job }) => {
   const q = new URLSearchParams({ repo });
   if (revision) q.set('revision', revision);
@@ -23,6 +25,9 @@ export const pushUrl = ({ repo, author, revision, job }) => {
   return `/simple?${q}`;
 };
 
+// The name as the full view shows it, from the commits ("Full Name <email>").
+// Prefer the pusher's own commit; a try push is usually one person's commits
+// even when the email differs.
 export const authorName = (push) => {
   const people = (push?.revisions || [])
     .map((r) => r.author?.match(/^\s*(.*?)\s*<([^>]+)>/))
@@ -76,6 +81,9 @@ export const fetchHealth = (repo, revision) =>
     }),
   );
 
+// A try push's tip commit comes from `mach try`. Given `-m`, its first line
+// is the human message; otherwise it's try syntax and the author's words are
+// on the commit underneath.
 const isTrySyntax = (line) =>
   /^(Fuzzy query|try:|Try Chooser|Pushed via|Try task config)/i.test(line);
 
@@ -117,6 +125,7 @@ export const finishedCount = (status) =>
     .reduce((n, [, count]) => n + count, 0);
 
 // Push Health's status summary undercounts failures, so count from the job list.
+// Tier 3 is left out, as the full view hides it by default.
 export const statusFromJobs = (jobs) => {
   const status = { completed: 0, pending: 0, running: 0, unscheduled: 0 };
   for (const job of jobs) {
@@ -131,6 +140,8 @@ export const statusFromJobs = (jobs) => {
   return status;
 };
 
+// "TEST-UNEXPECTED-FAIL | path | message" names the test; a leak check or
+// harness error names itself.
 export const testFromErrorLine = (line = '') => {
   const parts = line.split(' | ');
   if (parts.length >= 2 && /TEST-UNEXPECTED|PROCESS-CRASH/.test(parts[0])) {
@@ -168,6 +179,7 @@ const minutesUntil = (ms, now = Date.now()) =>
 const buildName = (name) =>
   ETA.buildName(name.replace(/^build-/, '').replace(/\/.*$/, '').replace(/-/g, ' '));
 
+// Null when the model has nothing honest to say.
 export const describeEta = (eta, { started = false, now = Date.now() } = {}) => {
   if (!eta) return null;
   if (eta.confidence === 'firm') {
@@ -199,6 +211,8 @@ export const splitTestPath = (testName) => {
   return { dir: testName.slice(0, i + 1), file: testName.slice(i + 1) };
 };
 
+// Push Health lists one entry per test per platform and config; fold those
+// back into one row per test.
 export const groupByTest = (failures) => {
   const groups = new Map();
   for (const f of failures) {
@@ -222,6 +236,11 @@ export const groupByTest = (failures) => {
   return [...groups.values()].sort((a, b) => b.jobIds.size - a.jobIds.size);
 };
 
+// Failed test jobs that still need a rerun to say whether they're flaky, as
+// the full view's "Retrigger all failed test jobs" (#9344) picks them. Lint
+// gives the same answer twice and builds are expensive. A failure is already
+// answered when it's classified or its job has run more than once. Once per
+// job type, since retriggering is by label.
 export const retriggerableJobs = (jobs, pushId) => {
   const runs = new Map();
   for (const j of jobs) {

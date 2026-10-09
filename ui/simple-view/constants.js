@@ -193,6 +193,7 @@ export const POLL_MS = { list: 90 * 1000, push: 60 * 1000 };
 
 export const RING = { ticks: 90, size: 240, weight: 3 };
 export const MINI_RING = { ticks: 24, size: 38, weight: 7 };
+// Failures first from twelve o'clock, so they're what the eye lands on.
 export const RING_ORDER = [
   'testfailed',
   'busted',
@@ -219,17 +220,21 @@ export const RETRIGGER_RESET_MS = {
 };
 
 export const SHOWN_BUGS = 3;
+// Lines a failing test always drags along; they say nothing about why.
 export const FILLER_LINE = /^(profile uploaded in |finished in \d+ms$)/;
 
 export const FAILED_RESULTS = new Set(['testfailed', 'busted', 'exception']);
+// `status` counts jobs by state and completed jobs by result, and its own
+// `completed` total can disagree with the per-result counts, so finished work
+// is summed from the results.
 export const NOT_RESULTS = new Set([
   'completed',
   'pending',
   'running',
   'unscheduled',
-  'coalesced',
+  'coalesced', // an alias of superseded, kept for old API consumers
 ]);
-export const UNCLASSIFIED_IDS = new Set([1, 6]);
+export const UNCLASSIFIED_IDS = new Set([1, 6]); // "not classified", "new failure"
 
 export const VIEWPORT_TAG = {
   name: 'viewport',
@@ -264,8 +269,13 @@ export const JOB_PAGE_SIZE = 2000;
 export const ETA_MODEL = {
   fallbackMinutes: 20.8,
   mostResultsQuantile: 0.9,
+  // Uncorrected, real finishes run 1.9x the predicted remaining time at the
+  // median; 1.25 errs long, which is the right direction for an ETA.
   tailCalibration: 1.25,
+  // Below 60% of unresolved jobs in pools with an observed wait, estimates
+  // are off by about two hours, so say nothing.
   firmCoverage: 0.6,
+  // The decision task has to land before there's anything to estimate.
   minimumElapsedSeconds: 8 * 60,
 };
 

@@ -2,6 +2,8 @@
 import { NAMED_RESULTS, RING, RING_ORDER } from './constants';
 import { finishedCount } from './helpers';
 
+// Splits `ticks` across states by job count, giving any non-empty state at
+// least one tick (largest remainder).
 export const allocateTicks = (status, ticks) => {
   const counts = Object.fromEntries(RING_ORDER.map((k) => [k, status?.[k] || 0]));
   counts.other = Math.max(

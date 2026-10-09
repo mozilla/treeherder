@@ -8,6 +8,7 @@ import { createQueryParams } from '../helpers/url';
 import { ETA_MODEL, JOB_COLUMNS, JOB_PAGE_SIZE, JOB_STATES } from './constants';
 import { orNull } from './helpers';
 
+// Treeherder writes a missing timestamp as 0; left alone it reads as 1970.
 const stamp = (v) => (typeof v === 'number' && v > 0 ? v : null);
 
 export const parseJobRows = ({ job_property_names: names, results }) => {
@@ -27,6 +28,8 @@ export const parseJobRows = ({ job_property_names: names, results }) => {
     }
     jobs.push({
       id,
+      // An unknown state counts as pending: guessing "done" would promise a
+      // finish with jobs still queued.
       state: JOB_STATES.has(state) ? state : 'pending',
       result: get(row, 'result') || 'unknown',
       symbol: get(row, 'symbol') || '',
@@ -61,11 +64,14 @@ export const fetchPushJobs = orNull(async (repo, pushId) => {
     if (failureStatus) return null;
     const before = jobs.size;
     for (const job of parseJobRows(data)) jobs.set(job.id, job);
+    // Stop on a short page, or one that added nothing new: list endpoints have
+    // been seen to repeat rows rather than advance.
     if (data.results.length < JOB_PAGE_SIZE || jobs.size === before) break;
   }
   return [...jobs.values()];
 });
 
+// Loaded lazily so the 140 KB table is its own chunk and /jobs never pays for it.
 let tablePromise;
 export const loadDurationTable = () => {
   tablePromise =
@@ -76,6 +82,7 @@ export const loadDurationTable = () => {
   return tablePromise;
 };
 
+// Dropping the chunk number lets an unseen chunk inherit its siblings' timing.
 export const familyKey = (name) => name.replace(/-\d+$/, '');
 
 export const expectedRunTime = (job, table) => {
@@ -88,6 +95,7 @@ export const expectedRunTime = (job, table) => {
   return minutes * 60;
 };
 
+// Jobs sharing this key contend for the same workers, so share a queue wait.
 const poolKey = (job) => `${job.platform}|${job.platformOption}`;
 
 const queueWait = (job) =>
@@ -95,6 +103,9 @@ const queueWait = (job) =>
     ? job.start - job.submit
     : null;
 
+// A shippable build is a pipeline: instrumented-build makes a profiling
+// binary, generate-profile runs it, and only then does build make what the
+// tests consume.
 export const buildStage = ({ jobTypeName: n }) => {
   if (n.startsWith('toolchain-')) return 0;
   if (n.startsWith('instrumented-build-')) return 1;
@@ -115,6 +126,9 @@ const median = (values) => {
   return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 };
 
+// Walks the build chain stage by stage to find when tests are released. A
+// running stage is projected from its own start; one that hasn't started
+// from the previous stage's end plus a normal queue wait.
 const buildGate = (unresolved, poolWaits, globalWait, now, table) => {
   let frontier = null;
   let running = null;
@@ -148,6 +162,12 @@ const buildGate = (unresolved, poolWaits, globalWait, now, table) => {
     : null;
 };
 
+// Null when there's nothing to estimate. Otherwise `confidence` is:
+//   'firm'           show `mostAt` (90% of jobs) and `allAt` (approximate)
+//   'blockedOnBuild' tests wait on a running build; show `blockingBuild`
+//   'estimating'     too early; `mostAt`/`allAt` are null
+// Every tier counts: an ETA that skipped tier 2 would promise a finish with
+// hundreds of jobs queued.
 export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
   if (!jobs?.length) return null;
   const nowS = now / 1000;
@@ -160,6 +180,7 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
   for (const job of jobs) {
     if (job.state === 'completed' && job.end != null) resolvedEnds.push(job.end);
     else unresolved.push(job);
+    // A start stamp observes the pool's queue even if the job has since finished.
     const wait = queueWait(job);
     if (wait != null) {
       const key = poolKey(job);
@@ -172,6 +193,8 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
   const poolWaits = new Map([...waits].map(([k, v]) => [k, median(v)]));
   const globalWait = poolWaits.size ? median([...poolWaits.values()]) : 0;
 
+  // A job in a pool where nothing has started is usually waiting on a build,
+  // not idly queued.
   const gate = buildGate(unresolved, poolWaits, globalWait, nowS, table);
   // A test the build hasn't released yet can't start before the gate opens,
   // even if its pool already has an observed queue wait.
@@ -195,6 +218,7 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
       end = Math.max(gate.releasesAt, nowS) + wait + run;
     } else if (poolWaits.has(poolKey(job))) {
       observed += 1;
+      // Never predict a wait shorter than the one already served.
       const wait = Math.max(poolWaits.get(poolKey(job)), nowS - job.submit);
       end = job.submit + wait + run;
     } else if (gate) {
@@ -237,6 +261,8 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
     };
   }
 
+  // Only name a long pole when it's really holding things up: it's a hint,
+  // not a fact.
   let longPole = null;
   let longPoleRemaining = 0;
   if (worstJob && worstEnd > mostS + 5 * 60) {

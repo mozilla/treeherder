@@ -49,6 +49,8 @@ export const cachedHealth = (repo, revision) =>
 export const rememberHealth = (repo, revision, health) =>
   healths.set(`${repo}:${revision}`, health);
 
+// A fetch started when a finger lands on a row is the one the detail screen
+// picks up, instead of starting over.
 const inFlight = new Map();
 
 export const shared = (key, start, freshMs = 5000) => {

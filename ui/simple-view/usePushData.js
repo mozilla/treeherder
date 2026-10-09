@@ -15,6 +15,8 @@ import { usePoll } from './hooks';
 const usePushData = (repo, revision) => {
   const [push, setPush] = useState(() => cachedPush(repo, revision));
   const [health, setHealth] = useState(() => cachedHealth(repo, revision));
+  // The list already knows this push's counts, so the ring can draw before the
+  // health report arrives.
   const summary = cachedSummary(repo, revision);
   const [error, setError] = useState(null);
 
@@ -43,6 +45,8 @@ const usePushData = (repo, revision) => {
     loadHealth();
   }, [loadHealth, repo, revision]);
 
+  // The push's own job list: exact counts, the ETA's input, and the failures
+  // Push Health leaves out.
   const [jobs, setJobs] = useState(null);
   const loadJobs = useCallback(async () => {
     if (!push) return;

@@ -26,9 +26,12 @@ body.sv-body {
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Android flashes blue on every tap; the view has its own pressed states. */
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Dark mode lightens the job colours that vanish on a dark page (black
+   running, deep blue retry, deep green success). */
 [data-bs-theme='dark'] body.sv-body {
   --sv-info-bg: var(--bs-info-bg-subtle);
   --sv-info-ink: var(--bs-info-text-emphasis);
@@ -80,6 +83,8 @@ body.sv-body {
   text-align: left;
 }
 
+/* --sv-tone paints marks; --sv-tone-text is the same colour, dark enough
+   to read as small text on white. */
 .sv-tone-good {
   --sv-tone: var(--sv-success);
   --sv-tone-text: var(--sv-success-text);
@@ -440,6 +445,7 @@ body.sv-body {
   opacity: 0.35;
 }
 
+/* Running and loading ticks carry a slow wave, so a working push looks it. */
 .sv-tick-running,
 .sv-tick-loading {
   animation:
@@ -579,6 +585,7 @@ body.sv-body {
   justify-content: space-between;
   gap: 12px;
   font-size: 14px;
+  /* Reserved so a status arriving later doesn't move the row. */
   min-height: 20px;
 }
 
@@ -703,6 +710,7 @@ body.sv-body {
   transform: rotate(-135deg);
 }
 
+/* Rotated, the square's corner sits low; lift it onto the text's centre. */
 .sv-chevron:not(.sv-chevron-open) {
   margin-top: -4px;
 }
@@ -767,6 +775,8 @@ body.sv-body {
   flex-direction: column;
   align-items: center;
   margin-top: 24px;
+  /* Tall enough for a headline and a line, so arriving results don't shove
+     the page down. */
   min-height: 96px;
 }
 
@@ -979,6 +989,8 @@ body.sv-body {
   border-top: 1px solid var(--sv-hairline);
 }
 
+/* .sv prefix: the button reset above would otherwise strip a run row's
+   padding. */
 .sv .sv-run {
   display: flex;
   align-items: center;

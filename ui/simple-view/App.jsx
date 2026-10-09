@@ -20,6 +20,9 @@ import {
 import '../css/treeherder-job-buttons.css';
 import '../css/simple-view.css';
 
+// The rest of Treeherder relies on the browser zooming a desktop layout out
+// on a phone, so only this view opts in to device width, and only while
+// mounted. theme-color tints the browser's toolbar to match the top bar.
 const useMobileHead = () => {
   useEffect(() => {
     const toolbarColor = getComputedStyle(document.documentElement)
@@ -42,6 +45,8 @@ const useMobileHead = () => {
   }, []);
 };
 
+// The author lives in the URL so any screen can be shared. With none, fill in
+// the signed-in user, else ask. An empty `author=` asks on purpose.
 const useAuthorInUrl = (params, repo) => {
   const navigate = useNavigate();
   const asking = 'author' in params && !params.author;

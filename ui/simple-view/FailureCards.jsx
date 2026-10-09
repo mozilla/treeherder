@@ -11,6 +11,7 @@ import {
 import { queued } from './hooks';
 import { JobFailures } from './JobSummary';
 
+// Failed runs out of all runs: solid red is a real break, a scatter is flaky.
 const RunBar = ({ failed, total }) => {
   const cells = Math.min(total, 20);
   const red = Math.round((failed / total) * cells);
@@ -87,6 +88,7 @@ export const TestCard = ({ group, jobs, repo, revision }) => {
           <Chevron open={open} />
         </span>
       </button>
+      {/* One failed run: its summary is the answer. Several: pick one. */}
       {open && runs.length === 1 && (
         <JobFailures
           inline
@@ -153,6 +155,8 @@ export const JobCard = ({ job, repo, revision }) => (
   </JobTile>
 );
 
+// Failures Treeherder had seen before, named by their first failing test and
+// grouped, so five red jobs read as the tests they are.
 export const SeenBefore = ({ jobs, repo, revision }) => {
   const [tests, setTests] = useState({});
   const ids = jobs.map((j) => j.id).join(',');

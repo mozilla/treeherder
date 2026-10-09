@@ -25,11 +25,14 @@ const fetchJob = (repo, id) => getData(getProjectUrl(`/jobs/${id}/`, repo));
 const fetchSuggestions = (repo, id) =>
   getData(getProjectUrl(`/jobs/${id}/bug_suggestions/`, repo));
 
+// "TEST-UNEXPECTED-FAIL | path | message" → the message.
 const messageOf = (search) => {
   const parts = search.split(' | ');
   return parts.length > 2 ? parts.slice(2).join(' | ') : search;
 };
 
+// One card per test; lines with no test (a harness error) are kept apart so
+// they can't bury the ones that matter.
 export const groupFailureLines = (lines) => {
   const tests = new Map();
   const other = [];
@@ -58,6 +61,7 @@ export const groupFailureLines = (lines) => {
       ...(line.bugs?.open_recent || []),
       ...(line.bugs?.all_others || []),
     ]) {
+      // Internal issues have no Bugzilla id and often repeat one summary.
       const key = bug.id || `internal:${bug.summary}`;
       if (!g.bugs.has(key)) g.bugs.set(key, bug);
     }
@@ -107,6 +111,7 @@ const Bug = ({ bug, path }) => {
 };
 
 const Failure = ({ group, block, under }) => {
+  // Opened under a tile that already names this test: skip straight to why.
   const repeat = block && under && group.path.endsWith(under);
   const [showAll, setShowAll] = useState(false);
   const { dir, file } = splitTestPath(group.path);
@@ -199,6 +204,9 @@ const useJob = (repo, jobId) => {
   return { job, lines, error };
 };
 
+// Why a job failed: one entry per test, then the log lines that name no test.
+// Those open by themselves when they're all there is, so the reason is never
+// behind a tap.
 export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
   const { job, lines, error } = useJob(repo, jobId);
   const { groups, other } = groupFailureLines(lines || []);

@@ -12,8 +12,11 @@ import {
 
 import { RETRIGGER, RETRIGGER_RESET_MS } from './constants';
 
+// Taskcluster only signs in from origins it has a client for. Anywhere else
+// the button says where it works instead of failing quietly.
 export const canRetrigger = () => !!tcClientIdMap[window.location.origin];
 
+// The same check taskcluster.getCredentials makes, done synchronously.
 export const hasTaskclusterCredentials = (
   rootUrl = checkRootUrl(prodFirefoxRootUrl),
 ) => {
@@ -58,6 +61,7 @@ const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
       settle('failed', RETRIGGER_RESET_MS.failed);
       return;
     }
+    // JobModel.retrigger reports through notify rather than a return value.
     JobModel.retrigger(jobs, currentRepo, (message, severity) => {
       if (String(message).includes(tcCredentialsMessage)) settle('signin');
       else if (severity === 'danger') settle('failed', RETRIGGER_RESET_MS.failed);

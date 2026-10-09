@@ -78,6 +78,7 @@ const WithFavicon = ({ children, route }) => {
   return children;
 };
 
+// Phones get the simple view in place of the desktop jobs view.
 const JobsOrSimpleView = () => {
   const { search } = useLocation();
   const target = simpleViewFor(search, {

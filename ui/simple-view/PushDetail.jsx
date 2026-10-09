@@ -38,6 +38,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
     verdict({ yours, parentToo, builds, lint, progress, eta, seenBefore });
 
   const failedJobs = push ? retriggerableJobs(jobs || [], push.id) : [];
+  // Only once the job list is in, so the note never flashes before the button.
   const testsFailed =
     !!jobs &&
     jobs.some(
