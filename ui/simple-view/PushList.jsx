@@ -177,7 +177,14 @@ const PushList = ({ repo, author, theme }) => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const load = useCallback(async () => {
-    const { data, failureStatus } = await fetchPushes(repo, author);
+    let response;
+    try {
+      response = await fetchPushes(repo, author);
+    } catch {
+      setError(LIST.unreachable);
+      return;
+    }
+    const { data, failureStatus } = response;
     if (failureStatus) {
       setError(LIST.unreachable);
       return;

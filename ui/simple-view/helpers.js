@@ -44,7 +44,18 @@ export const fetchPush = (repo, revision) =>
     getProjectUrl(`${pushEndpoint}${createQueryParams({ revision })}`, repo),
   );
 
-export const fetchSummary = async (repo, revision) => {
+// Background loaders treat a dropped connection like an error response:
+// resolve null and keep showing the last good data.
+export const orNull = (load) =>
+  async (...args) => {
+    try {
+      return await load(...args);
+    } catch {
+      return null;
+    }
+  };
+
+export const fetchSummary = orNull(async (repo, revision) => {
   const { data, failureStatus } = await PushModel.getHealthSummary(
     repo,
     revision,
@@ -52,15 +63,18 @@ export const fetchSummary = async (repo, revision) => {
   const summary = failureStatus || !Array.isArray(data) ? null : data[0];
   if (summary) rememberSummary(repo, revision, summary);
   return summary;
-};
+});
 
 export const fetchHealth = (repo, revision) =>
-  shared(`health:${repo}:${revision}`, async () => {
-    const { data, failureStatus } = await PushModel.getHealth(repo, revision);
-    if (failureStatus) return null;
-    rememberHealth(repo, revision, data);
-    return data;
-  });
+  shared(
+    `health:${repo}:${revision}`,
+    orNull(async () => {
+      const { data, failureStatus } = await PushModel.getHealth(repo, revision);
+      if (failureStatus) return null;
+      rememberHealth(repo, revision, data);
+      return data;
+    }),
+  );
 
 const isTrySyntax = (line) =>
   /^(Fuzzy query|try:|Try Chooser|Pushed via|Try task config)/i.test(line);
@@ -125,7 +139,7 @@ export const testFromErrorLine = (line = '') => {
   return null;
 };
 
-export const fetchFirstFailingTest = async (repo, jobId) => {
+export const fetchFirstFailingTest = orNull(async (repo, jobId) => {
   const { data, failureStatus } = await getData(
     getProjectUrl(`/jobs/${jobId}/text_log_errors/`, repo),
   );
@@ -135,7 +149,7 @@ export const fetchFirstFailingTest = async (repo, jobId) => {
     if (test) return test;
   }
   return null;
-};
+});
 
 export const progressOf = (status) => {
   if (!status) return null;

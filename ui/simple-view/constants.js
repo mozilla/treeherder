@@ -93,6 +93,7 @@ export const VERDICT = {
 
 export const PUSH = {
   noPush: 'No push with that revision.',
+  loadError: "Couldn't reach Treeherder.",
   reading: 'Reading the results',
   ringDone: 'done',
   ringJobs: (n) => plural(n, 'job'),

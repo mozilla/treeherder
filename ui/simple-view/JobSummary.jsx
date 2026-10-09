@@ -185,6 +185,11 @@ const useJob = (repo, jobId) => {
         else setJob(j.data);
         setLines(s.failureStatus || !Array.isArray(s.data) ? [] : s.data);
       },
+      () => {
+        if (!live) return;
+        setError(JOB.loadError);
+        setLines([]);
+      },
     );
     return () => {
       live = false;
@@ -195,7 +200,7 @@ const useJob = (repo, jobId) => {
 };
 
 export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
-  const { job, lines } = useJob(repo, jobId);
+  const { job, lines, error } = useJob(repo, jobId);
   const { groups, other } = groupFailureLines(lines || []);
   const rawLog = job?.logs?.find((l) => l.name === 'live_backing_log')?.url;
   const full = job
@@ -231,9 +236,7 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
   const body = (
     <>
       {!lines.length && (
-        <p className="sv-sub">
-          {JOB.noLines}
-        </p>
+        <p className="sv-sub">{error || JOB.noLines}</p>
       )}
       {groups.length > 0 && (
         <ul className={inline ? 'sv-inline-failures' : 'sv-cards sv-rise'}>

@@ -363,14 +363,18 @@ const PushDetail = ({ repo, author, theme, revision }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchPush(repo, revision).then(({ data, failureStatus }) => {
-      if (failureStatus || !data.results?.length) {
-        setError(PUSH.noPush);
-      } else {
-        setPush(data.results[0]);
-        rememberPush(repo, data.results[0]);
-      }
-    });
+    fetchPush(repo, revision).then(
+      ({ data, failureStatus }) => {
+        if (failureStatus || !data.results?.length) {
+          setError(PUSH.noPush);
+        } else {
+          setError(null);
+          setPush(data.results[0]);
+          rememberPush(repo, data.results[0]);
+        }
+      },
+      () => setError(PUSH.loadError),
+    );
   }, [repo, revision]);
 
   const loadHealth = useCallback(async () => {

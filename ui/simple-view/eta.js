@@ -6,6 +6,7 @@ import { getProjectUrl } from '../helpers/location';
 import { createQueryParams } from '../helpers/url';
 
 import { ETA_MODEL, JOB_COLUMNS, JOB_PAGE_SIZE, JOB_STATES } from './constants';
+import { orNull } from './helpers';
 
 const stamp = (v) => (typeof v === 'number' && v > 0 ? v : null);
 
@@ -42,7 +43,7 @@ export const parseJobRows = ({ job_property_names: names, results }) => {
   return jobs;
 };
 
-export const fetchPushJobs = async (repo, pushId) => {
+export const fetchPushJobs = orNull(async (repo, pushId) => {
   const jobs = new Map();
   for (let offset = 0; ; offset += JOB_PAGE_SIZE) {
     const { data, failureStatus } = await getData(
@@ -63,7 +64,7 @@ export const fetchPushJobs = async (repo, pushId) => {
     if (data.results.length < JOB_PAGE_SIZE || jobs.size === before) break;
   }
   return [...jobs.values()];
-};
+});
 
 let tablePromise;
 export const loadDurationTable = () => {
