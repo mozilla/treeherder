@@ -3,15 +3,18 @@ import logging
 
 import django_filters
 from dateutil import parser
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models as django_models
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
-from treeherder.model.error_summary import get_error_summary
+from treeherder.log_parser.artifactbuilders import ArtifactBuilderBase
+from treeherder.model.error_summary import get_error_summary, get_line_bug_suggestions
 from treeherder.model.models import (
     Job,
     JobLog,
@@ -399,6 +402,30 @@ class JobsProjectViewSet(viewsets.ViewSet):
             return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
 
         return Response(get_error_summary(job))
+
+    @action(detail=True, methods=["post"], permission_classes=[AllowAny])
+    def line_bug_suggestions(self, request, project, pk=None):
+        """
+        Gets bug suggestions for failure lines of this job sent as
+        `{"lines": [...]}`, for lines its parsed log does not hold. Read only,
+        so anyone may ask; a POST because the lines do not fit in a URL.
+        """
+        lines = request.data.get("lines") if isinstance(request.data, dict) else None
+        if not isinstance(lines, list) or not all(isinstance(line, str) for line in lines):
+            return Response("lines must be a list of strings", status=HTTP_400_BAD_REQUEST)
+
+        try:
+            job = Job.objects.select_related("push", "repository").get(
+                repository__name=project, id=pk
+            )
+        except ObjectDoesNotExist:
+            return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
+
+        lines = [
+            line[: ArtifactBuilderBase.MAX_LINE_LENGTH]
+            for line in lines[: settings.MAX_ERROR_LINES]
+        ]
+        return Response(get_line_bug_suggestions(job, lines))
 
     @action(detail=True, methods=["get"])
     def similar_jobs(self, request, project, pk=None):
