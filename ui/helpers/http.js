@@ -82,8 +82,9 @@ export const getData = async function getData(url, options = {}, retried = false
   return { data, failureStatus };
 };
 
-export const create = function postJson(uri, data) {
+export const create = function postJson(uri, data, options = {}) {
   return getData(uri, {
+    ...options,
     method: 'POST',
     headers: generateHeaders(),
     body: JSON.stringify(data),
