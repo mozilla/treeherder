@@ -9,6 +9,7 @@ from treeherder.model.error_summary import (
     get_crash_signature,
     get_error_search_term_and_path,
     get_error_summary,
+    get_line_bug_suggestions,
 )
 
 LINE_CLEANING_TEST_CASES = (
@@ -414,5 +415,100 @@ def test_error_line_cache_selected_by_repository_name(
     # Empty queryset makes get_error_summary return early right after it picks
     # the error-line cache, so no DB/log processing is needed.
     get_error_summary(_fake_job(repository_name), queryset=[])
+
+    mock_memdbcache.assert_called_once_with(expected_keyroot)
+
+
+LEAK_LINE = (
+    "TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at "
+    "mozilla::dom::AllocateProtoAndIfaceCache, mozilla::dom::CreateGlobal"
+)
+
+
+def _line_job(repository_name="autoland"):
+    job = _fake_job(repository_name)
+    job.push.revision = "abcdef123456"
+    return job
+
+
+@patch("treeherder.model.error_summary.Bugscache")
+@patch("treeherder.model.error_summary.MemDBCache")
+@patch("treeherder.model.error_summary.cache")
+def test_line_bug_suggestions_read_the_line_counts_without_writing_them(
+    mock_cache, mock_memdbcache, mock_bugscache
+):
+    """A line sent as text gets the bugs its search term finds and the counts
+    other jobs' logs recorded, and is not counted itself, even on autoland."""
+    mock_cache.get.return_value = None
+    line_key = cache_clean_error_line(LEAK_LINE)
+    lcache = mock_memdbcache.return_value
+    lcache.get_cache.return_value = {
+        "2024-01-13": None,
+        "2024-01-14": {line_key: 2},
+        "2024-01-15": {"new_lines": {line_key: "abcdef123456"}, line_key: 1},
+    }
+    bug = {"id": 1775819, "summary": "Intermittent LeakSanitizer | leak at ..."}
+    mock_bugscache.search.return_value = {"open_recent": [bug], "all_others": []}
+
+    [suggestion] = get_line_bug_suggestions(_line_job(), [LEAK_LINE])
+
+    assert suggestion == {
+        "search": LEAK_LINE,
+        "search_terms": get_error_search_term_and_path(LEAK_LINE)["search_term"],
+        "path_end": get_error_search_term_and_path(LEAK_LINE)["path_end"],
+        "bugs": {"open_recent": [bug], "all_others": []},
+        "line_number": None,
+        "counter": 3,
+        "failure_new_in_rev": True,
+    }
+    lcache.write_cache.assert_not_called()
+    lcache.update_cache.assert_not_called()
+    lcache.update_db_cache.assert_not_called()
+    lcache.remove_cache_key.assert_not_called()
+    assert mock_cache.set.call_args.args[0].startswith("line-bug-suggestions-1-")
+
+
+@patch("treeherder.model.error_summary.Bugscache")
+@patch("treeherder.model.error_summary.MemDBCache")
+@patch("treeherder.model.error_summary.cache")
+def test_line_bug_suggestions_keep_the_line_order(mock_cache, mock_memdbcache, mock_bugscache):
+    """One suggestion per line, in order; a line with nothing left once
+    cleaned gets an empty one instead of a search."""
+    mock_cache.get.return_value = None
+    mock_memdbcache.return_value.get_cache.return_value = {}
+    mock_bugscache.search.return_value = {"open_recent": [], "all_others": []}
+    lines = [
+        "TEST-UNEXPECTED-FAIL | dom/tests/test_a.html | boom",
+        "   ",
+        "TEST-UNEXPECTED-TIMEOUT | dom/tests/test_b.html | took too long",
+    ]
+
+    suggestions = get_line_bug_suggestions(_line_job("try"), lines)
+
+    assert [suggestion["search"] for suggestion in suggestions] == [lines[0], "", lines[2]]
+    assert [suggestion["counter"] for suggestion in suggestions] == [0, 0, 0]
+    assert suggestions[1]["bugs"] == {"open_recent": [], "all_others": []}
+    assert suggestions[1]["search_terms"] == []
+
+
+@patch("treeherder.model.error_summary.MemDBCache")
+@patch("treeherder.model.error_summary.cache")
+def test_line_bug_suggestions_served_from_the_cache(mock_cache, mock_memdbcache):
+    mock_cache.get.return_value = [{"search": "cached"}]
+
+    assert get_line_bug_suggestions(_line_job(), [LEAK_LINE]) == [{"search": "cached"}]
+    mock_memdbcache.assert_not_called()
+
+
+@pytest.mark.parametrize(("repository_name", "expected_keyroot"), ERROR_LINE_CACHE_KEYROOT_CASES)
+@patch("treeherder.model.error_summary.MemDBCache")
+@patch("treeherder.model.error_summary.cache")
+def test_line_bug_suggestions_read_the_repository_line_cache(
+    mock_cache, mock_memdbcache, repository_name, expected_keyroot
+):
+    mock_cache.get.return_value = None
+    mock_memdbcache.return_value.get_cache.return_value = {}
+
+    get_line_bug_suggestions(_line_job(repository_name), [])
 
     mock_memdbcache.assert_called_once_with(expected_keyroot)
