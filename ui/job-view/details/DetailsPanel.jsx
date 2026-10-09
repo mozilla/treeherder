@@ -63,6 +63,7 @@ function DetailsPanel({
     bugs,
     bugSuggestions,
     bugSuggestionsLoading,
+    lineBugSuggestions,
     summary,
     summaryLoading,
     summaryError,
@@ -159,6 +160,7 @@ function DetailsPanel({
           jobRevision={jobRevision}
           bugSuggestions={bugSuggestions}
           bugSuggestionsLoading={bugSuggestionsLoading}
+          lineBugSuggestions={lineBugSuggestions}
           summary={summary}
           summaryLoading={summaryLoading}
           summaryError={summaryError}
