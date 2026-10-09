@@ -173,6 +173,10 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
   const globalWait = poolWaits.size ? median([...poolWaits.values()]) : 0;
 
   const gate = buildGate(unresolved, poolWaits, globalWait, nowS, table);
+  // A test the build hasn't released yet can't start before the gate opens,
+  // even if its pool already has an observed queue wait.
+  const waitsOnGate = (job) =>
+    gate && job.state === 'unscheduled' && buildStage(job) == null;
 
   const projected = [...resolvedEnds];
   let worstEnd = Number.NEGATIVE_INFINITY;
@@ -186,6 +190,9 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
       end = job.start + run;
     } else if (job.submit == null) {
       continue;
+    } else if (waitsOnGate(job)) {
+      const wait = poolWaits.get(poolKey(job)) ?? globalWait;
+      end = Math.max(gate.releasesAt, nowS) + wait + run;
     } else if (poolWaits.has(poolKey(job))) {
       observed += 1;
       const wait = Math.max(poolWaits.get(poolKey(job)), nowS - job.submit);
@@ -225,7 +232,7 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
       name: gate.stage,
       finishAt: gate.releasesAt * 1000,
       blockedJobs: unresolved.filter(
-        (j) => j.start == null && !poolWaits.has(poolKey(j)),
+        (j) => j.start == null && (waitsOnGate(j) || !poolWaits.has(poolKey(j))),
       ).length,
     };
   }

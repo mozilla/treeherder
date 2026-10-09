@@ -185,6 +185,28 @@ describe('estimatePush', () => {
     expect(eta.blockingBuild.blockedJobs).toBe(5);
     expect(eta.mostAt).toBeNull();
   });
+
+  test('a gated test waits for its build even when its pool has a wait', () => {
+    const pool = { platform: 'linux', platformOption: 'opt' };
+    const jobs = [
+      job({
+        ...pool,
+        state: 'running',
+        jobTypeName: 'build-linux/opt',
+        submit: NOW - 15 * MIN,
+        start: NOW - 5 * MIN,
+      }),
+      ...Array.from({ length: 3 }, () =>
+        job({ ...pool, state: 'pending', submit: NOW - 2 * MIN }),
+      ),
+      job({ ...pool, state: 'unscheduled', submit: NOW - 2 * MIN }),
+    ];
+    const eta = estimatePush(jobs, table, { now: nowMs, pushedAt });
+
+    // Build ends at +10 (15 run); the test then waits 10 and runs 10.
+    expect(eta.confidence).toBe('firm');
+    expect(eta.allAt).toBeCloseTo((NOW + 30 * 1.25 * MIN) * 1000);
+  });
 });
 
 describe('job-list counts', () => {
