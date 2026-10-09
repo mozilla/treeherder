@@ -100,13 +100,14 @@ const RingCenter = ({ progress }) => {
   const pct = progress.total ? Math.floor((progress.done / progress.total) * 100) : 0;
   const n = useCountUp(running ? pct : progress.total);
 
+  // The figure counts up every frame; screen readers get the headline instead.
   return (
     <>
-      <span className="sv-ring-figure">
+      <span className="sv-ring-figure" aria-hidden="true">
         {n}
         {running && <span className="sv-ring-unit">%</span>}
       </span>
-      <span className="sv-ring-label">
+      <span className="sv-ring-label" aria-hidden="true">
         {running ? PUSH.ringDone : PUSH.ringJobs(progress.total)}
       </span>
     </>
@@ -495,7 +496,6 @@ const PushDetail = ({ repo, author, theme, revision }) => {
 
       <section
         className={`sv-hero sv-tone-${said?.tone || 'quiet'}${pulsing ? ' sv-pulse' : ''}`}
-        aria-live="polite"
       >
         {!error && (
           <Ring
@@ -508,8 +508,12 @@ const PushDetail = ({ repo, author, theme, revision }) => {
         )}
         {said ? (
           <div className="sv-rise sv-hero-words">
-            <h1 className="sv-headline">{said.headline}</h1>
-            <p className="sv-sub">{said.sub}</p>
+            <h1 className="sv-headline" aria-live="polite">
+              {said.headline}
+            </h1>
+            <p className="sv-sub" aria-live="polite">
+              {said.sub}
+            </p>
             <Legend status={counts} />
             {failedJobs.length > 0 && (
               <Retrigger jobs={failedJobs} repo={repo} />
