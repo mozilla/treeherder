@@ -5,7 +5,7 @@ from dateutil import parser
 from django.urls import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.model.models import Job, TextLogError
+from treeherder.model.models import Bugscache, Job, TextLogError
 
 
 @pytest.mark.parametrize(
@@ -235,6 +235,77 @@ def test_text_log_errors(client, test_job):
             "new_failure": False,
         },
     ]
+
+
+def _line_bug_suggestions_url(job, pk=None):
+    return reverse(
+        "jobs-line-bug-suggestions",
+        kwargs={"project": job.repository.name, "pk": job.id if pk is None else pk},
+    )
+
+
+def test_line_bug_suggestions(client, test_job):
+    """Anyone may ask, and gets one suggestion per line, in order."""
+    lines = [
+        "TEST-UNEXPECTED-FAIL | dom/tests/test_a.html | boom",
+        "TEST-UNEXPECTED-TIMEOUT | dom/tests/test_b.html | took too long",
+    ]
+    resp = client.post(_line_bug_suggestions_url(test_job), {"lines": lines}, format="json")
+    assert resp.status_code == 200
+    suggestions = resp.json()
+    assert [suggestion["search"] for suggestion in suggestions] == lines
+    assert [suggestion["path_end"] for suggestion in suggestions] == [
+        "dom/tests/test_a.html",
+        "dom/tests/test_b.html",
+    ]
+    assert all(suggestion["line_number"] is None for suggestion in suggestions)
+
+
+def test_line_bug_suggestions_find_bugs(client, test_job):
+    """A LeakSanitizer line of a job whose log was too big to parse finds the
+    bug filed for it."""
+    line = (
+        "TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at mozilla::dom::AllocateProtoAndIfaceCache, "
+        "mozilla::dom::CreateGlobal, mozilla::dom::Window_Binding::Wrap, CreateNativeGlobalForInner"
+    )
+    Bugscache.objects.create(
+        bugzilla_id=1990001,
+        status="NEW",
+        keywords="intermittent-failure",
+        summary=f"Intermittent {line}",
+        modified="2010-01-01 00:00:00",
+    )
+    resp = client.post(_line_bug_suggestions_url(test_job), {"lines": [line]}, format="json")
+    assert resp.status_code == 200
+    [suggestion] = resp.json()
+    assert [bug["id"] for bug in suggestion["bugs"]["open_recent"]] == [1990001]
+
+
+def test_line_bug_suggestions_capped(client, test_job):
+    """No more lines, nor longer ones, than the log parser stores."""
+    long_line = "TEST-UNEXPECTED-FAIL | dom/tests/test_long.html | " + "x" * 600
+    lines = [long_line] + [
+        f"TEST-UNEXPECTED-FAIL | dom/tests/test_{i}.html | boom" for i in range(50)
+    ]
+    resp = client.post(_line_bug_suggestions_url(test_job), {"lines": lines}, format="json")
+    assert resp.status_code == 200
+    suggestions = resp.json()
+    assert len(suggestions) == 40
+    assert suggestions[0]["search"] == long_line[:500]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [{}, {"lines": "TEST-UNEXPECTED-FAIL | a | b"}, {"lines": [1]}, ["TEST-UNEXPECTED-FAIL"]],
+)
+def test_line_bug_suggestions_bad_body(client, test_job, body):
+    resp = client.post(_line_bug_suggestions_url(test_job), body, format="json")
+    assert resp.status_code == HTTP_400_BAD_REQUEST
+
+
+def test_line_bug_suggestions_unknown_job(client, test_job):
+    resp = client.post(_line_bug_suggestions_url(test_job, pk=-32767), {"lines": []}, format="json")
+    assert resp.status_code == 404
 
 
 @pytest.mark.parametrize(
