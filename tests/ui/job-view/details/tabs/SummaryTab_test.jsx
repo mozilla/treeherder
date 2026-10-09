@@ -419,6 +419,67 @@ describe('SummaryTab new failure lines in the summary', () => {
   });
 });
 
+describe('SummaryTab bug suggestions for its own lines', () => {
+  afterEach(cleanup);
+
+  // What /line_bug_suggestions/ returned for the artifact's line, when the
+  // log was too big to parse and /bug_suggestions/ returned nothing.
+  const lineBugSuggestions = (overrides = {}) =>
+    new Map([
+      [
+        matchingSuggestion().search,
+        {
+          ...matchingSuggestion(),
+          bugs: {
+            open_recent: [
+              {
+                id: 1234,
+                internal_id: 5,
+                summary:
+                  'Intermittent dom/tests/test_fail.html | assertion failed',
+                resolution: '',
+              },
+            ],
+            all_others: [],
+          },
+          line_number: null,
+          counter: 3,
+          failure_new_in_rev: false,
+          ...overrides,
+        },
+      ],
+    ]);
+
+  test('lists the bugs found for a line the log parser never saw', () => {
+    renderWith({
+      summary: buildTestSummary(summaryJsonl),
+      logParseStatus: 'skipped-size',
+      jobLogUrls: [
+        { id: 1, name: 'live_backing_log', parse_status: 'skipped-size' },
+      ],
+      lineBugSuggestions: lineBugSuggestions(),
+    });
+
+    expect(
+      screen.getByText(
+        'Log parsing was skipped since the log exceeds the size limit.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('bug-list-item')).toHaveTextContent('1234');
+    expect(screen.queryByText('NEW')).toBeNull();
+  });
+
+  test('flags a never-seen line on try', () => {
+    renderWith({
+      summary: buildTestSummary(summaryJsonl),
+      currentRepo: { name: 'try' },
+      lineBugSuggestions: lineBugSuggestions({ counter: 0 }),
+    });
+
+    expect(screen.getByText('NEW')).toBeInTheDocument();
+  });
+});
+
 describe('SummaryTab classic section folding', () => {
   afterEach(cleanup);
 

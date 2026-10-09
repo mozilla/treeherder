@@ -994,6 +994,82 @@ export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
   return failureSuggestions;
 };
 
+/**
+ * Most lines sent to the `/line_bug_suggestions/` API at once, the backend's
+ * cap (`MAX_ERROR_LINES`, the classic failure summary's too).
+ */
+export const MAX_LINE_BUG_SUGGESTIONS = 40;
+
+// What a line is looked up by in the `/line_bug_suggestions/` API: the text
+// the log printed, which the backend's search-term rules were written for.
+const lookupTextOf = (suggestion) =>
+  suggestion.classicLine ?? suggestion.search;
+
+/**
+ * The texts of the summary's failure lines the classic `/bug_suggestions/`
+ * list holds no line for, by the text match `matchBugSuggestions` copies the
+ * "new" flags with. That is every line when the log was not parsed (too big,
+ * failed), otherwise the lines worded differently or past the classic list's
+ * cap. Distinct texts, at most MAX_LINE_BUG_SUGGESTIONS of them.
+ *
+ * @param {ReturnType<typeof buildFailureSuggestions>} failureSuggestions
+ * @param {Array<{ search: string }>} bugSuggestions
+ * @returns {string[]}
+ */
+export const linesWithoutClassicMatch = (
+  failureSuggestions,
+  bugSuggestions,
+) => {
+  const classicLines = new Set(
+    (bugSuggestions || []).map((suggestion) =>
+      normalizeSearchLine(suggestion.search),
+    ),
+  );
+  const texts = new Set();
+  (failureSuggestions || []).forEach((suggestion) => {
+    const text = lookupTextOf(suggestion);
+    if (text && !classicLines.has(normalizeSearchLine(text))) {
+      texts.add(text);
+    }
+  });
+  return [...texts].slice(0, MAX_LINE_BUG_SUGGESTIONS);
+};
+
+/**
+ * Complete the summary's failure lines with the `/line_bug_suggestions/`
+ * results for their text: each line gets its `counter` and
+ * `failure_new_in_rev`, and the first line of a test also gets the bugs,
+ * merged with any found by test path. The inputs are not modified.
+ *
+ * @param {ReturnType<typeof matchBugSuggestions>} suggestions
+ * @param {?Map<string, { counter: number, failure_new_in_rev: boolean, bugs: { open_recent: [], all_others: [] } }>} resultsByText
+ * @returns {typeof suggestions}
+ */
+export const withLineBugSuggestions = (suggestions, resultsByText) => {
+  if (!resultsByText?.size) return suggestions;
+
+  return suggestions.map((suggestion) => {
+    const result = resultsByText.get(lookupTextOf(suggestion));
+    if (!result) return suggestion;
+
+    const completed = {
+      ...suggestion,
+      counter: result.counter,
+      failure_new_in_rev: result.failure_new_in_rev,
+      bugs: {
+        open_recent: [...suggestion.bugs.open_recent],
+        all_others: [...suggestion.bugs.all_others],
+      },
+    };
+    if (suggestion.primary !== false) {
+      mergeBugs(completed.bugs.open_recent, result.bugs?.open_recent || []);
+      mergeBugs(completed.bugs.all_others, result.bugs?.all_others || []);
+    }
+    decorateBugs(completed);
+    return completed;
+  });
+};
+
 
 // ---------------------------------------------------------------------------
 // Classic Failure Summary (`/bug_suggestions/` API) helpers, shared with the

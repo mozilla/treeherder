@@ -13,6 +13,7 @@ import {
   matchBugSuggestions,
   computeSummaryDivergence,
   findNewFailureLines,
+  withLineBugSuggestions,
   withWorkerLines,
 } from '../../../../helpers/testSummary';
 import {
@@ -43,6 +44,7 @@ const SummaryTab = ({
   currentRepo,
   bugSuggestions = null,
   bugSuggestionsLoading = false,
+  lineBugSuggestions = null,
 }) => {
   const [isBugFilerOpen, setIsBugFilerOpen] = useState(false);
   const [isInternalIssueFilerOpen, setIsInternalIssueFilerOpen] =
@@ -54,16 +56,18 @@ const SummaryTab = ({
     [summary],
   );
 
-  // The worker's own lines (a max-run-time abort) cannot be in the artifact,
-  // so they are taken from the classic list. Without an artifact there is no
-  // summary to complete: the classic list is then shown as is.
+  // Lines the classic list does not hold (all of them when the log was not
+  // parsed) get their bugs from their own text instead. The worker's own
+  // lines (a max-run-time abort) cannot be in the artifact, so they are taken
+  // from the classic list. Without an artifact there is no summary to
+  // complete: the classic list is then shown as is.
   const suggestions = useMemo(() => {
-    const matched = matchBugSuggestions(
-      failureSuggestions,
-      bugSuggestions || [],
+    const matched = withLineBugSuggestions(
+      matchBugSuggestions(failureSuggestions, bugSuggestions || []),
+      lineBugSuggestions,
     );
     return summary ? withWorkerLines(matched, bugSuggestions || []) : matched;
-  }, [summary, failureSuggestions, bugSuggestions]);
+  }, [summary, failureSuggestions, bugSuggestions, lineBugSuggestions]);
 
   // Compare the two summaries once both are loaded. When they disagree, the
   // classic Failure Summary is rendered stacked below the summary so no
@@ -389,6 +393,7 @@ SummaryTab.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   bugSuggestions: PropTypes.arrayOf(PropTypes.shape({})),
   bugSuggestionsLoading: PropTypes.bool,
+  lineBugSuggestions: PropTypes.instanceOf(Map),
 };
 
 export default SummaryTab;

@@ -9,6 +9,9 @@ import {
   findNewFailureLines,
   isWorkerLine,
   withWorkerLines,
+  linesWithoutClassicMatch,
+  withLineBugSuggestions,
+  MAX_LINE_BUG_SUGGESTIONS,
   NO_GROUP,
   INCOMPLETE_STATUS,
   HARNESS_STATUS,
@@ -733,6 +736,240 @@ describe('matchBugSuggestions', () => {
 
       // Only the second line is new, though the first one carries the bugs.
       expect(failures.map(s => s.failure_new_in_rev)).toEqual([false, true]);
+    });
+  });
+});
+
+describe('bug suggestions for lines the classic list lacks', () => {
+  // The two leaks of autoland task c4ckHFUPQ9WEu3-ExyqXmg (linux asan wpt),
+  // whose 95 MB log was not parsed: its /bug_suggestions/ list was empty.
+  const windowFrames = [
+    'mozilla::dom::AllocateProtoAndIfaceCache',
+    'mozilla::dom::CreateGlobal',
+    'mozilla::dom::Window_Binding::Wrap',
+    'CreateNativeGlobalForInner',
+  ];
+  const cacheFrames = [
+    'ProtoAndIfaceCache',
+    'mozilla::dom::AllocateProtoAndIfaceCache',
+    'mozilla::dom::CreateGlobal',
+    'mozilla::dom::Window_Binding::Wrap',
+  ];
+  const leak = (time, frames) => ({
+    action: 'lsan_leak',
+    time,
+    frames,
+    kind: 'Direct',
+    bytes: 1024,
+    objects: 1,
+    scope: '/webrtc',
+  });
+  const windowLine = `TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at ${windowFrames.join(', ')}`;
+  const cacheLine = `TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at ${cacheFrames.join(', ')}`;
+  const leakFailures = () =>
+    matchBugSuggestions(
+      buildFailureSuggestions(
+        buildTestSummary([
+          { action: 'group_start', time: 1, name: '/webrtc' },
+          leak(2, windowFrames),
+          leak(3, cacheFrames),
+          leak(4, cacheFrames),
+          { action: 'group_end', time: 5, name: '/webrtc' },
+        ]),
+      ),
+      [],
+    );
+  const bug = id => ({ id, internal_id: id, summary: `bug ${id}` });
+  const result = (overrides = {}) => ({
+    counter: 2,
+    failure_new_in_rev: false,
+    bugs: { open_recent: [], all_others: [] },
+    ...overrides,
+  });
+
+  describe('linesWithoutClassicMatch', () => {
+    test('asks for every line, once each, when the log was not parsed', () => {
+      expect(linesWithoutClassicMatch(leakFailures(), [])).toEqual([
+        windowLine,
+        cacheLine,
+      ]);
+    });
+
+    test('leaves out the lines the classic list holds, however spaced', () => {
+      const failures = buildFailureSuggestions(buildTestSummary(lines));
+      const [failLine, timeoutLine] = failures.map(s => s.search);
+
+      expect(
+        linesWithoutClassicMatch(failures, [
+          { search: ` ${failLine.replace(' | ', '  |  ')}`, path_end: null },
+        ]),
+      ).toEqual([timeoutLine]);
+      expect(
+        linesWithoutClassicMatch(
+          failures,
+          failures.map(s => ({ search: s.search })),
+        ),
+      ).toEqual([]);
+    });
+
+    test('asks by the text the classic summary prints', () => {
+      const failures = [
+        {
+          search: 'UBSan: shift exponent is too large | gfx/a.cpp:1:2',
+          classicLine: 'gfx/a.cpp:1:2: runtime error: shift exponent',
+        },
+      ];
+
+      expect(linesWithoutClassicMatch(failures, [])).toEqual([
+        'gfx/a.cpp:1:2: runtime error: shift exponent',
+      ]);
+    });
+
+    test(`asks for ${MAX_LINE_BUG_SUGGESTIONS} lines at most`, () => {
+      const failures = Array.from({ length: 50 }, (_, i) => ({
+        search: `TEST-UNEXPECTED-FAIL | test_${i}.js | boom`,
+      }));
+
+      expect(linesWithoutClassicMatch(failures, [])).toHaveLength(
+        MAX_LINE_BUG_SUGGESTIONS,
+      );
+    });
+
+    test('treats missing inputs as empty', () => {
+      expect(linesWithoutClassicMatch(null, null)).toEqual([]);
+    });
+  });
+
+  describe('withLineBugSuggestions', () => {
+    test('attaches the bugs and new failure fields found for each line', () => {
+      const completed = withLineBugSuggestions(
+        leakFailures(),
+        new Map([
+          [
+            windowLine,
+            result({
+              counter: 0,
+              failure_new_in_rev: true,
+              bugs: { open_recent: [bug(1)], all_others: [bug(2)] },
+            }),
+          ],
+          [cacheLine, result({ bugs: { open_recent: [], all_others: [] } })],
+        ]),
+      );
+
+      expect(completed.map(s => s.search)).toEqual([
+        windowLine,
+        cacheLine,
+        cacheLine,
+      ]);
+      expect(completed[0]).toMatchObject({
+        counter: 0,
+        failure_new_in_rev: true,
+        valid_open_recent: true,
+        showBugSuggestions: true,
+      });
+      expect(completed[0].bugs.open_recent).toEqual([bug(1)]);
+      expect(completed[0].bugs.all_others).toEqual([bug(2)]);
+      expect(completed[1]).toMatchObject({
+        counter: 2,
+        failure_new_in_rev: false,
+        showBugSuggestions: false,
+      });
+      expect(isNewFailureLine(completed[0], 'autoland')).toBe(true);
+      expect(isNewFailureLine(completed[1], 'try')).toBe(false);
+    });
+
+    test('merges the bugs into those found by test path', () => {
+      const failures = matchBugSuggestions(
+        buildFailureSuggestions(buildTestSummary(lines)),
+        [
+          {
+            search: 'TEST-UNEXPECTED-FAIL | dom/tests/test_fail.html | other',
+            path_end: 'dom/tests/test_fail.html',
+            bugs: { open_recent: [bug(1)], all_others: [] },
+          },
+        ],
+      );
+      const failLine = failures[0].search;
+
+      const [completed] = withLineBugSuggestions(
+        failures,
+        new Map([
+          [
+            failLine,
+            result({ bugs: { open_recent: [bug(1), bug(3)], all_others: [] } }),
+          ],
+        ]),
+      );
+
+      expect(completed.bugs.open_recent.map(b => b.id)).toEqual([1, 3]);
+      expect(completed.counter).toBe(2);
+    });
+
+    test('gives the bugs to the first line of a test only', () => {
+      const summary = buildTestSummary([
+        { action: 'test_start', time: 0, group: 'g', test: 'browser_all.js' },
+        ...['first failure', 'second failure'].map(message => ({
+          action: 'test_status',
+          time: 3,
+          group: 'g',
+          test: 'browser_all.js',
+          subtest: null,
+          status: 'FAIL',
+          expected: 'PASS',
+          message,
+        })),
+        {
+          action: 'test_end',
+          time: 10,
+          group: 'g',
+          test: 'browser_all.js',
+          status: 'FAIL',
+          expected: 'PASS',
+        },
+      ]);
+      const failures = matchBugSuggestions(
+        buildFailureSuggestions(summary),
+        [],
+      );
+      const results = new Map(
+        failures.map(s => [
+          s.search,
+          result({
+            counter: 0,
+            bugs: { open_recent: [bug(7)], all_others: [] },
+          }),
+        ]),
+      );
+
+      const completed = withLineBugSuggestions(failures, results);
+
+      expect(completed.map(s => s.bugs.open_recent.length)).toEqual([1, 0]);
+      expect(completed.map(s => s.counter)).toEqual([0, 0]);
+    });
+
+    test('leaves its inputs untouched', () => {
+      const failures = leakFailures();
+      const results = new Map([
+        [
+          windowLine,
+          result({ bugs: { open_recent: [bug(1)], all_others: [] } }),
+        ],
+      ]);
+
+      const completed = withLineBugSuggestions(failures, results);
+
+      expect(completed[0]).not.toBe(failures[0]);
+      expect(failures[0].bugs.open_recent).toEqual([]);
+      expect(failures[0].counter).toBeUndefined();
+      expect(completed[1]).toBe(failures[1]);
+    });
+
+    test('returns the lines as they are without results', () => {
+      const failures = leakFailures();
+
+      expect(withLineBugSuggestions(failures, null)).toBe(failures);
+      expect(withLineBugSuggestions(failures, new Map())).toBe(failures);
     });
   });
 });
