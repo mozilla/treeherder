@@ -35,7 +35,7 @@ export const NAV = {
 };
 
 export const BETA = {
-  note: 'The simple view is new.',
+  note: 'This simplified view is currently in beta.',
   report: 'Report a bug or suggestion',
 };
 
@@ -147,7 +147,7 @@ export const RETRIGGER = {
   signin: () => 'Approve Taskcluster in the new tab, then tap again.',
   failed: () => "Couldn't send that. Tap to try again.",
   elsewhere: () =>
-    "Retrigger sends from treeherder.mozilla.org. This demo can't sign in to Taskcluster.",
+    "Retrigger sends from treeherder.mozilla.org. This domain can't sign in to Taskcluster.",
 };
 
 export const ETA = {

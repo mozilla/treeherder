@@ -120,7 +120,7 @@ test('where Taskcluster cannot sign in, it says so and never sends', () => {
   render(<Retrigger jobs={jobs} repo="try" live={false} />);
   fireEvent.click(button());
   expect(button()).toHaveTextContent(
-    "Retrigger sends from treeherder.mozilla.org. This demo can't sign in to Taskcluster.",
+    "Retrigger sends from treeherder.mozilla.org. This domain can't sign in to Taskcluster.",
   );
   fireEvent.click(button());
   expect(JobModel.retrigger).not.toHaveBeenCalled();
