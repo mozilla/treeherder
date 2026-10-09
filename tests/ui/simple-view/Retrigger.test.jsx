@@ -60,6 +60,21 @@ test('an unanswered confirm backs off', () => {
   expect(button()).toHaveTextContent('Rerun the 2 failed test jobs');
 });
 
+test('a failed repository lookup says so, and a retry asks again', async () => {
+  signIn();
+  RepositoryModel.getList
+    .mockRejectedValueOnce(new Error('offline'))
+    .mockResolvedValue([{ name: 'try' }]);
+  render(<Retrigger jobs={jobs} repo="try" live />);
+  fireEvent.click(button());
+  await act(async () => fireEvent.click(button()));
+  expect(button()).toHaveTextContent("Couldn't send that.");
+  expect(JobModel.retrigger).not.toHaveBeenCalled();
+
+  await act(async () => fireEvent.click(button()));
+  expect(JobModel.retrigger).toHaveBeenCalledTimes(1);
+});
+
 test('signed in, the second tap sends and reports success', async () => {
   signIn();
   JobModel.retrigger.mockImplementation((j, repo, notify) =>

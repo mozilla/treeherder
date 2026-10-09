@@ -28,7 +28,12 @@ export const hasTaskclusterCredentials = (
 let repos;
 const getRepo = async (name) => {
   repos = repos || RepositoryModel.getList();
-  return RepositoryModel.getRepo(name, await repos);
+  try {
+    return RepositoryModel.getRepo(name, await repos);
+  } catch (error) {
+    repos = null;
+    throw error;
+  }
 };
 
 const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
@@ -46,7 +51,13 @@ const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
 
   const send = async () => {
     settle('sending');
-    const currentRepo = await getRepo(repo);
+    let currentRepo;
+    try {
+      currentRepo = await getRepo(repo);
+    } catch {
+      settle('failed', RETRIGGER_RESET_MS.failed);
+      return;
+    }
     JobModel.retrigger(jobs, currentRepo, (message, severity) => {
       if (String(message).includes(tcCredentialsMessage)) settle('signin');
       else if (severity === 'danger') settle('failed', RETRIGGER_RESET_MS.failed);
