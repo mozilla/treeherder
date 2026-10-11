@@ -228,7 +228,10 @@ export const scrollToElement = function scrollToElement(el) {
   }
 };
 
-const getJobGroupMapKey = function getJobGroupMapKey(job) {
+// Build the ``mapKey`` of the group a job belongs to.  This must match the
+// key Push builds when it groups jobs, which renders the "?" (ungrouped)
+// symbol as an empty string.
+export const getJobGroupMapKey = function getJobGroupMapKey(job) {
   const {
     push_id: pushId,
     job_group_symbol: jobGroupSymbol,
@@ -236,7 +239,8 @@ const getJobGroupMapKey = function getJobGroupMapKey(job) {
     platform,
     platform_option: platformOption,
   } = job;
-  return getGroupMapKey(pushId, jobGroupSymbol, tier, platform, platformOption);
+  const symbol = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
+  return getGroupMapKey(pushId, symbol, tier, platform, platformOption);
 };
 
 export const findGroupElement = function findGroupElement(job) {

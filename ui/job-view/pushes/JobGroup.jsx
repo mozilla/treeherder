@@ -31,6 +31,80 @@ GroupSymbol.propTypes = {
   tier: PropTypes.number,
 };
 
+// Split a group's jobs into the buttons that render individually and the
+// counts that the rest roll up into when the group is collapsed.
+export const getGroupButtonsAndCounts = (
+  jobs,
+  { isExpanded, groupCountsExpanded, duplicateJobsVisible, selectedTaskRun },
+) => {
+  let buttons = [];
+  const counts = [];
+
+  if (isExpanded || groupCountsExpanded) {
+    // All buttons should be shown when the group is expanded
+    buttons = jobs;
+  } else {
+    const stateCounts = {};
+    const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
+    jobs.forEach((job) => {
+      const { resultStatus, visible } = job;
+      const { status } = getBtnClass(resultStatus);
+      if (!visible) return;
+
+      let countInfo = {
+        status,
+        countText: resultStatus,
+      };
+      if (
+        thFailureResults.includes(resultStatus) ||
+        (typeSymbolCounts[job.job_type_symbol] > 1 && duplicateJobsVisible)
+      ) {
+        // render the job itself, not a count
+        buttons.push(job);
+      } else {
+        countInfo = { ...countInfo, ...stateCounts[countInfo.status] };
+        if (selectedTaskRun === job.task_run || countInfo.selectedClasses) {
+          countInfo.selectedClasses = ' selected-count btn-lg-xform';
+        } else {
+          countInfo.selectedClasses = '';
+        }
+        if (stateCounts[countInfo.status]) {
+          countInfo.count = stateCounts[countInfo.status].count + 1;
+        } else {
+          countInfo.count = 1;
+        }
+        countInfo.lastJob = job;
+        stateCounts[countInfo.status] = countInfo;
+      }
+    });
+    Object.entries(stateCounts).forEach(([, countInfo]) => {
+      if (countInfo.count === 1) {
+        buttons.push(countInfo.lastJob);
+      } else {
+        counts.push(countInfo);
+      }
+    });
+  }
+  return { buttons, counts };
+};
+
+// Whether the job selected in the URL is one of this group's jobs and would
+// be hidden inside a count while the group is collapsed.
+const isSelectedJobRolledUp = (jobs, options) => {
+  const { selectedTaskRun } = options;
+  if (
+    !selectedTaskRun ||
+    !jobs.some((job) => job.task_run === selectedTaskRun)
+  ) {
+    return false;
+  }
+  const { buttons } = getGroupButtonsAndCounts(jobs, {
+    ...options,
+    isExpanded: false,
+  });
+  return !buttons.some((job) => job.task_run === selectedTaskRun);
+};
+
 export function JobGroupComponent({
   group,
   filterModel,
@@ -42,11 +116,23 @@ export function JobGroupComponent({
   runnableVisible,
   toggleSelectedRunnableJob,
 }) {
-  // The group should be expanded initially if the global group state is expanded
-  const groupState = getUrlParam('group_state');
-  const [expanded, setExpanded] = useState(
-    groupState === 'expanded' || pushGroupState === 'expanded',
-  );
+  // The group should be expanded initially if the global group state is
+  // expanded, or if the job selected in the URL is rolled up into one of its
+  // counts.  The latter covers opening a link in a new tab: the selection
+  // code may run before this group has mounted, so the group can't rely on
+  // being told to expand.
+  const [expanded, setExpanded] = useState(() => {
+    const groupState = getUrlParam('group_state');
+    return (
+      groupState === 'expanded' ||
+      pushGroupState === 'expanded' ||
+      isSelectedJobRolledUp(group.jobs, {
+        groupCountsExpanded,
+        duplicateJobsVisible,
+        selectedTaskRun: getUrlParam('selectedTaskRun'),
+      })
+    );
+  });
 
   // Create refs for job buttons
   const jobButtonRefs = useRef({});
@@ -85,62 +171,6 @@ export function JobGroupComponent({
     }
   }, [toggleSelectedRunnableJob]);
 
-  const groupButtonsAndCounts = useCallback(
-    (jobs, isExpanded) => {
-      let buttons = [];
-      const counts = [];
-      const selectedTaskRun = getUrlParam('selectedTaskRun');
-
-      if (isExpanded || groupCountsExpanded) {
-        // All buttons should be shown when the group is expanded
-        buttons = jobs;
-      } else {
-        const stateCounts = {};
-        const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
-        jobs.forEach((job) => {
-          const { resultStatus, visible } = job;
-          const { status } = getBtnClass(resultStatus);
-          if (!visible) return;
-
-          let countInfo = {
-            status,
-            countText: resultStatus,
-          };
-          if (
-            thFailureResults.includes(resultStatus) ||
-            (typeSymbolCounts[job.job_type_symbol] > 1 && duplicateJobsVisible)
-          ) {
-            // render the job itself, not a count
-            buttons.push(job);
-          } else {
-            countInfo = { ...countInfo, ...stateCounts[countInfo.status] };
-            if (selectedTaskRun === job.task_run || countInfo.selectedClasses) {
-              countInfo.selectedClasses = ' selected-count btn-lg-xform';
-            } else {
-              countInfo.selectedClasses = '';
-            }
-            if (stateCounts[countInfo.status]) {
-              countInfo.count = stateCounts[countInfo.status].count + 1;
-            } else {
-              countInfo.count = 1;
-            }
-            countInfo.lastJob = job;
-            stateCounts[countInfo.status] = countInfo;
-          }
-        });
-        Object.entries(stateCounts).forEach(([, countInfo]) => {
-          if (countInfo.count === 1) {
-            buttons.push(countInfo.lastJob);
-          } else {
-            counts.push(countInfo);
-          }
-        });
-      }
-      return { buttons, counts };
-    },
-    [duplicateJobsVisible, groupCountsExpanded],
-  );
-
   const {
     name: groupName,
     symbol: groupSymbol,
@@ -149,7 +179,12 @@ export function JobGroupComponent({
     mapKey: groupMapKey,
   } = group;
 
-  const { buttons, counts } = groupButtonsAndCounts(groupJobs, expanded);
+  const { buttons, counts } = getGroupButtonsAndCounts(groupJobs, {
+    isExpanded: expanded,
+    groupCountsExpanded,
+    duplicateJobsVisible,
+    selectedTaskRun: getUrlParam('selectedTaskRun'),
+  });
 
   const isIntermittent = (job) => {
     if (job.result !== 'testfailed') {

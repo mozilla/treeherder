@@ -127,7 +127,10 @@ describe('scrollJobIntoView', () => {
 
   it('scrolls to the job button when it is rendered', () => {
     const groupEl = makeElement('span', { top: 2000, bottom: 2020 });
-    groupEl.setAttribute('data-group-key', getGroupMapKey(7, 'M', 1, 'linux64', 'opt'));
+    groupEl.setAttribute(
+      'data-group-key',
+      getGroupMapKey(7, 'M', 1, 'linux64', 'opt'),
+    );
     const button = makeElement('button', { top: 2000, bottom: 2020 });
     button.setAttribute('data-job-id', '42');
     groupEl.appendChild(button);
@@ -141,7 +144,10 @@ describe('scrollJobIntoView', () => {
 
   it('falls back to the group when the button is rolled up into a count', () => {
     const groupEl = makeElement('span', { top: 2000, bottom: 2020 });
-    groupEl.setAttribute('data-group-key', getGroupMapKey(7, 'M', 1, 'linux64', 'opt'));
+    groupEl.setAttribute(
+      'data-group-key',
+      getGroupMapKey(7, 'M', 1, 'linux64', 'opt'),
+    );
     pushList.appendChild(groupEl);
 
     scrollJobIntoView(job);
@@ -176,5 +182,16 @@ describe('findGroupInstance', () => {
 
   it('returns undefined when the group is not registered', () => {
     expect(findGroupInstance(job)).toBeUndefined();
+  });
+
+  it('matches the key Push builds for a "?" group symbol', () => {
+    // Push.jsx registers groups with the "?" symbol normalized to '',
+    // so the lookup for the job must build the same key.
+    const instance = { setExpanded: jest.fn() };
+    registerJobGroup(getGroupMapKey(7, '', 2, 'linux64', 'opt'), instance);
+
+    expect(findGroupInstance({ ...job, job_group_symbol: '?', tier: 2 })).toBe(
+      instance,
+    );
   });
 });

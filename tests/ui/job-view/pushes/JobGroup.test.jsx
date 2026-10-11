@@ -34,10 +34,10 @@ const group = {
   jobs: [makeJob(1), makeJob(2), makeJob(3)],
 };
 
-const renderGroup = () =>
+const renderGroup = (groupOverride = group) =>
   render(
     <JobGroup
-      group={group}
+      group={groupOverride}
       filterModel={{ showJob: () => true }}
       filterPlatformCb={() => {}}
       pushGroupState="collapsed"
@@ -74,6 +74,50 @@ describe('JobGroup', () => {
 
     expect(screen.queryByTestId('job-group-count')).not.toBeInTheDocument();
     expect(screen.getAllByTestId('job-btn')).toHaveLength(3);
+  });
+
+  it('expands on mount when the selected job is rolled up into a count', () => {
+    window.history.replaceState(
+      null,
+      null,
+      '/jobs?repo=autoland&selectedTaskRun=task2.0',
+    );
+
+    renderGroup();
+
+    expect(screen.queryByTestId('job-group-count')).not.toBeInTheDocument();
+    expect(screen.getAllByTestId('job-btn')).toHaveLength(3);
+  });
+
+  it('stays collapsed on mount when the selected job already renders as a button', () => {
+    window.history.replaceState(
+      null,
+      null,
+      '/jobs?repo=autoland&selectedTaskRun=task2.0',
+    );
+    const failed = {
+      ...makeJob(2),
+      resultStatus: 'testfailed',
+      result: 'testfailed',
+    };
+
+    renderGroup({ ...group, jobs: [makeJob(1), failed, makeJob(3)] });
+
+    expect(screen.getByTestId('job-group-count')).toHaveTextContent('2');
+    expect(screen.getAllByTestId('job-btn')).toHaveLength(1);
+  });
+
+  it('stays collapsed on mount when the selected job is in another group', () => {
+    window.history.replaceState(
+      null,
+      null,
+      '/jobs?repo=autoland&selectedTaskRun=elsewhere.0',
+    );
+
+    renderGroup();
+
+    expect(screen.getByTestId('job-group-count')).toHaveTextContent('3');
+    expect(screen.queryAllByTestId('job-btn')).toHaveLength(0);
   });
 
   it('unregisters itself on unmount', () => {
