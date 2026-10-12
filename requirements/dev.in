@@ -33,7 +33,7 @@ pytest-freezer==0.4.9
 vcrpy==8.3.0
 
 # pip-compile for pinning versions
-pip-tools==7.6.1
+pip-tools==7.6.2
 
 requests==2.32.5
 urllib3==2.8.0
