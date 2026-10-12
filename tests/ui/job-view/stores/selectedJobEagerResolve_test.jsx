@@ -1,3 +1,5 @@
+import { waitFor } from '@testing-library/react';
+
 import {
   useSelectedJobStore,
   resolveSelectedJobFromUrl,
@@ -117,6 +119,78 @@ describe('resolveSelectedJobFromUrl', () => {
       { sticky: true },
     );
     expect(window.location.search).not.toContain('selectedTaskRun');
+  });
+
+  it('keeps the params and reports the error when the lookup fails', async () => {
+    mockGetList.mockResolvedValue({
+      data: 'There was a problem retrieving the data.',
+      failureStatus: 502,
+    });
+    setLocationSearch(`?repo=autoland&selectedTaskRun=${taskId}.0`);
+
+    const resolved = await resolveSelectedJobFromUrl(notify);
+
+    expect(resolved).toBeNull();
+    expect(useSelectedJobStore.getState().selectedJob).toBeNull();
+    expect(notify).toHaveBeenCalledWith(
+      expect.stringContaining('Unable to look up'),
+      'danger',
+      { sticky: true },
+    );
+    expect(notify.mock.calls[0][0]).not.toContain('not found');
+    expect(window.location.search).toContain(`selectedTaskRun=${taskId}.0`);
+  });
+
+  it('keeps the params when the lookup request throws', async () => {
+    mockGetList.mockRejectedValue(new Error('Failed to fetch'));
+    setLocationSearch(`?repo=autoland&selectedJob=${apiJob().id}`);
+
+    const resolved = await resolveSelectedJobFromUrl(notify);
+
+    expect(resolved).toBeNull();
+    expect(notify).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to fetch'),
+      'danger',
+      { sticky: true },
+    );
+    expect(window.location.search).toContain(`selectedJob=${apiJob().id}`);
+  });
+});
+
+describe('setSelectedJobFromQueryString database lookup', () => {
+  it('strips the params when the task is not in the database', async () => {
+    mockGetList.mockResolvedValue({ data: [], failureStatus: null });
+    setLocationSearch(`?repo=autoland&selectedTaskRun=${taskId}.0`);
+
+    syncSelectionFromUrl({}, notify);
+
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        expect.stringContaining('Task not found'),
+        'danger',
+        { sticky: true },
+      ),
+    );
+    expect(window.location.search).not.toContain('selectedTaskRun');
+  });
+
+  it('keeps the params when the database lookup fails', async () => {
+    mockGetList.mockResolvedValue({
+      data: 'There was a problem retrieving the data.',
+      failureStatus: 503,
+    });
+    setLocationSearch(`?repo=autoland&selectedTaskRun=${taskId}.0`);
+
+    syncSelectionFromUrl({}, notify);
+
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        expect.stringContaining('Unable to look up'),
+        'danger',
+        { sticky: true },
+      ),
+    );
+    expect(window.location.search).toContain(`selectedTaskRun=${taskId}.0`);
   });
 });
 
