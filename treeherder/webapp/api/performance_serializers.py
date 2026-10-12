@@ -373,10 +373,35 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     monitored_alerts = serializers.BooleanField(required=False)
 
     def validate(self, data):
-        push = data.get("push", getattr(self.instance, "push", None))
-        prev_push = data.get("prev_push", getattr(self.instance, "prev_push", None))
-        if push and prev_push and push.revision == prev_push.revision:
+        if "push" in data and "prev_push" not in data:
+            push = data["push"]
+            data["prev_push"] = (
+                Push.objects.filter(repository_id=push.repository_id, time__lt=push.time)
+                .order_by("-time")
+                .first()
+            )
+
+        push = data.get("push", self.instance.push)
+        prev_push = data.get("prev_push", self.instance.prev_push)
+        if push.revision == prev_push.revision:
             raise serializers.ValidationError("From and To revisions should be distinct.")
+
+        if "push" in data or "prev_push" in data:
+            existing = PerformanceAlertSummary.objects.filter(
+                repository_id=self.instance.repository_id,
+                framework_id=self.instance.framework_id,
+                sheriffed=self.instance.sheriffed,
+                push=push,
+            ).exclude(id=self.instance.id)
+            if "push" not in data:
+                existing = existing.filter(prev_push=prev_push)
+            existing = existing.first()
+            if existing:
+                revisions = "this To revision" if "push" in data else "these revisions"
+                raise serializers.ValidationError(
+                    f"Alert summary #{existing.id} already uses {revisions}, "
+                    "reassign the alerts to it instead."
+                )
         return data
 
     def update(self, instance, validated_data):
