@@ -69,15 +69,46 @@ const doClearSelectedJob = (countPinnedJobs) => {
   return {};
 };
 
+/**
+ * Look up the job named by ``jobParams`` in the database.  A backend error
+ * is reported without touching the URL, so the selection survives a reload.
+ * Returns ``null`` on error, otherwise the list of matching jobs.
+ */
+const lookUpJobs = async (jobParams, notify) => {
+  const { id, task_id: taskId } = jobParams;
+  const label = taskId ? `task ${taskId}` : `job ${id}`;
+  let taskList;
+  let failureStatus;
+
+  try {
+    ({ data: taskList, failureStatus } = await JobModel.getList(jobParams));
+  } catch (error) {
+    failureStatus = error;
+    taskList = error.message;
+  }
+
+  if (failureStatus) {
+    notify(`Unable to look up ${label}. ${taskList}`, 'danger', {
+      sticky: true,
+    });
+    return null;
+  }
+  return taskList;
+};
+
 const searchDatabaseForTaskRun = async (jobParams, notify) => {
   const repoName = getUrlParam('repo');
-  const { failureStatus, data: taskList } = await JobModel.getList(jobParams);
+  const taskList = await lookUpJobs(jobParams, notify);
   const { id, task_id: taskId, retry_id: runId } = jobParams;
+
+  if (!taskList) {
+    return;
+  }
 
   setUrlParam('selectedJob');
   setUrlParam('selectedTaskRun');
 
-  if (taskList.length && !failureStatus) {
+  if (taskList.length) {
     const task = taskList[0];
     const newPushUrl = getJobsUrl({
       repo: repoName,
@@ -379,9 +410,15 @@ export const resolveSelectedJobFromUrl = async (notify) => {
     return null;
   }
 
-  const { data: taskList, failureStatus } = await JobModel.getList(jobParams);
+  const taskList = await lookUpJobs(jobParams, notify);
 
-  if (!failureStatus && taskList.length) {
+  if (!taskList) {
+    // The lookup failed rather than the task being missing; leave the
+    // selection in the URL so a reload can retry it.
+    return null;
+  }
+
+  if (taskList.length) {
     // Without an explicit run id there may be several runs; select the latest.
     const runs = [...taskList].sort(
       (left, right) => left.retry_id - right.retry_id,
