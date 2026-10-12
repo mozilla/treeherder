@@ -148,4 +148,24 @@ describe('fetchInitialPushes', () => {
     expect(mockPushGetList.mock.calls[0][0]).toMatchObject({ count: 10 });
     expect(mockPushGetList.mock.calls[0][0].revision).toBeUndefined();
   });
+
+  it('loads the default pushes but keeps the link when the lookup fails', async () => {
+    mockJobGetList.mockResolvedValue({
+      data: 'There was a problem retrieving the data.',
+      failureStatus: 502,
+    });
+    setLocationSearch(`?repo=autoland&selectedTaskRun=${taskId}.0`);
+
+    const job = await fetchInitialPushes(notify);
+
+    expect(job).toBeNull();
+    expect(notify).toHaveBeenCalledWith(
+      expect.stringContaining('Unable to look up'),
+      'danger',
+      { sticky: true },
+    );
+    expect(mockPushGetList).toHaveBeenCalledTimes(1);
+    expect(mockPushGetList.mock.calls[0][0]).toMatchObject({ count: 10 });
+    expect(window.location.search).toContain(`selectedTaskRun=${taskId}.0`);
+  });
 });
