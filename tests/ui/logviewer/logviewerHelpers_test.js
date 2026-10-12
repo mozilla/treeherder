@@ -125,6 +125,39 @@ describe('resolveLogLine', () => {
     expect(resolveLogLine(log, texts, at('2026-09-04T14:09:40.000Z'))).toBe(8);
   });
 
+  describe('a line printed under another one', () => {
+    // From try task W5irUugIQUCRa8vxFV1OXg: xpcshell replays a failing test's
+    // output, where a console error's stack ends in the same frames as the
+    // stack the ERROR record prints under its message.
+    const replay = [
+      '[task 2026-10-04T23:21:05.337+00:00] 23:21:05     INFO - onDataAvailable@resource://gre/modules/DownloadCore.sys.mjs:2665:31',
+      '[task 2026-10-04T23:21:05.337+00:00] 23:21:05     INFO - _do_main@head.js:287:6',
+      '[task 2026-10-04T23:21:05.337+00:00] 23:21:05     INFO - @-e:1:1',
+      '[task 2026-10-04T23:21:05.628+00:00] 23:21:05    ERROR - Unexpected exception NS_ERROR_FAILURE',
+      '[task 2026-10-04T23:21:05.628+00:00] 23:21:05    ERROR - test_launch_id@common_test_Download.js:2629:26',
+      '[task 2026-10-04T23:21:05.629+00:00] 23:21:05    ERROR - _do_main@head.js:287:6',
+      '[task 2026-10-04T23:21:05.629+00:00] 23:21:05    ERROR - @-e:1:1',
+    ];
+    const time = at('2026-10-04T23:21:03.780Z');
+    const after = ['Unexpected exception NS_ERROR_FAILURE'];
+
+    test('is looked for from that line on', () => {
+      expect(resolveLogLine(replay, ['@-e:1:1'], time)).toBe(3);
+      expect(resolveLogLine(replay, ['@-e:1:1'], time, after)).toBe(7);
+      expect(resolveLogLine(replay, ['_do_main@head.js:287:6'], time, after)).toBe(6);
+    });
+
+    test('is looked for alone when that line is not in the log', () => {
+      expect(resolveLogLine(replay, ['@-e:1:1'], time, ['not in the log'])).toBe(3);
+    });
+
+    test('is looked for alone when it is not printed under that line', () => {
+      expect(
+        resolveLogLine(replay, ['onDataAvailable@resource'], time, after),
+      ).toBe(1);
+    });
+  });
+
   test('returns null when nothing matches', () => {
     expect(resolveLogLine(log, ['not in the log'], null)).toBeNull();
     expect(resolveLogLine(log, [], null)).toBeNull();
