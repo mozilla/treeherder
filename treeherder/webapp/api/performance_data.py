@@ -15,6 +15,7 @@ from urllib.parse import urlencode
 
 import django_filters
 import numpy as np
+import orjson
 from cliffs_delta import cliffs_delta
 from django.conf import settings
 from django.db import transaction
@@ -39,9 +40,11 @@ from rest_framework import (
     serializers,
     viewsets,
 )
+from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.utils.encoders import JSONEncoder
 
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
@@ -86,8 +89,29 @@ from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 
 logger = logging.getLogger(__name__)
 
+_drf_json_encoder = JSONEncoder()
+
+
+class ORJSONRenderer(JSONRenderer):
+    """Serialize responses with orjson while preserving DRF's JSON encoding semantics."""
+
+    @staticmethod
+    def default(obj: Any) -> Any:
+        return _drf_json_encoder.default(obj)
+
+    def render(self, data, accepted_media_type=None, renderer_context=None) -> bytes:
+        if data is None:
+            return b""
+        return orjson.dumps(
+            data,
+            default=self.default,
+            option=orjson.OPT_NON_STR_KEYS | orjson.OPT_UTC_Z,
+        )
+
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
+    renderer_classes = [ORJSONRenderer]
+
     def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
 
@@ -227,6 +251,8 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
     All platforms for a particular branch that have performance data
     """
 
+    renderer_classes = [ORJSONRenderer]
+
     def list(self, request: Request, project: str) -> Response:
         signature_data = PerformanceSignature.objects.filter(repository__name=project)
         interval = request.query_params.get("interval")
@@ -247,11 +273,14 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
 class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceFramework.objects.filter(enabled=True)
     serializer_class = PerformanceFrameworkSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = [filters.OrderingFilter]
     ordering = "id"
 
 
 class PerformanceJobViewSet(viewsets.ReadOnlyModelViewSet):
+    renderer_classes = [ORJSONRenderer]
+
     def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
         # Expect exactly one job_id in query params
@@ -315,6 +344,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
     """
     This view serves performance test result data
     """
+
+    renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
@@ -592,6 +623,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
 class PerformanceTagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceTag.objects.all()
     serializer_class = PerformanceTagSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = [filters.OrderingFilter]
     ordering = "id"
 
@@ -634,6 +666,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSummarySerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = PerformanceAlertSummaryFilter
 
@@ -866,6 +899,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
     permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_fields = ["id"]
     ordering = "-id"
@@ -960,6 +994,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceBugTemplate.objects.all()
     serializer_class = PerformanceBugTemplateSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_fields = ["framework"]
 
@@ -967,12 +1002,14 @@ class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
 class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = IssueTracker.objects.all()
     serializer_class = IssueTrackerSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = [filters.OrderingFilter]
     ordering = "id"
 
 
 class PerformanceSummary(generics.ListAPIView):
     serializer_class = PerformanceSummarySerializer
+    renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request) -> Response:
         query_params = PerformanceQueryParamsSerializer(data=request.query_params)
@@ -1227,6 +1264,7 @@ class PerformanceSummary(generics.ListAPIView):
 
 class PerformanceAlertSummaryTasks(generics.ListAPIView):
     serializer_class = PerformanceAlertSummaryTasksSerializer
+    renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request) -> Response:
         query_params = PerfAlertSummaryTasksQueryParamSerializer(data=request.query_params)
@@ -1311,6 +1349,7 @@ class MwuTask:
 
 class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
+    renderer_classes = [ORJSONRenderer]
 
     def get_serializer_class(self) -> type[serializers.ModelSerializer]:
         test_version = self.request.query_params.get("test_version", "")
@@ -2144,6 +2183,8 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
+    renderer_classes = [ORJSONRenderer]
+
     def list(self, request: Request) -> Response:
         query_params = TestSuiteHealthParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
