@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -43,102 +43,28 @@ import { usePushesStore } from '../../../shared/stores/pushesStore';
 
 import LogUrls from './LogUrls';
 
-class ActionBar extends React.PureComponent {
-  constructor(props) {
-    super(props);
+export function ActionBar({
+  user,
+  selectedJobFull,
+  logParseStatus,
+  jobLogUrls = [],
+  jobDetails = [],
+  currentRepo,
+  isTryRepo,
+  logViewerUrl = null,
+  logViewerFullUrl = null,
+  taskExpired = false,
+}) {
+  const [customJobActionsShowing, setCustomJobActionsShowing] = useState(false);
+  const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
 
-    this.state = {
-      customJobActionsShowing: false,
-    };
-  }
+  const getResourceUsageProfile = () =>
+    jobDetails.find((artifact) => isResourceUsageProfile(artifact.value));
 
-  componentDidMount() {
-    window.addEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
-    window.addEventListener(thEvents.openRawLog, this.onOpenRawLog);
-    window.addEventListener(thEvents.openGeckoProfile, this.onOpenGeckoProfile);
-    window.addEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
-  }
+  const canCancel = () =>
+    selectedJobFull.state === 'pending' || selectedJobFull.state === 'running';
 
-  componentWillUnmount() {
-    window.removeEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
-    window.removeEventListener(thEvents.openRawLog, this.onOpenRawLog);
-    window.removeEventListener(
-      thEvents.openGeckoProfile,
-      this.onOpenGeckoProfile,
-    );
-    window.removeEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
-  }
-
-  onRetriggerJob = (event) => {
-    this.retriggerJob([event.detail.job]);
-  };
-
-  // Open the logviewer and provide notifications if it isn't available
-  onOpenLogviewer = () => {
-    const { logParseStatus } = this.props;
-
-    switch (logParseStatus) {
-      case 'pending':
-        notify('Log parsing in progress, log viewer not yet available');
-        break;
-      case 'failed':
-        notify('Log parsing has failed, log viewer is unavailable', 'warning');
-        break;
-      case 'skipped-size':
-        notify('Log parsing was skipped, log viewer is unavailable', 'warning');
-        break;
-      case 'unavailable':
-        notify('No logs available for this job');
-        break;
-      case 'parsed':
-        document.querySelector('.logviewer-btn').click();
-    }
-  };
-
-  // Open the raw log and provide notifications if it isn't available
-  onOpenRawLog = () => {
-    const rawLogButton = document.querySelector('.rawlog-btn');
-
-    if (rawLogButton) {
-      rawLogButton.click();
-    } else {
-      notify('No logs available for this job');
-    }
-  };
-
-  // Open the gecko profile and provide notifications if it isn't available
-  onOpenGeckoProfile = () => {
-    const { selectedJobFull } = this.props;
-    const resourceUsageProfile = this.getResourceUsageProfile();
-
-    if (resourceUsageProfile) {
-      window.open(
-        getPerfAnalysisUrl(resourceUsageProfile.url, selectedJobFull),
-        '_blank',
-      );
-    } else {
-      notify('No resource usage profile available for this job');
-    }
-  };
-
-  getResourceUsageProfile = () => {
-    const { jobDetails } = this.props;
-    return jobDetails.find((artifact) =>
-      isResourceUsageProfile(artifact.value),
-    );
-  };
-
-  canCancel = () => {
-    const { selectedJobFull } = this.props;
-    return (
-      selectedJobFull.state === 'pending' || selectedJobFull.state === 'running'
-    );
-  };
-
-  createGeckoProfile = async () => {
-    const { selectedJobFull, decisionTaskMap, currentRepo, taskExpired } =
-      this.props;
-
+  const createGeckoProfile = async () => {
     if (taskExpired) {
       return undefined;
     }
@@ -152,10 +78,7 @@ class ActionBar extends React.PureComponent {
     );
   };
 
-  createSideBySide = async () => {
-    const { selectedJobFull, decisionTaskMap, currentRepo, taskExpired } =
-      this.props;
-
+  const createSideBySide = async () => {
     if (taskExpired) {
       return;
     }
@@ -169,9 +92,7 @@ class ActionBar extends React.PureComponent {
     );
   };
 
-  retriggerJob = async (jobs) => {
-    const { decisionTaskMap, currentRepo, taskExpired } = this.props;
-
+  const retriggerJob = async (jobs) => {
     // The retrigger keyboard shortcut and jobRetrigger event can reach this
     // even though the button is disabled, so guard here too.
     if (taskExpired) {
@@ -193,16 +114,13 @@ class ActionBar extends React.PureComponent {
     JobModel.retrigger(jobs, currentRepo, notify, 1, decisionTaskMap);
   };
 
-  backfillJob = async () => {
-    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
-
-    if (!this.canBackfill()) {
+  const backfillJob = async () => {
+    if (!canBackfill()) {
       return;
     }
 
     if (!selectedJobFull.id) {
       notify('Job not yet loaded for backfill', 'warning');
-
       return;
     }
 
@@ -240,15 +158,7 @@ class ActionBar extends React.PureComponent {
     );
   };
 
-  handleConfirmFailure = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-      taskExpired,
-    } = this.props;
-
+  const handleConfirmFailure = async () => {
     if (taskExpired) {
       return;
     }
@@ -258,14 +168,9 @@ class ActionBar extends React.PureComponent {
 
   // Can we backfill? Excludes 'try' repos and tasks whose Taskcluster
   // definition has expired (backfill needs a live task definition).
-  canBackfill = () => {
-    const { isTryRepo, taskExpired } = this.props;
+  const canBackfill = () => !isTryRepo && !taskExpired;
 
-    return !isTryRepo && !taskExpired;
-  };
-
-  backfillButtonTitle = () => {
-    const { isTryRepo, taskExpired } = this.props;
+  const backfillButtonTitle = () => {
     let title = '';
 
     if (isTryRepo) {
@@ -291,10 +196,7 @@ class ActionBar extends React.PureComponent {
     return title;
   };
 
-  createInteractiveTask = async () => {
-    const { user, selectedJobFull, decisionTaskMap, currentRepo, taskExpired } =
-      this.props;
-
+  const createInteractiveTask = async () => {
     if (taskExpired) {
       return;
     }
@@ -337,9 +239,7 @@ class ActionBar extends React.PureComponent {
     }
   };
 
-  cancelJobs = (jobs) => {
-    const { decisionTaskMap, currentRepo } = this.props;
-
+  const cancelJobs = (jobs) => {
     JobModel.cancel(
       jobs.filter(({ state }) => state === 'pending' || state === 'running'),
       currentRepo,
@@ -348,212 +248,283 @@ class ActionBar extends React.PureComponent {
     );
   };
 
-  cancelJob = () => {
-    this.cancelJobs([this.props.selectedJobFull]);
+  const cancelJob = () => {
+    cancelJobs([selectedJobFull]);
   };
 
-  toggleCustomJobActions = () => {
-    if (this.props.taskExpired) {
+  const toggleCustomJobActions = () => {
+    if (taskExpired) {
       return;
     }
 
-    const { customJobActionsShowing } = this.state;
-
-    this.setState({ customJobActionsShowing: !customJobActionsShowing });
+    setCustomJobActionsShowing((showing) => !showing);
   };
 
-  render() {
-    const {
-      selectedJobFull,
-      logViewerUrl = null,
-      logViewerFullUrl = null,
-      jobLogUrls = [],
-      currentRepo,
-      jobDetails,
-      taskExpired = false,
-    } = this.props;
-    const { customJobActionsShowing } = this.state;
-    const resourceUsageProfile = this.getResourceUsageProfile();
-    const expiredTitleSuffix = taskExpired
-      ? ' (unavailable — Taskcluster task expired)'
-      : '';
-
-    // For running tasks, add the live.log from artifacts for raw log only
-    let rawLogUrls = jobLogUrls;
-    if (
-      selectedJobFull.state === 'running' &&
-      jobDetails &&
-      !jobLogUrls.length
-    ) {
-      const liveLog = jobDetails.find((detail) =>
-        detail.value.includes('live.log'),
-      );
-      if (liveLog) {
-        rawLogUrls = [{ url: liveLog.url, name: 'live.log', id: 'live' }];
+  // Re-register window listeners whenever values they read change so the
+  // captured closures stay current.
+  useEffect(() => {
+    // Open the logviewer and provide notifications if it isn't available
+    const onOpenLogviewer = () => {
+      switch (logParseStatus) {
+        case 'pending':
+          notify('Log parsing in progress, log viewer not yet available');
+          break;
+        case 'failed':
+          notify(
+            'Log parsing has failed, log viewer is unavailable',
+            'warning',
+          );
+          break;
+        case 'skipped-size':
+          notify(
+            'Log parsing was skipped, log viewer is unavailable',
+            'warning',
+          );
+          break;
+        case 'unavailable':
+          notify('No logs available for this job');
+          break;
+        case 'parsed':
+          document.querySelector('.logviewer-btn').click();
       }
-    }
+    };
 
-    return (
-      <div id="actionbar">
-        <nav className="navbar navbar-dark details-panel-navbar">
-          <ul className="nav actionbar-nav">
-            <LogUrls
-              logUrls={jobLogUrls}
-              rawLogUrls={rawLogUrls}
-              logViewerUrl={logViewerUrl}
-              logViewerFullUrl={logViewerFullUrl}
-              taskExpired={taskExpired}
-            />
-            <li>
-              <Button
-                id="pin-job-btn"
-                title="Add this job to the pinboard"
-                className="actionbar-nav-btn bg-transparent border-0"
-                onClick={() => pinJob(selectedJobFull)}
-              >
-                <FontAwesomeIcon icon={faThumbtack} title="Pin job" />
-              </Button>
-            </li>
-            <li>
-              <Button
-                id="retrigger-btn"
-                title={`Retrigger job (r)${expiredTitleSuffix}`}
-                className="actionbar-nav-btn bg-transparent border-0 icon-green"
-                onClick={() => this.retriggerJob([selectedJobFull])}
-                disabled={taskExpired}
-              >
-                <FontAwesomeIcon icon={faRedo} />
-              </Button>
-            </li>
-            {resourceUsageProfile &&
-              // not shown at the same time as the reftest analyzer to avoid running out of space.
-              !isReftest(selectedJobFull) && (
-                <li>
-                  <a
-                    title="Show the resource usage profile in the Firefox Profiler (g)"
-                    className="actionbar-nav-btn btn"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={getPerfAnalysisUrl(
-                      resourceUsageProfile.url,
-                      selectedJobFull,
-                    )}
-                  >
-                    <FontAwesomeIcon icon={faGaugeHigh} />
-                  </a>
-                </li>
-              )}
-            {isReftest(selectedJobFull) &&
-              jobLogUrls.map((jobLogUrl) => (
-                <li key={`reftest-${jobLogUrl.id}`}>
-                  <a
-                    title="Launch the Reftest Analyzer in a new window"
-                    className="actionbar-nav-btn"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={getReftestUrl(jobLogUrl.url)}
-                  >
-                    <FontAwesomeIcon
-                      icon={faChartBar}
-                      title="Reftest analyzer"
-                    />
-                  </a>
-                </li>
-              ))}
-            <li>
-              <Button
-                id="find-job-btn"
-                title="Scroll to selection"
-                className="actionbar-nav-btn bg-transparent border-0"
-                onClick={() =>
-                  findJobInstance(jobLogUrls[0]?.job_id, true)
-                }
-              >
-                <FontAwesomeIcon
-                  icon={faCrosshairs}
-                  title="Find job instance"
-                />
-              </Button>
-            </li>
-            {this.canCancel() && (
+    // Open the raw log and provide notifications if it isn't available
+    const onOpenRawLog = () => {
+      const rawLogButton = document.querySelector('.rawlog-btn');
+
+      if (rawLogButton) {
+        rawLogButton.click();
+      } else {
+        notify('No logs available for this job');
+      }
+    };
+
+    // Open the gecko profile and provide notifications if it isn't available
+    const onOpenGeckoProfile = () => {
+      const resourceUsageProfile = getResourceUsageProfile();
+      if (resourceUsageProfile) {
+        window.open(
+          getPerfAnalysisUrl(resourceUsageProfile.url, selectedJobFull),
+          '_blank',
+        );
+      } else {
+        notify('No resource usage profile available for this job');
+      }
+    };
+
+    const onRetriggerJob = (event) => {
+      retriggerJob([event.detail.job]);
+    };
+
+    window.addEventListener(thEvents.openLogviewer, onOpenLogviewer);
+    window.addEventListener(thEvents.openRawLog, onOpenRawLog);
+    window.addEventListener(thEvents.openGeckoProfile, onOpenGeckoProfile);
+    window.addEventListener(thEvents.jobRetrigger, onRetriggerJob);
+
+    return () => {
+      window.removeEventListener(thEvents.openLogviewer, onOpenLogviewer);
+      window.removeEventListener(thEvents.openRawLog, onOpenRawLog);
+      window.removeEventListener(thEvents.openGeckoProfile, onOpenGeckoProfile);
+      window.removeEventListener(thEvents.jobRetrigger, onRetriggerJob);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    logParseStatus,
+    // The handlers below read these transitively, and they can load async
+    // after a job is selected, so they must stay in the deps to avoid stale
+    // closures: onOpenGeckoProfile -> getResourceUsageProfile() reads
+    // jobDetails; onRetriggerJob -> retriggerJob() reads decisionTaskMap and
+    // currentRepo. Both fire from keyboard shortcuts (KeyboardShortcuts.jsx).
+    selectedJobFull,
+    jobDetails,
+    decisionTaskMap,
+    currentRepo,
+  ]);
+
+  const resourceUsageProfile = getResourceUsageProfile();
+  const expiredTitleSuffix = taskExpired
+    ? ' (unavailable — Taskcluster task expired)'
+    : '';
+
+  // For running tasks, fall back to the live.log artifact for raw log only.
+  let rawLogUrls = jobLogUrls;
+  if (selectedJobFull.state === 'running' && jobDetails && !jobLogUrls.length) {
+    const liveLog = jobDetails.find((detail) =>
+      detail.value.includes('live.log'),
+    );
+    if (liveLog) {
+      rawLogUrls = [{ url: liveLog.url, name: 'live.log', id: 'live' }];
+    }
+  }
+
+  return (
+    <div id="actionbar">
+      <nav className="navbar navbar-dark details-panel-navbar">
+        <ul className="nav actionbar-nav">
+          <LogUrls
+            logUrls={jobLogUrls}
+            rawLogUrls={rawLogUrls}
+            logViewerUrl={logViewerUrl}
+            logViewerFullUrl={logViewerFullUrl}
+            taskExpired={taskExpired}
+          />
+          <li>
+            <Button
+              id="pin-job-btn"
+              title="Add this job to the pinboard"
+              className="actionbar-nav-btn bg-transparent border-0"
+              onClick={() => pinJob(selectedJobFull)}
+            >
+              <FontAwesomeIcon icon={faThumbtack} title="Pin job" />
+            </Button>
+          </li>
+          <li>
+            <Button
+              id="retrigger-btn"
+              title={`Retrigger job (r)${expiredTitleSuffix}`}
+              className="actionbar-nav-btn bg-transparent border-0 icon-green"
+              onClick={() => retriggerJob([selectedJobFull])}
+              disabled={taskExpired}
+            >
+              <FontAwesomeIcon icon={faRedo} />
+            </Button>
+          </li>
+          {resourceUsageProfile &&
+            // not shown at the same time as the reftest analyzer to avoid running out of space.
+            !isReftest(selectedJobFull) && (
               <li>
-                <Button
-                  title={`Must be logged in to cancel a job${expiredTitleSuffix}`}
-                  className="bg-transparent border-0 actionbar-nav-btn hover-warning"
-                  onClick={() => this.cancelJob()}
-                  disabled={taskExpired}
+                <a
+                  title="Show the resource usage profile in the Firefox Profiler (g)"
+                  className="actionbar-nav-btn btn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={getPerfAnalysisUrl(
+                    resourceUsageProfile.url,
+                    selectedJobFull,
+                  )}
                 >
-                  <FontAwesomeIcon icon={faTimesCircle} title="Cancel job" />
-                </Button>
+                  <FontAwesomeIcon icon={faGaugeHigh} />
+                </a>
               </li>
             )}
-            <li className="ms-auto d-flex align-items-center">
-              <Dropdown>
-                <Dropdown.Toggle
-                  className="bg-transparent text-light border-0 pe-2 py-2 m-0 d-flex align-items-center"
-                  bsPrefix="btn"
+          {isReftest(selectedJobFull) &&
+            jobLogUrls.map((jobLogUrl) => (
+              <li key={`reftest-${jobLogUrl.id}`}>
+                <a
+                  title="Launch the Reftest Analyzer in a new window"
+                  className="actionbar-nav-btn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={getReftestUrl(jobLogUrl.url)}
                 >
                   <FontAwesomeIcon
-                    icon={faEllipsisH}
-                    title="Other job actions"
+                    icon={faChartBar}
+                    title="Reftest analyzer"
                   />
-                </Dropdown.Toggle>
-                <Dropdown.Menu
-                  className="actionbar-menu dropdown-menu"
-                  align="start"
-                  style={{
-                    zIndex: 10000,
-                  }}
-                  popperConfig={{
-                    strategy: 'fixed',
-                    modifiers: [
-                      {
-                        name: 'offset',
-                        options: {
-                          offset: [0, 4],
-                        },
+                </a>
+              </li>
+            ))}
+          <li>
+            <Button
+              id="find-job-btn"
+              title="Scroll to selection"
+              className="actionbar-nav-btn bg-transparent border-0"
+              onClick={() => findJobInstance(jobLogUrls[0]?.job_id, true)}
+            >
+              <FontAwesomeIcon icon={faCrosshairs} title="Find job instance" />
+            </Button>
+          </li>
+          {canCancel() && (
+            <li>
+              <Button
+                title={`Must be logged in to cancel a job${expiredTitleSuffix}`}
+                className="bg-transparent border-0 actionbar-nav-btn hover-warning"
+                onClick={() => cancelJob()}
+                disabled={taskExpired}
+              >
+                <FontAwesomeIcon icon={faTimesCircle} title="Cancel job" />
+              </Button>
+            </li>
+          )}
+          <li className="ms-auto d-flex align-items-center">
+            <Dropdown>
+              <Dropdown.Toggle
+                className="bg-transparent text-light border-0 pe-2 py-2 m-0 d-flex align-items-center"
+                bsPrefix="btn"
+              >
+                <FontAwesomeIcon icon={faEllipsisH} title="Other job actions" />
+              </Dropdown.Toggle>
+              <Dropdown.Menu
+                className="actionbar-menu dropdown-menu"
+                align="start"
+                style={{
+                  zIndex: 10000,
+                }}
+                popperConfig={{
+                  strategy: 'fixed',
+                  modifiers: [
+                    {
+                      name: 'offset',
+                      options: {
+                        offset: [0, 4],
                       },
-                      {
-                        name: 'preventOverflow',
-                        options: {
-                          boundary: 'viewport',
-                          padding: 8,
-                        },
+                    },
+                    {
+                      name: 'preventOverflow',
+                      options: {
+                        boundary: 'viewport',
+                        padding: 8,
                       },
-                      {
-                        name: 'flip',
-                        options: {
-                          fallbackPlacements: ['bottom-end', 'top-end'],
-                        },
+                    },
+                    {
+                      name: 'flip',
+                      options: {
+                        fallbackPlacements: ['bottom-end', 'top-end'],
                       },
-                    ],
-                  }}
-                  renderOnMount
+                    },
+                  ],
+                }}
+                renderOnMount
+              >
+                <Dropdown.Item
+                  as="a"
+                  id="backfill-btn"
+                  className={`${!canBackfill() ? 'disabled' : ''}`}
+                  title={backfillButtonTitle()}
+                  onClick={() => !canBackfill() || backfillJob()}
                 >
-                  <Dropdown.Item
-                    as="a"
-                    id="backfill-btn"
-                    className={`${!this.canBackfill() ? 'disabled' : ''}`}
-                    title={this.backfillButtonTitle()}
-                    onClick={() => !this.canBackfill() || this.backfillJob()}
-                  >
-                    Backfill
-                  </Dropdown.Item>
-                  {selectedJobFull.task_id && (
-                    <React.Fragment>
-                      <Dropdown.Item
-                        as="a"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ps-4"
-                        href={getInspectTaskUrl(
-                          selectedJobFull.task_id,
-                          checkRootUrl(currentRepo.tc_root_url),
-                          selectedJobFull.submit_timestamp,
-                        )}
-                      >
-                        Inspect Task
-                      </Dropdown.Item>
+                  Backfill
+                </Dropdown.Item>
+                {selectedJobFull.task_id && (
+                  <React.Fragment>
+                    <Dropdown.Item
+                      as="a"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ps-4"
+                      href={getInspectTaskUrl(
+                        selectedJobFull.task_id,
+                        checkRootUrl(currentRepo.tc_root_url),
+                        selectedJobFull.submit_timestamp,
+                      )}
+                    >
+                      Inspect Task
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      as="a"
+                      className="py-2"
+                      disabled={taskExpired}
+                      title={
+                        taskExpired
+                          ? 'Taskcluster task expired — action unavailable'
+                          : undefined
+                      }
+                      onClick={() => createInteractiveTask()}
+                    >
+                      Create Interactive Task
+                    </Dropdown.Item>
+                    {isPerfTest(selectedJobFull) && (
                       <Dropdown.Item
                         as="a"
                         className="py-2"
@@ -563,11 +534,13 @@ class ActionBar extends React.PureComponent {
                             ? 'Taskcluster task expired — action unavailable'
                             : undefined
                         }
-                        onClick={() => this.createInteractiveTask()}
+                        onClick={() => createGeckoProfile()}
                       >
-                        Create Interactive Task
+                        Create Gecko Profile
                       </Dropdown.Item>
-                      {isPerfTest(selectedJobFull) && (
+                    )}
+                    {isPerfTest(selectedJobFull) &&
+                      !selectedJobFull.hasSideBySide && (
                         <Dropdown.Item
                           as="a"
                           className="py-2"
@@ -577,77 +550,59 @@ class ActionBar extends React.PureComponent {
                               ? 'Taskcluster task expired — action unavailable'
                               : undefined
                           }
-                          onClick={() => this.createGeckoProfile()}
+                          onClick={() => createSideBySide()}
                         >
-                          Create Gecko Profile
+                          Generate side-by-side
                         </Dropdown.Item>
                       )}
-                      {isPerfTest(selectedJobFull) &&
-                        !selectedJobFull.hasSideBySide && (
-                          <Dropdown.Item
-                            as="a"
-                            className="py-2"
-                            disabled={taskExpired}
-                            title={
-                              taskExpired
-                                ? 'Taskcluster task expired — action unavailable'
-                                : undefined
-                            }
-                            onClick={() => this.createSideBySide()}
-                          >
-                            Generate side-by-side
-                          </Dropdown.Item>
-                        )}
-                      {canConfirmFailure(selectedJobFull) && (
-                        <Dropdown.Item
-                          as="a"
-                          className="py-2"
-                          disabled={taskExpired}
-                          title={
-                            taskExpired
-                              ? 'Taskcluster task expired — action unavailable'
-                              : undefined
-                          }
-                          onClick={() => this.handleConfirmFailure()}
-                        >
-                          Confirm Test Failures
-                        </Dropdown.Item>
-                      )}
+                    {canConfirmFailure(selectedJobFull) && (
                       <Dropdown.Item
                         as="a"
-                        onClick={() => this.toggleCustomJobActions()}
-                        className="dropdown-item"
+                        className="py-2"
                         disabled={taskExpired}
                         title={
                           taskExpired
                             ? 'Taskcluster task expired — action unavailable'
                             : undefined
                         }
+                        onClick={() => handleConfirmFailure()}
                       >
-                        Custom Action...
+                        Confirm Test Failures
                       </Dropdown.Item>
-                    </React.Fragment>
-                  )}
-                </Dropdown.Menu>
-              </Dropdown>
-            </li>
-          </ul>
-        </nav>
-        {customJobActionsShowing && (
-          <CustomJobActions
-            job={selectedJobFull}
-            pushId={selectedJobFull.push_id}
-            currentRepo={currentRepo}
-            toggle={this.toggleCustomJobActions}
-          />
-        )}
-      </div>
-    );
-  }
+                    )}
+                    <Dropdown.Item
+                      as="a"
+                      onClick={() => toggleCustomJobActions()}
+                      className="dropdown-item"
+                      disabled={taskExpired}
+                      title={
+                        taskExpired
+                          ? 'Taskcluster task expired — action unavailable'
+                          : undefined
+                      }
+                    >
+                      Custom Action...
+                    </Dropdown.Item>
+                  </React.Fragment>
+                )}
+              </Dropdown.Menu>
+            </Dropdown>
+          </li>
+        </ul>
+      </nav>
+      {customJobActionsShowing && (
+        <CustomJobActions
+          job={selectedJobFull}
+          pushId={selectedJobFull.push_id}
+          currentRepo={currentRepo}
+          toggle={toggleCustomJobActions}
+        />
+      )}
+    </div>
+  );
 }
 
 ActionBar.propTypes = {
-  decisionTaskMap: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
   logParseStatus: PropTypes.string.isRequired,
@@ -660,10 +615,4 @@ ActionBar.propTypes = {
   taskExpired: PropTypes.bool,
 };
 
-// Wrapper to inject Zustand state into class component
-function ActionBarWrapper(props) {
-  const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
-  return <ActionBar {...props} decisionTaskMap={decisionTaskMap} />;
-}
-
-export default ActionBarWrapper;
+export default React.memo(ActionBar);
