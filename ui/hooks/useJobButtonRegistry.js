@@ -74,7 +74,6 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
   });
   const [isRunnableSelected, setIsRunnableSelected] = useState(false);
   const buttonRef = useRef(null);
-  const hasScrolledRef = useRef(false);
 
   // Listen for URL changes (popstate) to update selection state
   useEffect(() => {
@@ -116,24 +115,6 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
     filterPlatformCb(getUrlParam('selectedTaskRun'));
   }, [filterPlatformCb]);
 
-  // Callback ref to attach to the button element - scrolls into view when selected
-  const buttonRefCallback = useCallback(
-    (element) => {
-      buttonRef.current = element;
-      // Scroll into view when the element mounts and is selected (only on initial load)
-      if (element && isSelected && !hasScrolledRef.current) {
-        hasScrolledRef.current = true;
-        // Use requestAnimationFrame to ensure the DOM has fully rendered
-        requestAnimationFrame(() => {
-          if (element && typeof element.scrollIntoView === 'function') {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        });
-      }
-    },
-    [isSelected],
-  );
-
   // Register with job button registry on mount, unregister on unmount
   useEffect(() => {
     const imperativeHandle = {
@@ -168,6 +149,6 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
     setSelected,
     toggleRunnableSelected,
     refilter,
-    buttonRef: buttonRefCallback,
+    buttonRef,
   };
 }
