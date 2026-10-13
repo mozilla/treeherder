@@ -1,3 +1,4 @@
+import copy
 import os
 
 from treeherder.config.settings import *  # noqa: F403
@@ -13,6 +14,13 @@ if TEST_DATABASE_URL:
     DATABASES["default"] = environ.Env.db_url_config(TEST_DATABASE_URL)  # noqa: F405
 
 DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}  # noqa: F405
+
+# Register a read_replica alias pointed at the same test DSN so integration
+# tests can capture per-alias queries via CaptureQueriesContext. The router
+# is installed unconditionally during tests so its behavior is exercised.
+DATABASES["read_replica"] = copy.deepcopy(DATABASES["default"])  # noqa: F405
+DATABASE_ROUTERS = ["treeherder.config.db_routing.ReadReplicaRouter"]
+
 KEY_PREFIX = "test"
 
 TREEHERDER_TEST_REPOSITORY_NAME = "mozilla-central"
