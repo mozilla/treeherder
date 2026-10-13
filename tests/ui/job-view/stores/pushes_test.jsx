@@ -14,7 +14,11 @@ import revisionTips from '../../mock/revisionTips.json';
 import {
   usePushesStore,
   initialState,
+  enforcePushLimit,
+  getRepoPushCap,
 } from '../../../../ui/shared/stores/pushesStore';
+import { useSelectedJobStore } from '../../../../ui/shared/stores/selectedJobStore';
+import { usePinnedJobsStore } from '../../../../ui/shared/stores/pinnedJobsStore';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import JobModel from '../../../../ui/models/job';
 
@@ -34,6 +38,8 @@ describe('Pushes Zustand store', () => {
     window.location = { ...originalLocation, search: '', pathname: '/jobs' };
     // Reset store to initial state before each test
     usePushesStore.setState(initialState);
+    useSelectedJobStore.setState({ selectedJob: null });
+    usePinnedJobsStore.setState({ pinnedJobs: {} });
   });
 
   afterEach(() => {
@@ -63,6 +69,88 @@ describe('Pushes Zustand store', () => {
     expect(state.allUnclassifiedFailureCount).toBe(0);
     expect(state.filteredUnclassifiedFailureCount).toBe(0);
     expect(state.revisionTips).toEqual(revisionTips);
+  });
+
+  test('getRepoPushCap returns 200 for autoland and 100 for other repos', () => {
+    window.location = { ...originalLocation, search: '?repo=autoland' };
+    expect(getRepoPushCap()).toBe(200);
+
+    window.location = { ...originalLocation, search: '?repo=try' };
+    expect(getRepoPushCap()).toBe(100);
+
+    window.location = { ...originalLocation, search: '' };
+    expect(getRepoPushCap()).toBe(100);
+  });
+
+  test('fetchPushes floors retainedPushLimit at the repo push cap', async () => {
+    fetchMock.get(
+      getProjectUrl('/push/?full=true&count=10', repoName),
+      pushListFixture,
+    );
+    fetchMock.get(
+      `https://bugzilla.mozilla.org/rest/bug?id=1556854%2C1555861%2C1559418%2C1563766%2C1561537%2C1563692`,
+      emptyBugzillaResponse,
+    );
+
+    // No repo in the URL => default cap of 100 is the floor, above the 6-push
+    // fixture, so the limit lands on the cap rather than the loaded count.
+    usePushesStore.setState(initialState);
+    await usePushesStore.getState().fetchPushes();
+
+    expect(usePushesStore.getState().retainedPushLimit).toBe(100);
+  });
+
+  const buildPushList = (ids) =>
+    ids.map((id) => ({
+      id,
+      revision: `rev${id}`,
+      author: 'a@b.com',
+      push_timestamp: 1000 + id,
+      revisions: [{ comments: `title ${id}` }],
+      jobsLoaded: true,
+    }));
+
+  test('enforcePushLimit evicts oldest pushes beyond retainedPushLimit and prunes jobMap', () => {
+    const pushList = buildPushList([5, 4, 3, 2, 1]); // newest-first
+    const jobMap = {};
+    pushList.forEach((p) => {
+      jobMap[p.id * 10] = {
+        id: p.id * 10,
+        push_id: p.id,
+        state: 'completed',
+        result: 'success',
+        last_modified: '2019-08-05T20:00:00',
+      };
+    });
+
+    usePushesStore.setState({
+      ...initialState,
+      pushList,
+      jobMap,
+      retainedPushLimit: 3,
+    });
+
+    usePushesStore.setState((state) => enforcePushLimit(state));
+    const state = usePushesStore.getState();
+
+    expect(state.pushList.map((p) => p.id)).toEqual([5, 4, 3]);
+    expect(Object.keys(state.jobMap).sort()).toEqual(['30', '40', '50']);
+    expect(state.oldestPushTimestamp).toBe(1003);
+  });
+
+  test('enforcePushLimit never evicts the selected or a pinned push', () => {
+    const pushList = buildPushList([5, 4, 3, 2, 1]);
+
+    usePushesStore.setState({ ...initialState, pushList, retainedPushLimit: 3 });
+    // Select a job on the oldest push (id 1); pin a job on push id 2.
+    useSelectedJobStore.setState({ selectedJob: { id: 999, push_id: 1 } });
+    usePinnedJobsStore.setState({ pinnedJobs: { 998: { id: 998, push_id: 2 } } });
+
+    usePushesStore.setState((state) => enforcePushLimit(state));
+    const keptIds = usePushesStore.getState().pushList.map((p) => p.id);
+
+    // 3 newest kept, plus protected pushes 1 and 2.
+    expect(keptIds.sort((a, b) => b - a)).toEqual([5, 4, 3, 2, 1]);
   });
 
   test('should add new push and jobs when polling', async () => {
@@ -114,6 +202,37 @@ describe('Pushes Zustand store', () => {
         title: 'try_task_config for code-review',
       },
     ]);
+  });
+
+  test('pollPushes trims the pushList back to retainedPushLimit', async () => {
+    fetchMock.get(
+      getProjectUrl(
+        '/push/?full=true&count=100&fromchange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+        repoName,
+      ),
+      pollPushListFixture,
+    );
+    fetchMock.mock(`begin:${getApiUrl('/jobs/?push_id__in=', repoName)}`, {
+      count: 0,
+      next: null,
+      results: [],
+    });
+    fetchMock.get(
+      `https://bugzilla.mozilla.org/rest/bug?id=1506219`,
+      emptyBugzillaResponse,
+    );
+
+    const initialPush = pushListFixture.results[0];
+    // limit 1 => after polling prepends pushes, only the newest remains.
+    usePushesStore.setState({
+      ...initialState,
+      pushList: [initialPush],
+      retainedPushLimit: 1,
+    });
+
+    await usePushesStore.getState().pollPushes();
+
+    expect(usePushesStore.getState().pushList).toHaveLength(1);
   });
 
   test('fetchPushes should update revision param on url', async () => {
