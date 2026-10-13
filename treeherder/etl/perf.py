@@ -129,6 +129,34 @@ def _test_should_alert_based_on(
     ) or (signature.monitor and job.repository.name not in ("try",))
 
 
+def _get_replicate_run_numbers(count: int, ordered_trials: bool | None) -> list[int | None]:
+    if not ordered_trials:
+        return [None] * count
+    return list(range(1, count + 1))
+
+
+def _store_replicates(
+    performance_datum: PerformanceDatum, replicates: list[float], ordered_trials: bool | None
+) -> None:
+    try:
+        run_numbers = _get_replicate_run_numbers(len(replicates), ordered_trials)
+        # Add the replicates to the PerformanceDatumReplicate table, and
+        # catch and ignore any exceptions that are produced here so we don't
+        # impact the standard workflow
+        PerformanceDatumReplicate.objects.bulk_create(
+            [
+                PerformanceDatumReplicate(
+                    value=replicate,
+                    run_number=run_number,
+                    performance_datum=performance_datum,
+                )
+                for replicate, run_number in zip(replicates, run_numbers)
+            ]
+        )
+    except Exception as e:
+        logger.info(f"Failed to ingest replicates for datum {performance_datum}: {e}")
+
+
 def _load_perf_datum(job: Job, perf_datum: dict):
     validate_perf_data(perf_datum)
 
@@ -230,20 +258,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
 
             replicates = suite.get("replicates", [])
             if replicates and len(replicates) > 0:
-                try:
-                    # Add the replicates to the PerformanceDatumReplicate table, and
-                    # catch and ignore any exceptions that are produced here so we don't
-                    # impact the standard workflow
-                    PerformanceDatumReplicate.objects.bulk_create(
-                        [
-                            PerformanceDatumReplicate(
-                                value=replicate, performance_datum=suite_datum
-                            )
-                            for replicate in replicates
-                        ]
-                    )
-                except Exception as e:
-                    logger.info(f"Failed to ingest replicates for suite datum {suite_datum}: {e}")
+                _store_replicates(suite_datum, replicates, suite.get("orderedTrials"))
 
             if _suite_should_alert_based_on(signature, job, datum_created):
                 generate_alerts.apply_async(args=[signature.id], queue="generate_perf_alerts")
@@ -321,20 +336,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
 
             replicates = subtest.get("replicates", [])
             if replicates and len(replicates) > 0:
-                try:
-                    # Add the replicates to the PerformanceDatumReplicate table, and
-                    # catch and ignore any exceptions that are produced here so we don't
-                    # impact the standard workflow
-                    PerformanceDatumReplicate.objects.bulk_create(
-                        [
-                            PerformanceDatumReplicate(
-                                value=replicate, performance_datum=subtest_datum
-                            )
-                            for replicate in replicates
-                        ]
-                    )
-                except Exception as e:
-                    logger.info(f"Failed to ingest replicates for datum {subtest_datum}: {e}")
+                _store_replicates(subtest_datum, replicates, subtest.get("orderedTrials"))
 
             if subtest_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
                 # keep a register with all multi commit perf data

@@ -526,9 +526,15 @@ def test_multi_commit_data_is_removed_by_dedicated_management_script(
     )  # data ingested in the old way remains intact
 
 
-def test_suite_replicates_are_ingested(test_repository, perf_job, sample_perf_artifact):
+@pytest.mark.parametrize("ordered_trials", [None, False])
+def test_suite_replicates_are_ingested(
+    test_repository, perf_job, sample_perf_artifact, ordered_trials
+):
     suite_replicates = [1.0, 2.0, 3.0]
-    sample_perf_artifact["blob"]["suites"][0]["replicates"] = suite_replicates
+    suite = sample_perf_artifact["blob"]["suites"][0]
+    suite["replicates"] = suite_replicates
+    if ordered_trials is not None:
+        suite["orderedTrials"] = ordered_trials
     _, submit_datum = _prepare_test_data(sample_perf_artifact)
 
     store_performance_artifact(perf_job, submit_datum)
@@ -538,7 +544,51 @@ def test_suite_replicates_are_ingested(test_repository, perf_job, sample_perf_ar
     )
     stored_replicates = list(
         PerformanceDatumReplicate.objects.filter(performance_datum=suite_datum).values_list(
-            "value", flat=True
+            "value", "run_number"
         )
     )
-    assert sorted(stored_replicates) == sorted(suite_replicates)
+    assert stored_replicates == [(value, None) for value in suite_replicates]
+
+
+def test_ordered_suite_replicates_are_ingested_with_run_numbers(
+    test_repository, perf_job, sample_perf_artifact
+):
+    suite_replicates = [1.0, 2.0, 3.0]
+    suite = sample_perf_artifact["blob"]["suites"][0]
+    suite["replicates"] = suite_replicates
+    suite["orderedTrials"] = True
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+
+    store_performance_artifact(perf_job, submit_datum)
+
+    suite_datum = PerformanceDatum.objects.get(
+        signature=PerformanceSignature.objects.get(suite="youtube-watch", test="")
+    )
+    stored_replicates = list(
+        PerformanceDatumReplicate.objects.filter(performance_datum=suite_datum).values_list(
+            "value", "run_number"
+        )
+    )
+    assert stored_replicates == list(zip(suite_replicates, range(1, len(suite_replicates) + 1)))
+
+
+def test_ordered_subtest_replicates_are_ingested_with_run_numbers(
+    test_repository, perf_job, sample_perf_artifact
+):
+    subtest_replicates = [1.0, 2.0, 3.0]
+    subtest = sample_perf_artifact["blob"]["suites"][0]["subtests"][0]
+    subtest["replicates"] = subtest_replicates
+    subtest["orderedTrials"] = True
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+
+    store_performance_artifact(perf_job, submit_datum)
+
+    subtest_datum = PerformanceDatum.objects.get(
+        signature=PerformanceSignature.objects.get(suite="youtube-watch", test="fcp")
+    )
+    stored_replicates = list(
+        PerformanceDatumReplicate.objects.filter(performance_datum=subtest_datum).values_list(
+            "value", "run_number"
+        )
+    )
+    assert stored_replicates == list(zip(subtest_replicates, range(1, len(subtest_replicates) + 1)))
