@@ -105,7 +105,10 @@ class ORJSONRenderer(JSONRenderer):
         return orjson.dumps(
             data,
             default=self.default,
-            option=orjson.OPT_NON_STR_KEYS | orjson.OPT_UTC_Z,
+            # OPT_NON_STR_KEYS: several perf endpoints return dicts keyed by int
+            # (e.g. performance/signatures). orjson raises on non-str keys unless
+            # this is set, unlike stdlib json which coerces keys to strings.
+            option=orjson.OPT_NON_STR_KEYS,
         )
 
 
