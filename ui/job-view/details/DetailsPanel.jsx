@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -36,6 +36,17 @@ function DetailsPanel({
   );
   const [summaryOpen, setSummaryOpen] = useState(false);
 
+  // On mobile, each newly selected job starts on its default tab rather than
+  // the summary slide-out or the pinboard.
+  const [prevJobId, setPrevJobId] = useState(selectedJob?.id);
+  if (selectedJob?.id !== prevJobId) {
+    setPrevJobId(selectedJob?.id);
+    setSummaryOpen(false);
+  }
+  useEffect(() => {
+    if (mobile) setPinBoardVisible(false);
+  }, [mobile, selectedJob?.id]);
+
   const {
     selectedJobFull,
     jobDetails,
@@ -67,7 +78,10 @@ function DetailsPanel({
         <button
           className="btn btn-link mobile-pinboard-back"
           type="button"
-          onClick={() => setPinBoardVisible(false)}
+          onClick={() => {
+            setPinBoardVisible(false);
+            setSummaryOpen(false);
+          }}
         >
           Back to job
         </button>

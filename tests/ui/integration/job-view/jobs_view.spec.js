@@ -376,6 +376,82 @@ test.describe('Jobs View', () => {
     ).toBe(true);
   });
 
+  test('mobile pinning stays on the job and resets for the next job', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const sheet = page.locator('.mobile-job-details');
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await sheet.getByRole('button', { name: 'Show job summary' }).click();
+    await expect(sheet.locator('#pin-job-btn')).toBeHidden();
+
+    await sheet.getByRole('button', { name: 'Pin job' }).click();
+    await expect(
+      sheet.getByRole('button', { name: 'Unpin job' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(sheet.locator('#pinboard-panel')).toBeHidden();
+
+    await sheet
+      .getByRole('button', { name: 'Show pinboard (1 pinned)' })
+      .click();
+    await expect(sheet.locator('#pinboard-panel')).toBeVisible();
+
+    await page.getByTestId('job-btn').filter({ hasText: 'D' }).first().click();
+    await expect(sheet.locator('#pinboard-panel')).toBeHidden();
+    await expect(
+      sheet.getByRole('button', { name: 'Show job summary' }),
+    ).toHaveAttribute('aria-expanded', 'false');
+    await expect(sheet.getByRole('button', { name: 'Pin job' })).toBeVisible();
+    await expect(
+      sheet.getByRole('button', { name: 'Show pinboard (1 pinned)' }),
+    ).toBeVisible();
+  });
+
+  test('mobile bug filer stacks the bug reference fields', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    await page.route('**/api/project/autoland/job-log-url/**', (route) =>
+      route.fulfill(
+        json([
+          {
+            id: 1,
+            job_id: BUILD_JOB.id,
+            name: 'live_backing_log',
+            url: 'https://example.com/log',
+            parse_status: 'parsed',
+          },
+        ]),
+      ),
+    );
+    await page.route(
+      `**/api/project/autoland/jobs/${BUILD_JOB.id}/bug_suggestions/**`,
+      (route) => route.fulfill(json(loadFixture('bug_suggestions.json'))),
+    );
+
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await page
+      .locator('.mobile-job-details')
+      .getByTitle('File a bug for this failure')
+      .first()
+      .click();
+
+    const regressedBy = page.locator('#regressedBy');
+    const seeAlso = page.locator('#seeAlso');
+    await expect(seeAlso).toBeVisible();
+    await expect(regressedBy).toHaveCSS('height', '44px');
+    await expect(seeAlso).toHaveCSS('height', '44px');
+    const regressedBox = await regressedBy.boundingBox();
+    const seeAlsoBox = await seeAlso.boundingBox();
+    expect(seeAlsoBox.y).toBeGreaterThan(regressedBox.y + regressedBox.height);
+    expect(regressedBox.width).toBeGreaterThan(250);
+    await expect(
+      page.getByRole('button', { name: 'Find Product' }),
+    ).toHaveCSS('height', '30px');
+  });
+
   test('mobile Similar Jobs opens details from a list row', async ({
     page,
   }, testInfo) => {

@@ -27,6 +27,7 @@ import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
+import MobilePinControls from './details/MobilePinControls';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 import { useNotificationStore } from '../shared/stores/notificationStore';
@@ -513,7 +514,8 @@ const App = () => {
             <Offcanvas.Header
               closeButton
               onPointerDown={(event) => {
-                if (event.target.closest('.btn-close')) return;
+                if (event.target.closest('.btn-close, .mobile-sheet-action'))
+                  return;
                 resizeStartRef.current = {
                   y: event.clientY,
                   height: mobileDetailsHeight,
@@ -573,6 +575,7 @@ const App = () => {
               <Offcanvas.Title id="mobile-job-details-title">
                 {selectedJob?.job_type_name || 'Job details'}
               </Offcanvas.Title>
+              {selectedJob && <MobilePinControls job={selectedJob} />}
             </Offcanvas.Header>
             <Offcanvas.Body>{hasSelectedJob && detailsPanel}</Offcanvas.Body>
           </Offcanvas>

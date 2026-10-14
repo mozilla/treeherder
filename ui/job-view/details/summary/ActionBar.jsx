@@ -404,7 +404,7 @@ class ActionBar extends React.PureComponent {
               logViewerFullUrl={logViewerFullUrl}
               taskExpired={taskExpired}
             />
-            <li>
+            <li className="d-none d-md-block">
               <Button
                 id="pin-job-btn"
                 title="Add this job to the pinboard"

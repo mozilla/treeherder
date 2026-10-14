@@ -127,3 +127,26 @@
 .intermittent-failure-fields {
   align-items: center;
 }
+
+@media (max-width: 767.98px) {
+  .modal-body .find-product-btn {
+    flex: none;
+    height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+    white-space: nowrap;
+  }
+
+  .modal-body .intermittent-failure-fields {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .modal-body #regressedBy,
+  .modal-body #seeAlso {
+    flex: 1 1 100%;
+    height: 44px;
+    font-size: 16px;
+  }
+}
