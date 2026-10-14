@@ -572,7 +572,10 @@ const App = () => {
                   }
                 }}
               />
-              <Offcanvas.Title id="mobile-job-details-title">
+              <Offcanvas.Title
+                id="mobile-job-details-title"
+                title={selectedJob?.job_type_name}
+              >
                 {selectedJob?.job_type_name || 'Job details'}
               </Offcanvas.Title>
               {selectedJob && <MobilePinControls job={selectedJob} />}

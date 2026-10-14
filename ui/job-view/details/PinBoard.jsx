@@ -12,7 +12,10 @@ import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobClassificationTypeAndBugsModel from '../../models/classificationTypeAndBugs';
 import JobModel from '../../models/job';
-import { setSelectedJob } from '../../shared/stores/selectedJobStore';
+import {
+  setSelectedJob,
+  useSelectedJobStore,
+} from '../../shared/stores/selectedJobStore';
 import { notify } from '../../shared/stores/notificationStore';
 import {
   usePushesStore,
@@ -30,7 +33,6 @@ import {
 
 function PinBoard({
   mobile = false,
-  selectedJobFull = null,
   isLoggedIn,
   isStaff = false,
   classificationTypes,
@@ -54,7 +56,11 @@ function PinBoard({
 
   const hasPinnedJobs = !!Object.keys(pinnedJobs).length;
   const hasPinnedJobBugs = !!pinnedJobBugs.length;
-  const selectedJobId = selectedJobFull ? selectedJobFull.id : null;
+  // Highlight the selected job right away, even before (or if) its full
+  // details finish loading.
+  const selectedJobId = useSelectedJobStore(
+    (state) => state.selectedJob?.id ?? null,
+  );
 
   // Focus bug input when entering bug number mode
   useEffect(() => {
@@ -423,7 +429,13 @@ function PinBoard({
                 job.failure_classification_id,
               );
               return (
-                <span className="btn-group" key={job.id}>
+                <span
+                  className={`btn-group pinned-job-chip ${
+                    selectedJobId === job.id ? 'is-selected' : ''
+                  }`}
+                  style={{ '--chip-color': `var(--status-${status})` }}
+                  key={job.id}
+                >
                   <Button
                     className={`pinned-job mb-1 job-btn ${
                       selectedJobId === job.id ? 'selected-job' : ''
@@ -480,7 +492,7 @@ function PinBoard({
               </Button>
             )}
             {enteringBugNumber && (
-              <span className="add-related-bugs-form d-flex align-items-start">
+              <span className="add-related-bugs-form d-flex align-items-center align-items-md-start">
                 <div>
                   <Form.Control
                     id="related-bug-input"

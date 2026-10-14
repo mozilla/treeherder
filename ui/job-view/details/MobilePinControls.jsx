@@ -1,6 +1,10 @@
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCaretDown,
+  faCaretUp,
+  faThumbtack,
+} from '@fortawesome/free-solid-svg-icons';
 
 import {
   usePinnedJobsStore,
@@ -43,7 +47,7 @@ function MobilePinControls({ job }) {
       {pinnedCount > 0 && (
         <button
           type="button"
-          className="mobile-sheet-action"
+          className="mobile-sheet-action mobile-pinboard-toggle"
           aria-pressed={isPinBoardVisible}
           aria-label={`${isPinBoardVisible ? 'Hide' : 'Show'} pinboard (${pinnedCount} pinned)`}
           onClick={() => setPinBoardVisible(!isPinBoardVisible)}
@@ -51,6 +55,10 @@ function MobilePinControls({ job }) {
           <span className="badge rounded-pill text-bg-secondary">
             {pinnedCount}
           </span>
+          <FontAwesomeIcon
+            icon={isPinBoardVisible ? faCaretUp : faCaretDown}
+            className="ms-1"
+          />
         </button>
       )}
     </div>

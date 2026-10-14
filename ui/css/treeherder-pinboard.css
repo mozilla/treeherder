@@ -77,67 +77,203 @@
   }
 
   .mobile-job-details #pinboard-panel:not(.hidden) {
+    display: flex;
     flex: 1 1 auto;
+    flex-direction: column;
     min-height: 0;
     overflow: auto;
   }
 
+  /* One 12px gutter and 12px gap for every pinboard section. */
   .mobile-job-details #pinboard-contents {
+    flex: 1 0 auto;
     flex-direction: column;
+    gap: 12px;
     min-width: 0;
+    padding: 12px;
   }
 
-  .mobile-job-details #pinned-job-list {
-    min-height: 72px;
+  .mobile-job-details #pinned-job-list,
+  .mobile-job-details #pinboard-related-bugs,
+  .mobile-job-details #pinboard-classification,
+  .mobile-job-details #pinboard-controls {
     flex: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mobile-job-details #pinned-job-list .content,
+  .mobile-job-details #pinboard-related-bugs .content {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    height: auto;
+    min-height: 48px;
+    margin: 0;
+    padding: 8px;
+    border-radius: 4px;
   }
 
   .mobile-job-details #pinned-job-list .content {
-    position: static;
     max-height: 160px;
+    overflow: auto;
   }
 
-  .mobile-job-details #pinboard-related-bugs {
-    width: auto;
+  .mobile-job-details .pinboard-preload-txt {
+    font-size: 14px;
+    color: #6c757d;
   }
 
-  .mobile-job-details #pinboard-related-bugs .content {
-    position: static;
-    width: auto;
-    height: auto;
-    min-height: 44px;
-    overflow: visible;
+  /* Each pinned job and its unpin button form one chip. */
+  .mobile-job-details #pinned-job-list .content .pinned-job-chip {
+    margin: 0;
+    border: 1px solid #adb5bd;
+    border-radius: 4px;
+    background-color: #fff;
+  }
+
+  .mobile-job-details .pinned-job-chip.is-selected {
+    outline: 2px solid var(--chip-color, #252c33);
+    outline-offset: 1px;
+  }
+
+  .mobile-job-details .pinned-job-chip button.btn.job-btn.pinned-job,
+  .mobile-job-details .pinned-job-chip .pinned-job-close-btn {
+    height: 32px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    font-size: 14px;
+    line-height: 30px;
+  }
+
+  .mobile-job-details .pinned-job-chip button.btn.job-btn.pinned-job {
+    min-width: 32px;
+    padding: 0 8px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+  }
+
+  .mobile-job-details .pinned-job-chip button.btn.job-btn.selected-job {
+    outline: 0;
+  }
+
+  .mobile-job-details .pinned-job-chip .pinned-job-close-btn {
+    width: 32px;
+    padding: 0;
+    border-left: 1px solid #dee2e6;
+    color: #495057;
+  }
+
+  /* Related bugs */
+  .mobile-job-details #add-related-bug-button {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+  }
+
+  .mobile-job-details .add-related-bugs-icon {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  .mobile-job-details .pinboard-related-bug-preload-txt {
+    flex: 1 1 auto;
+    min-height: 32px;
+    text-align: left;
+    vertical-align: middle;
   }
 
   .mobile-job-details .add-related-bugs-form {
     top: 0;
     left: 0;
-    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .mobile-job-details .add-related-bugs-form > div {
+    flex: 1 1 auto;
+  }
+
+  .mobile-job-details #clear-related-bug-button {
+    min-width: 32px;
+    min-height: 32px;
   }
 
   .mobile-job-details .add-related-bugs-input {
+    width: 100%;
     min-height: 44px;
     margin: 0;
     font-size: 16px;
     line-height: 1.5;
   }
 
-  .mobile-job-details #pinboard-classification {
-    width: 100%;
+  .mobile-job-details .pinboard-related-bugs-btn {
+    margin: 0;
+    border: 1px solid #adb5bd;
+    border-radius: 4px;
+  }
+
+  .mobile-job-details .pinboard-related-bugs-btn .btn {
+    min-height: 32px;
+    font-size: 14px;
+  }
+
+  /* Classification */
+  .mobile-job-details .pinboard-label {
+    margin-bottom: 4px;
+    font-size: 14px;
+    text-transform: capitalize;
+  }
+
+  .mobile-job-details #pinboard-classification-content,
+  .mobile-job-details .classification-comment-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .mobile-job-details #pinboard-panel #pinboard-classification select,
   .mobile-job-details #pinboard-classification .add-classification-input {
     width: 100%;
-    min-height: 36px;
+    height: 44px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 16px;
   }
 
+
+  /* Save: full-width button with the menu toggle attached on the right. */
   .mobile-job-details #pinboard-controls {
-    margin: 8px;
+    display: block;
   }
 
-  .mobile-job-details .save-btn-group {
-    margin-top: 0;
+  .mobile-job-details #pinboard-controls .save-btn-group {
+    display: flex;
+    width: 100%;
+    margin: 0;
+  }
+
+  .mobile-job-details #pinboard-controls .save-btn {
+    flex: 1 1 auto;
+    float: none;
+    width: auto;
+    height: 44px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    font-size: 16px;
+  }
+
+  .mobile-job-details #pinboard-controls .dropdown-toggle {
+    width: 44px;
+    height: 44px;
+    margin-left: -1px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 }
 

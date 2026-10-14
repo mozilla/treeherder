@@ -392,10 +392,17 @@ test.describe('Jobs View', () => {
     ).toHaveAttribute('aria-pressed', 'true');
     await expect(sheet.locator('#pinboard-panel')).toBeHidden();
 
-    await sheet
-      .getByRole('button', { name: 'Show pinboard (1 pinned)' })
-      .click();
+    const pinboardToggle = sheet.getByRole('button', {
+      name: 'Show pinboard (1 pinned)',
+    });
+    await expect(pinboardToggle.locator('[data-icon="caret-down"]')).toBeVisible();
+    await pinboardToggle.click();
     await expect(sheet.locator('#pinboard-panel')).toBeVisible();
+    await expect(
+      sheet
+        .getByRole('button', { name: 'Hide pinboard (1 pinned)' })
+        .locator('[data-icon="caret-up"]'),
+    ).toBeVisible();
 
     await page.getByTestId('job-btn').filter({ hasText: 'D' }).first().click();
     await expect(sheet.locator('#pinboard-panel')).toBeHidden();
@@ -406,6 +413,70 @@ test.describe('Jobs View', () => {
     await expect(
       sheet.getByRole('button', { name: 'Show pinboard (1 pinned)' }),
     ).toBeVisible();
+  });
+
+  test('mobile job details title shows long job names in full', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const title = page.locator('#mobile-job-details-title');
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await expect(title).toHaveCSS('font-size', '14px');
+    expect(
+      (await page.locator('.mobile-job-details .offcanvas-header').boundingBox())
+        .height,
+    ).toBeLessThanOrEqual(36);
+
+    await page.getByTestId('job-btn').filter({ hasText: 'Cpp' }).first().click();
+    await expect(title).toContainText('jittest');
+    expect(
+      await title.evaluate(
+        (el) =>
+          el.scrollHeight <= el.clientHeight &&
+          el.scrollWidth <= el.clientWidth,
+      ),
+    ).toBe(true);
+  });
+
+  test('mobile pinboard spaces its fields and highlights the selected job', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const sheet = page.locator('.mobile-job-details');
+    const jobs = page.locator('.push-jobs-scroll [data-testid="job-btn"]');
+    await expect(jobs.first()).toBeVisible();
+    const symbols = [];
+    for (let i = 0; i < 3; i++) {
+      symbols.push((await jobs.nth(i).textContent()).trim());
+      // The sheet can cover the job row, so dispatch the click directly.
+      await jobs.nth(i).dispatchEvent('click');
+      await sheet.getByRole('button', { name: 'Pin job', exact: true }).click();
+    }
+    await sheet
+      .getByRole('button', { name: 'Show pinboard (3 pinned)' })
+      .click();
+
+    const box = async (selector) =>
+      page.locator(`.mobile-job-details ${selector}`).first().boundingBox();
+    const list = await box('#pinned-job-list .content');
+    const bugs = await box('#pinboard-related-bugs .content');
+    const select = await box('#pinboard-classification-select');
+    const comment = await box('#classification-comment');
+    const unpin = await box('.pinned-job-chip .pinned-job-close-btn');
+
+    expect(bugs.y - (list.y + list.height)).toBeGreaterThanOrEqual(12);
+    expect(comment.y - (select.y + select.height)).toBeGreaterThanOrEqual(8);
+    expect(unpin.width).toBeGreaterThanOrEqual(32);
+    expect(unpin.height).toBeGreaterThanOrEqual(32);
+
+    const selected = sheet.locator('.pinned-job-chip.is-selected');
+    await expect(selected).toHaveCount(1);
+    await expect(selected.locator('.pinned-job')).toHaveText(symbols[2]);
+    const chip = await selected.boundingBox();
+    // The 2px outline sits 1px outside the chip and must not be clipped.
+    expect(chip.y - list.y).toBeGreaterThanOrEqual(3);
   });
 
   test('mobile bug filer stacks the bug reference fields', async ({

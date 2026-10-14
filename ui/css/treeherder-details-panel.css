@@ -314,19 +314,33 @@ div#details-panel-content .actionbar-nav > li > button:focus {
   }
 
   .mobile-job-details .offcanvas-header {
-    min-height: 44px;
-    height: 44px;
-    padding: 12px 12px 0;
+    min-height: 36px;
+    padding: 12px 8px 4px 12px;
     flex: none;
     touch-action: none;
     cursor: ns-resize;
     user-select: none;
   }
 
+  /* Long job names wrap to two lines instead of being cut off. */
   .mobile-job-details .offcanvas-title {
+    display: -webkit-box;
+    min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 14px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .mobile-job-details .offcanvas-header .btn-close {
+    width: 0.625em;
+    height: 0.625em;
+    margin: -12px -6px -12px 0;
+    padding: 14px;
+    background-size: 0.625em;
   }
 
   .mobile-pin-controls {
@@ -336,10 +350,11 @@ div#details-panel-content .actionbar-nav > li > button:focus {
   }
 
   .mobile-sheet-action {
-    width: 44px;
+    width: 36px;
     height: 44px;
-    margin-top: -12px;
+    margin: -12px 0;
     padding: 0;
+    font-size: 14px;
     border: 0;
     background: none;
     color: #6c757d;
@@ -347,6 +362,11 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
   .mobile-sheet-action.is-pinned {
     color: #0d6efd;
+  }
+
+  .mobile-sheet-action.mobile-pinboard-toggle {
+    width: auto;
+    padding: 0 6px;
   }
 
   .mobile-job-details .offcanvas-body {

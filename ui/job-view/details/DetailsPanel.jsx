@@ -92,7 +92,6 @@ function DetailsPanel({
         isLoggedIn={user.isLoggedIn || false}
         isStaff={user.isStaff || false}
         classificationTypes={classificationTypes}
-        selectedJobFull={selectedJobFull}
       />
       <div
         id="details-panel-content"
