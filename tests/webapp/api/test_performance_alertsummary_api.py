@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime, timedelta
 
@@ -138,6 +139,35 @@ def test_alert_summaries_get(
         "task_id",
         "retry_id",
     }
+
+
+def test_alert_summaries_response_is_valid_json(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_with_tcmetadata,
+    test_perf_datum,
+    test_perf_datum_2,
+):
+    # Given: a summary with an alert holding Decimal values and a datetime field
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+
+    # When: the raw response body is parsed as JSON
+    payload = json.loads(resp.content)
+
+    # Then: it is valid JSON containing the expected summary and alert
+    assert len(payload["results"]) == 1
+    summary = payload["results"][0]
+    alert = summary["alerts"][0]
+
+    # Then: Decimal fields serialize as JSON numbers, not strings
+    for field in ("amount_abs", "amount_pct", "t_value", "prev_value", "new_value"):
+        assert isinstance(alert[field], int | float)
+        assert not isinstance(alert[field], str)
+
+    # Then: the datetime field serializes as an ISO-8601 parseable string
+    assert isinstance(summary["created"], str)
+    datetime.fromisoformat(summary["created"])
 
 
 def test_alert_summaries_get_multiple_alerts(
