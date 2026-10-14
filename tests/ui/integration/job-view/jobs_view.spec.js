@@ -275,7 +275,7 @@ test.describe('Jobs View', () => {
       page.locator('.mobile-job-details #details-panel'),
     ).toContainText(BUILD_JOB.job_type_name);
     const sheet = page.locator('.mobile-job-details');
-    await expect(sheet).toHaveCSS('height', '84px');
+    await expect(sheet).toHaveCSS('height', '422px');
     await sheet
       .getByRole('slider', { name: 'Resize job details' })
       .press('End');
@@ -310,6 +310,36 @@ test.describe('Jobs View', () => {
       .click();
     await expect(page).not.toHaveURL(/selectedTaskRun=/);
     await expect(page.getByTestId('push-header').first()).toBeVisible();
+  });
+
+  test('mobile commit rows hide details until tapped', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const { revision, comments } = pushList.results[0].revisions[0];
+    const shortHash = revision.substring(0, 12);
+    const firstPush = page.getByTestId('push-header').first().locator('..');
+    const toggle = firstPush
+      .locator('.mobile-revision-toggle')
+      .filter({ hasText: comments })
+      .first();
+
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(firstPush.getByText(shortHash)).toHaveCount(0);
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const details = firstPush.locator(`#revision-details-${revision}`);
+    await expect(details.getByText(shortHash)).toBeVisible();
+    await expect(details.getByText('Jaril', { exact: true })).toBeVisible();
+    await expect(details.locator('.mobile-revision-message')).toHaveText(
+      comments,
+    );
+
+    await toggle.click();
+    await expect(details).toHaveCount(0);
   });
 
   test('mobile Similar Jobs opens details from a list row', async ({

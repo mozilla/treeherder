@@ -470,7 +470,7 @@ function PinBoard({
                 title="Add related bugs"
               />
             </Button>
-            {!hasPinnedJobBugs && (
+            {!hasPinnedJobBugs && !enteringBugNumber && (
               <Button
                 variant="link"
                 className="pinboard-preload-txt pinboard-related-bug-preload-txt p-0 text-decoration-none"

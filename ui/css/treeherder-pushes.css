@@ -244,6 +244,29 @@ fieldset[disabled] .btn-push:hover {
     margin-left: 0;
   }
 
+  .mobile-revision-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 36px;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    font-size: inherit;
+  }
+
+  .mobile-revision-details {
+    padding: 0 0 8px 1.75rem;
+    color: #333;
+  }
+
+  .mobile-revision-message {
+    margin-top: 4px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
   .push-buttons {
     display: flex;
     flex-wrap: wrap;

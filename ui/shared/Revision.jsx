@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { faPhabricator } from '@fortawesome/free-brands-svg-icons';
+import {
+  faChevronDown,
+  faChevronRight,
+} from '@fortawesome/free-solid-svg-icons';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import { parseAuthor } from '../helpers/revision';
@@ -48,11 +52,16 @@ export class Revision extends React.PureComponent {
 
     this.state = {
       clipboardVisible: false,
+      expanded: false,
     };
   }
 
   showClipboard = (show) => {
     this.setState({ clipboardVisible: show });
+  };
+
+  toggleExpanded = () => {
+    this.setState(({ expanded }) => ({ expanded: !expanded }));
   };
 
   isBackout = (comment) => {
@@ -72,6 +81,7 @@ export class Revision extends React.PureComponent {
       commitShaClass = 'commit-sha',
       commentFont = '',
       hideCommitSha = false,
+      mobile = false,
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
@@ -79,11 +89,70 @@ export class Revision extends React.PureComponent {
     const phabricatorMatch = comments.match(
       /^Differential Revision: (\S+\/(D[0-9]+))\s*$/m,
     );
-    const { clipboardVisible } = this.state;
+    const { clipboardVisible, expanded } = this.state;
     const { name, email } = parseAuthor(author);
     const commentColor = this.isBackout(comment)
       ? 'text-danger'
       : 'text-secondary';
+
+    if (mobile) {
+      // Collapsed rows only show the commit message; tapping it reveals the
+      // hash, author, Phabricator link and full message.
+      const detailsId = `revision-details-${revision}`;
+      return (
+        <div className="revision mobile-revision" data-testid="revision">
+          <button
+            type="button"
+            className={`mobile-revision-toggle ${commentColor} ${commentFont}`}
+            aria-expanded={expanded}
+            aria-controls={detailsId}
+            onClick={this.toggleExpanded}
+          >
+            <FontAwesomeIcon
+              icon={expanded ? faChevronDown : faChevronRight}
+              className="me-2"
+              fixedWidth
+            />
+            <span
+              data-testid={comment}
+              className="revision-comment text-truncate"
+            >
+              {comment}
+            </span>
+          </button>
+          {expanded && (
+            <div id={detailsId} className="mobile-revision-details">
+              <div className="d-flex flex-wrap align-items-center gap-2">
+                {!hideCommitSha && (
+                  <a
+                    title={`Open revision ${revision} on ${repo.url}`}
+                    href={repo.getRevisionHref(revision)}
+                    className={commitShaClass}
+                  >
+                    {revision.substring(0, 12)}
+                  </a>
+                )}
+                <span title={email}>{name}</span>
+                {phabricatorMatch && (
+                  <a
+                    title={`Open ${phabricatorMatch[2]} on Phabricator`}
+                    href={phabricatorMatch[1]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FontAwesomeIcon icon={faPhabricator} className="me-1" />
+                    {phabricatorMatch[2]}
+                  </a>
+                )}
+              </div>
+              <div className="mobile-revision-message">
+                <BugLinkify id={revision}>{comments}</BugLinkify>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
 
     return (
       <div className="revision d-flex flex-nowrap" data-testid="revision">
@@ -166,4 +235,6 @@ Revision.propTypes = {
   commentFont: PropTypes.string,
   // Lando pushes have no commit hash to show or link to yet.
   hideCommitSha: PropTypes.bool,
+  // Collapse to the commit message and expand details on tap.
+  mobile: PropTypes.bool,
 };

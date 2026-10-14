@@ -309,7 +309,7 @@ describe('App', () => {
       });
       const sheet = resize.closest('.mobile-job-details');
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        'min(84px, 100dvh)',
+        `min(${Math.round(window.innerHeight / 2)}px, 100dvh)`,
       );
 
       const summary = await screen.findByTestId('summary-panel');

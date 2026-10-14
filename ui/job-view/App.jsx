@@ -50,6 +50,8 @@ import '../css/treeherder-loading-overlay.css';
 
 const DEFAULT_DETAILS_PCT = 40;
 const MOBILE_DETAILS_MIN_HEIGHT = 84;
+const getMobileDetailsDefaultHeight = () =>
+  Math.max(MOBILE_DETAILS_MIN_HEIGHT, Math.round(window.innerHeight / 2));
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
 const REVISION_POLL_DELAYED_INTERVAL = 1000 * 60 * 60;
 const LANDO_POLL_INTERVAL = 1000 * 60;
@@ -105,7 +107,7 @@ const App = () => {
   const panelGroupRef = useRef();
   const resizeStartRef = useRef(null);
   const [mobileDetailsHeight, setMobileDetailsHeight] = useState(
-    MOBILE_DETAILS_MIN_HEIGHT,
+    getMobileDetailsDefaultHeight,
   );
 
   // Zustand state
@@ -497,7 +499,7 @@ const App = () => {
             show={hasSelectedJob}
             onHide={() => {
               clearSelectedJob(0);
-              setMobileDetailsHeight(MOBILE_DETAILS_MIN_HEIGHT);
+              setMobileDetailsHeight(getMobileDetailsDefaultHeight());
             }}
             className="mobile-job-details"
             aria-labelledby="mobile-job-details-title"

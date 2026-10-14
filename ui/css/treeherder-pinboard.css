@@ -101,6 +101,27 @@
     width: auto;
   }
 
+  .mobile-job-details #pinboard-related-bugs .content {
+    position: static;
+    width: auto;
+    height: auto;
+    min-height: 44px;
+    overflow: visible;
+  }
+
+  .mobile-job-details .add-related-bugs-form {
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .mobile-job-details .add-related-bugs-input {
+    min-height: 44px;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
   .mobile-job-details #pinboard-classification {
     width: 100%;
   }

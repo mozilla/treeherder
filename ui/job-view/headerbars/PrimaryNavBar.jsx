@@ -37,7 +37,6 @@ function PrimaryNavBar({
   const [menuOpen, setMenuOpen] = React.useState(false);
   const menus = (
     <>
-      <NotificationsMenu />
       <InfraMenu />
       <ReposMenu repos={repos} />
       <TiersMenu filterModel={filterModel} />
@@ -58,18 +57,24 @@ function PrimaryNavBar({
           <div id="th-global-navbar-top">
             <LogoMenu menuText="Treeherder" menuImage={Logo} />
             {isMobile ? (
-              <Button
-                className="mobile-menu-toggle"
-                variant="dark"
-                aria-label="Open navigation"
-                aria-controls="mobile-navigation"
-                aria-expanded={menuOpen}
-                onClick={() => setMenuOpen(true)}
-              >
-                <FontAwesomeIcon icon={faBars} />
-              </Button>
+              <div className="mobile-navbar-actions">
+                <NotificationsMenu />
+                <Button
+                  className="mobile-menu-toggle"
+                  variant="dark"
+                  aria-label="Open navigation"
+                  aria-controls="mobile-navigation"
+                  aria-expanded={menuOpen}
+                  onClick={() => setMenuOpen(true)}
+                >
+                  <FontAwesomeIcon icon={faBars} />
+                </Button>
+              </div>
             ) : (
-              <span className="navbar-right">{menus}</span>
+              <span className="navbar-right">
+                <NotificationsMenu />
+                {menus}
+              </span>
             )}
           </div>
           <SecondaryNavBar

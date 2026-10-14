@@ -485,10 +485,25 @@ fieldset[disabled] .btn-view-nav-closed.active {
     margin-top: 0;
   }
 
+  .mobile-navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 4px;
+  }
+
+  .mobile-navbar-actions .nav-menu-btn.dropdown-toggle {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    margin-right: 0;
+    padding: 0;
+  }
+
   .mobile-menu-toggle {
     min-width: 44px;
     min-height: 44px;
-    margin-right: 4px;
+    margin-right: 0;
   }
 
   .mobile-navigation {

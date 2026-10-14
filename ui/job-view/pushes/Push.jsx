@@ -34,6 +34,7 @@ import {
 import { RevisionList } from '../../shared/RevisionList';
 import { Revision } from '../../shared/Revision';
 import { defaultJobCount, getJobCount, getTaskRunStr } from '../../helpers/job';
+import useIsMobile from '../../hooks/useIsMobile';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import PushHeader from './PushHeader';
@@ -108,6 +109,7 @@ function Push({
     (state) => state.allUnclassifiedFailureCount,
   );
   const location = useLocation();
+  const isMobile = useIsMobile();
   const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
   const [fuzzyModal, setFuzzyModal] = useState(false);
@@ -679,6 +681,7 @@ function Push({
                   bugSummaryMap={bugSummaryMap}
                   widthClass="mb-3 ms-4"
                   commitShaClass="font-monospace"
+                  mobile={isMobile}
                 >
                   {filteredTryPush && decisionTask && (
                     <PushCountsDetails
@@ -728,6 +731,7 @@ function Push({
                 repo={currentRepo}
                 key={tipRevision.revision}
                 commitShaClass="font-monospace"
+                mobile={isMobile}
               />
             </ul>
           </Col>
