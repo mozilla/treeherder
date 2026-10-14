@@ -292,21 +292,21 @@ fieldset[disabled] .btn-push:hover {
   }
 
   .push-jobs-scroll table {
-    width: max-content;
-    min-width: 100%;
+    table-layout: fixed;
   }
 
   .push-jobs-scroll .platform {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    background: #fff;
     width: 8rem;
     min-width: 8rem;
   }
 
-  .push-jobs-scroll tr:nth-child(even) .platform {
-    background: #f8f8f8;
+  .push-counts-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    margin: 8px 0 0 8px;
+    white-space: nowrap;
   }
 }
 

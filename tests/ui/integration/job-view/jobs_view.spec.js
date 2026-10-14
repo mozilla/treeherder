@@ -342,6 +342,40 @@ test.describe('Jobs View', () => {
     await expect(details).toHaveCount(0);
   });
 
+  test('mobile job rows wrap instead of scrolling sideways', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    // Give the Gecko Decision platform enough jobs to overflow one line.
+    const idIndex = jobList.job_property_names.indexOf('id');
+    const symbolIndex = jobList.job_property_names.indexOf('job_type_symbol');
+    const taskIndex = jobList.job_property_names.indexOf('task_id');
+    const decision = jobList.results.find((job) => job[symbolIndex] === 'D');
+    const extraJobs = Array.from({ length: 40 }, (_, i) => {
+      const job = [...decision];
+      job[idIndex] = 900000000 + i;
+      job[symbolIndex] = `T${i}`;
+      job[taskIndex] = `extra-task-${i}`;
+      return job;
+    });
+    await page.route('**/api/jobs/**', (route) =>
+      route.fulfill(
+        json({ ...jobList, results: [...jobList.results, ...extraJobs] }),
+      ),
+    );
+    await page.reload();
+
+    const jobs = page.locator('.push-jobs-scroll').first();
+    const lastJob = jobs.getByTestId('job-btn').filter({ hasText: 'T39' });
+    await expect(lastJob).toBeVisible();
+    const row = lastJob.locator('xpath=ancestor::td[1]');
+    expect((await row.boundingBox()).height).toBeGreaterThan(60);
+    expect(
+      await jobs.evaluate((el) => el.scrollWidth <= el.clientWidth),
+    ).toBe(true);
+  });
+
   test('mobile Similar Jobs opens details from a list row', async ({
     page,
   }, testInfo) => {

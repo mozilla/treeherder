@@ -286,6 +286,10 @@ div#details-panel-content .actionbar-nav > li > button:focus {
     max-width: 100vw;
   }
 
+  .mobile-job-details #job-info .clipboard-btn {
+    display: none;
+  }
+
   .mobile-details-resize {
     position: absolute;
     top: 0;
