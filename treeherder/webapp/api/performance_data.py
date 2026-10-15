@@ -1320,6 +1320,7 @@ class PerfCompareResults(generics.ListAPIView):
         replicates = query_params.validated_data["replicates"]
         test_version = query_params.validated_data["test_version"]
         enable_silverman_kde = query_params.validated_data["enable_silverman_kde"]
+        number_of_data_points = query_params.validated_data["number_of_data_points"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -1361,10 +1362,16 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         base_perf_data = self._get_perf_data(
-            base_repo_name, base_rev, base_signatures, interval, start_day, end_day
+            base_repo_name,
+            base_rev,
+            base_signatures,
+            interval,
+            start_day,
+            end_day,
+            number_of_data_points,
         )
         new_perf_data = self._get_perf_data(
-            new_repo_name, new_rev, new_signatures, interval, None, None
+            new_repo_name, new_rev, new_signatures, interval, None, None, number_of_data_points
         )
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
@@ -1698,6 +1705,7 @@ class PerfCompareResults(generics.ListAPIView):
         interval: int | None,
         startday: datetime.datetime | None,
         endday: datetime.datetime | None,
+        number_of_data_points: int | None,
     ) -> QuerySet:
         signature_ids = [signature["id"] for signature in list(signatures)]
         perf_data = PerformanceDatum.objects.select_related("push", "repository").filter(
@@ -1715,6 +1723,8 @@ class PerfCompareResults(generics.ListAPIView):
         else:
             perf_data = perf_data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
 
+        if number_of_data_points:
+            return perf_data.order_by("push_timestamp", "id")[:number_of_data_points]
         return perf_data
 
     @staticmethod
