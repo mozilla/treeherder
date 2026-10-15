@@ -29,7 +29,8 @@ body {
   font-style: italic;
 }
 
-@media (max-width: 767.98px) {
+/* Phone layout; keep in sync with MOBILE_QUERY in ui/hooks/useIsMobile.js */
+@media (max-width: 767.98px), (pointer: coarse) and (max-height: 500px) {
   #global-container {
     height: 100dvh;
     min-width: 0;

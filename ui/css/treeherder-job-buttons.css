@@ -196,7 +196,8 @@ button.btn.runnable-job-btn.filter-shown {
   margin: 0 -1px 1px 1px;
 }
 
-@media (max-width: 767.98px) {
+/* Phone layout; keep in sync with MOBILE_QUERY in ui/hooks/useIsMobile.js */
+@media (max-width: 767.98px), (pointer: coarse) and (max-height: 500px) {
   .push-jobs-scroll button.btn.job-btn,
   .push-jobs-scroll button.btn.group-btn,
   .push-jobs-scroll button.btn.group-symbol,

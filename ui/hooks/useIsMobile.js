@@ -1,15 +1,10 @@
-import { useSyncExternalStore } from 'react';
+import useMediaQuery from './useMediaQuery';
 
-const query = '(max-width: 767.98px)';
-
-const subscribe = (onChange) => {
-  const media = window.matchMedia(query);
-  media.addEventListener('change', onChange);
-  return () => media.removeEventListener('change', onChange);
-};
-
-const getSnapshot = () => window.matchMedia(query).matches;
+// Narrow screens, plus phones turned to landscape (short touch screens).
+// The CSS media queries that style the phone layout must use the same query.
+export const MOBILE_QUERY =
+  '(max-width: 767.98px), (pointer: coarse) and (max-height: 500px)';
 
 export default function useIsMobile() {
-  return useSyncExternalStore(subscribe, getSnapshot, () => false);
+  return useMediaQuery(MOBILE_QUERY);
 }

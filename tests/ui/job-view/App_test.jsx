@@ -293,7 +293,8 @@ describe('App', () => {
       .spyOn(window, 'matchMedia')
       .mockImplementation((media) => ({
         media,
-        matches: true,
+        // Phone layout in portrait.
+        matches: media !== '(orientation: landscape)',
         addEventListener: jest.fn(),
         removeEventListener: jest.fn(),
         addListener: jest.fn(),
@@ -309,7 +310,7 @@ describe('App', () => {
       });
       const sheet = resize.closest('.mobile-job-details');
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        `min(${Math.round(window.innerHeight / 2)}px, 100dvh)`,
+        'max(84px, 50dvh)',
       );
 
       const summary = await screen.findByTestId('summary-panel');
@@ -322,11 +323,11 @@ describe('App', () => {
 
       fireEvent.keyDown(resize, { key: 'End' });
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        `min(${window.innerHeight}px, 100dvh)`,
+        'max(84px, 100dvh)',
       );
       fireEvent.keyDown(resize, { key: 'Home' });
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        'min(84px, 100dvh)',
+        'max(84px, 0dvh)',
       );
 
       const header = resize.closest('.offcanvas-header');
@@ -337,7 +338,7 @@ describe('App', () => {
       });
       fireEvent.pointerMove(header, { pointerId: 1, clientY: 0 });
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        `min(${window.innerHeight}px, 100dvh)`,
+        'max(84px, 100dvh)',
       );
       fireEvent.pointerUp(header, { pointerId: 1 });
     } finally {

@@ -623,3 +623,10 @@ a.btn-outline-dark:hover {
   height: 100%;
   background-color: rgba(20, 19, 19, 0.3);
 }
+
+/* Phone layout; keep in sync with MOBILE_QUERY in ui/hooks/useIsMobile.js */
+@media (max-width: 767.98px), (pointer: coarse) and (max-height: 500px) {
+  .th-desktop-only {
+    display: none;
+  }
+}

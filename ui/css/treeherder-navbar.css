@@ -473,7 +473,8 @@ fieldset[disabled] .btn-view-nav-closed.active {
   align-items: center;
 }
 
-@media (max-width: 767.98px) {
+/* Phone layout; keep in sync with MOBILE_QUERY in ui/hooks/useIsMobile.js */
+@media (max-width: 767.98px), (pointer: coarse) and (max-height: 500px) {
   #th-global-navbar-top {
     height: 48px;
     min-height: 48px;

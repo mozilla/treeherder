@@ -178,6 +178,52 @@ test.describe('Jobs View', () => {
     await expect(yamlJobs.first()).toBeVisible();
   });
 
+  test('mobile layout stays mobile when rotated to landscape', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const sheet = page.locator('.mobile-job-details');
+    const sheetHeight = async () => (await sheet.boundingBox()).height;
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await expect(sheet).toHaveCSS('height', '422px');
+
+    await page.setViewportSize({ width: 844, height: 390 });
+    await expect(
+      page.getByRole('button', { name: 'Open navigation' }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Show job filters' }),
+    ).toBeVisible();
+    await expect(page.locator('.mobile-revision-toggle').first()).toBeVisible();
+    // Landscape opens taller: 70% of the 390px screen.
+    expect(await sheetHeight()).toBeCloseTo(273, 0);
+    await sheet.getByRole('button', { name: 'Show job summary' }).click();
+    await expect(sheet.locator('#find-job-btn')).toBeHidden();
+
+    // A resized sheet keeps its share of the screen when rotated back.
+    await sheet
+      .getByRole('slider', { name: 'Resize job details' })
+      .press('ArrowDown');
+    expect(await sheetHeight()).toBeCloseTo(390 * 0.65, 0);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(sheet).toBeVisible();
+    expect(await sheetHeight()).toBeCloseTo(844 * 0.65, 0);
+  });
+
+  test('short desktop windows keep the desktop layout', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'firefox');
+
+    await page.setViewportSize({ width: 1280, height: 400 });
+    await expect(page.getByTestId('push-header').first()).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Open navigation' }),
+    ).toHaveCount(0);
+    await expect(page.locator('.mobile-revision-toggle')).toHaveCount(0);
+  });
+
   test('mobile job field filters keep their actions in view', async ({
     page,
   }, testInfo) => {

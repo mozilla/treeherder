@@ -404,7 +404,7 @@ class ActionBar extends React.PureComponent {
               logViewerFullUrl={logViewerFullUrl}
               taskExpired={taskExpired}
             />
-            <li className="d-none d-md-block">
+            <li className="th-desktop-only">
               <Button
                 id="pin-job-btn"
                 title="Add this job to the pinboard"
@@ -428,7 +428,7 @@ class ActionBar extends React.PureComponent {
             {resourceUsageProfile &&
               // not shown at the same time as the reftest analyzer to avoid running out of space.
               !isReftest(selectedJobFull) && (
-                <li className="d-none d-md-block">
+                <li className="th-desktop-only">
                   <a
                     title="Show the resource usage profile in the Firefox Profiler (g)"
                     className="actionbar-nav-btn btn"
@@ -447,7 +447,7 @@ class ActionBar extends React.PureComponent {
               jobLogUrls.map((jobLogUrl) => (
                 <li
                   key={`reftest-${jobLogUrl.id}`}
-                  className="d-none d-md-block"
+                  className="th-desktop-only"
                 >
                   <a
                     title="Launch the Reftest Analyzer in a new window"
@@ -463,7 +463,7 @@ class ActionBar extends React.PureComponent {
                   </a>
                 </li>
               ))}
-            <li className="d-none d-md-block">
+            <li className="th-desktop-only">
               <Button
                 id="find-job-btn"
                 title="Scroll to selection"

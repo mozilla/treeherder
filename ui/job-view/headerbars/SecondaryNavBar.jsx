@@ -17,6 +17,7 @@ import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
 import { getAllUrlParams, getRepo, setUrlParams } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import useIsMobile from '../../hooks/useIsMobile';
 import {
   usePushesStore,
   recalculateUnclassifiedCounts,
@@ -53,6 +54,7 @@ const SecondaryNavBar = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const prevLocationSearch = useRef(location.search);
 
   const allUnclassifiedFailureCount = usePushesStore(
@@ -230,23 +232,25 @@ const SecondaryNavBar = ({
               />
             </ErrorBoundary>
           ))}
-          <Button
-            className="btn-view-nav watched-repo-toggle d-md-none ms-auto"
-            type="button"
-            title={
-              mobileFiltersExpanded ? 'Hide job filters' : 'Show job filters'
-            }
-            aria-label={
-              mobileFiltersExpanded ? 'Hide job filters' : 'Show job filters'
-            }
-            aria-controls="watched-repo-controls"
-            aria-expanded={mobileFiltersExpanded}
-            onClick={() => setMobileFiltersExpanded((expanded) => !expanded)}
-          >
-            <FontAwesomeIcon
-              icon={mobileFiltersExpanded ? faChevronUp : faChevronDown}
-            />
-          </Button>
+          {isMobile && (
+            <Button
+              className="btn-view-nav watched-repo-toggle ms-auto"
+              type="button"
+              title={
+                mobileFiltersExpanded ? 'Hide job filters' : 'Show job filters'
+              }
+              aria-label={
+                mobileFiltersExpanded ? 'Hide job filters' : 'Show job filters'
+              }
+              aria-controls="watched-repo-controls"
+              aria-expanded={mobileFiltersExpanded}
+              onClick={() => setMobileFiltersExpanded((expanded) => !expanded)}
+            >
+              <FontAwesomeIcon
+                icon={mobileFiltersExpanded ? faChevronUp : faChevronDown}
+              />
+            </Button>
+          )}
         </span>
         <form
           id="watched-repo-controls"

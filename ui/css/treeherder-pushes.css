@@ -225,7 +225,8 @@ fieldset[disabled] .btn-push:hover {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
-@media (max-width: 767.98px) {
+/* Phone layout; keep in sync with MOBILE_QUERY in ui/hooks/useIsMobile.js */
+@media (max-width: 767.98px), (pointer: coarse) and (max-height: 500px) {
   .push-bar {
     padding: 8px;
     flex-wrap: wrap;

@@ -492,7 +492,9 @@ function PinBoard({
               </Button>
             )}
             {enteringBugNumber && (
-              <span className="add-related-bugs-form d-flex align-items-center align-items-md-start">
+              <span className={`add-related-bugs-form d-flex ${
+                  mobile ? 'align-items-center' : 'align-items-start'
+                }`}>
                 <div>
                   <Form.Control
                     id="related-bug-input"

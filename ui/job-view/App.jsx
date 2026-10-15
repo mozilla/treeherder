@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router';
 
 import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
 import useIsMobile from '../hooks/useIsMobile';
+import useMediaQuery from '../hooks/useMediaQuery';
 import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults, hasUrlFilterChanges } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
@@ -51,8 +52,10 @@ import '../css/treeherder-loading-overlay.css';
 
 const DEFAULT_DETAILS_PCT = 40;
 const MOBILE_DETAILS_MIN_HEIGHT = 84;
-const getMobileDetailsDefaultHeight = () =>
-  Math.max(MOBILE_DETAILS_MIN_HEIGHT, Math.round(window.innerHeight / 2));
+// Default share of the screen the mobile job details sheet opens at.
+const MOBILE_DETAILS_PORTRAIT_SHARE = 50;
+const MOBILE_DETAILS_LANDSCAPE_SHARE = 70;
+const clampShare = (share) => Math.min(100, Math.max(0, Math.round(share)));
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
 const REVISION_POLL_DELAYED_INTERVAL = 1000 * 60 * 60;
 const LANDO_POLL_INTERVAL = 1000 * 60;
@@ -107,9 +110,15 @@ const App = () => {
   const navigate = useNavigate();
   const panelGroupRef = useRef();
   const resizeStartRef = useRef(null);
-  const [mobileDetailsHeight, setMobileDetailsHeight] = useState(
-    getMobileDetailsDefaultHeight,
-  );
+  const isLandscape = useMediaQuery('(orientation: landscape)');
+  // Percent of the screen height, or null for the orientation's default, so
+  // the sheet keeps its proportion when the phone is rotated.
+  const [mobileDetailsShare, setMobileDetailsShare] = useState(null);
+  const detailsShare =
+    mobileDetailsShare ??
+    (isLandscape
+      ? MOBILE_DETAILS_LANDSCAPE_SHARE
+      : MOBILE_DETAILS_PORTRAIT_SHARE);
 
   // Zustand state
   const selectedJob = useSelectedJobStore((state) => state.selectedJob);
@@ -500,12 +509,12 @@ const App = () => {
             show={hasSelectedJob}
             onHide={() => {
               clearSelectedJob(0);
-              setMobileDetailsHeight(getMobileDetailsDefaultHeight());
+              setMobileDetailsShare(null);
             }}
             className="mobile-job-details"
             aria-labelledby="mobile-job-details-title"
             style={{
-              '--bs-offcanvas-height': `min(${mobileDetailsHeight}px, 100dvh)`,
+              '--bs-offcanvas-height': `max(${MOBILE_DETAILS_MIN_HEIGHT}px, ${detailsShare}dvh)`,
             }}
             backdrop={false}
             scroll
@@ -518,20 +527,18 @@ const App = () => {
                   return;
                 resizeStartRef.current = {
                   y: event.clientY,
-                  height: mobileDetailsHeight,
+                  height: event.currentTarget
+                    .closest('.offcanvas')
+                    .getBoundingClientRect().height,
                 };
                 event.currentTarget.setPointerCapture(event.pointerId);
               }}
               onPointerMove={(event) => {
                 if (resizeStartRef.current) {
                   const { y, height } = resizeStartRef.current;
-                  setMobileDetailsHeight(
-                    Math.min(
-                      window.innerHeight,
-                      Math.max(
-                        MOBILE_DETAILS_MIN_HEIGHT,
-                        Math.round(height + y - event.clientY),
-                      ),
+                  setMobileDetailsShare(
+                    clampShare(
+                      ((height + y - event.clientY) / window.innerHeight) * 100,
                     ),
                   );
                 }
@@ -547,9 +554,10 @@ const App = () => {
                 type="button"
                 className="mobile-details-resize"
                 aria-label="Resize job details"
-                aria-valuemin={MOBILE_DETAILS_MIN_HEIGHT}
-                aria-valuemax={window.innerHeight}
-                aria-valuenow={mobileDetailsHeight}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={detailsShare}
+                aria-valuetext={`${detailsShare}% of the screen`}
                 role="slider"
                 onKeyDown={(event) => {
                   if (
@@ -557,18 +565,17 @@ const App = () => {
                   ) {
                     event.preventDefault();
                     event.stopPropagation();
-                    setMobileDetailsHeight((height) => {
-                      if (event.key === 'Home')
-                        return MOBILE_DETAILS_MIN_HEIGHT;
-                      if (event.key === 'End') return window.innerHeight;
-                      return Math.min(
-                        window.innerHeight,
-                        Math.max(
-                          MOBILE_DETAILS_MIN_HEIGHT,
-                          height + (event.key === 'ArrowUp' ? 40 : -40),
+                    if (event.key === 'Home') {
+                      setMobileDetailsShare(0);
+                    } else if (event.key === 'End') {
+                      setMobileDetailsShare(100);
+                    } else {
+                      setMobileDetailsShare(
+                        clampShare(
+                          detailsShare + (event.key === 'ArrowUp' ? 5 : -5),
                         ),
                       );
-                    });
+                    }
                   }
                 }}
               />
