@@ -469,10 +469,15 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
     revision = serializers.CharField(required=False, allow_null=True, default=None)
     repository = serializers.CharField()
-    framework = serializers.ListField(required=False, child=serializers.IntegerField(), default=[])
+    framework = serializers.ListField(required=False, child=serializers.CharField(), default=[])
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
     parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     signature = serializers.CharField(required=False, allow_null=True, default=None)
+    platform = serializers.CharField(required=False, allow_null=True, default=None)
+    suite = serializers.CharField(required=False, allow_null=True, default=None)
+    test = serializers.CharField(required=False, allow_null=True, allow_blank=True, default=None)
+    application = serializers.CharField(required=False, allow_null=True, default=None)
+    extra_options = serializers.ListField(required=False, child=serializers.CharField(), default=[])
     no_subtests = serializers.BooleanField(required=False)
     all_data = OptionalBooleanField()
     replicates = OptionalBooleanField()
@@ -489,6 +494,20 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
             )
 
         return data
+
+    def validate_framework(self, frameworks):
+        """Accept framework ids as well as framework names."""
+        names = [framework for framework in frameworks if not framework.isdigit()]
+        name_to_id = dict(
+            PerformanceFramework.objects.filter(name__in=names).values_list("name", "id")
+        )
+        unknown = sorted(set(names) - set(name_to_id))
+        if unknown:
+            raise serializers.ValidationError(f"Unknown framework(s): {', '.join(unknown)}")
+        return [
+            int(framework) if framework.isdigit() else name_to_id[framework]
+            for framework in frameworks
+        ]
 
     def validate_repository(self, repository):
         try:
@@ -542,6 +561,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     data = PerformanceDatumSerializer(read_only=True, many=True, default=[])
     repository_name = serializers.CharField()
+    extra_options = serializers.SerializerMethodField()
 
     class Meta:
         model = PerformanceSignature
@@ -568,7 +588,12 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
             "alert_change_type",
             "alert_threshold",
             "submit_times",
+            "extra_options",
         ]
+
+    def get_extra_options(self, value):
+        # extra_options is stored as a space separated string but returned as a list
+        return value["extra_options"].split(" ") if value["extra_options"] else []
 
     def get_name(self, value):
         test = value["test"]
