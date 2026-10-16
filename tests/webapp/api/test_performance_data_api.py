@@ -515,6 +515,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
             "should_alert": True,
             "alert_change_type": 1,
             "alert_threshold": 2,
+            "extra_options": ["e10s", "opt"],
         }
     ]
 
@@ -530,6 +531,123 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     resp2 = client.get(reverse("performance-summary") + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
+
+
+@pytest.fixture
+def linux_perf_signature(test_perf_signature):
+    linux_platform = MachinePlatform.objects.create(
+        os_name="linux", platform="linux64", architecture="x86_64"
+    )
+    return PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(40 * "l"),
+        framework=test_perf_signature.framework,
+        platform=linux_platform,
+        option_collection=test_perf_signature.option_collection,
+        suite=test_perf_signature.suite,
+        test=test_perf_signature.test,
+        application="chrome",
+        has_subtests=False,
+        extra_options="e10s",
+        last_updated=datetime.datetime.now(),
+    )
+
+
+def filtered_summary_ids(client, signature, **filters):
+    query_params = urlencode(
+        {
+            "repository": signature.repository.name,
+            "framework": signature.framework_id,
+            "interval": 172800,
+            **filters,
+        },
+        doseq=True,
+    )
+    response = client.get(reverse("performance-summary") + "?" + query_params)
+    assert response.status_code == 200
+    return sorted(item["signature_id"] for item in response.json())
+
+
+@pytest.mark.parametrize(
+    ("filters", "expected"),
+    [
+        ({}, ["windows", "linux"]),
+        ({"platform": "win7"}, ["windows"]),
+        ({"platform": "linux64"}, ["linux"]),
+        ({"application": "chrome"}, ["linux"]),
+        ({"extra_options": ["opt", "e10s"]}, ["windows"]),
+        ({"extra_options": ["e10s"]}, ["linux"]),
+        ({"extra_options": ["e10s"], "platform": "win7"}, []),
+    ],
+)
+def test_perf_summary_filters(client, test_perf_signature, linux_perf_signature, filters, expected):
+    signatures = {"windows": test_perf_signature, "linux": linux_perf_signature}
+    ids = filtered_summary_ids(client, test_perf_signature, no_subtests="true", **filters)
+    assert ids == sorted(signatures[name].id for name in expected)
+
+
+def test_perf_summary_suite_filter_returns_suite_and_subtests(
+    client, test_perf_signature, summary_perf_signature
+):
+    assert filtered_summary_ids(client, test_perf_signature) == [test_perf_signature.id]
+    assert filtered_summary_ids(client, test_perf_signature, suite="mysuite") == sorted(
+        [test_perf_signature.id, summary_perf_signature.id]
+    )
+    assert filtered_summary_ids(client, test_perf_signature, suite="othersuite") == []
+
+
+@pytest.mark.parametrize(
+    ("test", "expected"),
+    [("", "summary"), ("mytest", "subtest"), ("othertest", None)],
+)
+def test_perf_summary_test_filter(
+    client, test_perf_signature, summary_perf_signature, test, expected
+):
+    signatures = {"summary": summary_perf_signature, "subtest": test_perf_signature}
+    assert filtered_summary_ids(client, test_perf_signature, suite="mysuite", test=test) == (
+        [signatures[expected].id] if expected else []
+    )
+
+
+def test_perf_summary_values_with_filters(client, test_perf_signature, test_perf_data):
+    query_params = urlencode(
+        {
+            "repository": test_perf_signature.repository.name,
+            "framework": test_perf_signature.framework.name,
+            "platform": "win7",
+            "suite": "mysuite",
+            "test": "mytest",
+            "application": "firefox",
+            "extra_options": ["e10s", "opt"],
+            "startday": "2024-02-01T23:28:29",
+            "endday": "2025-03-28T23:28:29",
+        },
+        doseq=True,
+    )
+    response = client.get(reverse("performance-summary") + "?" + query_params)
+    assert response.status_code == 200
+    [item] = response.json()
+    assert item["signature_id"] == test_perf_signature.id
+    assert item["extra_options"] == ["e10s", "opt"]
+    assert item["values"] == [datum.value for datum in test_perf_data]
+
+
+def test_perf_summary_framework_by_name(client, test_perf_signature):
+    assert filtered_summary_ids(
+        client,
+        test_perf_signature,
+        framework=test_perf_signature.framework.name,
+        no_subtests="true",
+    ) == [test_perf_signature.id]
+
+
+def test_perf_summary_unknown_framework_name(client, test_perf_signature):
+    response = client.get(
+        reverse("performance-summary")
+        + f"?repository={test_perf_signature.repository.name}&framework=unknown&interval=172800"
+    )
+    assert response.status_code == 400
+    assert response.json() == {"framework": ["Unknown framework(s): unknown"]}
 
 
 def summary_query_params(signature, perf_data, **extra):
@@ -656,6 +774,7 @@ def test_perf_summary_should_alert_is_false_edge_case(
             "should_alert": False,
             "alert_change_type": 1,
             "alert_threshold": 2.0,
+            "extra_options": ["e10s", "opt"],
         }
     ]
 
