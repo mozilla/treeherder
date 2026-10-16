@@ -462,5 +462,13 @@
       "repository": 131,
       "branch": "release/*"
     }
+  },
+  {
+    "pk": 62,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 152,
+      "branch": "*"
+    }
   }
 ]
