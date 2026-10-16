@@ -280,6 +280,9 @@ class PerformanceDatumReplicate(models.Model):
     id = models.BigAutoField(primary_key=True)
     performance_datum = models.ForeignKey(PerformanceDatum, on_delete=models.CASCADE)
     value = models.FloatField()
+    # 1-based index of the trial run the value comes from; null when the
+    # artifact does not declare its replicates as ordered by trial run
+    run_number = models.PositiveIntegerField(null=True)
 
     class Meta:
         db_table = "performance_datum_replicate"
