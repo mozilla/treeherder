@@ -2051,7 +2051,7 @@
     "fields": {
       "dvcs_type": "git",
       "name": "firefox-dev",
-      "url": "https://github.com/mozilla/firefox-dev",
+      "url": "https://github.com/mozilla-firefox/firefox-dev",
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 1,
