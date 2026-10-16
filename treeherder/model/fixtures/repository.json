@@ -2100,5 +2100,18 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 152,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "firefox-crb",
+      "url": "https://github.com/mozilla-firefox/firefox-crb",
+      "active_status": "active",
+      "codebase": "gecko",
+      "repository_group": 7,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
