@@ -39,3 +39,21 @@
   padding-top: 3px;
   border: 1px solid #ced4da;
 }
+
+/* Phone layout; keep in sync with MOBILE_QUERY in ui/hooks/useIsMobile.js */
+@media (max-width: 767.98px), (pointer: coarse) and (max-height: 500px) {
+  .active-filters-bar {
+    padding: 4px 8px;
+  }
+
+  .active-filters-bar form {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .active-filters-bar #job-filter-field,
+  .active-filters-bar #job-filter-value,
+  .active-filters-bar #job-filter-choice-value {
+    flex-basis: 100%;
+  }
+}

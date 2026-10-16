@@ -1,4 +1,3 @@
-
 import fetchMock from 'fetch-mock';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router';
@@ -212,9 +211,8 @@ describe('Filtering', () => {
     // The pushes store reads from window.location.search to build the API request.
     // eslint-disable-next-line jest/no-disabled-tests
     test.skip('should have 1 push', async () => {
-      const { getAllByText, getAllByTestId, getByText, getByTitle } = render(
-        testApp(),
-      );
+      const { getAllByText, getAllByTestId, getByText, getByTitle } =
+        render(testApp());
       const unfilteredPushes = await waitFor(() =>
         getAllByTestId('push-header'),
       );
@@ -326,7 +324,7 @@ describe('Filtering', () => {
 
       const build = await findAllByText('B');
 
-      fireEvent.mouseDown(build[0]);
+      fireEvent.click(build[0]);
 
       const keywordLink = await waitFor(
         () => getByTitle('Filter jobs containing these keywords'),
@@ -517,12 +515,8 @@ describe('Filtering', () => {
     });
 
     test('Filters | Reset should get back to original set of jobs', async () => {
-      const {
-        getAllByText,
-        findAllByText,
-        findByText,
-        queryAllByText,
-      } = render(testApp());
+      const { getAllByText, findAllByText, findByText, queryAllByText } =
+        render(testApp());
       const symbolToRemove = 'yaml';
 
       await findAllByText('B');

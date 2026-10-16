@@ -8,6 +8,8 @@ import {
   faClock,
 } from '@fortawesome/free-solid-svg-icons';
 
+import useIsMobile from '../../hooks/useIsMobile';
+
 const StatusIcon = ({ value, isInProgress }) => {
   if (isInProgress) {
     return <FontAwesomeIcon icon={faClock} className="ms-2 text-secondary" />;
@@ -40,6 +42,13 @@ const ExternalFailureLink = ({ url, tooltip, children }) => {
   return children;
 };
 
+const failedTitle = (failed, intermittent, kind) =>
+  `${failed} ${kind}${failed === 1 ? 'job' : 'jobs'} failed${
+    intermittent > 0
+      ? ` (${intermittent} intermittent${intermittent === 1 ? '' : 's'})`
+      : ''
+  }`;
+
 const PushCountsDetails = ({
   build_failed,
   build_pending,
@@ -57,9 +66,52 @@ const PushCountsDetails = ({
   externalFailureUrl,
   externalFailureTooltip,
 }) => {
+  const isMobile = useIsMobile();
   const inProgress = pending + running;
   if (total === 0) {
     return null;
+  }
+
+  if (isMobile) {
+    // One line: each category's status icon followed by its failed count.
+    return (
+      <div className="push-counts-inline">
+        <span title={failedTitle(lint_failed, intermittentLint, 'lint ')}>
+          Linting
+          <StatusIcon
+            value={lint_failed}
+            isInProgress={lint_pending + lint_running > 0}
+          />
+          {lint_failed > 0 && (
+            <span className="text-danger ms-1">{lint_failed}</span>
+          )}
+        </span>
+        <span title={failedTitle(build_failed, intermittentBuild, 'build ')}>
+          Builds
+          <StatusIcon
+            value={build_failed}
+            isInProgress={build_pending + build_running > 0}
+          />
+          {build_failed > 0 && (
+            <span className="text-danger ms-1">{build_failed}</span>
+          )}
+        </span>
+        <span title={failedTitle(test_failed, intermittentTests, '')}>
+          Tests
+          <StatusIcon value={test_failed} isInProgress={inProgress > 0} />
+          {test_failed > 0 && (
+            <span className="text-danger ms-1">
+              <ExternalFailureLink
+                url={externalFailureUrl}
+                tooltip={externalFailureTooltip}
+              >
+                {test_failed} failed
+              </ExternalFailureLink>
+            </span>
+          )}
+        </span>
+      </div>
+    );
   }
 
   return (

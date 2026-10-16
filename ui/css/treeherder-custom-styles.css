@@ -123,7 +123,7 @@
 
 .dropdown-item {
   cursor: pointer;
-  color: #212529 !important;
+  color: var(--th-dropdown-item-color, #212529) !important;
 }
 
 .dropdown-item:hover,
@@ -303,7 +303,12 @@
 
 .queryparam {
   display: inline-block;
-  font: 12px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font:
+    12px Consolas,
+    'Liberation Mono',
+    Menlo,
+    Courier,
+    monospace;
   color: #555;
 }
 
@@ -617,4 +622,11 @@ a.btn-outline-dark:hover {
   width: 100%;
   height: 100%;
   background-color: rgba(20, 19, 19, 0.3);
+}
+
+/* Phone layout; keep in sync with MOBILE_QUERY in ui/hooks/useIsMobile.js */
+@media (max-width: 767.98px), (pointer: coarse) and (max-height: 500px) {
+  .th-desktop-only {
+    display: none;
+  }
 }

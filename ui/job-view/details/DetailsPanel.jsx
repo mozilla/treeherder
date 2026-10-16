@@ -1,7 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import {
+  faChevronLeft,
+  faChevronRight,
+  faSpinner,
+} from '@fortawesome/free-solid-svg-icons';
 
 import {
   usePinnedJobsStore,
@@ -19,6 +23,7 @@ function DetailsPanel({
   user,
   currentRepo,
   resizedHeight,
+  mobile = false,
   classificationMap,
   classificationTypes,
   frameworks = [],
@@ -29,6 +34,18 @@ function DetailsPanel({
   const isPinBoardVisible = usePinnedJobsStore(
     (state) => state.isPinBoardVisible,
   );
+  const [summaryOpen, setSummaryOpen] = useState(false);
+
+  // On mobile, each newly selected job starts on its default tab rather than
+  // the summary slide-out or the pinboard.
+  const [prevJobId, setPrevJobId] = useState(selectedJob?.id);
+  if (selectedJob?.id !== prevJobId) {
+    setPrevJobId(selectedJob?.id);
+    setSummaryOpen(false);
+  }
+  useEffect(() => {
+    if (mobile) setPinBoardVisible(false);
+  }, [mobile, selectedJob?.id]);
 
   const {
     selectedJobFull,
@@ -54,17 +71,46 @@ function DetailsPanel({
   return (
     <div
       id="details-panel"
-      style={{ height: `${resizedHeight}px` }}
-      className="details-panel-slide"
+      style={{ height: mobile ? '100%' : `${resizedHeight}px` }}
+      className={`details-panel-slide ${mobile && isPinBoardVisible ? 'mobile-pinboard-visible' : ''}`}
     >
+      {mobile && isPinBoardVisible && (
+        <button
+          className="btn btn-link mobile-pinboard-back"
+          type="button"
+          onClick={() => {
+            setPinBoardVisible(false);
+            setSummaryOpen(false);
+          }}
+        >
+          Back to job
+        </button>
+      )}
       <PinBoard
+        mobile={mobile}
         currentRepo={currentRepo}
         isLoggedIn={user.isLoggedIn || false}
         isStaff={user.isStaff || false}
         classificationTypes={classificationTypes}
-        selectedJobFull={selectedJobFull}
       />
-      <div id="details-panel-content">
+      <div
+        id="details-panel-content"
+        className={mobile && summaryOpen ? 'mobile-summary-open' : undefined}
+      >
+        {mobile && (
+          <button
+            type="button"
+            className={`mobile-summary-toggle ${summaryOpen ? 'is-open' : ''}`}
+            aria-controls="summary-panel"
+            aria-expanded={summaryOpen}
+            aria-label={summaryOpen ? 'Hide job summary' : 'Show job summary'}
+            onClick={() => setSummaryOpen((open) => !open)}
+          >
+            <FontAwesomeIcon
+              icon={summaryOpen ? faChevronLeft : faChevronRight}
+            />
+          </button>
+        )}
         {(jobDetailLoading || jobArtifactsLoading) && (
           <div className="overlay">
             <div>
@@ -78,6 +124,7 @@ function DetailsPanel({
           </div>
         )}
         <SummaryPanel
+          hiddenOnMobile={mobile && !summaryOpen}
           selectedJobFull={selectedJobFull}
           currentRepo={currentRepo}
           classificationMap={classificationMap}
@@ -135,6 +182,7 @@ DetailsPanel.propTypes = {
     isStaff: PropTypes.bool,
   }).isRequired,
   resizedHeight: PropTypes.number.isRequired,
+  mobile: PropTypes.bool,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})),
