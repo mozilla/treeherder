@@ -608,7 +608,6 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     new_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     replicates = serializers.BooleanField(required=False)
     test_version = serializers.CharField(required=False, default="student-t")
-    enable_silverman_kde = serializers.BooleanField(required=False, default=False)
 
     def validate_base_parent_signature(self, value):
         if value == "null":
@@ -771,40 +770,6 @@ class StatisticsTestSerializer(serializers.Serializer):
     stat = PerfCompareDecimalField(required=False)
     pvalue = PerfCompareDecimalField(required=False)
     interpretation = serializers.CharField(required=False)
-
-
-class ModeSerializer(serializers.Serializer):
-    mode_name = serializers.CharField(default="")
-    mode_start = serializers.CharField(required=False)
-    mode_end = serializers.CharField(required=False)
-    median_shift_summary = serializers.CharField(required=False)
-    ci_low = PerfCompareDecimalField(required=False)
-    ci_high = PerfCompareDecimalField(required=False)
-    ci_warning = serializers.CharField(required=False)
-    shift = PerfCompareDecimalField(required=False)
-    shift_summary = serializers.CharField(required=False)
-
-
-class SilvermanKDESerializer(serializers.Serializer):
-    bandwidth = serializers.CharField(default="")
-    base_mode_count = serializers.IntegerField()
-    new_mode_count = serializers.IntegerField()
-    base_locations = serializers.ListField(
-        child=PerfCompareDecimalField(required=False), default=[]
-    )
-    new_locations = serializers.ListField(child=PerfCompareDecimalField(required=False), default=[])
-    base_prominence = PerfCompareDecimalField(required=False)
-    new_prominence = PerfCompareDecimalField(required=False)
-    modes = ModeSerializer(many=True)
-    is_regression = serializers.BooleanField()
-    is_improvement = serializers.BooleanField()
-
-
-class KDESerializer(serializers.Serializer):
-    median = PerfCompareDecimalField(required=False)
-    sample_count = serializers.IntegerField()
-    kde_x = serializers.ListField(child=PerfCompareDecimalField(), default=[])
-    kde_y = serializers.ListField(child=PerfCompareDecimalField(), default=[])
 
 
 class CLESSerializer(serializers.Serializer):
