@@ -84,7 +84,7 @@ def test_alert_summaries_get(
         "bug_number",
         "bug_updated",
         "bug_due_date",
-        "bug_status",
+        "bug_resolution",
         "issue_tracker",
         "notes",
         "assignee_username",
@@ -317,7 +317,7 @@ def test_alert_summaries_get_onhold(
         "bug_number",
         "bug_updated",
         "bug_due_date",
-        "bug_status",
+        "bug_resolution",
         "issue_tracker",
         "notes",
         "assignee_username",
@@ -1175,6 +1175,27 @@ def test_alert_summaries_filter_with_assignee(
     resp = client.get(
         reverse("performance-alert-summaries-list"),
         data={"with_assignee": test_user.username},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert summary_ids == [test_perf_alert_summary.id]
+
+
+def test_alert_summaries_filter_with_bug_resolution(
+    client, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    test_perf_alert_summary.bug_resolution = PerformanceAlertSummary.BUG_FIXED
+    test_perf_alert_summary.save()
+
+    test_perf_alert_summary_2.bug_resolution = PerformanceAlertSummary.BUG_INVALID
+    test_perf_alert_summary_2.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"bug_resolution": PerformanceAlertSummary.BUG_FIXED},
     )
     assert resp.status_code == 200
 

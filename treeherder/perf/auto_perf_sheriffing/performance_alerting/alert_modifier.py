@@ -59,7 +59,9 @@ class ResolutionModifier:
             bug_number__in=[bug_info["id"] for bug_info in bugs["bugs"]]
         )
 
-        bug_status_map = {label: value for value, label in PerformanceAlertSummary.BUG_STATUSES}
+        bug_resolution_map = {
+            label: value for value, label in PerformanceAlertSummary.BUG_RESOLUTIONS
+        }
         bugs_by_id = {bug["id"]: bug for bug in bugs["bugs"]}
         updates = {}
         summaries_to_update = {}
@@ -67,25 +69,26 @@ class ResolutionModifier:
             bug = bugs_by_id.get(summary.bug_number)
             if not bug:
                 continue
-            new_bug_status = bug_status_map.get(bug["resolution"])
-            if new_bug_status is None and bug["resolution"] == "":
-                new_bug_status = PerformanceAlertSummary.BUG_NEW
-            if new_bug_status is None:
+            new_bug_resolution = bug_resolution_map.get(bug["resolution"])
+            if new_bug_resolution is None and bug["resolution"] == "":
+                new_bug_resolution = PerformanceAlertSummary.BUG_NEW
+            if new_bug_resolution is None:
                 continue
-            if summary.bug_status == new_bug_status:
+            if summary.bug_resolution == new_bug_resolution:
                 continue
             logger.info(
                 f"summary {summary.id}, bug {summary.bug_number}: resolution={bug['resolution']!r}, "
-                f"status={bug['status']!r}, bug_status={summary.bug_status} to {new_bug_status}"
+                f"status={bug['status']!r}, bug_resolution={summary.bug_resolution} "
+                f"to {new_bug_resolution}"
             )
-            updates[str(summary.id)] = {"bug_status": new_bug_status}
+            updates[str(summary.id)] = {"bug_resolution": new_bug_resolution}
             summaries_to_update[str(summary.id)] = summary
 
         return updates, summaries_to_update
 
 
 @PerformanceAlertSummaryModifier.add
-class NullBugStatusModifier:
+class NullBugResolutionModifier:
     @staticmethod
     def update_alerts(**kwargs):
         chunk_size = 50
@@ -93,7 +96,7 @@ class NullBugStatusModifier:
         alert_summaries = list(
             PerformanceAlertSummary.objects.filter(
                 bug_number__isnull=False,
-                bug_status__isnull=True,
+                bug_resolution__isnull=True,
                 bug_updated__gte=start_date,
             )
         )
@@ -110,27 +113,30 @@ class NullBugStatusModifier:
             try:
                 result = bug_searcher.get_bugs()
             except Exception as e:
-                logger.warning(f"Failed to get bugs for null bug_status updates: {str(e)}")
+                logger.warning(f"Failed to get bugs for null bug_resolution updates: {str(e)}")
                 continue
             all_bugs.update({bug["id"]: bug for bug in result["bugs"]})
 
-        bug_status_map = {label: value for value, label in PerformanceAlertSummary.BUG_STATUSES}
+        bug_resolution_map = {
+            label: value for value, label in PerformanceAlertSummary.BUG_RESOLUTIONS
+        }
         updates = {}
         summaries_to_update = {}
         for summary in alert_summaries:
             bug = all_bugs.get(summary.bug_number)
             if not bug:
                 continue
-            new_bug_status = bug_status_map.get(bug["resolution"])
-            if new_bug_status is None and bug["resolution"] == "":
-                new_bug_status = PerformanceAlertSummary.BUG_NEW
-            if new_bug_status is None:
+            new_bug_resolution = bug_resolution_map.get(bug["resolution"])
+            if new_bug_resolution is None and bug["resolution"] == "":
+                new_bug_resolution = PerformanceAlertSummary.BUG_NEW
+            if new_bug_resolution is None:
                 continue
             logger.info(
                 f"summary {summary.id}, bug {summary.bug_number}: resolution={bug['resolution']!r}, "
-                f"status={bug['status']!r}, bug_status={summary.bug_status} to {new_bug_status}"
+                f"status={bug['status']!r}, bug_resolution={summary.bug_resolution} "
+                f"to {new_bug_resolution}"
             )
-            updates[str(summary.id)] = {"bug_status": new_bug_status}
+            updates[str(summary.id)] = {"bug_resolution": new_bug_resolution}
             summaries_to_update[str(summary.id)] = summary
 
         return updates, summaries_to_update
