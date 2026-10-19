@@ -17,7 +17,7 @@ jobs:
     name: javascript-tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-pnpm
       - name: Run Jest tests
         run: pnpm test:ci
@@ -33,7 +33,7 @@ jobs:
     env:
       CI: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-pnpm
 
       - name: Get Playwright version
@@ -71,7 +71,7 @@ jobs:
     name: javascript-lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-pnpm
       - name: Run linting
         run: pnpm lint
@@ -82,7 +82,7 @@ jobs:
     name: builds
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -104,7 +104,7 @@ jobs:
     name: python-tests-general
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -123,7 +123,7 @@ jobs:
     name: python-tests-perf
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -142,7 +142,7 @@ jobs:
     name: python-tests-frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -161,7 +161,7 @@ jobs:
     name: python-tests-telemetry
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -180,7 +180,7 @@ jobs:
     name: test-docker-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Create version.json
         run: |
           # https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
