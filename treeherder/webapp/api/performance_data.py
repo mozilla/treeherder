@@ -973,6 +973,11 @@ class PerformanceSummary(generics.ListAPIView):
         all_data = query_params.validated_data["all_data"]
         no_retriggers = query_params.validated_data["no_retriggers"]
         replicates = query_params.validated_data["replicates"]
+        platform = query_params.validated_data["platform"]
+        suite = query_params.validated_data["suite"]
+        test = query_params.validated_data["test"]
+        application = query_params.validated_data["application"]
+        extra_options = query_params.validated_data["extra_options"]
 
         signature_data = PerformanceSignature.objects.select_related(
             "framework", "repository", "platform", "push", "job"
@@ -983,11 +988,27 @@ class PerformanceSummary(generics.ListAPIView):
             signature_data = signature_data.filter(signature_hash=signature)
         elif signature:
             signature_data = signature_data.filter(id=signature)
-        else:
+        elif suite is None:
+            # filtering by suite returns both the suite and its subtests
             signature_data = signature_data.filter(parent_signature__isnull=no_subtests)
 
         if frameworks:
             signature_data = signature_data.filter(framework__in=frameworks)
+
+        if platform:
+            signature_data = signature_data.filter(platform__platform=platform)
+
+        if suite:
+            signature_data = signature_data.filter(suite=suite)
+
+        if test is not None:
+            signature_data = signature_data.filter(test=test)
+
+        if application:
+            signature_data = signature_data.filter(application=application)
+
+        if extra_options:
+            signature_data = signature_data.filter(extra_options=" ".join(sorted(extra_options)))
 
         if parent_signature:
             signature_data = signature_data.filter(parent_signature_id=parent_signature)
