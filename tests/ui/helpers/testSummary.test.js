@@ -1633,35 +1633,111 @@ describe('crashes (crash records)', () => {
   const reason =
     'MOZ_ASSERT(mFullscreenChangeState == FullscreenChangeState::NotChanging)';
   const signature = '@ mozilla::AppWindow::FullscreenWillChange';
+  const minidumpName = '1575f4b0-c85b-f593-605b-156884ade80b';
   const crash = {
     action: 'crash',
     time: 2,
     process: null,
     test: testPath,
     signature,
+    minidump_path: `/tmp/tmpk2x1_profile/minidumps/${minidumpName}.dmp`,
     process_type: 'main',
     reason,
   };
-  const classicLine = `PROCESS-CRASH | ${reason} [${signature}] | ${testPath}`;
-  // The line TbplFormatter printed, with the minidump name.
-  const printed = `PROCESS-CRASH | 1575f4b0-c85b-f593-605b-156884ade80b | ${reason} [${signature}] | ${testPath} `;
+  const classicLine = `PROCESS-CRASH | ${minidumpName} | ${reason} [${signature}] | ${testPath}`;
+  // The line TbplFormatter printed, trailing space included.
+  const printed = `${classicLine} `;
   const crashFailures = records =>
     buildFailureSuggestions(
       buildTestSummary([{ action: 'group_start', time: 1, name: 'g' }, ...records]),
     );
 
-  test('shows the reason and signature, linked by the text the log holds', () => {
+  test('shows the PROCESS-CRASH line with its minidump name, linked by the text the log holds', () => {
     const [failure] = crashFailures([crash]);
 
-    expect(failure.search).toBe(
-      `TEST-UNEXPECTED-CRASH | ${testPath} | ${reason} [${signature}]`,
-    );
+    expect(failure.search).toBe(classicLine);
     expect(failure.classicLine).toBe(classicLine);
+    expect(failure.path_end).toBe(testPath);
     expect(failure.logTarget.texts).toEqual([
       testPath,
       `${reason} [${signature}] | ${testPath}`,
     ]);
     failure.logTarget.texts.forEach(text => expect(printed).toContain(text));
+  });
+
+  test('shows the crash of an older artifact without a minidump name', () => {
+    const [failure] = crashFailures([
+      {
+        action: 'crash',
+        time: 2,
+        process: null,
+        test: testPath,
+        signature,
+        process_type: 'main',
+        reason,
+      },
+    ]);
+    const withoutName = `PROCESS-CRASH | ${reason} [${signature}] | ${testPath}`;
+
+    expect(failure.search).toBe(withoutName);
+    expect(failure.classicLine).toBe(withoutName);
+    expect(failure.logTarget.texts).toEqual([
+      testPath,
+      `${reason} [${signature}] | ${testPath}`,
+    ]);
+    failure.logTarget.texts.forEach(text => expect(printed).toContain(text));
+  });
+
+  test('cleans the line as the classic summary does and drops its console copy', () => {
+    // The crash of try task O7RJtXo4SC6g731Ol6FIuA (linux opt xpcshell).
+    const abortTest = 'xpcom/tests/unit/test_bug476919.js';
+    const abortReason =
+      '[Parent 11300, Main Thread] ###!!! ABORT: file test_bug476919.js:1';
+    const abortSignature = '@ nsDebugImpl::Abort';
+    const abortName = '71ef68ad-c2e0-e855-c70c-bb48ad18d809';
+    const cleaned = `PROCESS-CRASH | ${abortName} | [Parent X, Y Thread] ###!!! ABORT: file test_bug476919.js:1 [${abortSignature}] | ${abortTest}`;
+    const abortCrash = {
+      action: 'crash',
+      time: 2,
+      process: null,
+      test: abortTest,
+      signature: abortSignature,
+      minidump_path: `/tmp/xpc-nyuy9yj2/xpc-other-ujkwbu04/${abortName}.dmp`,
+      process_type: 'main',
+      reason: abortReason,
+    };
+    const [failure] = matchBugSuggestions(
+      crashFailures([abortCrash]),
+      [
+        {
+          search: cleaned,
+          path_end: `[Parent X, Y Thread] ###!!! ABORT: file test_bug476919.js:1 [${abortSignature}]`,
+          counter: 3,
+          failure_new_in_rev: true,
+          bugs: { open_recent: [], all_others: [] },
+        },
+      ],
+    );
+
+    expect(failure.search).toBe(cleaned);
+    expect(failure.classicLine).toBe(cleaned);
+    expect(failure.path_end).toBe(abortTest);
+    expect(failure.logTarget.texts).toEqual([
+      abortTest,
+      `${abortReason} [${abortSignature}] | ${abortTest}`,
+    ]);
+    expect(failure.counter).toBe(3);
+    expect(failure.failure_new_in_rev).toBe(true);
+
+    const consoleCopy = {
+      action: 'error_line',
+      time: 3,
+      level: 'INFO',
+      message: `PROCESS-CRASH | ${abortName} | ${abortReason} [${abortSignature}] | ${abortTest} `,
+    };
+    expect(crashFailures([abortCrash, consoleCopy])).toEqual(
+      crashFailures([abortCrash]),
+    );
   });
 
   test('falls back as TbplFormatter does without a reason, signature or test', () => {
@@ -1682,13 +1758,14 @@ describe('crashes (crash records)', () => {
         process: 'org.mozilla.geckoview.test',
         test: testPath,
         signature: 'java-exception',
+        minidump_path: `C:\\tasks\\minidumps\\${minidumpName}.dmp`,
         java_stack:
           'java.lang.IllegalStateException: boom\n\tat org.mozilla.Foo.bar(Foo.java:12)\n\tat org.mozilla.Foo.baz(Foo.java:34)',
       },
     ]);
 
     expect(failure.classicLine).toBe(
-      `PROCESS-CRASH | ${testPath} | java.lang.IllegalStateException: boom \tat org.mozilla.Foo.bar(Foo.java:12)`,
+      `PROCESS-CRASH | ${minidumpName} | ${testPath} | java.lang.IllegalStateException: boom \tat org.mozilla.Foo.bar(Foo.java:12)`,
     );
   });
 
@@ -1698,7 +1775,22 @@ describe('crashes (crash records)', () => {
     expect(crashFailures([crash, consoleLine])).toEqual(crashFailures([crash]));
   });
 
-  test('matches the classic summary of the same job, minidump name aside', () => {
+  test('takes the new flag and counter of the classic line with its text', () => {
+    const [failure] = matchBugSuggestions(crashFailures([crash]), [
+      {
+        search: printed.trim(),
+        path_end: 'MOZ_ASSERT(mFullscreenChangeState',
+        failure_new_in_rev: true,
+        counter: 0,
+        bugs: { open_recent: [], all_others: [] },
+      },
+    ]);
+
+    expect(failure.failure_new_in_rev).toBe(true);
+    expect(failure.counter).toBe(0);
+  });
+
+  test('matches the classic summary of the same job', () => {
     const crashGroup = 'processing 1 crash';
     const failures = crashFailures([
       { action: 'test_start', time: 1, test: testPath },
@@ -2378,7 +2470,7 @@ describe('log targets', () => {
     );
 
     expect(
-      byTest['TEST-UNEXPECTED-CRASH | crashed.html | application crashed [sig]'],
+      byTest['PROCESS-CRASH | application crashed [sig] | crashed.html'],
     ).toEqual({
       texts: ['crashed.html', 'application crashed [sig] | crashed.html'],
       time: 4,

@@ -17,7 +17,8 @@ import { thBugSuggestionLimit } from './constants';
 //
 //   {"action": "crash", "group": "<manifest>", "test": "<path>",
 //    "signature": "<crash signature>", "reason": "<MOZ_CRASH reason>",
-//    ...}   // `minidump_path` is stripped
+//    "minidump_path": "<worker path>/<minidump name>.dmp",
+//    ...}   // `minidump_path` is absent from older artifacts
 //
 //   {"action": "log", "time": <ms>, "level": "ERROR" | "CRITICAL",
 //    "message": "TEST-UNEXPECTED-FAIL | <what> | <detail>",
@@ -325,10 +326,16 @@ const lsanLeakLine = (record) => {
   return `TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at ${(record.frames ?? []).join(', ')}`;
 };
 
+// The minidump name TbplFormatter.crash puts after PROCESS-CRASH: the file
+// name of the record's `minidump_path`, less its extension.
+const minidumpNameOf = (minidumpPath) =>
+  (minidumpPath || '').split(/[\\/]/).pop().replace(/\.[^.]*$/, '') || null;
+
 // The first line TbplFormatter.crash prints for a crash, which the classic
-// Failure Summary shows, less the minidump name summary.jsonl strips: the
-// message the Summary tab shows, that classic line, and the part of it the
-// task log holds as is.
+// Failure Summary shows: the message the Summary tab shows and that classic
+// line, both cleaned as the backend cleans it (without the minidump name for
+// an older artifact), and the part of the line the task log holds as is,
+// short enough for the log link.
 const crashLineOf = (record) => {
   const scope = record.test || `pid: ${record.process}`;
   let message;
@@ -342,7 +349,13 @@ const crashLineOf = (record) => {
     }]`;
     logText = `${message} | ${scope}`;
   }
-  return { message, classicLine: `PROCESS-CRASH | ${logText}`, logText };
+  const name = minidumpNameOf(record.minidump_path);
+  const prefix = name ? `PROCESS-CRASH | ${name}` : 'PROCESS-CRASH';
+  return {
+    message: cleanedLine(message),
+    classicLine: cleanedLine(`${prefix} | ${logText}`),
+    logText,
+  };
 };
 
 /**
@@ -805,11 +818,14 @@ export const buildFailureSuggestions = (summary) => {
           .map(firstLogLineOf),
       ];
       messages.forEach((message, index) => {
-        // A harness line already is a complete failure line; a test result
-        // is rebuilt into the classic "TEST-UNEXPECTED-<status> | test | msg".
+        // A harness line already is a complete failure line, and a crash
+        // record shows as the PROCESS-CRASH line the log printed, so that its
+        // minidump name is linked; a test result is rebuilt into the classic
+        // "TEST-UNEXPECTED-<status> | test | msg".
         const search = test.harness
           ? message
-          : testFailureLine(test.status, test.name, message);
+          : (lastResult.status === 'CRASH' && lastResult.classicLine) ||
+            testFailureLine(test.status, test.name, message);
         const suggestion = {
           search,
           path_end: test.harness ? test.pathEnd : test.name,
@@ -922,11 +938,14 @@ export const findNewFailureLines = (suggestions, repoName) => {
   };
 };
 
+// The text a line is compared on: cleaned as the backend cleans the classic
+// line, however it is spaced.
 const normalizeSearchLine = (search) =>
-  (search || '').trim().replace(/\s+/g, ' ');
+  cleanedLine((search || '').replace(/\s+/g, ' '));
 
-// The minidump name TbplFormatter puts after PROCESS-CRASH: summary.jsonl
-// strips `minidump_path`, so crash lines are compared without it.
+// The minidump name TbplFormatter puts after PROCESS-CRASH: artifacts written
+// before `minidump_path` was kept have none, so crash lines are compared
+// without it.
 const MINIDUMP_NAME_RE =
   /^PROCESS-CRASH \| [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} \| /i;
 
