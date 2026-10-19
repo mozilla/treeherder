@@ -137,18 +137,18 @@ export default class AlertsViewControls extends React.Component {
         namespace: 'status',
       },
       {
-        options: Object.keys(bugResolutionMap),
-        selectedItem: bugResolution,
-        updateData: this.updateBugResolution,
-        namespace: 'bugResolution',
-      },
-      {
         options: frameworkNames,
         selectedItem: framework.name,
         updateData: this.updateFramework,
         namespace: 'framework',
         pinned: [allFrameworks, allSheriffedFrameworks],
         otherPinned: [platformMicrobench, telemetry],
+      },
+      {
+        options: Object.keys(bugResolutionMap),
+        selectedItem: bugResolution,
+        updateData: this.updateBugResolution,
+        namespace: 'bugResolution',
       },
     ];
 
