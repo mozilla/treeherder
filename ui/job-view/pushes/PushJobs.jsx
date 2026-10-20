@@ -22,11 +22,40 @@ function PushJobs({
   duplicateJobsVisible,
   groupCountsExpanded,
   platforms,
+  variantPlatforms = [],
   toggleSelectedRunnableJob,
 }) {
   const aggregateId = useMemo(
     () => getPushTableId(repoName, push.id, push.revision),
     [repoName, push.id, push.revision],
+  );
+
+  // Only show the variant heading when at least one of its jobs passes the filters
+  const hasVisibleVariantJobs = useMemo(
+    () =>
+      variantPlatforms.some((platform) =>
+        platform.groups.some((group) =>
+          group.jobs.some(
+            (job) =>
+              filterModel.showJob(job) &&
+              (job.state !== 'runnable' || runnableVisible),
+          ),
+        ),
+      ),
+    [variantPlatforms, filterModel, runnableVisible],
+  );
+
+  const renderPlatform = (platform) => (
+    <Platform
+      platform={platform}
+      filterModel={filterModel}
+      pushGroupState={pushGroupState}
+      key={`${platform.name}${platform.option}`}
+      duplicateJobsVisible={duplicateJobsVisible}
+      groupCountsExpanded={groupCountsExpanded}
+      runnableVisible={runnableVisible}
+      toggleSelectedRunnableJob={toggleSelectedRunnableJob}
+    />
   );
 
   const selectJob = useCallback(
@@ -121,18 +150,7 @@ function PushJobs({
       <table id={aggregateId} className="table-hover">
         <tbody>
           {platforms ? (
-            platforms.map((platform) => (
-              <Platform
-                platform={platform}
-                filterModel={filterModel}
-                pushGroupState={pushGroupState}
-                key={`${platform.name}${platform.option}`}
-                duplicateJobsVisible={duplicateJobsVisible}
-                groupCountsExpanded={groupCountsExpanded}
-                runnableVisible={runnableVisible}
-                toggleSelectedRunnableJob={toggleSelectedRunnableJob}
-              />
-            ))
+            platforms.map(renderPlatform)
           ) : (
             <tr>
               <td>
@@ -146,6 +164,20 @@ function PushJobs({
             </tr>
           )}
         </tbody>
+        {hasVisibleVariantJobs && (
+          <tbody data-testid="manifest-variant-jobs">
+            <tr>
+              <td
+                colSpan={2}
+                className="manifest-variant-heading"
+                title="These jobs ran a different set of test manifests than the scheduled job with the same name (for example, backfills), so their results are not compared with it."
+              >
+                Different test manifests
+              </td>
+            </tr>
+            {variantPlatforms.map(renderPlatform)}
+          </tbody>
+        )}
       </table>
     </div>
   );
@@ -163,6 +195,7 @@ PushJobs.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   platforms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  variantPlatforms: PropTypes.arrayOf(PropTypes.shape({})),
   filterModel: PropTypes.shape({}).isRequired,
 };
 
