@@ -20,22 +20,18 @@ import Hero from './Hero';
 import Nav from './Nav';
 import { chooseFullView } from './phone';
 import usePushData from './usePushData';
-import { sortFailures, verdict } from './verdict';
+import { failedJobsOf, pushVerdict, sortFailures } from './verdict';
 
 const PushDetail = ({ repo, author, theme, revision }) => {
   const { push, health, jobs, error, counts, progress, eta } = usePushData(
     repo,
     revision,
   );
-  const { yours, parentToo, known, builds, lint, seenBefore } = sortFailures(
-    health,
-    jobs,
-  );
-
-  const said =
-    health &&
-    progress &&
-    verdict({ yours, parentToo, builds, lint, progress, eta, seenBefore });
+  const sorted = sortFailures(health, jobs);
+  const { yours, parentToo, known, builds, lint, seenBefore } = sorted;
+  const said = pushVerdict({ health, jobs, progress, eta, sorted });
+  // Unsorted until Push Health lands.
+  const failed = health ? [] : failedJobsOf(jobs);
 
   const failedJobs = push ? retriggerableJobs(jobs || [], push.id) : [];
   // Only once the job list is in, so the note never flashes before the button.
@@ -81,7 +77,6 @@ const PushDetail = ({ repo, author, theme, revision }) => {
       <Hero
         said={said}
         counts={counts}
-        health={health}
         progress={progress}
         eta={eta}
         error={error}
@@ -90,6 +85,14 @@ const PushDetail = ({ repo, author, theme, revision }) => {
         failedJobs={failedJobs}
         testsFailed={testsFailed}
       />
+
+      {failed.length > 0 && (
+        <div className="sv-rise">
+          <Section title={PUSH.sections.failures} count={failed.length}>
+            <SeenBefore jobs={failed} repo={repo} revision={revision} />
+          </Section>
+        </div>
+      )}
 
       {health && (
         <div className="sv-rise">

@@ -87,6 +87,8 @@ export const VERDICT = {
     `${countWord(n)} ${plural(n, 'failure has', 'failures have')} been seen before, so ${plural(n, "it's", "they're")} likely intermittent.`,
   failsOnParentToo: (n) =>
     `${countWord(n)} ${plural(n, 'test fails', 'tests fail')} here, but on the parent too.`,
+  jobsFailed: (n) => `${countWord(n)} ${plural(n, 'job')} failed.`,
+  checking: 'Checking these against the parent and known intermittents…',
   allGreen: 'All green.',
   nothingToLookAt: (total) => `${total} ${plural(total, 'job')}, nothing needs a look.`,
 };
@@ -102,6 +104,7 @@ export const PUSH = {
   commits: (n) => `${n} ${plural(n, 'commit')}`,
   everyJob: 'Every job, in the full view',
   sections: {
+    failures: 'Failures',
     brokenHere: 'Broken here',
     builds: 'Builds',
     lint: 'Lint',

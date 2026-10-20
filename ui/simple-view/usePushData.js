@@ -60,7 +60,7 @@ const usePushData = (repo, revision) => {
   }, [loadJobs]);
 
   const counts = jobs ? statusFromJobs(jobs) : health?.status || summary?.status;
-  const progress = health && counts && progressOf(counts);
+  const progress = counts && progressOf(counts);
   const running = !!progress?.running;
 
   const [table, setTable] = useState(null);
@@ -83,7 +83,6 @@ const usePushData = (repo, revision) => {
   const eta = running
     ? describeEta(etaModel, { started: progress.done > 0 })
     : null;
-
 
   return { push, health, jobs, error, counts, progress, eta };
 };

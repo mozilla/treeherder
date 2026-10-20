@@ -1,6 +1,11 @@
 import { FAILED_RESULTS, VERDICT } from './constants';
 import { groupByTest } from './helpers';
 
+export const failedJobsOf = (jobs) =>
+  (jobs || []).filter(
+    (j) => j.tier <= 2 && j.state === 'completed' && FAILED_RESULTS.has(j.result),
+  );
+
 export const sortFailures = (health, jobs) => {
   const tests = health?.metrics.tests.details || {};
   const groups = groupByTest(tests.needInvestigation || []);
@@ -17,13 +22,7 @@ export const sortFailures = (health, jobs) => {
     ...builds.map((j) => j.id),
     ...lint.map((j) => j.id),
   ]);
-  const seenBefore = (jobs || []).filter(
-    (j) =>
-      j.tier <= 2 &&
-      j.state === 'completed' &&
-      FAILED_RESULTS.has(j.result) &&
-      !reported.has(j.id),
-  );
+  const seenBefore = failedJobsOf(jobs).filter((j) => !reported.has(j.id));
 
   return { yours, parentToo, known, builds, lint, seenBefore };
 };
@@ -77,5 +76,22 @@ export const verdict = ({ yours, parentToo, builds, lint, progress, eta, seenBef
     tone: 'good',
     headline: VERDICT.allGreen,
     sub: VERDICT.nothingToLookAt(progress.total),
+  };
+};
+
+// Push Health sorts the failures but can take 15s or more when Treeherder
+// hasn't computed it lately. A push with no failures doesn't need it; one with
+// failures says how many jobs failed, which stays true however they sort.
+export const pushVerdict = ({ health, jobs, progress, eta, sorted }) => {
+  if (!progress) return null;
+  const failed = failedJobsOf(jobs);
+  if (health || (jobs && !failed.length)) {
+    return verdict({ ...sorted, progress, eta });
+  }
+  if (!jobs) return null;
+  return {
+    tone: 'quiet',
+    headline: VERDICT.jobsFailed(failed.length),
+    sub: VERDICT.checking,
   };
 };

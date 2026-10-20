@@ -150,17 +150,30 @@ export const testFromErrorLine = (line = '') => {
   return null;
 };
 
-export const fetchFirstFailingTest = orNull(async (repo, jobId) => {
+const readFirstFailingTest = async (repo, jobId) => {
   const { data, failureStatus } = await getData(
     getProjectUrl(`/jobs/${jobId}/text_log_errors/`, repo),
   );
-  if (failureStatus || !Array.isArray(data)) return null;
+  if (failureStatus || !Array.isArray(data)) throw new Error(failureStatus);
   for (const error of data) {
     const test = testFromErrorLine(error.line);
     if (test) return test;
   }
   return null;
-});
+};
+
+// A finished job's errors never change, so each job is asked once, whichever
+// section asks first. Failed requests are forgotten so a later ask retries.
+const firstTests = new Map();
+export const fetchFirstFailingTest = (repo, jobId) => {
+  const key = `${repo}:${jobId}`;
+  if (!firstTests.has(key)) {
+    const request = readFirstFailingTest(repo, jobId);
+    firstTests.set(key, request);
+    request.catch(() => firstTests.delete(key));
+  }
+  return firstTests.get(key).catch(() => null);
+};
 
 export const progressOf = (status) => {
   if (!status) return null;
