@@ -5,7 +5,7 @@ from dateutil import parser
 from django.urls import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.model.models import Job, TextLogError
+from treeherder.model.models import Job, TaskclusterMetadata, TextLogError
 
 
 @pytest.mark.parametrize(
@@ -186,6 +186,39 @@ def test_job_detail(client, test_job):
         "task_id": "V3SVuxO8TFy37En_6HcXLs",
         "retry_id": 0,
     }
+
+
+def test_job_detail_includes_test_manifest_fingerprint(client, test_job):
+    TaskclusterMetadata.objects.filter(job=test_job).update(
+        manifest_hash="0123456789abcdef", manifest_count=7, chunk_total=10
+    )
+
+    resp = client.get(
+        reverse("jobs-detail", kwargs={"project": test_job.repository.name, "pk": test_job.id})
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["manifest_hash"] == "0123456789abcdef"
+    assert data["manifest_count"] == 7
+    assert data["chunk_total"] == 10
+
+
+def test_jobs_endpoint_includes_test_manifest_fingerprint(client, test_job):
+    TaskclusterMetadata.objects.filter(job=test_job).update(
+        manifest_hash="0123456789abcdef", manifest_count=7
+    )
+
+    resp = client.get(reverse("jobs-list") + f"?push_id={test_job.push_id}")
+
+    assert resp.status_code == 200
+    data = resp.json()
+    jobs = [dict(zip(data["job_property_names"], row)) for row in data["results"]]
+    assert len(jobs) == 1
+    assert jobs[0]["manifest_hash"] == "0123456789abcdef"
+    assert jobs[0]["manifest_count"] == 7
+    assert jobs[0]["task_id"] == "V3SVuxO8TFy37En_6HcXLs"
+    assert jobs[0]["retry_id"] == 0
 
 
 def test_job_detail_bad_project(client, transactional_db):
