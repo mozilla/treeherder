@@ -392,14 +392,12 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
                 framework_id=self.instance.framework_id,
                 sheriffed=self.instance.sheriffed,
                 push=push,
+                prev_push=prev_push,
             ).exclude(id=self.instance.id)
-            if "push" not in data:
-                existing = existing.filter(prev_push=prev_push)
             existing = existing.first()
             if existing:
-                revisions = "this To revision" if "push" in data else "these revisions"
                 raise serializers.ValidationError(
-                    f"Alert summary #{existing.id} already uses {revisions}, "
+                    f"Alert summary #{existing.id} already uses these revisions, "
                     "reassign the alerts to it instead."
                 )
         return data

@@ -518,9 +518,9 @@ def test_performance_alert_summary_change_revision_keeps_sent_from_revision(
     assert PerformanceAlertSummary.objects.get(id=1).prev_push == older_push
 
 
-@pytest.mark.parametrize("existing_from", ["previous", "older"])
+@pytest.mark.parametrize("existing_from, expected_status", [("previous", 400), ("older", 200)])
 def test_performance_alert_summary_change_revision_onto_existing_summary(
-    client, test_perf_alert_summary, test_sheriff, create_push, existing_from
+    client, test_perf_alert_summary, test_sheriff, create_push, existing_from, expected_status
 ):
     client.force_authenticate(user=test_sheriff)
     now = datetime.now()
@@ -533,7 +533,7 @@ def test_performance_alert_summary_change_revision_onto_existing_summary(
         ),
     }
     new_push = create_push(test_perf_alert_summary.repository, revision="c" * 40, time=now)
-    # the existing summary has the same To, with either the same or a wider From range
+    # the existing summary has the same To, with either the same From (taken) or another one (free)
     existing = PerformanceAlertSummary.objects.create(
         repository=test_perf_alert_summary.repository,
         framework=test_perf_alert_summary.framework,
@@ -546,9 +546,12 @@ def test_performance_alert_summary_change_revision_onto_existing_summary(
         reverse("performance-alert-summaries-list") + "1/", {"revision": new_push.revision}
     )
 
-    assert resp.status_code == 400
-    assert f"Alert summary #{existing.id} already uses this To revision" in resp.content.decode()
-    assert PerformanceAlertSummary.objects.get(id=1).push_id == test_perf_alert_summary.push_id
+    assert resp.status_code == expected_status
+    if expected_status == 400:
+        assert f"Alert summary #{existing.id} already uses these revisions" in resp.content.decode()
+        assert PerformanceAlertSummary.objects.get(id=1).push_id == test_perf_alert_summary.push_id
+    else:
+        assert PerformanceAlertSummary.objects.get(id=1).push == new_push
 
 
 def test_performance_alert_summary_change_from_revision_with_shared_to_revision(
