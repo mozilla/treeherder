@@ -10,7 +10,7 @@ import countBy from 'lodash/countBy';
 
 import { thFailureResults } from '../../helpers/constants';
 import { getUrlParam } from '../../helpers/location';
-import { getBtnClass } from '../../helpers/job';
+import { getBtnClass, getComparableJobKey } from '../../helpers/job';
 import { useJobGroupRegistry } from '../../hooks/useJobGroupRegistry';
 
 import JobButton from './JobButton';
@@ -191,7 +191,7 @@ export function JobGroupComponent({
       return false;
     }
 
-    return intermittentJobTypeNames.has(job.job_type_name);
+    return intermittentJobTypeNames.has(getComparableJobKey(job));
   };
 
   return (
