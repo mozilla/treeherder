@@ -37,6 +37,7 @@ import {
   getJobCount,
   getJobGroupMapKey,
   getTaskRunStr,
+  splitJobsByManifestVariant,
 } from '../../helpers/job';
 import useIsMobile from '../../hooks/useIsMobile';
 
@@ -118,6 +119,8 @@ function Push({
 
   const [fuzzyModal, setFuzzyModal] = useState(false);
   const [platforms, setPlatforms] = useState([]);
+  // Jobs that ran different test manifests than the scheduled job of the same name
+  const [variantPlatforms, setVariantPlatforms] = useState([]);
   const [jobList, setJobList] = useState([]);
   const [runnableVisible, setRunnableVisible] = useState(false);
   const [selectedRunnableJobs, setSelectedRunnableJobs] = useState([]);
@@ -263,10 +266,16 @@ function Push({
             }
           }
         });
-        const newPlatforms = sortGroupedJobs(groupJobByPlatform(newJobList));
+        const { scheduledJobs, variantJobs } =
+          splitJobsByManifestVariant(newJobList);
+        const newPlatforms = sortGroupedJobs(groupJobByPlatform(scheduledJobs));
+        const newVariantPlatforms = sortGroupedJobs(
+          groupJobByPlatform(variantJobs),
+        );
         const newJobCounts = getJobCount(newJobList);
 
         setPlatforms(newPlatforms);
+        setVariantPlatforms(newVariantPlatforms);
         setJobList(newJobList);
         setJobCounts(newJobCounts);
 
@@ -693,6 +702,7 @@ function Push({
                 <PushJobs
                   push={push}
                   platforms={platforms}
+                  variantPlatforms={variantPlatforms}
                   repoName={currentRepo.name}
                   filterModel={filterModel}
                   pushGroupState={pushGroupState}
@@ -708,6 +718,7 @@ function Push({
               <PushJobs
                 push={push}
                 platforms={platforms}
+                variantPlatforms={variantPlatforms}
                 repoName={currentRepo.name}
                 filterModel={filterModel}
                 pushGroupState={pushGroupState}

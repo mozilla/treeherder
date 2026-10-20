@@ -217,6 +217,48 @@ describe('JobsAndGroups', () => {
   });
 
   describe('getIntermittentJobTypeNames', () => {
+    it('does not treat a pass that ran different manifests as an intermittent', () => {
+      const groupJobs = [
+        {
+          id: 1,
+          job_type_name: 'bc1',
+          manifest_hash: 'full',
+          result: 'testfailed',
+        },
+        {
+          id: 2,
+          job_type_name: 'bc1',
+          manifest_hash: 'subset',
+          result: 'success',
+        },
+      ];
+
+      const intermittentJobTypeNames = getIntermittentJobTypeNames(groupJobs);
+
+      expect(intermittentJobTypeNames.size).toBe(0);
+    });
+
+    it('treats a pass with the same manifests as an intermittent', () => {
+      const groupJobs = [
+        {
+          id: 1,
+          job_type_name: 'bc1',
+          manifest_hash: 'full',
+          result: 'testfailed',
+        },
+        {
+          id: 2,
+          job_type_name: 'bc1',
+          manifest_hash: 'full',
+          result: 'success',
+        },
+      ];
+
+      const intermittentJobTypeNames = getIntermittentJobTypeNames(groupJobs);
+
+      expect(intermittentJobTypeNames.has('bc1#full')).toBe(true);
+    });
+
     it('identifies intermittent jobs based on failure ratio', () => {
       const groupJobs = [
         {

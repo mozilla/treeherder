@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import { useMemo } from 'react';
 
+import { getComparableJobKey } from '../../helpers/job';
+
 import JobButton from './JobButton';
 import JobGroup from './JobGroup';
 
@@ -14,6 +16,9 @@ export const getIntermittentJobTypeNames = (groupJobs, confirmGroup) => {
    * if job has both cf and retrigger:
    * confirm-failure is failed: mark as failed
    * confirm-failure is green: add +1 to total success jobs
+   *
+   * Jobs are compared by getComparableJobKey, so a passing job that ran
+   * different test manifests can't make a failure look intermittent.
    */
   const failedJobTypeNames = {};
   const jobCountByConfirmName = {};
@@ -21,8 +26,9 @@ export const getIntermittentJobTypeNames = (groupJobs, confirmGroup) => {
   const confirmedJobNames = [];
 
   for (const job of groupJobs) {
-    if (!Object.keys(jobCountByName).includes(job.job_type_name)) {
-      jobCountByName[job.job_type_name] = 0;
+    const jobKey = getComparableJobKey(job);
+    if (!Object.keys(jobCountByName).includes(jobKey)) {
+      jobCountByName[jobKey] = 0;
     }
 
     // job state of retry, usercancel, etc. is misleading
@@ -31,7 +37,7 @@ export const getIntermittentJobTypeNames = (groupJobs, confirmGroup) => {
     ) {
       continue;
     }
-    jobCountByName[job.job_type_name]++;
+    jobCountByName[jobKey]++;
 
     // -cf group can have >1 job of each job_type_name and >1 type of job
     if (
@@ -58,21 +64,22 @@ export const getIntermittentJobTypeNames = (groupJobs, confirmGroup) => {
     }
 
     if (job.result === 'testfailed') {
-      if (!Object.keys(failedJobTypeNames).includes(job.job_type_name)) {
-        failedJobTypeNames[job.job_type_name] = [];
+      if (!Object.keys(failedJobTypeNames).includes(jobKey)) {
+        failedJobTypeNames[jobKey] = [];
       }
       // TODO: add list of failures here, specifically NEW failures
-      failedJobTypeNames[job.job_type_name].push(job.id);
+      failedJobTypeNames[jobKey].push(job.id);
     }
   }
 
   const intermittentJobTypeNames = new Set();
   const failedNames = Object.keys(failedJobTypeNames);
   for (const job of groupJobs) {
+    const jobKey = getComparableJobKey(job);
     // if failed in -cf mode, do not consider as intermittent
     if (confirmedJobNames.includes(job.job_type_name)) continue;
 
-    if (job.result === 'success' && failedNames.includes(job.job_type_name)) {
+    if (job.result === 'success' && failedNames.includes(jobKey)) {
       // TODO: make the default threshold lower, now 1/2 pass, ideally 2/3 pass
       let threshold = 0.5;
 
@@ -80,17 +87,16 @@ export const getIntermittentJobTypeNames = (groupJobs, confirmGroup) => {
       if (jobCountByConfirmName[job.job_type_name] > 0) threshold = 1;
 
       if (
-        failedJobTypeNames[job.job_type_name].length /
-          jobCountByName[job.job_type_name] <=
+        failedJobTypeNames[jobKey].length / jobCountByName[jobKey] <=
         threshold
       ) {
-        intermittentJobTypeNames.add(job.job_type_name);
+        intermittentJobTypeNames.add(jobKey);
       }
     } else if (
       // here if we have at least 1 green -cf job, we can mark the failures as intermittent
       jobCountByConfirmName[job.job_type_name] > 0
     ) {
-      intermittentJobTypeNames.add(job.job_type_name);
+      intermittentJobTypeNames.add(jobKey);
     }
   }
 
@@ -150,7 +156,7 @@ export default function JobsAndGroups({
       return false;
     }
 
-    return intermittentJobTypeNames.has(job.job_type_name);
+    return intermittentJobTypeNames.has(getComparableJobKey(job));
   };
 
   return (
