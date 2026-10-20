@@ -1371,7 +1371,12 @@ class PerfCompareResults(generics.ListAPIView):
             number_of_data_points,
         )
         new_perf_data = self._get_perf_data(
-            new_repo_name, new_rev, new_signatures, interval, None, None, number_of_data_points
+            new_repo_name,
+            new_rev, new_signatures, 
+            interval, 
+            None, 
+            None, 
+            number_of_data_points
         )
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
