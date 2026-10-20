@@ -1,5 +1,5 @@
 import environ
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from treeherder.services.pulse import JointConsumer, prepare_joint_consumers
 
@@ -17,6 +17,17 @@ class Command(BaseCommand):
     help = "Read tasks and pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
+        if env.bool("SKIP_INGESTION", default=False):
+            self.stdout.write("Skipping ingestion of Pulse Pushes and Tasks")
+            return
+
+        pulse_url = env("PULSE_URL", default="")
+        if not pulse_url and not env("PULSE_SOURCES", default=""):
+            raise CommandError(
+                "PULSE_URL is not set. Pulse ingestion needs a Pulse Guardian user; "
+                "see docs/pulseload.md. Set SKIP_INGESTION=True to run without it."
+            )
+
         # Specifies the Pulse services from which Treeherder will ingest push
         # information.  Sources can include properties `hgmo`, `github`, or both, to
         # listen to events from those sources.  The value is a JSON array of the form
@@ -29,14 +40,14 @@ class Command(BaseCommand):
                     "vhost": "/",
                     "github": True,
                     "hgmo": True,
-                    "pulse_url": env("PULSE_URL"),
+                    "pulse_url": pulse_url,
                     "tasks": True,
                 },
                 {
                     "root_url": "https://community-tc.services.mozilla.com",
                     "vhost": "communitytc",
                     "mozci-classification": True,
-                    "pulse_url": env("PULSE_URL"),
+                    "pulse_url": pulse_url,
                 },
             ],
         )
