@@ -258,6 +258,9 @@ def _load_job(repository, job_datum, push_id):
                 job=job,
                 task_id=job_datum["taskcluster_task_id"],
                 retry_id=job_datum["taskcluster_retry_id"],
+                manifest_hash=job_datum.get("taskcluster_manifest_hash"),
+                manifest_count=job_datum.get("taskcluster_manifest_count"),
+                chunk_total=job_datum.get("taskcluster_chunk_total"),
             )
         except IntegrityError:
             pass

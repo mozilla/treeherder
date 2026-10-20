@@ -777,6 +777,15 @@ class TaskclusterMetadata(models.Model):
     task_id = models.CharField(max_length=22, validators=[MinLengthValidator(22)], db_index=True)
     retry_id = models.PositiveIntegerField()
 
+    # Fingerprint of the test manifests the task was given (MOZHARNESS_TEST_PATHS).
+    # Tasks with the same label can run different manifests (e.g. bugbug-reduced
+    # pushes, backfills), so two jobs are only comparable if these hashes match.
+    # Plain (not Positive*) integers: a CHECK constraint would make adding these
+    # columns scan the whole table under an exclusive lock.
+    manifest_hash = models.CharField(max_length=16, null=True, blank=True)
+    manifest_count = models.IntegerField(null=True, blank=True)
+    chunk_total = models.SmallIntegerField(null=True, blank=True)
+
     class Meta:
         db_table = "taskcluster_metadata"
 
