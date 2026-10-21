@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -97,7 +97,24 @@ const SummaryItem = ({
               NEW
             </Button>
           )}
-          <span className="align-middle">{line} </span>
+          <span className="align-middle">
+            {suggestion.stack ? (
+              // The stack of the record behind the line, on hover.
+              <OverlayTrigger
+                placement="top"
+                delay={{ show: 250, hide: 100 }}
+                overlay={
+                  <Tooltip className="summary-stack-tooltip">
+                    {suggestion.stack}
+                  </Tooltip>
+                }
+              >
+                <span className="summary-stack-trigger">{line}</span>
+              </OverlayTrigger>
+            ) : (
+              line
+            )}{' '}
+          </span>
           <Clipboard
             description=" text of error line"
             text={suggestion.search}
