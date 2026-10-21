@@ -152,6 +152,123 @@ describe('SummaryTab log viewer links', () => {
   });
 });
 
+describe('SummaryTab stacks', () => {
+  const stack =
+    'check@dom/tests/test_fail.html:12:5\nrun@dom/tests/test_fail.html:40:3\n';
+  const failingJsonl = (end = {}) =>
+    [
+      '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html"}',
+      JSON.stringify({
+        action: 'test_end',
+        time: 10,
+        group: 'dom/manifest.ini',
+        test: 'dom/tests/test_fail.html',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'assertion failed',
+        ...end,
+      }),
+    ].join('\n');
+
+  afterEach(cleanup);
+
+  test('shows the stack of a line over it on hover', async () => {
+    renderSummaryTab([], failingJsonl({ stack }));
+
+    const line = screen.getByText(/assertion failed/);
+    expect(line).toHaveClass('summary-stack-trigger');
+    expect(screen.queryByRole('tooltip')).toBeNull();
+
+    fireEvent.mouseOver(line);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toHaveTextContent('check@dom/tests/test_fail.html:12:5');
+    expect(tooltip).toHaveTextContent('run@dom/tests/test_fail.html:40:3');
+  });
+
+  test('leaves a line without a stack as it was', () => {
+    const { container } = renderSummaryTab([], failingJsonl());
+
+    expect(screen.getByText(/assertion failed/)).toBeInTheDocument();
+    expect(container.querySelector('.summary-stack-trigger')).toBeNull();
+  });
+});
+
+describe('SummaryTab worker lines', () => {
+  // What the worker writes once a task outlives its max run time: after it
+  // killed the harness, so the artifact cannot have it.
+  const abortSuggestion = () => ({
+    search: '[taskcluster:error] Aborting task...',
+    path_end: null,
+    line_number: 17752,
+    bugs: {
+      open_recent: [
+        {
+          id: 2073425,
+          summary: 'High freq Talos [taskcluster:error] Aborting task...',
+          resolution: '',
+        },
+      ],
+      all_others: [],
+    },
+  });
+
+  const passingJsonl = [
+    '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html"}',
+    '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html","status":"PASS"}',
+  ].join('\n');
+
+  afterEach(cleanup);
+
+  test('lists them after the failures, linked to their log line', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([matchingSuggestion(), abortSuggestion()]),
+    );
+
+    // Shown once: in the summary, the classic section being folded.
+    expect(screen.getAllByText(/Aborting task/)).toHaveLength(1);
+    expect(screen.getByText(/High freq Talos/)).toBeInTheDocument();
+    const urls = screen
+      .getAllByTitle('Go to this line in the log viewer')
+      .map(
+        (img) =>
+          new URL(
+            img.closest('a').getAttribute('href'),
+            'https://treeherder.test',
+          ),
+      );
+    expect(urls).toHaveLength(2);
+    expect(urls[1].searchParams.get('lineNumber')).toBe('17753');
+    expect(urls[1].searchParams.get('lineText')).toBeNull();
+
+    expandClassic();
+    expect(screen.queryByText(/differs from the summary above/)).toBeNull();
+  });
+
+  test('lists them when every test passed', () => {
+    renderSummaryTab(prepareBugSuggestions([abortSuggestion()]), passingJsonl);
+
+    expect(screen.queryByText('No failures found in the summary.')).toBeNull();
+    expect(screen.getAllByText(/Aborting task/)).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('adds nothing for a job with no summary artifact', () => {
+    renderWith({
+      summary: null,
+      summaryError: null,
+      bugSuggestions: prepareBugSuggestions([abortSuggestion()]),
+    });
+
+    expect(
+      screen.getByText('No summary artifact for this job.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
+    expect(screen.getAllByText(/Aborting task/)).toHaveLength(1);
+  });
+});
+
 describe('SummaryTab loading and error states', () => {
   afterEach(cleanup);
 
@@ -339,6 +456,67 @@ describe('SummaryTab new failure lines in the summary', () => {
     cleanup();
 
     renderSummaryTab(neverSeen(), summaryJsonl, { name: 'try' });
+    expect(screen.getByText('NEW')).toBeInTheDocument();
+  });
+});
+
+describe('SummaryTab bug suggestions for its own lines', () => {
+  afterEach(cleanup);
+
+  // What /line_bug_suggestions/ returned for the artifact's line, when the
+  // log was too big to parse and /bug_suggestions/ returned nothing.
+  const lineBugSuggestions = (overrides = {}) =>
+    new Map([
+      [
+        matchingSuggestion().search,
+        {
+          ...matchingSuggestion(),
+          bugs: {
+            open_recent: [
+              {
+                id: 1234,
+                internal_id: 5,
+                summary:
+                  'Intermittent dom/tests/test_fail.html | assertion failed',
+                resolution: '',
+              },
+            ],
+            all_others: [],
+          },
+          line_number: null,
+          counter: 3,
+          failure_new_in_rev: false,
+          ...overrides,
+        },
+      ],
+    ]);
+
+  test('lists the bugs found for a line the log parser never saw', () => {
+    renderWith({
+      summary: buildTestSummary(summaryJsonl),
+      logParseStatus: 'skipped-size',
+      jobLogUrls: [
+        { id: 1, name: 'live_backing_log', parse_status: 'skipped-size' },
+      ],
+      lineBugSuggestions: lineBugSuggestions(),
+    });
+
+    expect(
+      screen.getByText(
+        'Log parsing was skipped since the log exceeds the size limit.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('bug-list-item')).toHaveTextContent('1234');
+    expect(screen.queryByText('NEW')).toBeNull();
+  });
+
+  test('flags a never-seen line on try', () => {
+    renderWith({
+      summary: buildTestSummary(summaryJsonl),
+      currentRepo: { name: 'try' },
+      lineBugSuggestions: lineBugSuggestions({ counter: 0 }),
+    });
+
     expect(screen.getByText('NEW')).toBeInTheDocument();
   });
 });
