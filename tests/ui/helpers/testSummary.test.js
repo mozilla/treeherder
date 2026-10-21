@@ -12,6 +12,7 @@ import {
   linesWithoutClassicMatch,
   withLineBugSuggestions,
   MAX_LINE_BUG_SUGGESTIONS,
+  MAX_STACK_LINES,
   NO_GROUP,
   INCOMPLETE_STATUS,
   HARNESS_STATUS,
@@ -1159,42 +1160,72 @@ describe('the stack of a harness failure (log records)', () => {
   const harnessEntries = (summary) =>
     summary.groups.find(g => g.name === group).tests.filter(t => t.harness);
 
-  test('files each line of the stack after the message', () => {
+  test('shows the stack over the message, not as lines of its own', () => {
     const summary = buildTestSummary(summaryLines);
     const entries = harnessEntries(summary);
 
     expect(entries).toHaveLength(1);
     expect(entries[0].name).toBe(message);
     expect(entries[0].results[0].message).toBe(message);
-    expect(entries[0].results[0].messages).toEqual([message, ...frames]);
+    expect(entries[0].results[0].messages).toEqual([message]);
     expect(summary.realFailCounts).toEqual({ ERROR: 1 });
 
     const suggestions = buildFailureSuggestions(summary);
-    expect(suggestions.map(s => s.search)).toEqual([message, ...frames]);
-    expect(suggestions.map(s => s.primary)).toEqual([
-      true,
-      ...frames.map(() => false),
-    ]);
+    expect(suggestions).toHaveLength(1);
+    expect(suggestions[0].search).toBe(message);
+    // Without the empty line of the stack's trailing newline.
+    expect(suggestions[0].stack).toBe(frames.join('\n'));
     expect(suggestions[0].logTarget).toEqual({
       texts: [message],
       time: 1791156063780,
     });
-    // A generic frame is found elsewhere in the log: each one is looked
-    // for under the message.
-    expect(suggestions[2].logTarget).toEqual({
-      texts: [frames[1]],
-      time: 1791156063780,
-      after: [message],
-    });
   });
 
-  test('keeps only the message when the stack is not a string', () => {
+  test('shows the stack over the first line of a multi-line message', () => {
     const summary = buildTestSummary([
       summaryLines[0],
-      logRecord([{ function: 'run_test' }]),
+      { ...logRecord(frames.join('\n')), message: `${message}\nsecond line` },
     ]);
+    const suggestions = buildFailureSuggestions(summary);
 
-    expect(harnessEntries(summary)[0].results[0].messages).toEqual([message]);
+    expect(suggestions.map(s => s.search)).toEqual([message, 'second line']);
+    expect(suggestions.map(s => s.stack)).toEqual([
+      frames.join('\n'),
+      undefined,
+    ]);
+  });
+
+  test('keeps the indentation of a Python traceback', () => {
+    // mozlog joins the lines of traceback.format_exception(), which already
+    // end with a newline, with another one.
+    const traceback = [
+      'Traceback (most recent call last):\n',
+      '  File "runtests.py", line 12, in run\n    self.start()\n',
+      'RuntimeError: boom\n',
+    ].join('\n');
+    const [suggestion] = buildFailureSuggestions(
+      buildTestSummary([summaryLines[0], logRecord(traceback)]),
+    );
+
+    expect(suggestion.stack).toBe(
+      [
+        'Traceback (most recent call last):',
+        '  File "runtests.py", line 12, in run',
+        '    self.start()',
+        'RuntimeError: boom',
+      ].join('\n'),
+    );
+  });
+
+  test('shows no stack for a value that is not one', () => {
+    [{ function: 'run_test' }, 42, '', '\n'].forEach(stack => {
+      const [suggestion] = buildFailureSuggestions(
+        buildTestSummary([summaryLines[0], logRecord(stack)]),
+      );
+
+      expect(suggestion.search).toBe(message);
+      expect(suggestion.stack).toBeUndefined();
+    });
   });
 
   test('drops the console lines repeating the stack', () => {
@@ -1231,6 +1262,157 @@ describe('the stack of a harness failure (log records)', () => {
 
     expect(divergence(`${frames.join('\n')}\n`).diverged).toBe(false);
     expect(divergence(undefined).onlyInClassic).toEqual(frames);
+  });
+});
+
+describe('the stack shown over a failure line', () => {
+  const testPath = 'dom/tests/test_fail.html';
+  const stackOf = name => `${name}@${testPath}:10:3\n@${testPath}:20:1\n`;
+  const shownStackOf = name => `${name}@${testPath}:10:3\n@${testPath}:20:1`;
+  const subtestStatus = (time, subtest, stack) => ({
+    action: 'test_status',
+    time,
+    test: testPath,
+    subtest,
+    status: 'FAIL',
+    expected: 'PASS',
+    message: 'false == true',
+    stack,
+  });
+  const testRun = statuses => [
+    { action: 'test_start', time: 1, group: 'g', test: testPath },
+    ...statuses,
+    {
+      action: 'test_end',
+      time: 9,
+      group: 'g',
+      test: testPath,
+      status: 'FAIL',
+      expected: 'PASS',
+      message: 'Test failed',
+      stack: stackOf('end'),
+    },
+  ];
+  const suggestionsOf = summaryLines =>
+    buildFailureSuggestions(buildTestSummary(summaryLines));
+  const stacksOf = summaryLines =>
+    suggestionsOf(summaryLines).map(s => s.stack);
+
+  test('gives each failure of a test the stack of its own record', () => {
+    const stacks = stacksOf(
+      testRun([
+        subtestStatus(2, 'first', stackOf('first')),
+        subtestStatus(3, 'second', undefined),
+        subtestStatus(4, 'third', stackOf('third')),
+      ]),
+    );
+
+    expect(stacks).toEqual([
+      shownStackOf('first'),
+      undefined,
+      shownStackOf('third'),
+      shownStackOf('end'),
+    ]);
+  });
+
+  test('keeps the stack of the first of two identical failures', () => {
+    const stacks = stacksOf(
+      testRun([
+        subtestStatus(2, 'same', stackOf('first')),
+        subtestStatus(3, 'same', stackOf('second')),
+      ]),
+    );
+
+    expect(stacks).toEqual([shownStackOf('first'), shownStackOf('end')]);
+  });
+
+  test('gives a failure replayed after its test ended its stack', () => {
+    const [testStart, testEnd] = testRun([]);
+    const stacks = stacksOf([
+      testStart,
+      testEnd,
+      subtestStatus(5, 'replayed', stackOf('replayed')),
+    ]);
+
+    expect(stacks).toEqual([shownStackOf('replayed')]);
+  });
+
+  test('never counts the stack of a test as a divergence', () => {
+    // The TBPL formatter prints it at INFO level: the classic Failure Summary
+    // only has the TEST-UNEXPECTED line.
+    const suggestions = suggestionsOf(
+      testRun([subtestStatus(2, 'first', stackOf('first'))]),
+    );
+    const classic = suggestions.map(s => ({
+      search: s.search,
+      path_end: testPath,
+      bugs: { open_recent: [], all_others: [] },
+    }));
+
+    expect(suggestions[0].classicStackLines).toBeUndefined();
+    expect(computeSummaryDivergence(suggestions, classic).diverged).toBe(false);
+  });
+
+  test('lists the frames of a sanitizer report, one per line', () => {
+    const file =
+      '/builds/worker/checkouts/gecko/third_party/llama.cpp/ggml/src/ggml-c.c';
+    const [ubsan, lsan] = suggestionsOf([
+      { action: 'group_start', time: 1, name: 'g' },
+      {
+        action: 'ubsan_error',
+        time: 2,
+        kind: 'undefined-behavior',
+        message: 'applying non-zero offset 96 to null pointer',
+        file,
+        lineno: 7106,
+        column: 33,
+        stack: [
+          { function: 'incr_ptr_aligned', file, line: 7106, column: 33 },
+          { function: 'ggml_compute_forward', file, line: 12 },
+          { module: 'libxul.so', module_offset: '0x1a2b' },
+        ],
+        scope: 'g',
+      },
+      {
+        action: 'lsan_leak',
+        time: 3,
+        frames: ['Ensure', 'GetRootHandle'],
+        kind: 'Direct',
+        bytes: 168,
+        objects: 1,
+        stack: [
+          { function: 'Ensure', file: 'MozPromise.h', line: 1550 },
+          { function: 'GetRootHandle', module: 'libxul.so', offset: '0x42' },
+        ],
+        scope: 'g',
+      },
+    ]);
+
+    expect(ubsan.stack).toBe(
+      [
+        'incr_ptr_aligned third_party/llama.cpp/ggml/src/ggml-c.c:7106:33',
+        'ggml_compute_forward third_party/llama.cpp/ggml/src/ggml-c.c:12',
+        'libxul.so+0x1a2b',
+      ].join('\n'),
+    );
+    expect(lsan.stack).toBe(
+      ['Ensure MozPromise.h:1550', 'GetRootHandle libxul.so+0x42'].join('\n'),
+    );
+  });
+
+  test('cuts a stack longer than its tooltip can show', () => {
+    const frames = Array.from(
+      { length: MAX_STACK_LINES + 5 },
+      (_, index) => `frame${index}@${testPath}:${index}:1`,
+    );
+    const [stack] = stacksOf(
+      testRun([subtestStatus(2, 'deep', frames.join('\n'))]),
+    );
+
+    expect(stack.split('\n')).toEqual([
+      ...frames.slice(0, MAX_STACK_LINES),
+      '… 5 more lines',
+    ]);
   });
 });
 

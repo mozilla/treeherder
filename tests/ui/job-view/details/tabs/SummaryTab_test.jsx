@@ -152,6 +152,47 @@ describe('SummaryTab log viewer links', () => {
   });
 });
 
+describe('SummaryTab stacks', () => {
+  const stack =
+    'check@dom/tests/test_fail.html:12:5\nrun@dom/tests/test_fail.html:40:3\n';
+  const failingJsonl = (end = {}) =>
+    [
+      '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html"}',
+      JSON.stringify({
+        action: 'test_end',
+        time: 10,
+        group: 'dom/manifest.ini',
+        test: 'dom/tests/test_fail.html',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'assertion failed',
+        ...end,
+      }),
+    ].join('\n');
+
+  afterEach(cleanup);
+
+  test('shows the stack of a line over it on hover', async () => {
+    renderSummaryTab([], failingJsonl({ stack }));
+
+    const line = screen.getByText(/assertion failed/);
+    expect(line).toHaveClass('summary-stack-trigger');
+    expect(screen.queryByRole('tooltip')).toBeNull();
+
+    fireEvent.mouseOver(line);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toHaveTextContent('check@dom/tests/test_fail.html:12:5');
+    expect(tooltip).toHaveTextContent('run@dom/tests/test_fail.html:40:3');
+  });
+
+  test('leaves a line without a stack as it was', () => {
+    const { container } = renderSummaryTab([], failingJsonl());
+
+    expect(screen.getByText(/assertion failed/)).toBeInTheDocument();
+    expect(container.querySelector('.summary-stack-trigger')).toBeNull();
+  });
+});
+
 describe('SummaryTab worker lines', () => {
   // What the worker writes once a task outlives its max run time: after it
   // killed the harness, so the artifact cannot have it.
