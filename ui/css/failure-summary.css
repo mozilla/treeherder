@@ -36,6 +36,27 @@
   background: #ffffff;
 }
 
+/* A summary line whose record carries a stack, shown over it on hover */
+.summary-stack-trigger {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  cursor: help;
+}
+
+.summary-stack-tooltip {
+  /* Override Bootstrap 5's default 200px tooltip max-width */
+  --bs-tooltip-max-width: min(800px, 90vw);
+  /* The size of the summary lines, so a long stack stays on screen */
+  --bs-tooltip-font-size: 11px;
+}
+
+.summary-stack-tooltip .tooltip-inner {
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: monospace;
+}
+
 .failure-summary-bugs-container {
   /* These styles don't use the bootstrap system as they are creating a vertical
    * line underneath the bug icon. When only using bootstrap classes, this vertical line
