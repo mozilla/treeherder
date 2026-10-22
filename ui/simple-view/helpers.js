@@ -2,9 +2,7 @@ import { getData } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';
 import { createQueryParams, pushEndpoint } from '../helpers/url';
 import { thPlatformMap } from '../helpers/constants';
-import PushModel from '../models/push';
 
-import { rememberHealth, rememberSummary, shared } from './cache';
 import {
   ETA,
   NOT_RESULTS,
@@ -59,27 +57,6 @@ export const orNull = (load) =>
       return null;
     }
   };
-
-export const fetchSummary = orNull(async (repo, revision) => {
-  const { data, failureStatus } = await PushModel.getHealthSummary(
-    repo,
-    revision,
-  );
-  const summary = failureStatus || !Array.isArray(data) ? null : data[0];
-  if (summary) rememberSummary(repo, revision, summary);
-  return summary;
-});
-
-export const fetchHealth = (repo, revision) =>
-  shared(
-    `health:${repo}:${revision}`,
-    orNull(async () => {
-      const { data, failureStatus } = await PushModel.getHealth(repo, revision);
-      if (failureStatus) return null;
-      rememberHealth(repo, revision, data);
-      return data;
-    }),
-  );
 
 // A try push's tip commit comes from `mach try`. Given `-m`, its first line
 // is the human message; otherwise it's try syntax and the author's words are
@@ -150,17 +127,30 @@ export const testFromErrorLine = (line = '') => {
   return null;
 };
 
-export const fetchFirstFailingTest = orNull(async (repo, jobId) => {
+const readFirstFailingTest = async (repo, jobId) => {
   const { data, failureStatus } = await getData(
     getProjectUrl(`/jobs/${jobId}/text_log_errors/`, repo),
   );
-  if (failureStatus || !Array.isArray(data)) return null;
+  if (failureStatus || !Array.isArray(data)) throw new Error(failureStatus);
   for (const error of data) {
     const test = testFromErrorLine(error.line);
     if (test) return test;
   }
   return null;
-});
+};
+
+// A finished job's errors never change, so each job is asked once, whichever
+// section asks first. Failed requests are forgotten so a later ask retries.
+const firstTests = new Map();
+export const fetchFirstFailingTest = (repo, jobId) => {
+  const key = `${repo}:${jobId}`;
+  if (!firstTests.has(key)) {
+    const request = readFirstFailingTest(repo, jobId);
+    firstTests.set(key, request);
+    request.catch(() => firstTests.delete(key));
+  }
+  return firstTests.get(key).catch(() => null);
+};
 
 export const progressOf = (status) => {
   if (!status) return null;
@@ -209,31 +199,6 @@ export const splitTestPath = (testName) => {
   const i = testName.lastIndexOf('/');
   if (i < 0 || testName.includes('://')) return { dir: '', file: testName };
   return { dir: testName.slice(0, i + 1), file: testName.slice(i + 1) };
-};
-
-// Push Health lists one entry per test per platform and config; fold those
-// back into one row per test.
-export const groupByTest = (failures) => {
-  const groups = new Map();
-  for (const f of failures) {
-    const g = groups.get(f.testName) || {
-      testName: f.testName,
-      jobIds: new Set(),
-      totalJobs: 0,
-      platforms: new Set(),
-      configs: new Set(),
-      failedInParent: true,
-      entries: [],
-    };
-    for (const id of f.failedInJobs) g.jobIds.add(id);
-    g.totalJobs += f.totalJobs;
-    g.platforms.add(platformName(f.platform));
-    g.configs.add(f.config);
-    g.failedInParent = g.failedInParent && f.failedInParent;
-    g.entries.push(f);
-    groups.set(f.testName, g);
-  }
-  return [...groups.values()].sort((a, b) => b.jobIds.size - a.jobIds.size);
 };
 
 // Failed test jobs that still need a rerun to say whether they're flaky, as

@@ -1,22 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { cachedHealth, cachedPush, cachedSummary, rememberPush } from './cache';
+import { cachedJobs, cachedPush, cachedSummary, rememberPush } from './cache';
 import { POLL_MS, PUSH } from './constants';
-import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
-import {
-  describeEta,
-  fetchHealth,
-  fetchPush,
-  progressOf,
-  statusFromJobs,
-} from './helpers';
+import { estimatePush, loadDurationTable } from './eta';
+import { describeEta, fetchPush, progressOf, statusFromJobs } from './helpers';
 import { usePoll } from './hooks';
+import { loadPushJobs } from './jobs';
 
 const usePushData = (repo, revision) => {
   const [push, setPush] = useState(() => cachedPush(repo, revision));
-  const [health, setHealth] = useState(() => cachedHealth(repo, revision));
   // The list already knows this push's counts, so the ring can draw before the
-  // health report arrives.
+  // job list arrives.
   const summary = cachedSummary(repo, revision);
   const [error, setError] = useState(null);
 
@@ -35,32 +29,23 @@ const usePushData = (repo, revision) => {
     );
   }, [repo, revision]);
 
-  const loadHealth = useCallback(async () => {
-    const h = await fetchHealth(repo, revision);
-    if (h) setHealth(h);
-  }, [repo, revision]);
-
-  useEffect(() => {
-    setHealth(cachedHealth(repo, revision));
-    loadHealth();
-  }, [loadHealth, repo, revision]);
-
-  // The push's own job list: exact counts, the ETA's input, and the failures
-  // Push Health leaves out.
+  // The push's own job list: the counts, the failures and the ETA's input.
+  // Usually already loaded by the list's row.
+  const pushId = push?.id;
   const [jobs, setJobs] = useState(null);
   const loadJobs = useCallback(async () => {
-    if (!push) return;
-    const list = await fetchPushJobs(repo, push.id);
+    if (!pushId) return;
+    const list = await loadPushJobs(repo, pushId, revision);
     if (list) setJobs(list);
-  }, [repo, push]);
+  }, [repo, pushId, revision]);
 
   useEffect(() => {
-    setJobs(null);
+    setJobs(pushId ? cachedJobs(repo, pushId) : null);
     loadJobs();
-  }, [loadJobs]);
+  }, [loadJobs, repo, pushId]);
 
-  const counts = jobs ? statusFromJobs(jobs) : health?.status || summary?.status;
-  const progress = health && counts && progressOf(counts);
+  const counts = jobs ? statusFromJobs(jobs) : summary?.status;
+  const progress = counts && progressOf(counts);
   const running = !!progress?.running;
 
   const [table, setTable] = useState(null);
@@ -72,20 +57,12 @@ const usePushData = (repo, revision) => {
       ? estimatePush(jobs, table, { pushedAt: push.push_timestamp * 1000 })
       : null;
 
-  usePoll(
-    () => {
-      loadHealth();
-      loadJobs();
-    },
-    POLL_MS.push,
-    !health || running,
-  );
+  usePoll(loadJobs, POLL_MS.push, !jobs || running);
   const eta = running
     ? describeEta(etaModel, { started: progress.done > 0 })
     : null;
 
-
-  return { push, health, jobs, error, counts, progress, eta };
+  return { push, jobs, error, counts, progress, eta };
 };
 
 export default usePushData;

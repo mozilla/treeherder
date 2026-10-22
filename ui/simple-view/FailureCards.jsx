@@ -1,119 +1,18 @@
 import { useEffect, useState } from 'react';
 
-import { PUSH } from './constants';
+import { NEW_FAILURE_ID, PUSH } from './constants';
 import {
   fetchFirstFailingTest,
   jobShortName,
   platformName,
-  resultWord,
   splitTestPath,
 } from './helpers';
 import { queued } from './hooks';
 import { JobFailures } from './JobSummary';
 
-// Failed runs out of all runs: solid red is a real break, a scatter is flaky.
-const RunBar = ({ failed, total }) => {
-  const cells = Math.min(total, 20);
-  const red = Math.round((failed / total) * cells);
-  return (
-    <span className="sv-runbar" aria-hidden="true">
-      {Array.from({ length: cells }, (_, i) => (
-        <span key={i} className={i < red ? 'sv-runbar-bad' : undefined} />
-      ))}
-    </span>
-  );
-};
-
 const Chevron = ({ open }) => (
   <span className={`sv-chevron${open ? ' sv-chevron-open' : ''}`} aria-hidden="true" />
 );
-
-const RunRow = ({ run, repo, revision, under }) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <li>
-      <button
-        type="button"
-        className="sv-run"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-      >
-        <span>
-          {run.platform} {run.config}
-          {run.symbol && <span className="sv-muted"> · {run.symbol}</span>}
-        </span>
-        <Chevron open={open} />
-      </button>
-      {open && (
-        <JobFailures
-          inline
-          repo={repo}
-          revision={revision}
-          jobId={run.id}
-          under={under}
-        />
-      )}
-    </li>
-  );
-};
-
-export const TestCard = ({ group, jobs, repo, revision }) => {
-  const [open, setOpen] = useState(false);
-  const { dir, file } = splitTestPath(group.testName);
-  const failed = group.jobIds.size;
-  const runs = group.entries.flatMap((e) =>
-    e.failedInJobs.map((id) => ({
-      id,
-      symbol: (jobs[e.jobName] || []).find((j) => j.id === id)?.job_type_symbol,
-      config: e.config,
-      platform: platformName(e.platform),
-    })),
-  );
-
-  return (
-    <li className={`sv-card${open ? ' sv-card-open' : ''}`}>
-      <button
-        type="button"
-        className="sv-card-head"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-      >
-        <span className="sv-test-file">{file}</span>
-        {dir && <span className="sv-test-dir">{dir}</span>}
-        <RunBar failed={failed} total={group.totalJobs} />
-        <span className="sv-card-meta">
-          {!group.failedInParent && <span className="sv-tag">{PUSH.newTag}</span>}
-          {PUSH.failedRuns(failed, group.totalJobs)} ·{' '}
-          {[...group.platforms].join(', ')} · {[...group.configs].join(', ')}
-          <Chevron open={open} />
-        </span>
-      </button>
-      {/* One failed run: its summary is the answer. Several: pick one. */}
-      {open && runs.length === 1 && (
-        <JobFailures
-          inline
-          repo={repo}
-          revision={revision}
-          jobId={runs[0].id}
-          under={group.testName}
-        />
-      )}
-      {open && runs.length > 1 && (
-        <ul className="sv-runs">
-          {runs.map((run) => (
-            <RunRow
-              key={run.id}
-              run={run}
-              repo={repo}
-              revision={revision}
-              under={group.testName}
-            />
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-};
 
 const JobTile = ({ jobId, repo, revision, under, children }) => {
   const [open, setOpen] = useState(false);
@@ -140,24 +39,9 @@ const JobTile = ({ jobId, repo, revision, under, children }) => {
   );
 };
 
-export const JobCard = ({ job, repo, revision }) => (
-  <JobTile jobId={job.id} repo={repo} revision={revision}>
-    {(open) => (
-      <>
-        <span className="sv-test-file">{jobShortName(job.job_type_name)}</span>
-        <span className="sv-card-meta">
-          {job.platform === 'lint' ? '' : `${platformName(job.platform)} · `}
-          {resultWord(job.result)}
-          <Chevron open={open} />
-        </span>
-      </>
-    )}
-  </JobTile>
-);
-
-// Failures Treeherder had seen before, named by their first failing test and
-// grouped, so five red jobs read as the tests they are.
-export const SeenBefore = ({ jobs, repo, revision }) => {
+// Failed jobs named by their first failing test and grouped, so five red jobs
+// read as the tests they are.
+export const FailureList = ({ jobs, repo, revision }) => {
   const [tests, setTests] = useState({});
   const ids = jobs.map((j) => j.id).join(',');
 
@@ -203,6 +87,9 @@ export const SeenBefore = ({ jobs, repo, revision }) => {
             </span>
             {dir && <span className="sv-test-dir">{dir}</span>}
             <span className="sv-card-meta">
+              {runs.some((j) => j.classification === NEW_FAILURE_ID) && (
+                <span className="sv-tag">{PUSH.newTag}</span>
+              )}
               {runs.length > 1 && PUSH.jobCount(runs.length)}
               {where} · {runs.map((j) => j.symbol).join(', ')}
               <Chevron open={open} />
@@ -213,26 +100,6 @@ export const SeenBefore = ({ jobs, repo, revision }) => {
     );
   });
 };
-
-export const LintCard = ({ jobs, repo, revision }) => (
-  <li className="sv-card">
-    <ul>
-      {jobs.map((job) => (
-        <RunRow
-          key={job.id}
-          run={{
-            id: job.id,
-            platform: jobShortName(job.job_type_name),
-            config: '',
-            symbol: resultWord(job.result),
-          }}
-          repo={repo}
-          revision={revision}
-        />
-      ))}
-    </ul>
-  </li>
-);
 
 export const Section = ({ title, count, children, quiet }) =>
   count ? (

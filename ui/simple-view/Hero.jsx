@@ -40,7 +40,6 @@ const Legend = ({ status }) => (
 const Hero = ({
   said,
   counts,
-  health,
   progress,
   eta,
   error,
@@ -61,7 +60,7 @@ const Hero = ({
           loading={!counts}
           size="min(240px, 64vw)"
         >
-          {health && <RingCenter progress={progress} />}
+          {progress && <RingCenter progress={progress} />}
         </Ring>
       )}
       {said ? (

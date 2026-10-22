@@ -2,13 +2,7 @@ import { useEffect } from 'react';
 
 import { personName, rememberPerson } from './cache';
 import { LIST, PUSH, SHORT_REVISION_LENGTH } from './constants';
-import {
-  JobCard,
-  LintCard,
-  Section,
-  SeenBefore,
-  TestCard,
-} from './FailureCards';
+import { FailureList, Section } from './FailureCards';
 import {
   ago,
   authorName,
@@ -23,19 +17,12 @@ import usePushData from './usePushData';
 import { sortFailures, verdict } from './verdict';
 
 const PushDetail = ({ repo, author, theme, revision }) => {
-  const { push, health, jobs, error, counts, progress, eta } = usePushData(
+  const { push, jobs, error, counts, progress, eta } = usePushData(
     repo,
     revision,
   );
-  const { yours, parentToo, known, builds, lint, seenBefore } = sortFailures(
-    health,
-    jobs,
-  );
-
-  const said =
-    health &&
-    progress &&
-    verdict({ yours, parentToo, builds, lint, progress, eta, seenBefore });
+  const { open, classified } = sortFailures(jobs);
+  const said = verdict({ jobs, progress, eta });
 
   const failedJobs = push ? retriggerableJobs(jobs || [], push.id) : [];
   // Only once the job list is in, so the note never flashes before the button.
@@ -81,7 +68,6 @@ const PushDetail = ({ repo, author, theme, revision }) => {
       <Hero
         said={said}
         counts={counts}
-        health={health}
         progress={progress}
         eta={eta}
         error={error}
@@ -91,33 +77,13 @@ const PushDetail = ({ repo, author, theme, revision }) => {
         testsFailed={testsFailed}
       />
 
-      {health && (
+      {jobs && (
         <div className="sv-rise">
-          <Section title={PUSH.sections.brokenHere} count={yours.length}>
-            {yours.map((g) => (
-              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
-            ))}
+          <Section title={PUSH.sections.failures} count={open.length}>
+            <FailureList jobs={open} repo={repo} revision={revision} />
           </Section>
-          <Section title={PUSH.sections.builds} count={builds.length}>
-            {builds.map((job) => (
-              <JobCard key={job.id} job={job} repo={repo} revision={revision} />
-            ))}
-          </Section>
-          <Section title={PUSH.sections.lint} count={lint.length}>
-            <LintCard jobs={lint} repo={repo} revision={revision} />
-          </Section>
-          <Section title={PUSH.sections.alsoOnParent} count={parentToo.length} quiet>
-            {parentToo.map((g) => (
-              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
-            ))}
-          </Section>
-          <Section title={PUSH.sections.seenBefore} count={seenBefore.length} quiet>
-            <SeenBefore jobs={seenBefore} repo={repo} revision={revision} />
-          </Section>
-          <Section title={PUSH.sections.knownIntermittents} count={known.length} quiet>
-            {known.map((g) => (
-              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
-            ))}
+          <Section title={PUSH.sections.classified} count={classified.length} quiet>
+            <FailureList jobs={classified} repo={repo} revision={revision} />
           </Section>
         </div>
       )}
