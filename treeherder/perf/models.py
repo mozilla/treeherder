@@ -1291,8 +1291,9 @@ class BackfillRecord(models.Model):
     def get_failed_backfill_jobs_counts(records) -> dict[int, int]:
         """
         Map each record's alert id to the number of jobs created by its backfills
-        (job_task_ids in backfill_logs) that ended up failing, or that never got
-        to run within 72 hours (e.g. their build failed). One query for all records.
+        (job_task_ids in backfill_logs) that ended up failing, that never got
+        to run within 72 hours (e.g. their build failed), or whose backfill
+        trigger failed before a job was created. One query for all records.
         """
         counts = {record.alert_id: 0 for record in records}
         alert_by_bk_task_id = {}
@@ -1306,7 +1307,11 @@ class BackfillRecord(models.Model):
         never_ran = Q(job__state="unscheduled", created__lt=django_now() - timedelta(hours=72))
         failed_bk_task_ids = (
             BackfilledPush.objects.filter(backfill_request__bk_task_id__in=alert_by_bk_task_id)
-            .filter(Q(job__result__in=["testfailed", "busted", "exception"]) | never_ran)
+            .filter(
+                Q(job__result__in=["testfailed", "busted", "exception"])
+                | never_ran
+                | Q(status=BackfilledPush.FAILED)
+            )
             .values_list("backfill_request__bk_task_id", flat=True)
         )
         for bk_task_id in failed_bk_task_ids:

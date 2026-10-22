@@ -105,7 +105,7 @@ def test_failed_jobs_count_follows_job_task_ids(test_perf_alert, test_jobs):
     )
     record.save()
 
-    def backfilled_push(bk_task_id, job, result, state="completed", age_hours=0):
+    def create_backfilled_push(bk_task_id, job, result, state="completed", age_hours=0):
         job.result = result
         job.state = state
         job.save()
@@ -120,16 +120,22 @@ def test_failed_jobs_count_follows_job_task_ids(test_perf_alert, test_jobs):
             created=timezone.now() - timedelta(hours=age_hours)
         )
 
-    backfilled_push("bk-task", test_jobs[0], "testfailed")
-    backfilled_push("bk-task", test_jobs[1], "busted")
-    backfilled_push("bk-task", test_jobs[2], "success")
+    create_backfilled_push("bk-task", test_jobs[0], "testfailed")
+    create_backfilled_push("bk-task", test_jobs[1], "busted")
+    create_backfilled_push("bk-task", test_jobs[2], "success")
     # never ran (e.g. its build failed): counted only once 72h have passed
-    backfilled_push("bk-task", test_jobs[3], "unknown", state="unscheduled", age_hours=73)
-    backfilled_push("bk-task", test_jobs[4], "unknown", state="unscheduled", age_hours=1)
+    create_backfilled_push("bk-task", test_jobs[3], "unknown", state="unscheduled", age_hours=73)
+    create_backfilled_push("bk-task", test_jobs[4], "unknown", state="unscheduled", age_hours=1)
     # failed, but belongs to a backfill not referenced by this record
-    backfilled_push("other-task", test_jobs[5], "testfailed")
+    create_backfilled_push("other-task", test_jobs[5], "testfailed")
+    # no job: counted when the trigger failed, not when the push was skipped
+    request = BackfillRequest.objects.filter(bk_task_id="bk-task").first()
+    for status in (BackfilledPush.FAILED, BackfilledPush.SKIPPED):
+        BackfilledPush.objects.create(
+            backfill_request=request, push=request.push, decision_task_id="d", status=status
+        )
 
-    assert BackfillRecordSerializer(record).data["failed_jobs_count"] == 3
+    assert BackfillRecordSerializer(record).data["failed_jobs_count"] == 4
 
 
 @pytest.mark.django_db
