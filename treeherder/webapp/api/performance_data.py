@@ -469,10 +469,23 @@ class AlertSummaryPagination(pagination.PageNumberPagination):
     page_size = 10
 
 
+def _has_regression_alert() -> Exists:
+    return Exists(
+        PerformanceAlert.objects.filter(
+            Q(summary_id=OuterRef("pk")) | Q(related_summary_id=OuterRef("pk")),
+            is_regression=True,
+        )
+    )
+
+
 class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     id = django_filters.NumberFilter(field_name="id")
     status = django_filters.NumberFilter(field_name="status")
     bug_resolution = django_filters.NumberFilter(field_name="bug_resolution")
+    change_type = django_filters.ChoiceFilter(
+        choices=[("regression", "Regression"), ("improvement", "Improvement")],
+        method="_change_type",
+    )
     framework = django_filters.NumberFilter(field_name="framework")
     repository = django_filters.NumberFilter(field_name="repository")
     alerts__series_signature = django_filters.NumberFilter(field_name="alerts__series_signature")
@@ -541,6 +554,11 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
         return queryset.annotate(total_regressions=Count("alerts__is_regression")).filter(
             alerts__is_regression=True, total_regressions__gte=1
         )
+
+    def _change_type(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: str
+    ) -> QuerySet[PerformanceAlertSummary]:
+        return queryset.filter(change_type=value)
 
     def _hide_related_and_invalid(
         self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: bool
@@ -612,6 +630,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             "id",
             "status",
             "bug_resolution",
+            "change_type",
             "framework",
             "repository",
             "alerts__series_signature",
@@ -677,6 +696,16 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
     ordering = ("-created", "-id")
     pagination_class = AlertSummaryPagination
+
+    def get_queryset(self) -> QuerySet[PerformanceAlertSummary]:
+        queryset = super().get_queryset()
+        return queryset.annotate(
+            change_type=Case(
+                When(_has_regression_alert(), then=Value("regression")),
+                default=Value("improvement"),
+                output_field=CharField(),
+            )
+        )
 
     def _build_duplicated_summaries_map(
         self, page: list[PerformanceAlertSummary]
@@ -835,7 +864,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         )
 
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        queryset = self.filter_queryset(self.queryset)
+        queryset = self.filter_queryset(self.get_queryset())
         pk = request.query_params.get("id")
         if not pk:
             if request.query_params.get("monitored_alerts"):

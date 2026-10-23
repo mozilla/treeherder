@@ -13,6 +13,7 @@ import {
 } from '../perf-helpers/helpers';
 import {
   bugResolutionMap,
+  changeTypeOptions,
   summaryStatusMap,
   endpoints,
   notSupportedAlertFiltersMessage,
@@ -101,11 +102,17 @@ function AlertsView({
     );
   };
 
+  const getDefaultChangeType = (params) =>
+    changeTypeOptions.includes(params.changeType)
+      ? params.changeType
+      : 'all types';
+
   const getFiltersFromParams = useCallback(
     (params, frameworkOptions = extendedOptions) => {
       return {
         status: getDefaultStatus(params),
         bugResolution: getDefaultBugResolution(params),
+        changeType: getDefaultChangeType(params),
         framework: getFrameworkData({
           validated: params,
           frameworks: frameworkOptions,
@@ -213,6 +220,7 @@ function AlertsView({
       const {
         status,
         bugResolution,
+        changeType,
         framework,
         filterText,
         hideDownstream,
@@ -241,6 +249,9 @@ function AlertsView({
         }
         if (bugResolution !== 'all bug resolutions') {
           params.bug_resolution = bugResolutionMap[bugResolution];
+        }
+        if (changeType !== 'all types') {
+          params.change_type = changeType;
         }
         if (hideDownstream) {
           params.hide_related_and_invalid = hideDownstream;
@@ -413,6 +424,7 @@ function AlertsView({
       params.id !== prevParams.id ||
       params.status !== prevParams.status ||
       params.bugResolution !== prevParams.bugResolution ||
+      params.changeType !== prevParams.changeType ||
       params.framework !== prevParams.framework ||
       params.filterText !== prevParams.filterText ||
       params.hideDwnToInv !== prevParams.hideDwnToInv ||
