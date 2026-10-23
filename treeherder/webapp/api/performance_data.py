@@ -48,6 +48,7 @@ from treeherder.model import models
 from treeherder.perf import stats
 from treeherder.perf.alerts import AlertProperties, get_alert_properties
 from treeherder.perf.models import (
+    BackfillRecord,
     IssueTracker,
     OptionCollection,
     PerfCompareMwuCache,
@@ -765,11 +766,27 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             )
         return result
 
+    def _build_failed_backfill_jobs_map(
+        self, page: list[PerformanceAlertSummary]
+    ) -> dict[int, int]:
+        """
+        Returns a dict mapping alert_id -> failed backfill jobs count for all alerts
+        on this page, replacing per-alert queries in the serializer.
+        """
+        records = []
+        for summary in page:
+            for alert in [*summary.alerts.all(), *summary.related_alerts.all()]:
+                record = getattr(alert, "backfill_record", None)
+                if record is not None:
+                    records.append(record)
+        return BackfillRecord.get_failed_backfill_jobs_counts(records)
+
     def get_serializer_context(self) -> dict[str, Any]:
         ctx = super().get_serializer_context()
         ctx["duplicated_summaries_map"] = None
         ctx["tc_metadata_map"] = None
         ctx["sxs_availability_map"] = None
+        ctx["failed_backfill_jobs_map"] = None
         return ctx
 
     @staticmethod
@@ -794,6 +811,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             context["duplicated_summaries_map"] = self._build_duplicated_summaries_map(page)
             context["tc_metadata_map"] = self._build_tc_metadata_map(page)
             context["sxs_availability_map"] = self._build_sxs_availability_map(page)
+            context["failed_backfill_jobs_map"] = self._build_failed_backfill_jobs_map(page)
             serializer = self.get_serializer(page, many=True, context=context)
             if pk:
                 for summary in serializer.data:

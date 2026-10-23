@@ -525,4 +525,24 @@ describe('detected push revision', () => {
       container.querySelector('[data-testid$="suggested-culprit"]'),
     ).toBeNull();
   });
+
+  test('renders the failed backfill jobs count', async () => {
+    const { getByText } = alertTableRowTest({
+      alert: alertWithBackfill({ failed_jobs_count: 3 }),
+      tags: false,
+    });
+
+    expect(await waitFor(() => getByText('Failed jobs: 3'))).toBeInTheDocument();
+  });
+
+  test('does not render the failed jobs count when nothing failed', async () => {
+    const alert = alertWithBackfill({ failed_jobs_count: 0 });
+    const { queryByTestId, getByTestId } = alertTableRowTest({
+      alert,
+      tags: false,
+    });
+
+    await waitFor(() => getByTestId(`alert ${alert.id} sherlock icon`));
+    expect(queryByTestId('failed-backfill-jobs')).toBeNull();
+  });
 });

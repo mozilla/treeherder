@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime, timedelta
 
@@ -7,6 +8,10 @@ from django.urls import reverse
 from tests.conftest import create_perf_alert
 from treeherder.model.models import Job, JobType, Push
 from treeherder.perf.models import (
+    BackfilledPush,
+    BackfillRecord,
+    BackfillReport,
+    BackfillRequest,
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceFramework,
@@ -1420,3 +1425,31 @@ def test_untriaged_regressions_include_reassignments(
     assert resp.status_code == 200
     result_ids = [summary["id"] for summary in resp.json()["results"]]
     assert test_perf_alert_summary.id in result_ids
+
+
+def test_failed_backfill_jobs_count_is_batched_per_page(
+    client, monkeypatch, test_perf_alert, test_jobs
+):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)
+    record.backfill_logs = json.dumps([{"iteration": 1, "job_task_ids": {"1": "bk-task"}}])
+    record.save()
+    job = test_jobs[0]
+    job.result = "testfailed"
+    job.save()
+    request = BackfillRequest.objects.create(
+        bk_task_id="bk-task", push=job.push, repository=job.repository
+    )
+    BackfilledPush.objects.create(
+        backfill_request=request, push=job.push, decision_task_id="d", job=job
+    )
+
+    def per_record_query(self):
+        raise AssertionError("failed jobs count should come from the page map")
+
+    monkeypatch.setattr(BackfillRecord, "get_failed_backfill_jobs_count", per_record_query)
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    alert = resp.json()["results"][0]["alerts"][0]
+    assert alert["backfill_record"]["failed_jobs_count"] == 1
