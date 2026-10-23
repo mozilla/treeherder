@@ -1,4 +1,3 @@
-# from treeherder.model.models import Push
 from treeherder.perf.stats import interpret_cles
 
 
