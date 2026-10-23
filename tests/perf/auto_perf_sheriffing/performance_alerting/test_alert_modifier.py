@@ -30,7 +30,7 @@ class TestResolutionModifier:
         assert summaries == {}
 
     @pytest.mark.parametrize(
-        "resolution, expected_bug_status",
+        "resolution, expected_bug_resolution",
         [
             ("FIXED", PerformanceAlertSummary.BUG_FIXED),
             ("INVALID", PerformanceAlertSummary.BUG_INVALID),
@@ -46,7 +46,7 @@ class TestResolutionModifier:
         self,
         mock_bug_searcher_class,
         resolution,
-        expected_bug_status,
+        expected_bug_resolution,
         resolution_modifier_class,
         test_perf_alert_summary_for_modifier,
     ):
@@ -63,8 +63,8 @@ class TestResolutionModifier:
         updates, summaries = resolution_modifier_class.update_alerts()
 
         assert (
-            updates[str(test_perf_alert_summary_for_modifier.id)]["bug_status"]
-            == expected_bug_status
+            updates[str(test_perf_alert_summary_for_modifier.id)]["bug_resolution"]
+            == expected_bug_resolution
         )
         assert str(test_perf_alert_summary_for_modifier.id) in summaries
 
@@ -93,10 +93,10 @@ class TestResolutionModifier:
         updates, summaries = resolution_modifier_class.update_alerts()
 
         assert (
-            updates[str(test_perf_alert_summary_for_modifier.id)]["bug_status"]
+            updates[str(test_perf_alert_summary_for_modifier.id)]["bug_resolution"]
             == PerformanceAlertSummary.BUG_FIXED
         )
-        assert updates[str(summary2.id)]["bug_status"] == PerformanceAlertSummary.BUG_INVALID
+        assert updates[str(summary2.id)]["bug_resolution"] == PerformanceAlertSummary.BUG_INVALID
         assert str(test_perf_alert_summary_for_modifier.id) in summaries
         assert str(summary2.id) in summaries
 
@@ -164,7 +164,7 @@ class TestResolutionModifier:
         updates, summaries = resolution_modifier_class.update_alerts()
 
         assert (
-            updates[str(test_perf_alert_summary_for_modifier.id)]["bug_status"]
+            updates[str(test_perf_alert_summary_for_modifier.id)]["bug_resolution"]
             == PerformanceAlertSummary.BUG_NEW
         )
         assert str(test_perf_alert_summary_for_modifier.id) in summaries
@@ -195,7 +195,7 @@ class TestResolutionModifier:
             created=datetime.now(),
             bug_number=12345,
         )
-        summary.bug_status = PerformanceAlertSummary.BUG_FIXED
+        summary.bug_resolution = PerformanceAlertSummary.BUG_FIXED
         summary.save()
 
         updates, summaries = resolution_modifier_class.update_alerts()
@@ -219,13 +219,13 @@ class TestResolutionModifier:
         assert "API Error" in caplog.text
 
 
-class TestNullBugStatusModifier:
+class TestNullBugResolutionModifier:
     @pytest.fixture
-    def null_bug_status_modifier_class(self):
+    def null_bug_resolution_modifier_class(self):
         for updater in PerformanceAlertSummaryModifier.get_updaters():
-            if updater.__name__ == "NullBugStatusModifier":
+            if updater.__name__ == "NullBugResolutionModifier":
                 return updater
-        pytest.fail("NullBugStatusModifier not found in updaters list")
+        pytest.fail("NullBugResolutionModifier not found in updaters list")
 
     @pytest.fixture
     def summary_with_bug_number(self, test_perf_alert_summary_for_modifier):
@@ -237,13 +237,13 @@ class TestNullBugStatusModifier:
     @pytest.mark.django_db
     @patch("treeherder.perf.auto_perf_sheriffing.performance_alerting.alert_modifier.BugSearcher")
     def test_no_matching_summaries_returns_empty(
-        self, mock_bug_searcher_class, null_bug_status_modifier_class
+        self, mock_bug_searcher_class, null_bug_resolution_modifier_class
     ):
         mock_searcher = Mock()
         mock_searcher.get_today_date.return_value = datetime.now().date()
         mock_bug_searcher_class.return_value = mock_searcher
 
-        updates, summaries = null_bug_status_modifier_class.update_alerts()
+        updates, summaries = null_bug_resolution_modifier_class.update_alerts()
 
         assert updates == {}
         assert summaries == {}
@@ -254,25 +254,25 @@ class TestNullBugStatusModifier:
     )
     @patch("treeherder.perf.auto_perf_sheriffing.performance_alerting.alert_modifier.BugSearcher")
     def test_large_result_set_is_chunked(
-        self, mock_bug_searcher_class, mock_pas_class, null_bug_status_modifier_class
+        self, mock_bug_searcher_class, mock_pas_class, null_bug_resolution_modifier_class
     ):
         mock_pas_class.objects.filter.return_value = [Mock(bug_number=i) for i in range(51)]
-        mock_pas_class.BUG_STATUSES = PerformanceAlertSummary.BUG_STATUSES
+        mock_pas_class.BUG_RESOLUTIONS = PerformanceAlertSummary.BUG_RESOLUTIONS
 
         mock_searcher = Mock()
         mock_searcher.get_today_date.return_value = datetime.now().date()
         mock_searcher.get_bugs.return_value = {"bugs": []}
         mock_bug_searcher_class.return_value = mock_searcher
 
-        null_bug_status_modifier_class.update_alerts()
+        null_bug_resolution_modifier_class.update_alerts()
 
         assert mock_searcher.get_bugs.call_count == 2
 
     @patch("treeherder.perf.auto_perf_sheriffing.performance_alerting.alert_modifier.BugSearcher")
-    def test_update_bug_status(
+    def test_update_bug_resolution(
         self,
         mock_bug_searcher_class,
-        null_bug_status_modifier_class,
+        null_bug_resolution_modifier_class,
         test_perf_alert_summary_for_modifier,
         create_perf_alert_summary,
     ):
@@ -294,10 +294,10 @@ class TestNullBugStatusModifier:
         summary2.bug_number = 67890
         summary2.save()
 
-        updates, summaries = null_bug_status_modifier_class.update_alerts()
+        updates, summaries = null_bug_resolution_modifier_class.update_alerts()
 
-        assert updates[str(summary1.id)]["bug_status"] == PerformanceAlertSummary.BUG_FIXED
-        assert updates[str(summary2.id)]["bug_status"] == PerformanceAlertSummary.BUG_NEW
+        assert updates[str(summary1.id)]["bug_resolution"] == PerformanceAlertSummary.BUG_FIXED
+        assert updates[str(summary2.id)]["bug_resolution"] == PerformanceAlertSummary.BUG_NEW
         assert str(summary1.id) in summaries
         assert str(summary2.id) in summaries
 
@@ -305,7 +305,7 @@ class TestNullBugStatusModifier:
     def test_summary_outside_lookback_window_is_excluded(
         self,
         mock_bug_searcher_class,
-        null_bug_status_modifier_class,
+        null_bug_resolution_modifier_class,
         test_perf_alert_summary_for_modifier,
     ):
         mock_searcher = Mock()
@@ -319,7 +319,7 @@ class TestNullBugStatusModifier:
             bug_updated=datetime.now() - timedelta(days=91)
         )
 
-        updates, summaries = null_bug_status_modifier_class.update_alerts()
+        updates, summaries = null_bug_resolution_modifier_class.update_alerts()
 
         assert updates == {}
         assert summaries == {}

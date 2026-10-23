@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import FilterControls from '../../shared/FilterControls';
-import { summaryStatusMap } from '../perf-helpers/constants';
+import { bugResolutionMap, summaryStatusMap } from '../perf-helpers/constants';
 import PaginationGroup from '../shared/Pagination';
 import { sortData } from '../perf-helpers/sort';
 
@@ -59,6 +59,10 @@ export default class AlertsViewControls extends React.Component {
     setFiltersState({ status, hideDownstream: !isInvalidStatus });
   };
 
+  updateBugResolution = (bugResolution) => {
+    this.props.setFiltersState({ bugResolution });
+  };
+
   updateFramework = (selectedFramework) => {
     const { frameworkOptions, setFiltersState } = this.props;
     const framework = frameworkOptions.find(
@@ -103,6 +107,7 @@ export default class AlertsViewControls extends React.Component {
       hideAssignedToOthers,
       framework,
       status,
+      bugResolution,
     } = filters;
 
     let sortedFrameworks = sortData(frameworkOptions, 'name', false);
@@ -138,6 +143,12 @@ export default class AlertsViewControls extends React.Component {
         namespace: 'framework',
         pinned: [allFrameworks, allSheriffedFrameworks],
         otherPinned: [platformMicrobench, telemetry],
+      },
+      {
+        options: Object.keys(bugResolutionMap),
+        selectedItem: bugResolution,
+        updateData: this.updateBugResolution,
+        namespace: 'bugResolution',
       },
     ];
 
@@ -230,6 +241,7 @@ AlertsViewControls.propTypes = {
     hideAssignedToOthers: PropTypes.bool.isRequired,
     framework: PropTypes.shape({}).isRequired,
     status: PropTypes.string.isRequired,
+    bugResolution: PropTypes.string.isRequired,
   }).isRequired,
   setFiltersState: PropTypes.func.isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,

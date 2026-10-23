@@ -12,6 +12,7 @@ import {
   getStatus,
 } from '../perf-helpers/helpers';
 import {
+  bugResolutionMap,
   summaryStatusMap,
   endpoints,
   notSupportedAlertFiltersMessage,
@@ -90,10 +91,21 @@ function AlertsView({
     return filterText === undefined || filterText === null ? '' : filterText;
   };
 
+  const getDefaultBugResolution = (params) => {
+    const bugResolutionParam = parseInt(params.bugResolution, 10);
+    return getStatus(
+      Object.values(bugResolutionMap).includes(bugResolutionParam)
+        ? bugResolutionParam
+        : bugResolutionMap['all bug resolutions'],
+      bugResolutionMap,
+    );
+  };
+
   const getFiltersFromParams = useCallback(
     (params, frameworkOptions = extendedOptions) => {
       return {
         status: getDefaultStatus(params),
+        bugResolution: getDefaultBugResolution(params),
         framework: getFrameworkData({
           validated: params,
           frameworks: frameworkOptions,
@@ -200,6 +212,7 @@ function AlertsView({
 
       const {
         status,
+        bugResolution,
         framework,
         filterText,
         hideDownstream,
@@ -225,6 +238,9 @@ function AlertsView({
         } else if (status === 'untriaged improvements') {
           delete params.status;
           params.untriaged_improvements = true;
+        }
+        if (bugResolution !== 'all bug resolutions') {
+          params.bug_resolution = bugResolutionMap[bugResolution];
         }
         if (hideDownstream) {
           params.hide_related_and_invalid = hideDownstream;
@@ -336,6 +352,8 @@ function AlertsView({
               return [filterName, filterValue.id];
             case 'status':
               return [filterName, summaryStatusMap[filterValue]];
+            case 'bugResolution':
+              return [filterName, bugResolutionMap[filterValue]];
             case 'hideDownstream':
               return ['hideDwnToInv', +filterValue];
             case 'hideAssignedToOthers':
@@ -394,6 +412,7 @@ function AlertsView({
     const filtersChanged =
       params.id !== prevParams.id ||
       params.status !== prevParams.status ||
+      params.bugResolution !== prevParams.bugResolution ||
       params.framework !== prevParams.framework ||
       params.filterText !== prevParams.filterText ||
       params.hideDwnToInv !== prevParams.hideDwnToInv ||

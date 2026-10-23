@@ -3,7 +3,7 @@ import datetime
 from treeherder.perf.models import PerformanceAlertSummary
 
 
-def test_bug_status_resets_on_bug_number_change(
+def test_bug_resolution_resets_on_bug_number_change(
     test_repository, push_stored, test_perf_framework, test_issue_tracker
 ):
     summary = PerformanceAlertSummary.objects.create(
@@ -15,16 +15,16 @@ def test_bug_status_resets_on_bug_number_change(
         created=datetime.datetime.now(),
         bug_number=12345,
     )
-    summary.bug_status = PerformanceAlertSummary.BUG_FIXED
+    summary.bug_resolution = PerformanceAlertSummary.BUG_FIXED
     summary.save()
 
     summary.bug_number = 54321
     summary.save()
     summary.refresh_from_db()
-    assert summary.bug_status is None
+    assert summary.bug_resolution is None
 
 
-def test_bug_status_unchanged_when_bug_number_not_changed(
+def test_bug_resolution_unchanged_when_bug_number_not_changed(
     test_repository, push_stored, test_perf_framework, test_issue_tracker
 ):
     summary = PerformanceAlertSummary.objects.create(
@@ -36,7 +36,7 @@ def test_bug_status_unchanged_when_bug_number_not_changed(
         created=datetime.datetime.now(),
         bug_number=12345,
     )
-    summary.bug_status = PerformanceAlertSummary.BUG_FIXED
+    summary.bug_resolution = PerformanceAlertSummary.BUG_FIXED
     summary.save()
     summary.refresh_from_db()
-    assert summary.bug_status == PerformanceAlertSummary.BUG_FIXED
+    assert summary.bug_resolution == PerformanceAlertSummary.BUG_FIXED

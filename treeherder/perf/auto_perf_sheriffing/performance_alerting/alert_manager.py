@@ -6,7 +6,7 @@ from treeherder.perf.auto_perf_sheriffing.performance_alerting.alert_modifier im
 )
 from treeherder.perf.models import PerformanceAlertSummary
 
-MODIFIABLE_ALERT_SUMMARY_FIELDS = ("bug_status",)
+MODIFIABLE_ALERT_SUMMARY_FIELDS = ("bug_resolution",)
 
 logger = logging.getLogger(__name__)
 

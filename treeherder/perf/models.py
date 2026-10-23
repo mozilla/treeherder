@@ -384,16 +384,16 @@ class PerformanceAlertSummaryBase(models.Model):
 
     def save(self, *args, update_fields=None, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
-            has_bug_status = hasattr(self, "bug_status")
+            has_bug_resolution = hasattr(self, "bug_resolution")
             self.bug_updated = datetime.now()
-            if has_bug_status:
-                # always reset bug_status, even if the caller set bug_status in this same save() call
-                self.bug_status = None
+            if has_bug_resolution:
+                # always reset bug_resolution, even if the caller set it in this same save() call
+                self.bug_resolution = None
 
             if update_fields is not None:
                 update_fields = {"bug_updated"}.union(update_fields)
-                if has_bug_status:
-                    update_fields.add("bug_status")
+                if has_bug_resolution:
+                    update_fields.add("bug_resolution")
 
         triage_days, bug_days = self.get_due_days()
 
@@ -550,7 +550,7 @@ class PerformanceAlertSummary(PerformanceAlertSummaryBase):
     BUG_INCOMPLETE = 7
     BUG_MOVED = 8
 
-    BUG_STATUSES = (
+    BUG_RESOLUTIONS = (
         (BUG_NEW, "NEW"),
         (BUG_FIXED, "FIXED"),
         (BUG_INVALID, "INVALID"),
@@ -561,7 +561,7 @@ class PerformanceAlertSummary(PerformanceAlertSummaryBase):
         (BUG_INCOMPLETE, "INCOMPLETE"),
         (BUG_MOVED, "MOVED"),
     )
-    bug_status = models.IntegerField(choices=BUG_STATUSES, null=True, default=None)
+    bug_resolution = models.IntegerField(choices=BUG_RESOLUTIONS, null=True, default=None)
 
     # Severity of the most severe alert this summary holds, which is what its
     # due dates are derived from. Null means no alert carries a severity yet.
