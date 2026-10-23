@@ -4,6 +4,7 @@ from datetime import timedelta
 import pytest
 from django.utils import timezone
 
+from treeherder.model.models import Push
 from treeherder.perf.models import (
     BackfilledPush,
     BackfillRecord,
@@ -130,9 +131,10 @@ def test_failed_jobs_count_follows_job_task_ids(test_perf_alert, test_jobs):
     create_backfilled_push("other-task", test_jobs[5], "testfailed")
     # no job: counted when the trigger failed, not when the push was skipped
     request = BackfillRequest.objects.filter(bk_task_id="bk-task").first()
-    for status in (BackfilledPush.FAILED, BackfilledPush.SKIPPED):
+    free_pushes = Push.objects.exclude(id__in=request.backfilled_pushes.values("push_id"))
+    for push, status in zip(free_pushes, (BackfilledPush.FAILED, BackfilledPush.SKIPPED)):
         BackfilledPush.objects.create(
-            backfill_request=request, push=request.push, decision_task_id="d", status=status
+            backfill_request=request, push=push, decision_task_id="d", status=status
         )
 
     assert BackfillRecordSerializer(record).data["failed_jobs_count"] == 4
