@@ -112,6 +112,12 @@ export const bugResolutionMap = {
   moved: 8,
 };
 
+export const changeTypeOptions = [
+  'all types', 
+  'regression', 
+  'improvement'
+];
+
 export const alertBackfillResultStatusMap = {
   preliminary: 0,
   readyForProcessing: 1,
