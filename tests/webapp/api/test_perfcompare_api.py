@@ -1551,13 +1551,13 @@ def test_mwu_cache_different_params_produce_different_cache_keys(
     # Given: no cache entries exist yet
     assert PerfCompareMwuCache.objects.count() == 0
 
-    # When: two MWU requests are made with different enable_silverman_kde parameters
-    query_without_kde = base_query
-    first_response = client.get(reverse("perfcompare-results") + query_without_kde)
+    # When: two MWU requests are made with different replicates parameters
+    query_without_replicates = base_query
+    first_response = client.get(reverse("perfcompare-results") + query_without_replicates)
     assert first_response.status_code == 200
 
-    query_with_kde = base_query + "&enable_silverman_kde=true&replicates=true"
-    second_response = client.get(reverse("perfcompare-results") + query_with_kde)
+    query_with_replicates = base_query + "&replicates=true"
+    second_response = client.get(reverse("perfcompare-results") + query_with_replicates)
     assert second_response.status_code == 200
 
     # Then: two distinct cache entries exist (different hash keys)

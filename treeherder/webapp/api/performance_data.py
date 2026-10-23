@@ -1306,7 +1306,6 @@ class ComparisonRow:
 @dataclass(frozen=True)
 class MwuTask:
     row: ComparisonRow
-    enable_silverman_kde: bool
 
 
 class PerfCompareResults(generics.ListAPIView):
@@ -1337,7 +1336,6 @@ class PerfCompareResults(generics.ListAPIView):
         new_parent_signature = query_params.validated_data["new_parent_signature"]
         replicates = query_params.validated_data["replicates"]
         test_version = query_params.validated_data["test_version"]
-        enable_silverman_kde = query_params.validated_data["enable_silverman_kde"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -1443,7 +1441,6 @@ class PerfCompareResults(generics.ListAPIView):
                 base_parent_signature,
                 new_parent_signature,
                 replicates,
-                enable_silverman_kde,
                 base_signatures,
                 new_signatures,
             )
@@ -1453,7 +1450,7 @@ class PerfCompareResults(generics.ListAPIView):
                 return Response(data=cached.results)
 
             comparison_results = PerfCompareResults._process_mann_whitney_u(
-                comparison_inputs, header_names, platforms, enable_silverman_kde
+                comparison_inputs, header_names, platforms
             )
         else:
             comparison_results = PerfCompareResults._process_student_t(
@@ -1485,13 +1482,12 @@ class PerfCompareResults(generics.ListAPIView):
         comparison_inputs: _ComparisonData,
         header_names: Sequence[str],
         platforms: set[str],
-        enable_silverman_kde: bool,
     ) -> Sequence[dict]:
         """
         Process performance comparison results using Mann-Whitney U test with parallel processing.
         """
         tasks = [
-            MwuTask(row=row, enable_silverman_kde=enable_silverman_kde)
+            MwuTask(row=row)
             for row in PerfCompareResults._comparison_pairs(
                 comparison_inputs, header_names, platforms
             )
@@ -1918,7 +1914,6 @@ class PerfCompareResults(generics.ListAPIView):
                 task.row.header,
                 task.row.lower_is_better,
                 remove_outliers=False,
-                enable_silverman_kde=task.enable_silverman_kde,
             )
 
         row_result = {
@@ -1935,7 +1930,6 @@ class PerfCompareResults(generics.ListAPIView):
         lower_is_better: bool | str,
         remove_outliers: bool = stats.ENABLE_REMOVE_OUTLIERS,
         pvalue_threshold: float = stats.PVALUE_THRESHOLD,
-        enable_silverman_kde: bool = False,
     ) -> dict:
         # extract data, potentially removing outliers
         if remove_outliers:
@@ -1979,9 +1973,7 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         # Kolmogorov-Smirnov test for goodness of fit
-        ks_test, is_fit_good, ks_warning = stats.interpret_ks_test(
-            base_rev_data, new_rev_data, pvalue_threshold
-        )
+        ks_test, ks_warning = stats.interpret_ks_test(base_rev_data, new_rev_data, pvalue_threshold)
 
         # Mann-Whitney U test, two sided because we're never quite sure what of
         # the intent of the patch, as things stand
@@ -2000,12 +1992,9 @@ class PerfCompareResults(generics.ListAPIView):
         # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
         # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
         # https://github.com/neilernst/cliffsDelta
-        c_warning = None
         c_delta = None
         # Handle for empty data sets
-        if len(base_rev_data) < 1 or len(new_rev_data) < 1:
-            c_warning = "Empty data in one group, cannot compute Cliffs Delta"
-        else:
+        if len(base_rev_data) >= 1 and len(new_rev_data) >= 1:
             c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
         # interpret effect size
         cliffs_interpretation, is_effect_meaningful = stats.interpret_effect_size(c_delta)
@@ -2034,19 +2023,6 @@ class PerfCompareResults(generics.ListAPIView):
         if cles_obj:
             cles_obj["effect_size"] = cliffs_interpretation
             cles_obj["cles_direction"] = direction
-
-        # Silverman KDE analysis (optional)
-        silverman_kde = None
-        silverman_warnings = []
-        if enable_silverman_kde:
-            (
-                silverman_kde,
-                silverman_is_regression,
-                silverman_is_improvement,
-                silverman_more_runs_needed,
-                silverman_warnings,
-                silverman_performance_interpretation,
-            ) = stats.interpret_silverman_kde(base_rev_data, new_rev_data, lower_is_better)
 
         stats_data = {
             "base_standard_stats": {
@@ -2084,18 +2060,13 @@ class PerfCompareResults(generics.ListAPIView):
             # cliffs delta
             "cliffs_delta": c_delta,
             "cliffs_interpretation": cliffs_interpretation,
-            "warning_c_delta": c_warning,
             # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
             "cles": cles_obj,
-            # short form summary based on former tests shapiro, silverman, etc...
-            "is_fit_good": is_fit_good,
+            # short form summary based on former tests shapiro, etc...
             "is_new_better": is_new_better,
             "is_meaningful": is_effect_meaningful,
             "lower_is_better": lower_is_better,
             "direction_of_change": direction,  # 'no change', 'improvement', or 'regression'
-            # Silverman KDE analysis (optional)
-            "silverman_kde": silverman_kde,
-            "silverman_warnings": silverman_warnings,
         }
 
         return stats_data
@@ -2108,7 +2079,6 @@ class PerfCompareResults(generics.ListAPIView):
         base_parent_signature: str | None,
         new_parent_signature: str | None,
         replicates: bool,
-        enable_silverman_kde: bool,
         base_signatures: QuerySet,
         new_signatures: QuerySet,
     ) -> str:
@@ -2128,7 +2098,6 @@ class PerfCompareResults(generics.ListAPIView):
             "base_parent_signature": base_parent_signature,
             "new_parent_signature": new_parent_signature,
             "replicates": replicates,
-            "enable_silverman_kde": enable_silverman_kde,
             "base_sig_ids": base_sig_ids,
             "new_sig_ids": new_sig_ids,
             "total_data_points": total_data_points,
