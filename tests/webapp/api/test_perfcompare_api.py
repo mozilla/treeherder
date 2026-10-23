@@ -1630,3 +1630,202 @@ def test_mwu_cache_recalculates_after_data_change(
     assert PerfCompareMwuCache.objects.count() == 2
     cache_keys = list(PerfCompareMwuCache.objects.values_list("hash_key", flat=True))
     assert cache_keys[0] != cache_keys[1]
+
+
+def _setup_number_of_data_points_compare(
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    base_values,
+    new_values,
+):
+    """
+    Set up base/new perf data and return a function that builds a perfcompare query.
+
+    The returned function accepts an optional ``number_of_data_points`` value,
+    which is appended to the query string only when it is not ``None``.
+    """
+    setup_mwu_compatible_data(
+        base_values,
+        new_values,
+        test_perfcomp_push,
+        try_repository,
+        test_perfcomp_push_2,
+        create_signature,
+        test_linux_platform,
+        test_perf_signature,
+        test_repository,
+    )
+
+    def build_query(number_of_data_points=None):
+        query = (
+            f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+            f"&base_revision={test_perfcomp_push.revision}"
+            f"&new_revision={test_perfcomp_push_2.revision}"
+            f"&framework={test_perf_signature.framework_id}&no_subtests=true"
+        )
+        if number_of_data_points is not None:
+            query += f"&number_of_data_points={number_of_data_points}"
+        return query
+
+    return build_query
+
+
+def test_perfcompare_results_limits_number_of_data_points(
+    client,
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+):
+    """
+    Given: base and new data each with more data points than requested.
+    When: the comparison is requested with number_of_data_points N.
+    Then: each side is capped at N data points.
+    """
+    # Given: three data points on each side
+    build_query = _setup_number_of_data_points_compare(
+        create_signature,
+        test_perf_signature,
+        test_repository,
+        try_repository,
+        test_perfcomp_push,
+        test_perfcomp_push_2,
+        test_linux_platform,
+        base_values=[1.0, 2.0, 3.0],
+        new_values=[4.0, 5.0, 6.0],
+    )
+
+    # When: requesting only two data points per side
+    response = client.get(reverse("perfcompare-results") + build_query(2))
+
+    # Then: the response is capped on both sides
+    assert response.status_code == 200
+    results = response.json()
+    assert len(results) == 1
+    assert results[0]["base_runs"] == [1.0, 2.0]
+    assert results[0]["new_runs"] == [4.0, 5.0]
+
+
+def test_perfcompare_results_without_number_of_data_points_returns_all(
+    client,
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+):
+    """
+    Given: base and new data.
+    When: the comparison is requested without number_of_data_points.
+    Then: all data points are returned (backwards-compatible behaviour).
+    """
+    # Given: three data points on each side
+    build_query = _setup_number_of_data_points_compare(
+        create_signature,
+        test_perf_signature,
+        test_repository,
+        try_repository,
+        test_perfcomp_push,
+        test_perfcomp_push_2,
+        test_linux_platform,
+        base_values=[1.0, 2.0, 3.0],
+        new_values=[4.0, 5.0, 6.0],
+    )
+
+    # When: no cap is requested
+    response = client.get(reverse("perfcompare-results") + build_query())
+
+    # Then: every data point is returned (order is not guaranteed without a cap)
+    assert response.status_code == 200
+    results = response.json()
+    assert len(results) == 1
+    assert sorted(results[0]["base_runs"]) == [1.0, 2.0, 3.0]
+    assert sorted(results[0]["new_runs"]) == [4.0, 5.0, 6.0]
+
+
+def test_perfcompare_results_number_of_data_points_above_available_returns_all(
+    client,
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+):
+    """
+    Given: base and new data with fewer data points than requested.
+    When: the comparison is requested with a cap above the available count.
+    Then: all available data points are returned.
+    """
+    # Given: three data points on each side
+    build_query = _setup_number_of_data_points_compare(
+        create_signature,
+        test_perf_signature,
+        test_repository,
+        try_repository,
+        test_perfcomp_push,
+        test_perfcomp_push_2,
+        test_linux_platform,
+        base_values=[1.0, 2.0, 3.0],
+        new_values=[4.0, 5.0, 6.0],
+    )
+
+    # When: requesting more data points than exist
+    response = client.get(reverse("perfcompare-results") + build_query(10))
+
+    # Then: all data points are returned
+    assert response.status_code == 200
+    results = response.json()
+    assert len(results) == 1
+    assert results[0]["base_runs"] == [1.0, 2.0, 3.0]
+    assert results[0]["new_runs"] == [4.0, 5.0, 6.0]
+
+
+def test_number_of_data_points_must_be_integer(
+    client,
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+):
+    """
+    Given: a perfcompare request.
+    When: number_of_data_points is not an integer.
+    Then: the request is rejected with a 400.
+    """
+    # Given: valid base and new data
+    build_query = _setup_number_of_data_points_compare(
+        create_signature,
+        test_perf_signature,
+        test_repository,
+        try_repository,
+        test_perfcomp_push,
+        test_perfcomp_push_2,
+        test_linux_platform,
+        base_values=[1.0, 2.0, 3.0],
+        new_values=[4.0, 5.0, 6.0],
+    )
+
+    # When: number_of_data_points is not an integer
+    response = client.get(reverse("perfcompare-results") + build_query("abc"))
+
+    # Then: the request is rejected
+    assert response.status_code == 400
