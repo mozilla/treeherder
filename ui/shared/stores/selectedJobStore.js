@@ -11,7 +11,7 @@ import {
 } from '../../helpers/job';
 import { thJobNavSelectors } from '../../helpers/constants';
 import { getUrlParam, setUrlParam, setUrlParams } from '../../helpers/location';
-import { updateUrlSearch } from '../../helpers/router';
+import { replaceUrlSearch, updateUrlSearch } from '../../helpers/router';
 import JobModel from '../../models/job';
 import { getJobsUrl } from '../../helpers/url';
 
@@ -69,15 +69,46 @@ const doClearSelectedJob = (countPinnedJobs) => {
   return {};
 };
 
+/**
+ * Look up the job named by ``jobParams`` in the database.  A backend error
+ * is reported without touching the URL, so the selection survives a reload.
+ * Returns ``null`` on error, otherwise the list of matching jobs.
+ */
+const lookUpJobs = async (jobParams, notify) => {
+  const { id, task_id: taskId } = jobParams;
+  const label = taskId ? `task ${taskId}` : `job ${id}`;
+  let taskList;
+  let failureStatus;
+
+  try {
+    ({ data: taskList, failureStatus } = await JobModel.getList(jobParams));
+  } catch (error) {
+    failureStatus = error;
+    taskList = error.message;
+  }
+
+  if (failureStatus) {
+    notify(`Unable to look up ${label}. ${taskList}`, 'danger', {
+      sticky: true,
+    });
+    return null;
+  }
+  return taskList;
+};
+
 const searchDatabaseForTaskRun = async (jobParams, notify) => {
   const repoName = getUrlParam('repo');
-  const { failureStatus, data: taskList } = await JobModel.getList(jobParams);
+  const taskList = await lookUpJobs(jobParams, notify);
   const { id, task_id: taskId, retry_id: runId } = jobParams;
+
+  if (!taskList) {
+    return;
+  }
 
   setUrlParam('selectedJob');
   setUrlParam('selectedTaskRun');
 
-  if (taskList.length && !failureStatus) {
+  if (taskList.length) {
     const task = taskList[0];
     const newPushUrl = getJobsUrl({
       repo: repoName,
@@ -105,7 +136,7 @@ const searchDatabaseForTaskRun = async (jobParams, notify) => {
 
 export const useSelectedJobStore = create(
   devtools(
-    (set) => ({
+    (set, get) => ({
       selectedJob: null,
 
       setSelectedJob: (job, updateDetails = true) => {
@@ -169,6 +200,19 @@ export const useSelectedJobStore = create(
             return;
           }
 
+          // The job may have been eagerly resolved from the URL before its
+          // push (and thus the jobMap) finished loading.  Keep that
+          // selection rather than clearing it or re-querying the database.
+          const { selectedJob: currentSelection } = get();
+          if (
+            currentSelection &&
+            currentSelection.task_id === taskId &&
+            (runId === undefined ||
+              currentSelection.retry_id === parseInt(runId, 10))
+          ) {
+            return;
+          }
+
           if (getUrlParam('revision')) {
             /* A standalone push which got opened deliberately. Either a task of a
                different push was selected or none. */
@@ -197,6 +241,12 @@ export const useSelectedJobStore = create(
             setUrlParam('selectedJob');
             setUrlParam('selectedTaskRun', getTaskRunStr(task));
             set(doSelectJob(task));
+            return;
+          }
+
+          // Keep an eagerly resolved selection for this same job id.
+          const { selectedJob: currentSelection } = get();
+          if (currentSelection && currentSelection.id === selectedJobId) {
             return;
           }
 
@@ -333,3 +383,63 @@ export const syncSelectionFromUrl = (jobMap, notify) => {
   store.setSelectedJobFromQueryString(notify, jobMap);
 };
 
+/**
+ * Eagerly resolve the job named by the ``selectedTaskRun`` or ``selectedJob``
+ * URL param via the jobs API, before any pushes have loaded.  This lets the
+ * details panel start fetching immediately on a deep link, and returns the
+ * job (including its ``push_revision``) so the caller can load just the push
+ * that contains it.
+ */
+export const resolveSelectedJobFromUrl = async (notify) => {
+  const selectedTaskRun = getUrlParam('selectedTaskRun');
+  const selectedJobId = getUrlParam('selectedJob');
+  let jobParams;
+
+  if (selectedTaskRun) {
+    const { taskId, runId } = getTaskRun(selectedTaskRun);
+    if (taskId === undefined) {
+      return null;
+    }
+    jobParams = { task_id: taskId };
+    if (runId !== undefined) {
+      jobParams.retry_id = parseInt(runId, 10);
+    }
+  } else if (selectedJobId) {
+    jobParams = { id: parseInt(selectedJobId, 10) };
+  } else {
+    return null;
+  }
+
+  const taskList = await lookUpJobs(jobParams, notify);
+
+  if (!taskList) {
+    // The lookup failed rather than the task being missing; leave the
+    // selection in the URL so a reload can retry it.
+    return null;
+  }
+
+  if (taskList.length) {
+    // Without an explicit run id there may be several runs; select the latest.
+    const runs = [...taskList].sort(
+      (left, right) => left.retry_id - right.retry_id,
+    );
+    const job = runs[runs.length - 1];
+    job.task_run = getTaskRunStr(job);
+    useSelectedJobStore.setState({ selectedJob: job });
+    return job;
+  }
+
+  // The task wasn't found in the db.  Either never existed, or was expired
+  // and deleted.
+  const message = selectedTaskRun
+    ? `Task not found: ${selectedTaskRun}`
+    : `Job ID not found: ${selectedJobId}`;
+  notify(message, 'danger', { sticky: true });
+  replaceUrlSearch(
+    setUrlParams([
+      ['selectedTaskRun', null],
+      ['selectedJob', null],
+    ]),
+  );
+  return null;
+};
