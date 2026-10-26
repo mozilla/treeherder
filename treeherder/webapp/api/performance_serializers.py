@@ -636,7 +636,9 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     new_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     replicates = serializers.BooleanField(required=False)
     test_version = serializers.CharField(required=False, default="student-t")
-    number_of_data_points = serializers.IntegerField(required=False, allow_null=True, default=None)
+    number_of_data_points = serializers.IntegerField(
+        required=False, allow_null=True, default=None, min_value=1
+    )
 
     def validate_base_parent_signature(self, value):
         if value == "null":
