@@ -704,30 +704,90 @@ def test_alerts_list_exposes_detected_push_in_backfill_record(
     assert backfill["detected_push_revision"] == "cccc2222dddd"
 
 
+def _backfill_logs(*statuses):
+    """Log entries the way Sherlock writes them: one per iteration, starting with 'initial'."""
+    return [{"iteration": i, "status": status} for i, status in enumerate(statuses)]
+
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "backfill_logs, expected_in_progress",
+    "status, backfill_logs, expected_in_progress",
     [
-        (
-            [
-                {"iteration": 0, "status": "initial"},
-                {"iteration": 1, "status": "backfill_requested"},
-            ],
+        # Sherlock is working on it: waiting for a backfill or for the backfilled jobs
+        pytest.param(
+            BackfillRecord.BACKFILLED,
+            _backfill_logs("initial", "backfill_requested"),
             True,
+            id="backfill_running",
         ),
-        ([{"iteration": 0, "status": "initial"}, {"iteration": 1, "status": "stabilized"}], False),
-        ([], False),
+        pytest.param(
+            BackfillRecord.READY_FOR_PROCESSING,
+            _backfill_logs("initial", "right"),
+            True,
+            id="culprit_moved_retriggering",
+        ),
+        pytest.param(
+            BackfillRecord.READY_FOR_PROCESSING,
+            _backfill_logs("initial", "stabilized_with_gap"),
+            True,
+            id="stabilized_with_gap_retriggering",
+        ),
+        pytest.param(BackfillRecord.BACKFILLED, [], True, id="legacy_record_backfilling"),
+        # not started yet
+        pytest.param(
+            BackfillRecord.PRELIMINARY, _backfill_logs("initial"), False, id="not_started"
+        ),
+        pytest.param(BackfillRecord.PRELIMINARY, [], False, id="legacy_record_not_started"),
+        # finished with a terminal log status
+        pytest.param(
+            BackfillRecord.SUCCESSFUL,
+            _backfill_logs("initial", "stabilized"),
+            False,
+            id="stabilized",
+        ),
+        pytest.param(
+            BackfillRecord.SUCCESSFUL,
+            _backfill_logs("initial", "stabilized_with_gap", "stabilized_gap_stuck"),
+            False,
+            id="gap_stuck",
+        ),
+        pytest.param(
+            BackfillRecord.SUCCESSFUL,
+            _backfill_logs("initial", "no_candidate_detected"),
+            False,
+            id="no_candidate_detected",
+        ),
+        # gave up without writing a terminal log status (timeout, failed trigger, max iterations)
+        pytest.param(
+            BackfillRecord.FAILED,
+            _backfill_logs("initial", "backfill_requested"),
+            False,
+            id="failed_without_terminal_log",
+        ),
+        pytest.param(
+            BackfillRecord.SUCCESSFUL,
+            # 5 rounds; the last one is never verified once the iteration limit is hit
+            _backfill_logs("initial", "right", "left", "right", "left", "backfill_requested"),
+            False,
+            id="max_iterations_reached",
+        ),
+        pytest.param(
+            BackfillRecord.VERIFICATION_FAILED,
+            _backfill_logs("initial", "backfill_requested"),
+            False,
+            id="verification_failed",
+        ),
     ],
-    ids=["backfill_requested", "stabilized", "empty_logs"],
 )
 def test_alerts_list_exposes_in_progress_in_backfill_record(
     client,
     test_perf_alert,
+    status,
     backfill_logs,
     expected_in_progress,
 ):
     report = BackfillReport.objects.create(summary=test_perf_alert.summary)
-    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)
+    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report, status=status)
     record.backfill_logs = json.dumps(backfill_logs)
     record.save()
 

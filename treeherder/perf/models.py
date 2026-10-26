@@ -1102,6 +1102,9 @@ class BackfillRecord(models.Model):
         (VERIFICATION_FAILED, "Verification Failed"),
     )
 
+    # Sherlock is actively working on a record only while it waits for a backfill
+    # or for the backfilled jobs; every path that stops iterating leaves another status.
+    ACTIVE_STATUSES = (READY_FOR_PROCESSING, BACKFILLED)
     TERMINAL_BACKFILL_LOG_STATUSES = frozenset(
         {"stabilized", "stabilized_gap_stuck", "no_candidate_detected"}
     )
@@ -1247,11 +1250,10 @@ class BackfillRecord(models.Model):
             return []
 
     def is_backfill_in_progress(self) -> bool:
-        logs = self.get_backfill_logs()
-        if not logs:
+        if self.status not in self.ACTIVE_STATUSES:
             return False
-        latest = max(logs, key=lambda entry: entry.get("iteration", 0))
-        return latest.get("status") not in self.TERMINAL_BACKFILL_LOG_STATUSES
+        logs = self.get_backfill_logs()
+        return not logs or logs[-1].get("status") not in self.TERMINAL_BACKFILL_LOG_STATUSES
 
     def append_to_backfill_logs(self, entry: dict):
         log = self.get_backfill_logs()
