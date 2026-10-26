@@ -1102,6 +1102,10 @@ class BackfillRecord(models.Model):
         (VERIFICATION_FAILED, "Verification Failed"),
     )
 
+    TERMINAL_BACKFILL_LOG_STATUSES = frozenset(
+        {"stabilized", "stabilized_gap_stuck", "no_candidate_detected"}
+    )
+
     status = models.IntegerField(choices=STATUSES, default=PRELIMINARY)
 
     # Backfill outcome
@@ -1241,6 +1245,13 @@ class BackfillRecord(models.Model):
             return json.loads(self.backfill_logs)
         except (json.JSONDecodeError, TypeError):
             return []
+
+    def is_backfill_in_progress(self) -> bool:
+        logs = self.get_backfill_logs()
+        if not logs:
+            return False
+        latest = max(logs, key=lambda entry: entry.get("iteration", 0))
+        return latest.get("status") not in self.TERMINAL_BACKFILL_LOG_STATUSES
 
     def append_to_backfill_logs(self, entry: dict):
         log = self.get_backfill_logs()

@@ -702,3 +702,37 @@ def test_alerts_list_exposes_detected_push_in_backfill_record(
     backfill = resp.json()["results"][0]["backfill_record"]
     assert backfill["detected_push_id"] == 222
     assert backfill["detected_push_revision"] == "cccc2222dddd"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "backfill_logs, expected_in_progress",
+    [
+        (
+            [
+                {"iteration": 0, "status": "initial"},
+                {"iteration": 1, "status": "backfill_requested"},
+            ],
+            True,
+        ),
+        ([{"iteration": 0, "status": "initial"}, {"iteration": 1, "status": "stabilized"}], False),
+        ([], False),
+    ],
+    ids=["backfill_requested", "stabilized", "empty_logs"],
+)
+def test_alerts_list_exposes_in_progress_in_backfill_record(
+    client,
+    test_perf_alert,
+    backfill_logs,
+    expected_in_progress,
+):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)
+    record.backfill_logs = json.dumps(backfill_logs)
+    record.save()
+
+    resp = client.get(reverse("performance-alerts-list"))
+    assert resp.status_code == 200
+
+    backfill = resp.json()["results"][0]["backfill_record"]
+    assert backfill["in_progress"] is expected_in_progress
