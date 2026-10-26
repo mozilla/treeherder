@@ -9,7 +9,9 @@ import JobLogUrlModel from '../../../../ui/models/jobLogUrl';
 import PerfSeriesModel from '../../../../ui/models/perfSeries';
 import JobClassificationModel from '../../../../ui/models/classification';
 import BugJobMapModel from '../../../../ui/models/bugJobMap';
+import BugSuggestionsModel from '../../../../ui/models/bugSuggestions';
 import { getData } from '../../../../ui/helpers/http';
+import { clearSummaryCache } from '../../../../ui/job-view/details/useJobSummary';
 
 jest.mock('../../../../ui/models/job', () => ({
   __esModule: true,
@@ -30,6 +32,10 @@ jest.mock('../../../../ui/models/classification', () => ({
 jest.mock('../../../../ui/models/bugJobMap', () => ({
   __esModule: true,
   default: { getList: jest.fn() },
+}));
+jest.mock('../../../../ui/models/bugSuggestions', () => ({
+  __esModule: true,
+  default: { get: jest.fn() },
 }));
 jest.mock('../../../../ui/helpers/http', () => ({
   getData: jest.fn(),
@@ -71,6 +77,7 @@ const mockResolvedFetches = ({ artifactName = 'public/summary.jsonl' } = {}) => 
   });
   JobClassificationModel.getList.mockResolvedValue([]);
   BugJobMapModel.getList.mockResolvedValue([]);
+  BugSuggestionsModel.get.mockResolvedValue([]);
   getData.mockResolvedValue({
     failureStatus: null,
     data: { artifacts: [{ name: artifactName, contentLength: 10 }] },
@@ -81,6 +88,18 @@ describe('useJobDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockResolvedFetches();
+    // The panel now loads the summary.jsonl artifact itself (useJobSummary);
+    // jsdom provides no fetch, and the cache must not leak between tests.
+    clearSummaryCache();
+    window.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: () => Promise.resolve(''),
+    });
+  });
+
+  afterEach(() => {
+    delete window.fetch;
   });
 
   const renderJobDetails = (initialProps) =>
@@ -121,6 +140,33 @@ describe('useJobDetails', () => {
     expect(result.current.jobDetails).toEqual([]);
     expect(result.current.perfJobDetail).toEqual([]);
     expect(result.current.testGroups).toEqual([]);
+  });
+
+  it('loads the summary artifact once for a completed job reselected later', async () => {
+    const jobA = makeJob();
+    const pushList = [{ id: 10, revision: 'abc123' }];
+
+    const { result, rerender, unmount } = renderJobDetails({
+      selectedJob: jobA,
+      currentRepo,
+      pushList,
+      frameworks,
+    });
+
+    await waitFor(() => expect(window.fetch).toHaveBeenCalledTimes(1));
+    expect(result.current.summary).not.toBeNull();
+
+    // Deselect, then select the same job again: the artifact is cached.
+    await act(async () => {
+      rerender({ selectedJob: null, currentRepo, pushList, frameworks });
+    });
+    await act(async () => {
+      rerender({ selectedJob: jobA, currentRepo, pushList, frameworks });
+    });
+
+    await waitFor(() => expect(result.current.summary).not.toBeNull());
+    expect(window.fetch).toHaveBeenCalledTimes(1);
+    unmount();
   });
 
   it('does not refetch when the selected job and push list only change identity (poll)', async () => {
