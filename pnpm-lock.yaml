@@ -106,8 +106,8 @@ importers:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
       react-highlight-words:
-        specifier: 0.21.0
-        version: 0.21.0(react@19.2.8)
+        specifier: 0.21.1
+        version: 0.21.1(react@19.2.8)
       react-hot-keys:
         specifier: 2.7.3
         version: 2.7.3(@babel/runtime@7.29.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -3551,9 +3551,6 @@ packages:
   memfs@4.53.0:
     resolution: {integrity: sha512-TKFRsKjJA30iAc9ZeGH/77v5nLcNUD0GBOL/tAj4O63RPIKNxGDZ54ZyuQM4KjEKEj7gfer/Ta1xAzB+HrEnrA==}
 
-  memoize-one@4.0.3:
-    resolution: {integrity: sha512-QmpUu4KqDmX0plH4u+tf0riMc1KHE1+lw95cMrLlXQAFOx/xnBtwhZ52XJxd9X2O6kwKBqX32kmhbhlobD0cuw==}
-
   merge-descriptors@1.0.3:
     resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
 
@@ -4078,8 +4075,8 @@ packages:
   react-fast-compare@3.2.2:
     resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
 
-  react-highlight-words@0.21.0:
-    resolution: {integrity: sha512-SdWEeU9fIINArEPO1rO5OxPyuhdEKZQhHzZZP1ie6UeXQf+CjycT1kWaB+9bwGcVbR0NowuHK3RqgqNg6bgBDQ==}
+  react-highlight-words@0.21.1:
+    resolution: {integrity: sha512-n3xD3Tp1dX+KYyDsReU+2yHdOgGEZ2jYyeEsGW3lTV4OpVgLapvLXH2PFzPyX81yc0pktAmiD+qucVAk6tVjFw==}
     peerDependencies:
       react: ^0.14.0 || ^15.0.0 || ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
 
@@ -9015,8 +9012,6 @@ snapshots:
       tree-dump: 1.1.0(tslib@2.8.1)
       tslib: 2.8.1
 
-  memoize-one@4.0.3: {}
-
   merge-descriptors@1.0.3: {}
 
   merge-stream@2.0.0: {}
@@ -9518,10 +9513,9 @@ snapshots:
 
   react-fast-compare@3.2.2: {}
 
-  react-highlight-words@0.21.0(react@19.2.8):
+  react-highlight-words@0.21.1(react@19.2.8):
     dependencies:
       highlight-words-core: 1.2.3
-      memoize-one: 4.0.3
       react: 19.2.8
 
   react-hot-keys@2.7.3(@babel/runtime@7.29.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
