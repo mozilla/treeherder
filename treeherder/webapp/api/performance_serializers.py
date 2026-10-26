@@ -447,7 +447,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "related_alerts",
             "status",
             "bug_number",
-            "bug_status",
+            "bug_resolution",
             "bug_due_date",
             "bug_updated",
             "severity",

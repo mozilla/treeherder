@@ -438,6 +438,7 @@ class AlertSummaryPagination(pagination.PageNumberPagination):
 class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     id = django_filters.NumberFilter(field_name="id")
     status = django_filters.NumberFilter(field_name="status")
+    bug_resolution = django_filters.NumberFilter(field_name="bug_resolution")
     framework = django_filters.NumberFilter(field_name="framework")
     repository = django_filters.NumberFilter(field_name="repository")
     alerts__series_signature = django_filters.NumberFilter(field_name="alerts__series_signature")
@@ -576,6 +577,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
         fields = [
             "id",
             "status",
+            "bug_resolution",
             "framework",
             "repository",
             "alerts__series_signature",

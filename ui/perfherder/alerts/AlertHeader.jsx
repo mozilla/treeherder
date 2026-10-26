@@ -19,7 +19,7 @@ import Assignee from './Assignee';
 import TagsList from './TagsList';
 import AlertHeaderTitle from './AlertHeaderTitle';
 import { getStatus } from '../perf-helpers/helpers';
-import { bugStatusMap } from '../perf-helpers/constants';
+import { bugResolutionMap } from '../perf-helpers/constants';
 
 const AlertHeader = ({
   frameworks,
@@ -94,8 +94,8 @@ const AlertHeader = ({
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
     : '';
-  const bugStatus = (alertSummary.bug_status != null && alertSummary.issue_tracker === 1)
-    ? `(${getStatus(alertSummary.bug_status, bugStatusMap)})`
+  const bugResolution = (alertSummary.bug_resolution != null && alertSummary.issue_tracker === 1)
+    ? `(${getStatus(alertSummary.bug_resolution, bugResolutionMap)})`
     : '';
 
   const performanceTags = alertSummary.performance_tags || [];
@@ -195,7 +195,7 @@ const AlertHeader = ({
                 rel="noopener noreferrer"
               >
                 {bugNumber}{' '}
-                <span style={{ fontSize: '0.9em' }}>{bugStatus}</span>
+                <span style={{ fontSize: '0.9em' }}>{bugResolution}</span>
               </a>
             ) : (
               { bugNumber }
