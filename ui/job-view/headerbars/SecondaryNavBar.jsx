@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import {
+  faChevronDown,
+  faChevronUp,
   faExclamationCircle,
   faFilter,
   faTimesCircle,
@@ -15,6 +17,7 @@ import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
 import { getAllUrlParams, getRepo, setUrlParams } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import useIsMobile from '../../hooks/useIsMobile';
 import {
   usePushesStore,
   recalculateUnclassifiedCounts,
@@ -51,6 +54,7 @@ const SecondaryNavBar = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const prevLocationSearch = useRef(location.search);
 
   const allUnclassifiedFailureCount = usePushesStore(
@@ -66,6 +70,7 @@ const SecondaryNavBar = ({
   );
   const [watchedRepoNames, setWatchedRepoNames] = useState([]);
   const [repoName, setRepoName] = useState(getRepo());
+  const [mobileFiltersExpanded, setMobileFiltersExpanded] = useState(false);
 
   const saveWatchedRepos = useCallback((repoList) => {
     setWatchedRepoNames(repoList);
@@ -208,7 +213,7 @@ const SecondaryNavBar = ({
   return (
     <div
       id="watched-repo-navbar"
-      className="th-context-navbar navbar-dark watched-repo-navbar"
+      className={`th-context-navbar navbar-dark watched-repo-navbar ${mobileFiltersExpanded ? 'mobile-filters-expanded' : ''}`}
       tabIndex={-1}
     >
       <span className="justify-content-between w-100 d-flex flex-wrap">
@@ -227,8 +232,31 @@ const SecondaryNavBar = ({
               />
             </ErrorBoundary>
           ))}
+          {isMobile && (
+            <Button
+              className="btn-view-nav watched-repo-toggle ms-auto"
+              type="button"
+              title={
+                mobileFiltersExpanded ? 'Hide job filters' : 'Show job filters'
+              }
+              aria-label={
+                mobileFiltersExpanded ? 'Hide job filters' : 'Show job filters'
+              }
+              aria-controls="watched-repo-controls"
+              aria-expanded={mobileFiltersExpanded}
+              onClick={() => setMobileFiltersExpanded((expanded) => !expanded)}
+            >
+              <FontAwesomeIcon
+                icon={mobileFiltersExpanded ? faChevronUp : faChevronDown}
+              />
+            </Button>
+          )}
         </span>
-        <form role="search" className="form-inline flex-row">
+        <form
+          id="watched-repo-controls"
+          role="search"
+          className="form-inline flex-row watched-repo-controls"
+        >
           {serverChanged && (
             <Button
               size="sm"
@@ -307,10 +335,10 @@ const SecondaryNavBar = ({
                 const { status } = getBtnClass(filterName);
                 return (
                   <span key={filterName}>
-                    <FontAwesomeIcon
+                    <button
+                      type="button"
                       className="btn btn-view-nav btn-nav-filter"
                       data-status={status}
-                      icon={isOn ? faDotCircle : faCircle}
                       onClick={() =>
                         toggleResultStatusFilterChicklet(filterName)
                       }
@@ -318,8 +346,9 @@ const SecondaryNavBar = ({
                       aria-label={filterName}
                       role="checkbox"
                       aria-checked={isOn}
-                      tabIndex={0}
-                    />
+                    >
+                      <FontAwesomeIcon icon={isOn ? faDotCircle : faCircle} />
+                    </button>
                   </span>
                 );
               })}

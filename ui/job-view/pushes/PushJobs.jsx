@@ -83,17 +83,14 @@ function PushJobs({
     [toggleSelectedRunnableJob],
   );
 
-  const onMouseDown = useCallback(
+  const onJobClick = useCallback(
     (ev) => {
       const jobInstance = findInstance(ev.target);
       const selectedTaskRun = getUrlParam('selectedTaskRun');
 
       if (jobInstance?.props?.job) {
         const { job } = jobInstance.props;
-        if (ev.button === 1) {
-          // Middle click
-          handleLogViewerClick(job.id);
-        } else if (ev.metaKey || ev.ctrlKey) {
+        if (ev.metaKey || ev.ctrlKey) {
           // Pin job
           if (!selectedTaskRun) {
             selectJob(job, jobInstance);
@@ -103,16 +100,24 @@ function PushJobs({
           // Toggle runnable
           handleRunnableClick(jobInstance);
         } else {
-          selectJob(job, jobInstance); // Left click
+          selectJob(job, jobInstance);
         }
       }
     },
-    [togglePinJob, selectJob, handleLogViewerClick, handleRunnableClick],
+    [togglePinJob, selectJob, handleRunnableClick],
   );
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div onMouseDown={onMouseDown}>
+    <div
+      className="push-jobs-scroll"
+      onClick={onJobClick}
+      onAuxClick={(ev) => {
+        if (ev.button === 1) {
+          const job = findInstance(ev.target)?.props?.job;
+          if (job) handleLogViewerClick(job.id);
+        }
+      }}
+    >
       <table id={aggregateId} className="table-hover">
         <tbody>
           {platforms ? (

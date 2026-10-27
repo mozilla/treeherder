@@ -60,7 +60,7 @@ export default class Clipboard extends React.Component {
         onClick={() => {
           this.copyToClipboard(text);
         }}
-        className="py-0 px-1"
+        className="clipboard-btn py-0 px-1"
         variant={buttonVariant}
         style={buttonStyle}
       >

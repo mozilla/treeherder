@@ -38,6 +38,7 @@ import {
   getJobGroupMapKey,
   getTaskRunStr,
 } from '../../helpers/job';
+import useIsMobile from '../../hooks/useIsMobile';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import PushHeader from './PushHeader';
@@ -112,6 +113,7 @@ function Push({
     (state) => state.allUnclassifiedFailureCount,
   );
   const location = useLocation();
+  const isMobile = useIsMobile();
   const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
   const [fuzzyModal, setFuzzyModal] = useState(false);
@@ -662,10 +664,12 @@ function Push({
       />
       <div className="push-body-divider" />
       {!collapsed ? (
-        <Row className="push g-1 flex-nowrap ms-5">
+        <Row
+          className={`push g-1 ${isMobile ? 'flex-wrap' : 'flex-nowrap ms-5'}`}
+        >
           {currentRepo ? (
             <>
-              <Col xs={5}>
+              <Col xs={isMobile ? 12 : 5}>
                 <RevisionList
                   revision={revision}
                   revisions={revisions}
@@ -674,6 +678,7 @@ function Push({
                   bugSummaryMap={bugSummaryMap}
                   widthClass="mb-3 ms-4"
                   commitShaClass="font-monospace"
+                  mobile={isMobile}
                 >
                   {filteredTryPush && decisionTask && (
                     <PushCountsDetails
@@ -684,7 +689,7 @@ function Push({
                   )}
                 </RevisionList>
               </Col>
-              <Col xs={7} className="job-list job-list-pad">
+              <Col xs={isMobile ? 12 : 7} className="job-list job-list-pad">
                 <PushJobs
                   push={push}
                   platforms={platforms}
@@ -723,6 +728,7 @@ function Push({
                 repo={currentRepo}
                 key={tipRevision.revision}
                 commitShaClass="font-monospace"
+                mobile={isMobile}
               />
             </ul>
           </Col>

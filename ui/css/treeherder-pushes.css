@@ -225,6 +225,92 @@ fieldset[disabled] .btn-push:hover {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
+/* Phone layout; keep in sync with MOBILE_QUERY in ui/hooks/useIsMobile.js */
+@media (max-width: 767.98px), (pointer: coarse) and (max-height: 500px) {
+  .push-bar {
+    padding: 8px;
+    flex-wrap: wrap;
+    white-space: normal;
+    gap: 4px 8px;
+  }
+
+  .push-left,
+  .push-title-left {
+    min-width: 0;
+    flex: 1 1 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .push-body-divider {
+    margin-left: 0;
+  }
+
+  .mobile-revision-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 36px;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    font-size: inherit;
+  }
+
+  .mobile-revision-details {
+    padding: 0 0 8px 1.75rem;
+    color: #333;
+  }
+
+  .mobile-revision-message {
+    margin-top: 4px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .push-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+  }
+
+  .push-buttons > .btn,
+  .push-buttons > .btn-group {
+    margin: 0 4px 0 0;
+    min-height: 30px;
+  }
+
+  .push .job-list {
+    min-width: 0;
+    padding: 0 8px;
+  }
+
+  .push-jobs-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  .push-jobs-scroll table {
+    table-layout: fixed;
+  }
+
+  .push-jobs-scroll .platform {
+    width: 8rem;
+    min-width: 8rem;
+  }
+
+  .push-counts-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    margin: 8px 0 0 8px;
+    white-space: nowrap;
+  }
+}
+
 .get-next {
   flex-direction: row;
   font-size: 14px;

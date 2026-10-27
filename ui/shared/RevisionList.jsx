@@ -19,6 +19,7 @@ export class RevisionList extends React.PureComponent {
       commitShaClass = '',
       commentFont = '',
       hideCommitSha = false,
+      mobile = false,
     } = this.props;
 
     return (
@@ -32,6 +33,7 @@ export class RevisionList extends React.PureComponent {
             commitShaClass={commitShaClass}
             commentFont={commentFont}
             hideCommitSha={hideCommitSha}
+            mobile={mobile}
           />
         ))}
         {revisionCount > revisions.length && (
@@ -63,6 +65,7 @@ RevisionList.propTypes = {
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
   hideCommitSha: PropTypes.bool,
+  mobile: PropTypes.bool,
 };
 
 export function MoreRevisionsLink(props) {

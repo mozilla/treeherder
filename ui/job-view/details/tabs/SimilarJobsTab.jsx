@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'react-bootstrap';
 
 import { thMaxPushFetchSize } from '../../../helpers/constants';
@@ -13,14 +13,17 @@ import PushModel from '../../../models/push';
 import { notify } from '../../../shared/stores/notificationStore';
 import { getProjectJobUrl } from '../../../helpers/location';
 import { getData } from '../../../helpers/http';
+import useIsMobile from '../../../hooks/useIsMobile';
 
 const PAGE_SIZE = 20;
 
 function SimilarJobsTab({ repoName, classificationMap, selectedJobFull }) {
+  const isMobile = useIsMobile();
   const [similarJobs, setSimilarJobs] = useState([]);
   const [filterNoSuccessfulJobs, setFilterNoSuccessfulJobs] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedSimilarJob, setSelectedSimilarJob] = useState(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,83 +32,88 @@ function SimilarJobsTab({ repoName, classificationMap, selectedJobFull }) {
   similarJobsRef.current = similarJobs;
   selectedSimilarJobRef.current = selectedSimilarJob;
 
-  const showJobInfo = useCallback((job) => {
-    JobModel.get(repoName, job.id).then(async (nextJob) => {
-      addAggregateFields(nextJob);
-      nextJob.failure_classification =
-        classificationMap[nextJob.failure_classification_id];
+  const showJobInfo = useCallback(
+    (job) => {
+      JobModel.get(repoName, job.id).then(async (nextJob) => {
+        addAggregateFields(nextJob);
+        nextJob.failure_classification =
+          classificationMap[nextJob.failure_classification_id];
 
-      const { data, failureStatus } = await getData(
-        getProjectJobUrl(textLogErrorsEndpoint, nextJob.id),
-      );
-      if (!failureStatus && data.length) {
-        nextJob.error_lines = data;
-      }
-      setSelectedSimilarJob(nextJob);
-    });
-  }, [repoName, classificationMap]);
-
-  const getSimilarJobs = useCallback(async (currentPage, currentFilterNoSuccess) => {
-    const options = {
-      count: PAGE_SIZE + 1,
-      offset: (currentPage - 1) * PAGE_SIZE,
-    };
-
-    if (currentFilterNoSuccess) {
-      options.nosuccess = '';
-    }
-
-    const {
-      data: newSimilarJobs,
-      failureStatus,
-    } = await JobModel.getSimilarJobs(selectedJobFull.id, options);
-
-    if (!failureStatus) {
-      const nextPage = newSimilarJobs.length > PAGE_SIZE;
-      setHasNextPage(nextPage);
-      if (nextPage) {
-        newSimilarJobs.pop();
-      }
-      const pushIds = [...new Set(newSimilarJobs.map((job) => job.push_id))];
-      let pushList = { results: [] };
-      const { data, failureStatus: pushFailureStatus } = await PushModel.getList({
-        id__in: pushIds.join(','),
-        count: thMaxPushFetchSize,
-      });
-
-      if (!pushFailureStatus) {
-        pushList = data;
-        const pushes = pushList.results.reduce(
-          (acc, push) => ({ ...acc, [push.id]: push }),
-          {},
+        const { data, failureStatus } = await getData(
+          getProjectJobUrl(textLogErrorsEndpoint, nextJob.id),
         );
-        newSimilarJobs.forEach((simJob) => {
-          simJob.result_set = pushes[simJob.push_id];
-          simJob.revisionResultsetFilterUrl = getJobsUrl({
-            repo: repoName,
-            revision: simJob.result_set.revisions[0].revision,
+        if (!failureStatus && data.length) {
+          nextJob.error_lines = data;
+        }
+        setSelectedSimilarJob(nextJob);
+      });
+    },
+    [repoName, classificationMap],
+  );
+
+  const getSimilarJobs = useCallback(
+    async (currentPage, currentFilterNoSuccess) => {
+      const options = {
+        count: PAGE_SIZE + 1,
+        offset: (currentPage - 1) * PAGE_SIZE,
+      };
+
+      if (currentFilterNoSuccess) {
+        options.nosuccess = '';
+      }
+
+      const { data: newSimilarJobs, failureStatus } =
+        await JobModel.getSimilarJobs(selectedJobFull.id, options);
+
+      if (!failureStatus) {
+        const nextPage = newSimilarJobs.length > PAGE_SIZE;
+        setHasNextPage(nextPage);
+        if (nextPage) {
+          newSimilarJobs.pop();
+        }
+        const pushIds = [...new Set(newSimilarJobs.map((job) => job.push_id))];
+        let pushList = { results: [] };
+        const { data, failureStatus: pushFailureStatus } =
+          await PushModel.getList({
+            id__in: pushIds.join(','),
+            count: thMaxPushFetchSize,
           });
-          simJob.authorResultsetFilterUrl = getJobsUrl({
-            repo: repoName,
-            author: simJob.result_set.author,
+
+        if (!pushFailureStatus) {
+          pushList = data;
+          const pushes = pushList.results.reduce(
+            (acc, push) => ({ ...acc, [push.id]: push }),
+            {},
+          );
+          newSimilarJobs.forEach((simJob) => {
+            simJob.result_set = pushes[simJob.push_id];
+            simJob.revisionResultsetFilterUrl = getJobsUrl({
+              repo: repoName,
+              revision: simJob.result_set.revisions[0].revision,
+            });
+            simJob.authorResultsetFilterUrl = getJobsUrl({
+              repo: repoName,
+              author: simJob.result_set.author,
+            });
           });
-        });
-        setSimilarJobs((prev) => [...prev, ...newSimilarJobs]);
-        if (!selectedSimilarJobRef.current && newSimilarJobs.length > 0) {
-          showJobInfo(newSimilarJobs[0]);
+          setSimilarJobs((prev) => [...prev, ...newSimilarJobs]);
+          if (!selectedSimilarJobRef.current && newSimilarJobs.length > 0) {
+            showJobInfo(newSimilarJobs[0]);
+          }
+        } else {
+          notify(`Error fetching similar jobs push data: ${data}`, 'danger', {
+            sticky: true,
+          });
         }
       } else {
-        notify(`Error fetching similar jobs push data: ${data}`, 'danger', {
+        notify(`Error fetching similar jobs: ${failureStatus}`, 'danger', {
           sticky: true,
         });
       }
-    } else {
-      notify(`Error fetching similar jobs: ${failureStatus}`, 'danger', {
-        sticky: true,
-      });
-    }
-    setIsLoading(false);
-  }, [selectedJobFull.id, repoName, showJobInfo]);
+      setIsLoading(false);
+    },
+    [selectedJobFull.id, repoName, showJobInfo],
+  );
 
   useEffect(() => {
     getSimilarJobs(1, false);
@@ -129,14 +137,23 @@ function SimilarJobsTab({ repoName, classificationMap, selectedJobFull }) {
   const selectedSimilarJobId = selectedSimilarJob
     ? selectedSimilarJob.id
     : null;
+  const filterControl = (
+    <form className="form form-inline">
+      <label className="checkbox">
+        <input
+          onChange={toggleFilter}
+          type="checkbox"
+          checked={filterNoSuccessfulJobs}
+        />
+        <span className="fs-80">Exclude successful jobs</span>
+      </label>
+    </form>
+  );
 
   return (
-    <div
-      className="similar-jobs w-100"
-      role="region"
-      aria-label="Similar Jobs"
-    >
+    <div className="similar-jobs w-100" role="region" aria-label="Similar Jobs">
       <div className="similar-job-list">
+        {isMobile && filterControl}
         <table className="table table-super-condensed table-hover">
           <thead>
             <tr>
@@ -156,11 +173,12 @@ function SimilarJobsTab({ repoName, classificationMap, selectedJobFull }) {
               return (
                 <tr
                   key={similarJob.id}
-                  onClick={() => showJobInfo(similarJob)}
+                  onClick={() => {
+                    if (isMobile) setDetailsOpen(true);
+                    showJobInfo(similarJob);
+                  }}
                   className={
-                    selectedSimilarJobId === similarJob.id
-                      ? 'table-active'
-                      : ''
+                    selectedSimilarJobId === similarJob.id ? 'table-active' : ''
                   }
                 >
                   <td>
@@ -207,17 +225,23 @@ function SimilarJobsTab({ repoName, classificationMap, selectedJobFull }) {
           </Button>
         )}
       </div>
-      <div className="similar-job-detail-panel">
-        <form className="form form-inline">
-          <div className="checkbox">
-            <input
-              onChange={toggleFilter}
-              type="checkbox"
-              checked={filterNoSuccessfulJobs}
-            />
-            <span className="fs-80">Exclude successful jobs</span>
-          </div>
-        </form>
+      <div
+        className={`similar-job-detail-panel ${isMobile && detailsOpen ? 'is-open' : ''}`}
+        aria-hidden={isMobile && !detailsOpen}
+        inert={isMobile && !detailsOpen}
+      >
+        {isMobile ? (
+          <Button
+            className="similar-job-detail-close"
+            variant="link"
+            aria-label="Back to similar jobs"
+            onClick={() => setDetailsOpen(false)}
+          >
+            <FontAwesomeIcon icon={faTimes} />
+          </Button>
+        ) : (
+          filterControl
+        )}
         <div className="similar_job_detail">
           {selectedSimilarJob && (
             <table className="table table-super-condensed">

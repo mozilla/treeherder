@@ -163,6 +163,10 @@ test.describe('Jobs View', () => {
     await expect(buildJobs.first()).toBeVisible();
     await expect(yamlJobs.first()).toBeVisible();
 
+    if (test.info().project.name === 'mobile-firefox') {
+      await page.getByRole('button', { name: 'Show job filters' }).click();
+    }
+
     const quickFilter = page.locator('#quick-filter');
     await quickFilter.fill('yaml');
     await quickFilter.press('Enter');
@@ -172,5 +176,456 @@ test.describe('Jobs View', () => {
     // Non-matching jobs are removed from the push list; matching ones remain.
     await expect(buildJobs).toHaveCount(0);
     await expect(yamlJobs.first()).toBeVisible();
+  });
+
+  test('mobile layout stays mobile when rotated to landscape', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const sheet = page.locator('.mobile-job-details');
+    const sheetHeight = async () => (await sheet.boundingBox()).height;
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await expect(sheet).toHaveCSS('height', '422px');
+
+    await page.setViewportSize({ width: 844, height: 390 });
+    await expect(
+      page.getByRole('button', { name: 'Open navigation' }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Show job filters' }),
+    ).toBeVisible();
+    await expect(page.locator('.mobile-revision-toggle').first()).toBeVisible();
+    // Landscape opens taller: 70% of the 390px screen.
+    expect(await sheetHeight()).toBeCloseTo(273, 0);
+    await sheet.getByRole('button', { name: 'Show job summary' }).click();
+    await expect(sheet.locator('#find-job-btn')).toBeHidden();
+
+    // A resized sheet keeps its share of the screen when rotated back.
+    await sheet
+      .getByRole('slider', { name: 'Resize job details' })
+      .press('ArrowDown');
+    expect(await sheetHeight()).toBeCloseTo(390 * 0.65, 0);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(sheet).toBeVisible();
+    expect(await sheetHeight()).toBeCloseTo(844 * 0.65, 0);
+  });
+
+  test('short desktop windows keep the desktop layout', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'firefox');
+
+    await page.setViewportSize({ width: 1280, height: 400 });
+    await expect(page.getByTestId('push-header').first()).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Open navigation' }),
+    ).toHaveCount(0);
+    await expect(page.locator('.mobile-revision-toggle')).toHaveCount(0);
+  });
+
+  test('mobile job field filters keep their actions in view', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    await page.getByRole('button', { name: 'Show job filters' }).click();
+    await page.locator('button[title="Filter by a job field"]').click();
+
+    const form = page.locator('.active-filters-bar form');
+    await expect(form.getByRole('textbox', { name: 'Value' })).toBeVisible();
+    await expect(form.getByRole('button', { name: 'add' })).toBeVisible();
+    await expect(form.getByRole('button', { name: 'cancel' })).toBeVisible();
+    expect(
+      await form.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth,
+      ),
+    ).toBe(true);
+
+    await page
+      .getByRole('combobox', { name: 'Field' })
+      .selectOption('failure_classification_id');
+    await expect(page.locator('#job-filter-choice-value')).toBeVisible();
+    expect(
+      await form.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth,
+      ),
+    ).toBe(true);
+  });
+
+  test('mobile navigation and job details preserve the browsing flow', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    await expect(
+      page.getByRole('button', { name: 'Open navigation' }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Open navigation' }).click();
+    await expect(
+      page.locator('#mobile-navigation').getByRole('button', { name: 'Repos' }),
+    ).toBeVisible();
+    await page
+      .locator('#mobile-navigation')
+      .getByRole('button', { name: 'Close' })
+      .click();
+
+    await expect(
+      page.locator('#watched-repo-navbar .btn-watched-repo.active'),
+    ).toBeVisible();
+    const repoInfo = page
+      .locator('#watched-repo-navbar .watched-repos .dropdown-toggle')
+      .first();
+    await expect(repoInfo).toBeVisible();
+    await repoInfo.click();
+    expect(
+      await page.evaluate(() => {
+        const row = document.querySelector(
+          '#watched-repo-navbar .watched-repos',
+        );
+        const menu = row.querySelector('.dropdown-menu.show');
+        const rect = menu.getBoundingClientRect();
+        const hit = document.elementFromPoint(rect.left + 16, rect.top + 24);
+        return (
+          rect.bottom > row.getBoundingClientRect().bottom && menu.contains(hit)
+        );
+      }),
+    ).toBe(true);
+    await repoInfo.click();
+    await expect(page.locator('#quick-filter')).toBeHidden();
+    await page.getByRole('button', { name: 'Show job filters' }).click();
+    const quickFilter = page.locator('#quick-filter');
+    await expect(quickFilter).toBeVisible();
+    await quickFilter.fill('yaml');
+    await quickFilter.press('Enter');
+    await expect(page).toHaveURL(/searchStr=yaml/);
+    await expect(
+      page.getByRole('button', { name: 'Hide job filters' }),
+    ).toBeVisible();
+    await expect(quickFilter).toBeVisible();
+    await quickFilter.fill('');
+    await quickFilter.press('Enter');
+    await expect(page).not.toHaveURL(/searchStr=/);
+    await page.getByRole('button', { name: 'Hide job filters' }).click();
+    await expect(quickFilter).toBeHidden();
+    await expect(page.getByTestId('push-header').first()).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await expect(page.locator('.mobile-job-details')).toBeVisible();
+    await expect(
+      page.locator('.mobile-job-details #details-panel'),
+    ).toContainText(BUILD_JOB.job_type_name);
+    const sheet = page.locator('.mobile-job-details');
+    await expect(sheet).toHaveCSS('height', '422px');
+    await sheet
+      .getByRole('slider', { name: 'Resize job details' })
+      .press('End');
+    await expect(sheet).toHaveCSS('height', '844px');
+    await expect(
+      page.locator('.mobile-job-details #pinboard-btn'),
+    ).toBeHidden();
+    const selectedTab = sheet.locator(
+      '.tab-header-tabs [role="tab"].selected-tab',
+    );
+    await expect(selectedTab).toBeVisible();
+    await sheet.getByRole('button', { name: 'More tab options' }).click();
+    await sheet
+      .locator('.tab-overflow-menu')
+      .getByText('Artifacts and Debugging Tools')
+      .click();
+    await expect(
+      sheet.getByRole('tab', { name: 'Artifacts and Debugging Tools' }),
+    ).toBeVisible();
+    await expect(sheet.locator('.tab-overflow-menu')).toBeHidden();
+    await expect(page).toHaveURL(
+      new RegExp(`selectedTaskRun=${BUILD_JOB.task_id}`),
+    );
+
+    await page.reload();
+    await expect(
+      page.locator('.mobile-job-details #details-panel'),
+    ).toBeVisible();
+    await page
+      .locator('.mobile-job-details')
+      .getByRole('button', { name: 'Close' })
+      .click();
+    await expect(page).not.toHaveURL(/selectedTaskRun=/);
+    await expect(page.getByTestId('push-header').first()).toBeVisible();
+  });
+
+  test('mobile commit rows hide details until tapped', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const { revision, comments } = pushList.results[0].revisions[0];
+    const shortHash = revision.substring(0, 12);
+    const firstPush = page.getByTestId('push-header').first().locator('..');
+    const toggle = firstPush
+      .locator('.mobile-revision-toggle')
+      .filter({ hasText: comments })
+      .first();
+
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(firstPush.getByText(shortHash)).toHaveCount(0);
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const details = firstPush.locator(`#revision-details-${revision}`);
+    await expect(details.getByText(shortHash)).toBeVisible();
+    await expect(details.getByText('Jaril', { exact: true })).toBeVisible();
+    await expect(details.locator('.mobile-revision-message')).toHaveText(
+      comments,
+    );
+
+    await toggle.click();
+    await expect(details).toHaveCount(0);
+  });
+
+  test('mobile job rows wrap instead of scrolling sideways', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    // Give the Gecko Decision platform enough jobs to overflow one line.
+    const idIndex = jobList.job_property_names.indexOf('id');
+    const symbolIndex = jobList.job_property_names.indexOf('job_type_symbol');
+    const taskIndex = jobList.job_property_names.indexOf('task_id');
+    const decision = jobList.results.find((job) => job[symbolIndex] === 'D');
+    const extraJobs = Array.from({ length: 40 }, (_, i) => {
+      const job = [...decision];
+      job[idIndex] = 900000000 + i;
+      job[symbolIndex] = `T${i}`;
+      job[taskIndex] = `extra-task-${i}`;
+      return job;
+    });
+    await page.route('**/api/jobs/**', (route) =>
+      route.fulfill(
+        json({ ...jobList, results: [...jobList.results, ...extraJobs] }),
+      ),
+    );
+    await page.reload();
+
+    const jobs = page.locator('.push-jobs-scroll').first();
+    const lastJob = jobs.getByTestId('job-btn').filter({ hasText: 'T39' });
+    await expect(lastJob).toBeVisible();
+    const row = lastJob.locator('xpath=ancestor::td[1]');
+    expect((await row.boundingBox()).height).toBeGreaterThan(60);
+    expect(
+      await jobs.evaluate((el) => el.scrollWidth <= el.clientWidth),
+    ).toBe(true);
+  });
+
+  test('mobile pinning stays on the job and resets for the next job', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const sheet = page.locator('.mobile-job-details');
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await sheet.getByRole('button', { name: 'Show job summary' }).click();
+    await expect(sheet.locator('#pin-job-btn')).toBeHidden();
+
+    await sheet.getByRole('button', { name: 'Pin job' }).click();
+    await expect(
+      sheet.getByRole('button', { name: 'Unpin job' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(sheet.locator('#pinboard-panel')).toBeHidden();
+
+    const pinboardToggle = sheet.getByRole('button', {
+      name: 'Show pinboard (1 pinned)',
+    });
+    await expect(pinboardToggle.locator('[data-icon="caret-down"]')).toBeVisible();
+    await pinboardToggle.click();
+    await expect(sheet.locator('#pinboard-panel')).toBeVisible();
+    await expect(
+      sheet
+        .getByRole('button', { name: 'Hide pinboard (1 pinned)' })
+        .locator('[data-icon="caret-up"]'),
+    ).toBeVisible();
+
+    await page.getByTestId('job-btn').filter({ hasText: 'D' }).first().click();
+    await expect(sheet.locator('#pinboard-panel')).toBeHidden();
+    await expect(
+      sheet.getByRole('button', { name: 'Show job summary' }),
+    ).toHaveAttribute('aria-expanded', 'false');
+    await expect(sheet.getByRole('button', { name: 'Pin job' })).toBeVisible();
+    await expect(
+      sheet.getByRole('button', { name: 'Show pinboard (1 pinned)' }),
+    ).toBeVisible();
+  });
+
+  test('mobile job details title shows long job names in full', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const title = page.locator('#mobile-job-details-title');
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await expect(title).toHaveCSS('font-size', '14px');
+    expect(
+      (await page.locator('.mobile-job-details .offcanvas-header').boundingBox())
+        .height,
+    ).toBeLessThanOrEqual(36);
+
+    await page.getByTestId('job-btn').filter({ hasText: 'Cpp' }).first().click();
+    await expect(title).toContainText('jittest');
+    expect(
+      await title.evaluate(
+        (el) =>
+          el.scrollHeight <= el.clientHeight &&
+          el.scrollWidth <= el.clientWidth,
+      ),
+    ).toBe(true);
+  });
+
+  test('mobile pinboard spaces its fields and highlights the selected job', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const sheet = page.locator('.mobile-job-details');
+    const jobs = page.locator('.push-jobs-scroll [data-testid="job-btn"]');
+    await expect(jobs.first()).toBeVisible();
+    const symbols = [];
+    for (let i = 0; i < 3; i++) {
+      symbols.push((await jobs.nth(i).textContent()).trim());
+      // The sheet can cover the job row, so dispatch the click directly.
+      await jobs.nth(i).dispatchEvent('click');
+      await sheet.getByRole('button', { name: 'Pin job', exact: true }).click();
+    }
+    await sheet
+      .getByRole('button', { name: 'Show pinboard (3 pinned)' })
+      .click();
+
+    const box = async (selector) =>
+      page.locator(`.mobile-job-details ${selector}`).first().boundingBox();
+    const list = await box('#pinned-job-list .content');
+    const bugs = await box('#pinboard-related-bugs .content');
+    const select = await box('#pinboard-classification-select');
+    const comment = await box('#classification-comment');
+    const unpin = await box('.pinned-job-chip .pinned-job-close-btn');
+
+    expect(bugs.y - (list.y + list.height)).toBeGreaterThanOrEqual(12);
+    expect(comment.y - (select.y + select.height)).toBeGreaterThanOrEqual(8);
+    expect(unpin.width).toBeGreaterThanOrEqual(32);
+    expect(unpin.height).toBeGreaterThanOrEqual(32);
+
+    const selected = sheet.locator('.pinned-job-chip.is-selected');
+    await expect(selected).toHaveCount(1);
+    await expect(selected.locator('.pinned-job')).toHaveText(symbols[2]);
+    const chip = await selected.boundingBox();
+    // The 2px outline sits 1px outside the chip and must not be clipped.
+    expect(chip.y - list.y).toBeGreaterThanOrEqual(3);
+  });
+
+  test('mobile bug filer stacks the bug reference fields', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    await page.route('**/api/project/autoland/job-log-url/**', (route) =>
+      route.fulfill(
+        json([
+          {
+            id: 1,
+            job_id: BUILD_JOB.id,
+            name: 'live_backing_log',
+            url: 'https://example.com/log',
+            parse_status: 'parsed',
+          },
+        ]),
+      ),
+    );
+    await page.route(
+      `**/api/project/autoland/jobs/${BUILD_JOB.id}/bug_suggestions/**`,
+      (route) => route.fulfill(json(loadFixture('bug_suggestions.json'))),
+    );
+
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await page
+      .locator('.mobile-job-details')
+      .getByTitle('File a bug for this failure')
+      .first()
+      .click();
+
+    const regressedBy = page.locator('#regressedBy');
+    const seeAlso = page.locator('#seeAlso');
+    await expect(seeAlso).toBeVisible();
+    await expect(regressedBy).toHaveCSS('height', '44px');
+    await expect(seeAlso).toHaveCSS('height', '44px');
+    const regressedBox = await regressedBy.boundingBox();
+    const seeAlsoBox = await seeAlso.boundingBox();
+    expect(seeAlsoBox.y).toBeGreaterThan(regressedBox.y + regressedBox.height);
+    expect(regressedBox.width).toBeGreaterThan(250);
+    await expect(
+      page.getByRole('button', { name: 'Find Product' }),
+    ).toHaveCSS('height', '30px');
+  });
+
+  test('mobile Similar Jobs opens details from a list row', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const jobIdIndex = jobList.job_property_names.indexOf('id');
+    await page.route('**/api/failureclassification/', (route) =>
+      route.fulfill(json([{ id: 1, name: 'Not classified' }])),
+    );
+    await page.route(
+      `**/api/project/autoland/jobs/${BUILD_JOB.id}/similar_jobs/**`,
+      (route) =>
+        route.fulfill(
+          json({
+            job_property_names: jobList.job_property_names,
+            results: jobList.results.filter(
+              (row) => row[jobIdIndex] === BUILD_JOB.id,
+            ),
+          }),
+        ),
+    );
+    await page.route('**/api/project/autoland/push/**', (route) => {
+      if (new URL(route.request().url()).searchParams.has('id__in')) {
+        return route.fulfill(json({ results: [pushList.results[0]] }));
+      }
+      return route.fallback();
+    });
+    await page.goto('/jobs?repo=autoland');
+
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    const sheet = page.locator('.mobile-job-details');
+    await sheet
+      .getByRole('slider', { name: 'Resize job details' })
+      .press('End');
+    await sheet.getByRole('button', { name: 'More tab options' }).click();
+    await sheet.locator('.tab-overflow-menu').getByText('Similar Jobs').click();
+
+    const similarJobs = sheet.getByRole('region', { name: 'Similar Jobs' });
+    const details = similarJobs.locator('.similar-job-detail-panel');
+    await expect(
+      similarJobs.getByLabel('Exclude successful jobs'),
+    ).toBeVisible();
+    await expect(
+      similarJobs.locator('.similar-job-list tbody tr').first(),
+    ).toBeVisible();
+    await expect(details).toBeHidden();
+
+    await similarJobs
+      .locator('.similar-job-list tbody tr')
+      .first()
+      .locator('td')
+      .first()
+      .click();
+    await expect(details).toBeVisible();
+    await expect(details).toContainText('Job name');
+    await details.getByRole('button', { name: 'Back to similar jobs' }).click();
+    await expect(details).toBeHidden();
+    await expect(similarJobs.locator('.similar-job-list')).toBeVisible();
   });
 });
