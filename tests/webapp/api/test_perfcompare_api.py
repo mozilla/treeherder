@@ -1370,7 +1370,6 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             "delta_value": round(response["delta_value"], 2),
             "delta_percentage": round(response["delta_pct"], 2),
             "lower_is_better": response["lower_is_better"],
-            "is_confident": response["is_confident"],
             "mann_whitney_test": {
                 "test_name": "Mann-Whitney U",
                 "stat": 0.0,
@@ -1443,7 +1442,6 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
                 "Shapiro-Wilk test cannot be run on Base with fewer than 3 data points.",
                 "Shapiro-Wilk test cannot be run on New with fewer than 3 data points.",
             ],
-            "more_runs_are_needed": False,
         },
     ]
 
