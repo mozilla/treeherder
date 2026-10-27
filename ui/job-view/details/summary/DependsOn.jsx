@@ -6,27 +6,31 @@ import { usePushesStore } from '../../../shared/stores/pushesStore';
 import { selectJobViaUrl } from '../../../shared/stores/selectedJobStore';
 
 // The task definition lists every task this one waits on. Most are toolchains
-// and docker images reused from earlier pushes, which aren't jobs here, so only
-// the ones in the loaded pushes are named. A retried task keeps its latest run.
-export const findDependencies = (taskIds, jobMap) => {
-  const wanted = new Set(taskIds);
-  const byTask = new Map();
+// and docker images built in earlier pushes, so only the ones in this job's own
+// push are named, and the rest are counted. A retried task keeps its latest run.
+export const findDependencies = (taskIds, pushId, jobMap) => {
+  const dependencyIds = new Set(taskIds);
+  const latestRuns = new Map();
   for (const job of Object.values(jobMap)) {
-    if (!wanted.has(job.task_id)) continue;
-    const seen = byTask.get(job.task_id);
-    if (!seen || job.retry_id > seen.retry_id) byTask.set(job.task_id, job);
+    if (job.push_id !== pushId || !dependencyIds.has(job.task_id)) continue;
+    const seen = latestRuns.get(job.task_id);
+    if (!seen || job.retry_id > seen.retry_id) latestRuns.set(job.task_id, job);
   }
-  const jobs = [...byTask.values()];
+  const jobs = [...latestRuns.values()];
   // Unfinished first: they're what a waiting job is waiting for.
-  jobs.sort((a, b) => (a.state === 'completed') - (b.state === 'completed'));
-  return { jobs, others: wanted.size - jobs.length };
+  const unfinished = jobs.filter((job) => job.state !== 'completed');
+  const finished = jobs.filter((job) => job.state === 'completed');
+  return {
+    jobs: [...unfinished, ...finished],
+    others: dependencyIds.size - jobs.length,
+  };
 };
 
-function DependsOn({ taskIds = [] }) {
+function DependsOn({ taskIds = [], pushId }) {
   const jobMap = usePushesStore((state) => state.jobMap);
   const { jobs, others } = useMemo(
-    () => findDependencies(taskIds, jobMap),
-    [taskIds, jobMap],
+    () => findDependencies(taskIds, pushId, jobMap),
+    [taskIds, pushId, jobMap],
   );
 
   if (!taskIds.length) return null;
@@ -60,6 +64,7 @@ function DependsOn({ taskIds = [] }) {
 
 DependsOn.propTypes = {
   taskIds: PropTypes.arrayOf(PropTypes.string),
+  pushId: PropTypes.number.isRequired,
 };
 
 export default DependsOn;

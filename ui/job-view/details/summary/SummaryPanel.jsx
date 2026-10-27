@@ -98,11 +98,14 @@ class SummaryPanel extends React.PureComponent {
                   selectedJobFull={selectedJobFull}
                   taskExpired={taskExpired}
                 />
-                <DependsOn taskIds={selectedJobFull.taskDependencies} />
                 <JobInfo
                   job={selectedJobFull}
                   extraFields={[...logStatus, ...artifactStatus]}
                   currentRepo={currentRepo}
+                />
+                <DependsOn
+                  taskIds={selectedJobFull.taskDependencies}
+                  pushId={selectedJobFull.push_id}
                 />
               </ul>
             </div>
