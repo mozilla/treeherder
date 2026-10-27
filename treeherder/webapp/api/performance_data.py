@@ -1475,7 +1475,7 @@ class PerfCompareResults(generics.ListAPIView):
             push_timestamp=push_timestamp,
         )
 
-        summary_ids = self._get_alert_summary_ids(new_push)
+        alerts_by_signature = self._get_alerts_by_signature(new_push)
 
         # Process results based on test version
         cache_key = None
@@ -1493,7 +1493,7 @@ class PerfCompareResults(generics.ListAPIView):
 
             cached = PerfCompareMwuCache.objects.filter(hash_key=cache_key).first()
             if cached:
-                return Response(data=self._add_alert_summary_ids(cached.results, summary_ids))
+                return Response(data=self._add_alert_ids(cached.results, alerts_by_signature))
 
             comparison_results = PerfCompareResults._process_mann_whitney_u(
                 comparison_inputs, header_names, platforms
@@ -1510,12 +1510,12 @@ class PerfCompareResults(generics.ListAPIView):
             json_safe_data = json.loads(json.dumps(serialized_data, cls=DecimalEncoder))
             PerfCompareMwuCache.objects.get_or_create(hash_key=cache_key, results=json_safe_data)
 
-        return Response(data=self._add_alert_summary_ids(serialized_data, summary_ids))
+        return Response(data=self._add_alert_ids(serialized_data, alerts_by_signature))
 
     @staticmethod
-    def _get_alert_summary_ids(new_push: models.Push) -> dict[int, int]:
+    def _get_alerts_by_signature(new_push: models.Push) -> dict[int, tuple[int, int]]:
         """
-        Map signature id -> id of the alert summary that tracks an alert on new_push.
+        Map signature id -> (alert id, tracking summary id) for alerts on new_push.
         Reassigned alerts belong to the push of the summary they were moved to.
         Downstream alerts stay on their own push and point to the upstream summary.
         Invalid alerts are ignored.
@@ -1538,18 +1538,20 @@ class PerfCompareResults(generics.ListAPIView):
             .order_by("id")
         )
         return {
-            signature_id: related_summary_id or summary_id
-            for signature_id, summary_id, related_summary_id in alerts.values_list(
-                "series_signature_id", "summary_id", "related_summary_id"
+            signature_id: (alert_id, related_summary_id or summary_id)
+            for alert_id, signature_id, summary_id, related_summary_id in alerts.values_list(
+                "id", "series_signature_id", "summary_id", "related_summary_id"
             )
         }
 
     @staticmethod
-    def _add_alert_summary_ids(
-        rows: MutableSequence[dict], summary_ids: dict[int, int]
+    def _add_alert_ids(
+        rows: MutableSequence[dict], alerts_by_signature: dict[int, tuple[int, int]]
     ) -> MutableSequence[dict]:
         for row in rows:
-            row["alert_summary_id"] = summary_ids.get(row["new_signature_id"])
+            row["alert_id"], row["alert_summary_id"] = alerts_by_signature.get(
+                row["new_signature_id"], (None, None)
+            )
         return rows
 
     @staticmethod
