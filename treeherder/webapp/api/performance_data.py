@@ -6,7 +6,7 @@ import multiprocessing
 import time
 import warnings
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator, MutableSequence, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from decimal import Decimal
@@ -1475,6 +1475,8 @@ class PerfCompareResults(generics.ListAPIView):
             push_timestamp=push_timestamp,
         )
 
+        summary_ids = self._get_alert_summary_ids(new_push)
+
         # Process results based on test version
         cache_key = None
         if test_version == "mann-whitney-u":
@@ -1491,7 +1493,7 @@ class PerfCompareResults(generics.ListAPIView):
 
             cached = PerfCompareMwuCache.objects.filter(hash_key=cache_key).first()
             if cached:
-                return Response(data=cached.results)
+                return Response(data=self._add_alert_summary_ids(cached.results, summary_ids))
 
             comparison_results = PerfCompareResults._process_mann_whitney_u(
                 comparison_inputs, header_names, platforms
@@ -1508,7 +1510,47 @@ class PerfCompareResults(generics.ListAPIView):
             json_safe_data = json.loads(json.dumps(serialized_data, cls=DecimalEncoder))
             PerfCompareMwuCache.objects.get_or_create(hash_key=cache_key, results=json_safe_data)
 
-        return Response(data=serialized_data)
+        return Response(data=self._add_alert_summary_ids(serialized_data, summary_ids))
+
+    @staticmethod
+    def _get_alert_summary_ids(new_push: models.Push) -> dict[int, int]:
+        """
+        Map signature id -> id of the alert summary that tracks an alert on new_push.
+        Reassigned alerts belong to the push of the summary they were moved to.
+        Downstream alerts stay on their own push and point to the upstream summary.
+        Invalid alerts are ignored.
+        """
+        # Resolve the push's summaries first so the alert lookup below can use the
+        # indexed summary_id/related_summary_id columns instead of scanning all alerts.
+        summaries_on_push = list(
+            PerformanceAlertSummary.objects.filter(push=new_push).values_list("id", flat=True)
+        )
+        if not summaries_on_push:
+            return {}
+
+        alerts = (
+            PerformanceAlert.objects.filter(
+                (Q(summary_id__in=summaries_on_push) & ~Q(status=PerformanceAlert.REASSIGNED))
+                | Q(status=PerformanceAlert.REASSIGNED, related_summary_id__in=summaries_on_push)
+            )
+            .exclude(status=PerformanceAlert.INVALID)
+            # deterministic when several alerts share a signature: the newest one wins
+            .order_by("id")
+        )
+        return {
+            signature_id: related_summary_id or summary_id
+            for signature_id, summary_id, related_summary_id in alerts.values_list(
+                "series_signature_id", "summary_id", "related_summary_id"
+            )
+        }
+
+    @staticmethod
+    def _add_alert_summary_ids(
+        rows: MutableSequence[dict], summary_ids: dict[int, int]
+    ) -> MutableSequence[dict]:
+        for row in rows:
+            row["alert_summary_id"] = summary_ids.get(row["new_signature_id"])
+        return rows
 
     @staticmethod
     def _comparison_pairs(
