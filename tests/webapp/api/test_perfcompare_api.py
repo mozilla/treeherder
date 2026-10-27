@@ -1707,12 +1707,12 @@ def test_perfcompare_results_limits_number_of_data_points(
     # When: requesting only two data points per side
     response = client.get(reverse("perfcompare-results") + build_query(2))
 
-    # Then: the response is capped on both sides
+    # Then: the response is capped on both sides, keeping the most recent points
     assert response.status_code == 200
     results = response.json()
     assert len(results) == 1
-    assert results[0]["base_runs"] == [1.0, 2.0]
-    assert results[0]["new_runs"] == [4.0, 5.0]
+    assert results[0]["base_runs"] == [3.0, 2.0]
+    assert results[0]["new_runs"] == [6.0, 5.0]
 
 
 def test_perfcompare_results_without_number_of_data_points_returns_all(
@@ -1787,12 +1787,12 @@ def test_perfcompare_results_number_of_data_points_above_available_returns_all(
     # When: requesting more data points than exist
     response = client.get(reverse("perfcompare-results") + build_query(10))
 
-    # Then: all data points are returned
+    # Then: all data points are returned (most recent first)
     assert response.status_code == 200
     results = response.json()
     assert len(results) == 1
-    assert results[0]["base_runs"] == [1.0, 2.0, 3.0]
-    assert results[0]["new_runs"] == [4.0, 5.0, 6.0]
+    assert results[0]["base_runs"] == [3.0, 2.0, 1.0]
+    assert results[0]["new_runs"] == [6.0, 5.0, 4.0]
 
 
 def test_number_of_data_points_must_be_integer(
@@ -1829,3 +1829,216 @@ def test_number_of_data_points_must_be_integer(
 
     # Then: the request is rejected
     assert response.status_code == 400
+
+
+@pytest.mark.parametrize("number_of_data_points", ["0", "-1"])
+def test_number_of_data_points_must_be_positive(
+    client,
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    number_of_data_points,
+):
+    """
+    Given: a perfcompare request.
+    When: number_of_data_points is zero or negative.
+    Then: the request is rejected with a 400.
+    """
+    # Given: valid base and new data
+    build_query = _setup_number_of_data_points_compare(
+        create_signature,
+        test_perf_signature,
+        test_repository,
+        try_repository,
+        test_perfcomp_push,
+        test_perfcomp_push_2,
+        test_linux_platform,
+        base_values=[1.0, 2.0, 3.0],
+        new_values=[4.0, 5.0, 6.0],
+    )
+
+    # When: number_of_data_points is not a positive integer
+    response = client.get(reverse("perfcompare-results") + build_query(number_of_data_points))
+
+    # Then: the request is rejected
+    assert response.status_code == 400
+
+
+def _setup_multi_signature_number_of_data_points_compare(
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    number_of_signatures=2,
+    data_points_per_signature=3,
+):
+    """
+    Set up matching base/new signatures, each with several data points.
+
+    Data points have increasing push timestamps so that the "most recent N"
+    points for each signature are predictable.
+    """
+    test_perfcomp_push.repository = try_repository
+    test_perfcomp_push.time = FOUR_DAYS_AGO
+    test_perfcomp_push.save()
+    test_perfcomp_push_2.time = datetime.datetime.now()
+    test_perfcomp_push_2.save()
+
+    job = Job.objects.filter(pk__in=range(1, 11)).first()
+
+    for i in range(number_of_signatures):
+        suite = f"suite{i}"
+        test = f"test{i}"
+        base_signature = create_signature(
+            signature_hash=(20 * f"b{i}"),
+            extra_options="e10s fission stylo webrender",
+            platform=test_linux_platform,
+            measurement_unit="ms",
+            suite=suite,
+            test=test,
+            test_perf_signature=test_perf_signature,
+            repository=try_repository,
+            application="firefox",
+        )
+        new_signature = create_signature(
+            signature_hash=(20 * f"n{i}"),
+            extra_options="e10s fission stylo webrender",
+            platform=test_linux_platform,
+            measurement_unit="ms",
+            suite=suite,
+            test=test,
+            test_perf_signature=test_perf_signature,
+            repository=test_repository,
+            application="firefox",
+        )
+
+        for j in range(data_points_per_signature):
+            age = datetime.timedelta(days=data_points_per_signature - 1 - j)
+            PerformanceDatum.objects.create(
+                value=float(1000 * i + j),
+                push_timestamp=test_perfcomp_push.time - age,
+                job=job,
+                push=test_perfcomp_push,
+                repository=try_repository,
+                signature=base_signature,
+            )
+            PerformanceDatum.objects.create(
+                value=float(1000 * i + 100 + j),
+                push_timestamp=test_perfcomp_push_2.time - age,
+                job=job,
+                push=test_perfcomp_push_2,
+                repository=test_repository,
+                signature=new_signature,
+            )
+
+    def build_query(number_of_data_points=None):
+        query = (
+            f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+            f"&base_revision={test_perfcomp_push.revision}"
+            f"&new_revision={test_perfcomp_push_2.revision}"
+            f"&framework={test_perf_signature.framework_id}&no_subtests=true"
+        )
+        if number_of_data_points is not None:
+            query += f"&number_of_data_points={number_of_data_points}"
+        return query
+
+    return build_query
+
+
+def test_perfcompare_results_limits_number_of_data_points_per_signature(
+    client,
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+):
+    """
+    Given: two matching base/new signature pairs, each with three data points.
+    When: the comparison is requested with number_of_data_points=2.
+    Then: every signature is capped at two points, not just the side as a whole.
+    """
+    build_query = _setup_multi_signature_number_of_data_points_compare(
+        create_signature,
+        test_perf_signature,
+        test_repository,
+        try_repository,
+        test_perfcomp_push,
+        test_perfcomp_push_2,
+        test_linux_platform,
+    )
+
+    # When: requesting two data points per signature
+    response = client.get(reverse("perfcompare-results") + build_query(2))
+
+    # Then: each signature keeps its two most recent points
+    assert response.status_code == 200
+    results_by_test = {result["test"]: result for result in response.json()}
+    assert set(results_by_test) == {"test0", "test1"}
+
+    assert results_by_test["test0"]["base_runs"] == [2.0, 1.0]
+    assert results_by_test["test0"]["new_runs"] == [102.0, 101.0]
+    assert results_by_test["test1"]["base_runs"] == [1002.0, 1001.0]
+    assert results_by_test["test1"]["new_runs"] == [1102.0, 1101.0]
+
+
+def test_get_perf_data_limits_per_signature_when_datums_have_replicates(
+    test_perf_signature,
+    test_perf_signature_2,
+    test_repository,
+    test_perfcomp_push,
+):
+    """
+    Given: two signatures with three data points each, one of which has replicates.
+    When: _get_perf_data limits to two data points per signature.
+    Then: each signature keeps two datums (replicates do not consume slots).
+    """
+    now = datetime.datetime.now()
+    for signature, values in (
+        (test_perf_signature, [1.0, 2.0, 3.0]),
+        (test_perf_signature_2, [101.0, 102.0, 103.0]),
+    ):
+        for j, value in enumerate(values):
+            PerformanceDatum.objects.create(
+                value=value,
+                push_timestamp=now - datetime.timedelta(days=2 - j),
+                push=test_perfcomp_push,
+                repository=test_repository,
+                signature=signature,
+            )
+
+    # Given: the newest datum of the first signature has two replicate values
+    newest = (
+        PerformanceDatum.objects.filter(signature=test_perf_signature)
+        .order_by("-push_timestamp")
+        .first()
+    )
+    PerformanceDatumReplicate.objects.create(performance_datum=newest, value=10.0)
+    PerformanceDatumReplicate.objects.create(performance_datum=newest, value=11.0)
+
+    # When: limiting to two data points per signature
+    perf_data = PerfCompareResults._get_perf_data(
+        test_repository.name,
+        None,
+        [{"id": test_perf_signature.id}, {"id": test_perf_signature_2.id}],
+        604800,
+        None,
+        None,
+        2,
+    )
+    grouped = PerfCompareResults._get_grouped_perf_data(perf_data)
+
+    # Then: each signature keeps two distinct datums, despite the replicates
+    assert set(grouped.values[test_perf_signature.id]) == {2.0, 3.0}
+    assert set(grouped.values[test_perf_signature_2.id]) == {102.0, 103.0}

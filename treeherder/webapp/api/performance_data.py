@@ -24,14 +24,16 @@ from django.db.models import (
     CharField,
     Count,
     Exists,
+    F,
     OuterRef,
     Q,
     QuerySet,
     Subquery,
     Value,
     When,
+    Window,
 )
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, RowNumber
 from rest_framework import (
     exceptions,
     filters,
@@ -1788,7 +1790,20 @@ class PerfCompareResults(generics.ListAPIView):
             perf_data = perf_data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
 
         if number_of_data_points:
-            return perf_data.order_by("-push_timestamp", "-id")[:number_of_data_points]
+            limited_pks = (
+                perf_data.annotate(
+                    row_number=Window(
+                        expression=RowNumber(),
+                        partition_by=[F("signature_id")],
+                        order_by=[F("push_timestamp").desc(), F("id").desc()],
+                    )
+                )
+                .filter(row_number__lte=number_of_data_points)
+                .values("pk")
+            )
+            return PerformanceDatum.objects.filter(pk__in=Subquery(limited_pks)).order_by(
+                "signature_id", "-push_timestamp", "-id"
+            )
         return perf_data
 
     @staticmethod
