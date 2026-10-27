@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime, timedelta
 
@@ -7,6 +8,10 @@ from django.urls import reverse
 from tests.conftest import create_perf_alert
 from treeherder.model.models import Job, JobType, Push
 from treeherder.perf.models import (
+    BackfilledPush,
+    BackfillRecord,
+    BackfillReport,
+    BackfillRequest,
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceFramework,
@@ -79,7 +84,7 @@ def test_alert_summaries_get(
         "bug_number",
         "bug_updated",
         "bug_due_date",
-        "bug_status",
+        "bug_resolution",
         "issue_tracker",
         "notes",
         "assignee_username",
@@ -138,6 +143,35 @@ def test_alert_summaries_get(
         "task_id",
         "retry_id",
     }
+
+
+def test_alert_summaries_response_is_valid_json(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_with_tcmetadata,
+    test_perf_datum,
+    test_perf_datum_2,
+):
+    # Given: a summary with an alert holding Decimal values and a datetime field
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+
+    # When: the raw response body is parsed as JSON
+    payload = json.loads(resp.content)
+
+    # Then: it is valid JSON containing the expected summary and alert
+    assert len(payload["results"]) == 1
+    summary = payload["results"][0]
+    alert = summary["alerts"][0]
+
+    # Then: Decimal fields serialize as JSON numbers, not strings
+    for field in ("amount_abs", "amount_pct", "t_value", "prev_value", "new_value"):
+        assert isinstance(alert[field], int | float)
+        assert not isinstance(alert[field], str)
+
+    # Then: the datetime field serializes as an ISO-8601 parseable string
+    assert isinstance(summary["created"], str)
+    datetime.fromisoformat(summary["created"])
 
 
 def test_alert_summaries_get_multiple_alerts(
@@ -312,7 +346,7 @@ def test_alert_summaries_get_onhold(
         "bug_number",
         "bug_updated",
         "bug_due_date",
-        "bug_status",
+        "bug_resolution",
         "issue_tracker",
         "notes",
         "assignee_username",
@@ -476,6 +510,110 @@ def test_performance_alert_summary_change_revision(
     )
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.get(id=1).push.revision == original_revision
+
+
+def test_performance_alert_summary_change_revision_sets_from_revision(
+    client, test_perf_alert_summary, test_sheriff, test_repository_2, create_push
+):
+    client.force_authenticate(user=test_sheriff)
+    repository = test_perf_alert_summary.repository
+    now = datetime.now()
+    previous_push = create_push(repository, revision="a" * 40, time=now - timedelta(hours=2))
+    # a later push on another repository must not be picked as the from revision
+    create_push(test_repository_2, revision="b" * 40, time=now - timedelta(hours=1))
+    new_push = create_push(repository, revision="c" * 40, time=now)
+
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/", {"revision": new_push.revision}
+    )
+
+    assert resp.status_code == 200
+    summary = PerformanceAlertSummary.objects.get(id=1)
+    assert summary.push == new_push
+    assert summary.prev_push == previous_push
+
+
+def test_performance_alert_summary_change_revision_keeps_sent_from_revision(
+    client, test_perf_alert_summary, test_sheriff, create_push
+):
+    client.force_authenticate(user=test_sheriff)
+    repository = test_perf_alert_summary.repository
+    now = datetime.now()
+    older_push = create_push(repository, revision="a" * 40, time=now - timedelta(hours=2))
+    create_push(repository, revision="b" * 40, time=now - timedelta(hours=1))
+    new_push = create_push(repository, revision="c" * 40, time=now)
+
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"revision": new_push.revision, "prev_push_revision": older_push.revision},
+    )
+
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push == older_push
+
+
+@pytest.mark.parametrize("existing_from, expected_status", [("previous", 400), ("older", 200)])
+def test_performance_alert_summary_change_revision_onto_existing_summary(
+    client, test_perf_alert_summary, test_sheriff, create_push, existing_from, expected_status
+):
+    client.force_authenticate(user=test_sheriff)
+    now = datetime.now()
+    pushes = {
+        "older": create_push(
+            test_perf_alert_summary.repository, revision="b" * 40, time=now - timedelta(hours=2)
+        ),
+        "previous": create_push(
+            test_perf_alert_summary.repository, revision="a" * 40, time=now - timedelta(hours=1)
+        ),
+    }
+    new_push = create_push(test_perf_alert_summary.repository, revision="c" * 40, time=now)
+    # the existing summary has the same To, with either the same From (taken) or another one (free)
+    existing = PerformanceAlertSummary.objects.create(
+        repository=test_perf_alert_summary.repository,
+        framework=test_perf_alert_summary.framework,
+        prev_push=pushes[existing_from],
+        push=new_push,
+        manually_created=False,
+        created=now,
+    )
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/", {"revision": new_push.revision}
+    )
+
+    assert resp.status_code == expected_status
+    if expected_status == 400:
+        assert f"Alert summary #{existing.id} already uses these revisions" in resp.content.decode()
+        assert PerformanceAlertSummary.objects.get(id=1).push_id == test_perf_alert_summary.push_id
+    else:
+        assert PerformanceAlertSummary.objects.get(id=1).push == new_push
+
+
+def test_performance_alert_summary_change_from_revision_with_shared_to_revision(
+    client, test_perf_alert_summary, test_sheriff, create_push
+):
+    client.force_authenticate(user=test_sheriff)
+    repository = test_perf_alert_summary.repository
+    now = datetime.now()
+    free_push = create_push(repository, revision="a" * 40, time=now - timedelta(days=30))
+    taken_push = create_push(repository, revision="b" * 40, time=now - timedelta(days=29))
+    # another summary with the same To, so only its exact pair is off limits
+    sibling = PerformanceAlertSummary.objects.create(
+        repository=repository,
+        framework=test_perf_alert_summary.framework,
+        prev_push=taken_push,
+        push=test_perf_alert_summary.push,
+        manually_created=False,
+        created=now,
+    )
+    url = reverse("performance-alert-summaries-list") + "1/"
+
+    resp = client.put(url, {"prev_push_revision": free_push.revision})
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push == free_push
+
+    resp = client.put(url, {"prev_push_revision": taken_push.revision})
+    assert resp.status_code == 400
+    assert f"Alert summary #{sibling.id} already uses these revisions" in resp.content.decode()
 
 
 @pytest.fixture
@@ -1075,6 +1213,27 @@ def test_alert_summaries_filter_with_assignee(
     assert summary_ids == [test_perf_alert_summary.id]
 
 
+def test_alert_summaries_filter_with_bug_resolution(
+    client, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    test_perf_alert_summary.bug_resolution = PerformanceAlertSummary.BUG_FIXED
+    test_perf_alert_summary.save()
+
+    test_perf_alert_summary_2.bug_resolution = PerformanceAlertSummary.BUG_INVALID
+    test_perf_alert_summary_2.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"bug_resolution": PerformanceAlertSummary.BUG_FIXED},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert summary_ids == [test_perf_alert_summary.id]
+
+
 def test_untriaged_regressions_filter(
     client,
     test_perf_alert_summary,
@@ -1316,3 +1475,31 @@ def test_untriaged_regressions_include_reassignments(
     assert resp.status_code == 200
     result_ids = [summary["id"] for summary in resp.json()["results"]]
     assert test_perf_alert_summary.id in result_ids
+
+
+def test_failed_backfill_jobs_count_is_batched_per_page(
+    client, monkeypatch, test_perf_alert, test_jobs
+):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)
+    record.backfill_logs = json.dumps([{"iteration": 1, "job_task_ids": {"1": "bk-task"}}])
+    record.save()
+    job = test_jobs[0]
+    job.result = "testfailed"
+    job.save()
+    request = BackfillRequest.objects.create(
+        bk_task_id="bk-task", push=job.push, repository=job.repository
+    )
+    BackfilledPush.objects.create(
+        backfill_request=request, push=job.push, decision_task_id="d", job=job
+    )
+
+    def per_record_query(self):
+        raise AssertionError("failed jobs count should come from the page map")
+
+    monkeypatch.setattr(BackfillRecord, "get_failed_backfill_jobs_count", per_record_query)
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    alert = resp.json()["results"][0]["alerts"][0]
+    assert alert["backfill_record"]["failed_jobs_count"] == 1

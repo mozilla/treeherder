@@ -15,6 +15,7 @@ from urllib.parse import urlencode
 
 import django_filters
 import numpy as np
+import orjson
 from cliffs_delta import cliffs_delta
 from django.conf import settings
 from django.db import transaction
@@ -39,15 +40,18 @@ from rest_framework import (
     serializers,
     viewsets,
 )
+from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.utils.encoders import JSONEncoder
 
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf import stats
 from treeherder.perf.alerts import AlertProperties, get_alert_properties
 from treeherder.perf.models import (
+    BackfillRecord,
     IssueTracker,
     OptionCollection,
     PerfCompareMwuCache,
@@ -85,8 +89,32 @@ from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 
 logger = logging.getLogger(__name__)
 
+_drf_json_encoder = JSONEncoder()
+
+
+class ORJSONRenderer(JSONRenderer):
+    """Serialize responses with orjson while preserving DRF's JSON encoding semantics."""
+
+    @staticmethod
+    def default(obj: Any) -> Any:
+        return _drf_json_encoder.default(obj)
+
+    def render(self, data, accepted_media_type=None, renderer_context=None) -> bytes:
+        if data is None:
+            return b""
+        return orjson.dumps(
+            data,
+            default=self.default,
+            # OPT_NON_STR_KEYS: several perf endpoints return dicts keyed by int
+            # (e.g. performance/signatures). orjson raises on non-str keys unless
+            # this is set, unlike stdlib json which coerces keys to strings.
+            option=orjson.OPT_NON_STR_KEYS,
+        )
+
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
+    renderer_classes = [ORJSONRenderer]
+
     def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
 
@@ -226,6 +254,8 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
     All platforms for a particular branch that have performance data
     """
 
+    renderer_classes = [ORJSONRenderer]
+
     def list(self, request: Request, project: str) -> Response:
         signature_data = PerformanceSignature.objects.filter(repository__name=project)
         interval = request.query_params.get("interval")
@@ -246,11 +276,14 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
 class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceFramework.objects.filter(enabled=True)
     serializer_class = PerformanceFrameworkSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = [filters.OrderingFilter]
     ordering = "id"
 
 
 class PerformanceJobViewSet(viewsets.ReadOnlyModelViewSet):
+    renderer_classes = [ORJSONRenderer]
+
     def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
         # Expect exactly one job_id in query params
@@ -314,6 +347,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
     """
     This view serves performance test result data
     """
+
+    renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
@@ -437,6 +472,7 @@ class AlertSummaryPagination(pagination.PageNumberPagination):
 class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     id = django_filters.NumberFilter(field_name="id")
     status = django_filters.NumberFilter(field_name="status")
+    bug_resolution = django_filters.NumberFilter(field_name="bug_resolution")
     framework = django_filters.NumberFilter(field_name="framework")
     repository = django_filters.NumberFilter(field_name="repository")
     alerts__series_signature = django_filters.NumberFilter(field_name="alerts__series_signature")
@@ -575,6 +611,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
         fields = [
             "id",
             "status",
+            "bug_resolution",
             "framework",
             "repository",
             "alerts__series_signature",
@@ -591,6 +628,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
 class PerformanceTagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceTag.objects.all()
     serializer_class = PerformanceTagSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = [filters.OrderingFilter]
     ordering = "id"
 
@@ -633,6 +671,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSummarySerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = PerformanceAlertSummaryFilter
 
@@ -765,11 +804,27 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             )
         return result
 
+    def _build_failed_backfill_jobs_map(
+        self, page: list[PerformanceAlertSummary]
+    ) -> dict[int, int]:
+        """
+        Returns a dict mapping alert_id -> failed backfill jobs count for all alerts
+        on this page, replacing per-alert queries in the serializer.
+        """
+        records = []
+        for summary in page:
+            for alert in [*summary.alerts.all(), *summary.related_alerts.all()]:
+                record = getattr(alert, "backfill_record", None)
+                if record is not None:
+                    records.append(record)
+        return BackfillRecord.get_failed_backfill_jobs_counts(records)
+
     def get_serializer_context(self) -> dict[str, Any]:
         ctx = super().get_serializer_context()
         ctx["duplicated_summaries_map"] = None
         ctx["tc_metadata_map"] = None
         ctx["sxs_availability_map"] = None
+        ctx["failed_backfill_jobs_map"] = None
         return ctx
 
     @staticmethod
@@ -794,6 +849,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             context["duplicated_summaries_map"] = self._build_duplicated_summaries_map(page)
             context["tc_metadata_map"] = self._build_tc_metadata_map(page)
             context["sxs_availability_map"] = self._build_sxs_availability_map(page)
+            context["failed_backfill_jobs_map"] = self._build_failed_backfill_jobs_map(page)
             serializer = self.get_serializer(page, many=True, context=context)
             if pk:
                 for summary in serializer.data:
@@ -848,6 +904,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
     permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_fields = ["id"]
     ordering = "-id"
@@ -942,6 +999,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceBugTemplate.objects.all()
     serializer_class = PerformanceBugTemplateSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_fields = ["framework"]
 
@@ -949,12 +1007,14 @@ class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
 class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = IssueTracker.objects.all()
     serializer_class = IssueTrackerSerializer
+    renderer_classes = [ORJSONRenderer]
     filter_backends = [filters.OrderingFilter]
     ordering = "id"
 
 
 class PerformanceSummary(generics.ListAPIView):
     serializer_class = PerformanceSummarySerializer
+    renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request) -> Response:
         query_params = PerformanceQueryParamsSerializer(data=request.query_params)
@@ -1209,6 +1269,7 @@ class PerformanceSummary(generics.ListAPIView):
 
 class PerformanceAlertSummaryTasks(generics.ListAPIView):
     serializer_class = PerformanceAlertSummaryTasksSerializer
+    renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request) -> Response:
         query_params = PerfAlertSummaryTasksQueryParamSerializer(data=request.query_params)
@@ -1288,11 +1349,11 @@ class ComparisonRow:
 @dataclass(frozen=True)
 class MwuTask:
     row: ComparisonRow
-    enable_silverman_kde: bool
 
 
 class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
+    renderer_classes = [ORJSONRenderer]
 
     def get_serializer_class(self) -> type[serializers.ModelSerializer]:
         test_version = self.request.query_params.get("test_version", "")
@@ -1319,7 +1380,6 @@ class PerfCompareResults(generics.ListAPIView):
         new_parent_signature = query_params.validated_data["new_parent_signature"]
         replicates = query_params.validated_data["replicates"]
         test_version = query_params.validated_data["test_version"]
-        enable_silverman_kde = query_params.validated_data["enable_silverman_kde"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -1425,7 +1485,6 @@ class PerfCompareResults(generics.ListAPIView):
                 base_parent_signature,
                 new_parent_signature,
                 replicates,
-                enable_silverman_kde,
                 base_signatures,
                 new_signatures,
             )
@@ -1435,7 +1494,7 @@ class PerfCompareResults(generics.ListAPIView):
                 return Response(data=cached.results)
 
             comparison_results = PerfCompareResults._process_mann_whitney_u(
-                comparison_inputs, header_names, platforms, enable_silverman_kde
+                comparison_inputs, header_names, platforms
             )
         else:
             comparison_results = PerfCompareResults._process_student_t(
@@ -1467,13 +1526,12 @@ class PerfCompareResults(generics.ListAPIView):
         comparison_inputs: _ComparisonData,
         header_names: Sequence[str],
         platforms: set[str],
-        enable_silverman_kde: bool,
     ) -> Sequence[dict]:
         """
         Process performance comparison results using Mann-Whitney U test with parallel processing.
         """
         tasks = [
-            MwuTask(row=row, enable_silverman_kde=enable_silverman_kde)
+            MwuTask(row=row)
             for row in PerfCompareResults._comparison_pairs(
                 comparison_inputs, header_names, platforms
             )
@@ -1900,7 +1958,6 @@ class PerfCompareResults(generics.ListAPIView):
                 task.row.header,
                 task.row.lower_is_better,
                 remove_outliers=False,
-                enable_silverman_kde=task.enable_silverman_kde,
             )
 
         row_result = {
@@ -1917,7 +1974,6 @@ class PerfCompareResults(generics.ListAPIView):
         lower_is_better: bool | str,
         remove_outliers: bool = stats.ENABLE_REMOVE_OUTLIERS,
         pvalue_threshold: float = stats.PVALUE_THRESHOLD,
-        enable_silverman_kde: bool = False,
     ) -> dict:
         # extract data, potentially removing outliers
         if remove_outliers:
@@ -1961,9 +2017,7 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         # Kolmogorov-Smirnov test for goodness of fit
-        ks_test, is_fit_good, ks_warning = stats.interpret_ks_test(
-            base_rev_data, new_rev_data, pvalue_threshold
-        )
+        ks_test, ks_warning = stats.interpret_ks_test(base_rev_data, new_rev_data, pvalue_threshold)
 
         # Mann-Whitney U test, two sided because we're never quite sure what of
         # the intent of the patch, as things stand
@@ -1982,12 +2036,9 @@ class PerfCompareResults(generics.ListAPIView):
         # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
         # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
         # https://github.com/neilernst/cliffsDelta
-        c_warning = None
         c_delta = None
         # Handle for empty data sets
-        if len(base_rev_data) < 1 or len(new_rev_data) < 1:
-            c_warning = "Empty data in one group, cannot compute Cliffs Delta"
-        else:
+        if len(base_rev_data) >= 1 and len(new_rev_data) >= 1:
             c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
         # interpret effect size
         cliffs_interpretation, is_effect_meaningful = stats.interpret_effect_size(c_delta)
@@ -2016,19 +2067,6 @@ class PerfCompareResults(generics.ListAPIView):
         if cles_obj:
             cles_obj["effect_size"] = cliffs_interpretation
             cles_obj["cles_direction"] = direction
-
-        # Silverman KDE analysis (optional)
-        silverman_kde = None
-        silverman_warnings = []
-        if enable_silverman_kde:
-            (
-                silverman_kde,
-                silverman_is_regression,
-                silverman_is_improvement,
-                silverman_more_runs_needed,
-                silverman_warnings,
-                silverman_performance_interpretation,
-            ) = stats.interpret_silverman_kde(base_rev_data, new_rev_data, lower_is_better)
 
         stats_data = {
             "base_standard_stats": {
@@ -2066,18 +2104,13 @@ class PerfCompareResults(generics.ListAPIView):
             # cliffs delta
             "cliffs_delta": c_delta,
             "cliffs_interpretation": cliffs_interpretation,
-            "warning_c_delta": c_warning,
             # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
             "cles": cles_obj,
-            # short form summary based on former tests shapiro, silverman, etc...
-            "is_fit_good": is_fit_good,
+            # short form summary based on former tests shapiro, etc...
             "is_new_better": is_new_better,
             "is_meaningful": is_effect_meaningful,
             "lower_is_better": lower_is_better,
             "direction_of_change": direction,  # 'no change', 'improvement', or 'regression'
-            # Silverman KDE analysis (optional)
-            "silverman_kde": silverman_kde,
-            "silverman_warnings": silverman_warnings,
         }
 
         return stats_data
@@ -2090,7 +2123,6 @@ class PerfCompareResults(generics.ListAPIView):
         base_parent_signature: str | None,
         new_parent_signature: str | None,
         replicates: bool,
-        enable_silverman_kde: bool,
         base_signatures: QuerySet,
         new_signatures: QuerySet,
     ) -> str:
@@ -2110,7 +2142,6 @@ class PerfCompareResults(generics.ListAPIView):
             "base_parent_signature": base_parent_signature,
             "new_parent_signature": new_parent_signature,
             "replicates": replicates,
-            "enable_silverman_kde": enable_silverman_kde,
             "base_sig_ids": base_sig_ids,
             "new_sig_ids": new_sig_ids,
             "total_data_points": total_data_points,
@@ -2126,6 +2157,8 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
+    renderer_classes = [ORJSONRenderer]
+
     def list(self, request: Request) -> Response:
         query_params = TestSuiteHealthParamsSerializer(data=request.query_params)
         if not query_params.is_valid():

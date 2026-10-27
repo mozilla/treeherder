@@ -254,8 +254,8 @@ export default class AlertTable extends React.Component {
     const { data, failureStatus } = await updateAlertSummaryFunc(
       alertSummary.id,
       {
-        revision: newRevisionTo,
-        prev_push_revision: newRevisionFrom,
+        ...(newRevisionTo && { revision: newRevisionTo }),
+        ...(newRevisionFrom && { prev_push_revision: newRevisionFrom }),
       },
     );
 

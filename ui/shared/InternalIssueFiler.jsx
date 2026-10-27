@@ -73,6 +73,9 @@ function computeInitialSummary(suggestion, jobGroupName, jobTypeName) {
         / \| .*\.webm/, // reftest specific
       ].some((regexp) => regexp.test(summaryString));
     }
+    if (/TEST-UNEXPECTED/.test(suggestion.search)) {
+      isTestPath = true;
+    }
 
     if (crashSignatures.length > 0) {
       isTestPath = false;

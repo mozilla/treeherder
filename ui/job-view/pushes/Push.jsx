@@ -11,7 +11,6 @@ import {
   thPlatformMap,
 } from '../../helpers/constants';
 import decompress from '../../helpers/gzip';
-import { getGroupMapKey } from '../../helpers/aggregateId';
 import {
   getAllUrlParams,
   getUrlParam,
@@ -33,7 +32,12 @@ import {
 } from '../../taskcluster-auth-callback/constants';
 import { RevisionList } from '../../shared/RevisionList';
 import { Revision } from '../../shared/Revision';
-import { defaultJobCount, getJobCount, getTaskRunStr } from '../../helpers/job';
+import {
+  defaultJobCount,
+  getJobCount,
+  getJobGroupMapKey,
+  getTaskRunStr,
+} from '../../helpers/job';
 import useIsMobile from '../../hooks/useIsMobile';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
@@ -145,19 +149,10 @@ function Push({
     const {
       job_group_name: name,
       job_group_symbol: jobGroupSymbol,
-      platform,
-      platform_option: platformOption,
       tier,
-      push_id: pushId,
     } = job;
     const symbol = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
-    const mapKey = getGroupMapKey(
-      pushId,
-      symbol,
-      tier,
-      platform,
-      platformOption,
-    );
+    const mapKey = getJobGroupMapKey(job);
 
     return { name, tier, symbol, mapKey };
   }, []);

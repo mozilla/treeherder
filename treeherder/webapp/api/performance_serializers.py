@@ -100,6 +100,11 @@ class BackfillRecordSerializer(serializers.Serializer):
         detected = instance.get_latest_detected_push()
         data["detected_push_id"] = detected["detected_push_id"] if detected else None
         data["detected_push_revision"] = detected["detected_push_revision"] if detected else None
+        failed_jobs_map = self.context.get("failed_backfill_jobs_map")
+        if failed_jobs_map is not None:
+            data["failed_jobs_count"] = failed_jobs_map.get(instance.alert_id, 0)
+        else:
+            data["failed_jobs_count"] = instance.get_failed_backfill_jobs_count()
 
         return data
 
@@ -373,10 +378,33 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     monitored_alerts = serializers.BooleanField(required=False)
 
     def validate(self, data):
-        push = data.get("push", getattr(self.instance, "push", None))
-        prev_push = data.get("prev_push", getattr(self.instance, "prev_push", None))
-        if push and prev_push and push.revision == prev_push.revision:
+        if "push" in data and "prev_push" not in data:
+            push = data["push"]
+            data["prev_push"] = (
+                Push.objects.filter(repository_id=push.repository_id, time__lt=push.time)
+                .order_by("-time")
+                .first()
+            )
+
+        push = data.get("push", self.instance.push)
+        prev_push = data.get("prev_push", self.instance.prev_push)
+        if push.revision == prev_push.revision:
             raise serializers.ValidationError("From and To revisions should be distinct.")
+
+        if "push" in data or "prev_push" in data:
+            existing = PerformanceAlertSummary.objects.filter(
+                repository_id=self.instance.repository_id,
+                framework_id=self.instance.framework_id,
+                sheriffed=self.instance.sheriffed,
+                push=push,
+                prev_push=prev_push,
+            ).exclude(id=self.instance.id)
+            existing = existing.first()
+            if existing:
+                raise serializers.ValidationError(
+                    f"Alert summary #{existing.id} already uses these revisions, "
+                    "reassign the alerts to it instead."
+                )
         return data
 
     def update(self, instance, validated_data):
@@ -419,7 +447,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "related_alerts",
             "status",
             "bug_number",
-            "bug_status",
+            "bug_resolution",
             "bug_due_date",
             "bug_updated",
             "severity",
@@ -608,7 +636,6 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     new_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     replicates = serializers.BooleanField(required=False)
     test_version = serializers.CharField(required=False, default="student-t")
-    enable_silverman_kde = serializers.BooleanField(required=False, default=False)
 
     def validate_base_parent_signature(self, value):
         if value == "null":
@@ -771,40 +798,6 @@ class StatisticsTestSerializer(serializers.Serializer):
     stat = PerfCompareDecimalField(required=False)
     pvalue = PerfCompareDecimalField(required=False)
     interpretation = serializers.CharField(required=False)
-
-
-class ModeSerializer(serializers.Serializer):
-    mode_name = serializers.CharField(default="")
-    mode_start = serializers.CharField(required=False)
-    mode_end = serializers.CharField(required=False)
-    median_shift_summary = serializers.CharField(required=False)
-    ci_low = PerfCompareDecimalField(required=False)
-    ci_high = PerfCompareDecimalField(required=False)
-    ci_warning = serializers.CharField(required=False)
-    shift = PerfCompareDecimalField(required=False)
-    shift_summary = serializers.CharField(required=False)
-
-
-class SilvermanKDESerializer(serializers.Serializer):
-    bandwidth = serializers.CharField(default="")
-    base_mode_count = serializers.IntegerField()
-    new_mode_count = serializers.IntegerField()
-    base_locations = serializers.ListField(
-        child=PerfCompareDecimalField(required=False), default=[]
-    )
-    new_locations = serializers.ListField(child=PerfCompareDecimalField(required=False), default=[])
-    base_prominence = PerfCompareDecimalField(required=False)
-    new_prominence = PerfCompareDecimalField(required=False)
-    modes = ModeSerializer(many=True)
-    is_regression = serializers.BooleanField()
-    is_improvement = serializers.BooleanField()
-
-
-class KDESerializer(serializers.Serializer):
-    median = PerfCompareDecimalField(required=False)
-    sample_count = serializers.IntegerField()
-    kde_x = serializers.ListField(child=PerfCompareDecimalField(), default=[])
-    kde_y = serializers.ListField(child=PerfCompareDecimalField(), default=[])
 
 
 class CLESSerializer(serializers.Serializer):

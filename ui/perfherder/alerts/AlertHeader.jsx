@@ -19,7 +19,7 @@ import Assignee from './Assignee';
 import TagsList from './TagsList';
 import AlertHeaderTitle from './AlertHeaderTitle';
 import { getStatus } from '../perf-helpers/helpers';
-import { bugStatusMap } from '../perf-helpers/constants';
+import { bugResolutionMap } from '../perf-helpers/constants';
 
 const AlertHeader = ({
   frameworks,
@@ -49,19 +49,17 @@ const AlertHeader = ({
     else setnewRevisionFrom(event.target.value);
   };
   const saveRevision = async () => {
-    const trimmedRevisionTo =
-      newRevisionTo.trim() === ''
-        ? alertSummary.revision
-        : newRevisionTo.trim();
-    const trimmedRevisionFrom =
-      newRevisionFrom.trim() === ''
-        ? alertSummary.prev_push_revision
-        : newRevisionFrom.trim();
+    // only the filled in revisions are sent, an empty From is set by the
+    // backend to the push preceding the To revision
+    const trimmedRevisionTo = newRevisionTo.trim();
+    const trimmedRevisionFrom = newRevisionFrom.trim();
 
     const longHashMatch = /\b[a-f0-9]{40}\b/;
+    const isInvalidRevision = (revision) =>
+      revision !== '' && !longHashMatch.test(revision);
     if (
-      !longHashMatch.test(trimmedRevisionTo) ||
-      !longHashMatch.test(trimmedRevisionFrom)
+      isInvalidRevision(trimmedRevisionTo) ||
+      isInvalidRevision(trimmedRevisionFrom)
     ) {
       updateViewState({
         errorMessages: [
@@ -96,8 +94,8 @@ const AlertHeader = ({
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
     : '';
-  const bugStatus = (alertSummary.bug_status != null && alertSummary.issue_tracker === 1)
-    ? `(${getStatus(alertSummary.bug_status, bugStatusMap)})`
+  const bugResolution = (alertSummary.bug_resolution != null && alertSummary.issue_tracker === 1)
+    ? `(${getStatus(alertSummary.bug_resolution, bugResolutionMap)})`
     : '';
 
   const performanceTags = alertSummary.performance_tags || [];
@@ -197,7 +195,7 @@ const AlertHeader = ({
                 rel="noopener noreferrer"
               >
                 {bugNumber}{' '}
-                <span style={{ fontSize: '0.9em' }}>{bugStatus}</span>
+                <span style={{ fontSize: '0.9em' }}>{bugResolution}</span>
               </a>
             ) : (
               { bugNumber }
@@ -273,7 +271,7 @@ const AlertHeader = ({
               <InputGroup size="sm">
                 <Form.Control
                   value={newRevisionFrom}
-                  placeholder="Enter desired revision"
+                  placeholder="Leave empty to use the push before To"
                   onChange={handleRevisionChange('from')}
                   autoFocus
                 />
@@ -329,7 +327,9 @@ const AlertHeader = ({
                 variant="primary"
                 className="ms-1"
                 size="xs"
-                disabled={newRevisionTo === '' && newRevisionFrom === ''}
+                disabled={
+                  newRevisionTo.trim() === '' && newRevisionFrom.trim() === ''
+                }
                 onClick={saveRevision}
               >
                 Save

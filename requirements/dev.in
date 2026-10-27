@@ -7,7 +7,7 @@ django-extensions==4.1
 PyPOM==2.2.4
 
 # for git commit hooks
-pre-commit==4.6.2
+pre-commit==4.7.0
 
 # for test driven development
 pytest-testmon==2.2.0
@@ -19,7 +19,6 @@ pytest-xdist==3.8.0
 # Required by django-extension's runserver_plus command.
 pytest-django==4.14.0
 pytest==8.4.2
-black==25.9.0
 shellcheck-py==0.11.0.1
 
 # To test async code
@@ -35,5 +34,4 @@ vcrpy==8.3.0
 # pip-compile for pinning versions
 pip-tools==7.6.2
 
-requests==2.32.5
 urllib3==2.8.0

@@ -5,8 +5,8 @@ from datetime import datetime
 import pytest
 import responses
 import slugid
-from django.core.exceptions import ObjectDoesNotExist
 
+from treeherder.etl.exceptions import MissingPushError
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.taskcluster_pulse.handler import handle_message
 from treeherder.model.models import Job, JobLog, Push, TaskclusterMetadata
@@ -282,10 +282,13 @@ def test_ingest_pulse_jobs_bad_project(
 
 
 @responses.activate
-def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
+def test_ingest_pulse_jobs_with_missing_push(pulse_jobs, monkeypatch):
     """
     Ingest jobs with missing pushes, so they should throw an exception
     """
+    # PROJECTS_TO_INGEST (set in docker-compose) would otherwise cause
+    # ignore_task() to skip this project and bypass the missing push check.
+    monkeypatch.setattr("treeherder.etl.taskcluster_pulse.handler.projects_to_ingest", None)
 
     jl = JobLoader()
     job = pulse_jobs[0]
@@ -298,7 +301,7 @@ def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
         status=200,
     )
 
-    with pytest.raises(ObjectDoesNotExist):
+    with pytest.raises(MissingPushError):
         for pulse_job in pulse_jobs:
             jl.process_job(pulse_job, "https://firefox-ci-tc.services.mozilla.com")
 

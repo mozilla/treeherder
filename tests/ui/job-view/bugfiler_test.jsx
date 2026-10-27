@@ -165,6 +165,7 @@ describe('BugFiler', () => {
   });
 
   afterEach(() => {
+    selectedJob.job_type_name = 'test-linux64/debug-mochitest-browser-chrome-10';
     cleanup();
     fetchMock.reset();
   });
@@ -207,8 +208,11 @@ describe('BugFiler', () => {
     />
   );
 
-  const bugFilerComponentSuggestion = (suggestion) => (
-    <BugFilerClass
+  const bugFilerComponentSuggestion = function (suggestion, job_type_name) {
+    if (job_type_name) {
+      selectedJob.job_type_name = job_type_name;
+    }
+    return <BugFilerClass
       isOpen={isOpen}
       toggle={toggle}
       suggestion={suggestion}
@@ -221,9 +225,9 @@ describe('BugFiler', () => {
       platform={selectedJob.platform}
       currentRepo={currentRepo}
     />
-  );
+  };
 
-  async function SummaryAndExpected(summary) {
+  async function SummaryAndExpected(summary, job_type_name) {
     const suggestion = {
       summary,
       search_terms: [
@@ -238,7 +242,7 @@ describe('BugFiler', () => {
         'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js',
     };
 
-    render(bugFilerComponentSuggestion(suggestion));
+    render(bugFilerComponentSuggestion(suggestion, job_type_name));
 
     // Wait for async findProductByPath to complete
     await waitFor(() => {
@@ -251,6 +255,15 @@ describe('BugFiler', () => {
     //       I cannot find the parts individually in the rendered html.
     return area[1];
   }
+
+  test('TEST-UNEXPECTED-* | test_name | details uses "single tracking bug"', async () => {
+    const rawSummary =
+      'TEST-UNEXPECTED-FAIL | /fake_folder_parent/fake_folder_child/fake.py | details about the failure';
+    const expected =
+      'Intermittent /fake_folder_parent/fake_folder_child/fake.py | single tracking bug';
+    const displayed = await SummaryAndExpected(rawSummary);
+    expect(displayed).toHaveValue(expected);
+  });
 
   test('parses a crash suggestion', async () => {
     const rawSummary =
@@ -328,10 +341,10 @@ describe('BugFiler', () => {
 
   test('should parse Windows reftests on Z drive summaries', async () => {
     const rawSummary =
-      'file:///Z:/task_1491428153/build/tests/reftest/tests/layout/reftests/font-face/src-list-local-full.html == file:///Z:/task_1491428153/build/tests/reftest/tests/layout/reftests/font-face/src-list-local-full-ref.html | image comparison, max difference: 255, number of differing pixels: 5184';
+      'TEST-UNEXPECTED-FAIL | file:///Z:/task_1491428153/build/tests/reftest/tests/layout/reftests/font-face/src-list-local-full.html == file:///Z:/task_1491428153/build/tests/reftest/tests/layout/reftests/font-face/src-list-local-full-ref.html | image comparison, max difference: 255, number of differing pixels: 5184';
     const expected =
-      'Intermittent layout/reftests/font-face/src-list-local-full.html == layout/reftests/font-face/src-list-local-full-ref.html | image comparison, max difference: 255, number of differing pixels: 5184';
-    const displayed = await SummaryAndExpected(rawSummary);
+      'Intermittent layout/reftests/font-face/src-list-local-full.html == layout/reftests/font-face/src-list-local-full-ref.html | single tracking bug';
+    const displayed = await SummaryAndExpected(rawSummary, "test-windows/opt-reftest-1");
     expect(displayed).toHaveValue(expected);
   });
 
@@ -351,7 +364,7 @@ describe('BugFiler', () => {
       'build/tests/reftest/tests/layout/reftests/backgrounds/vector/empty/ref-wide-lime.html | image comparison';
     const expected =
       'Intermittent TEST-UNEXPECTED-PASS | layout/reftests/backgrounds/vector/empty/wide--cover--width.html == layout/reftests/backgrounds/vector/empty/ref-wide-lime.html | image comparison';
-    const displayed = await SummaryAndExpected(rawSummary);
+    const displayed = await SummaryAndExpected(rawSummary, "test-windows/opt-reftest-1");
     expect(displayed).toHaveValue(expected);
   });
 

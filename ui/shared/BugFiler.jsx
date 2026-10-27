@@ -127,7 +127,9 @@ function computeInitialBugFilerState(props) {
         / \| .*\.webm/, // reftest specific
       ].some((regexp) => regexp.test(summaryString));
     }
-
+    if (/TEST-UNEXPECTED/.test(suggestion.search)) {
+      isTestPath = true;
+    }
     if (crashSignatures.length > 0) {
       isTestPath = false;
       const parts = summaryString.split(' | ');
@@ -141,7 +143,7 @@ function computeInitialBugFilerState(props) {
     // only handle straight forward reftest pixel/color errors
     if (
       isTestPath &&
-      selectedJob.job_group_name.includes('reftest') &&
+      selectedJob.job_type_name.includes('reftest') &&
       !/.*image comparison, max difference.*/.test(summaryString)
     ) {
       isTestPath = false;

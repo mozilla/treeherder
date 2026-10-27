@@ -99,7 +99,8 @@ export const alertStatusMap = {
   infra: 5,
 };
 
-export const bugStatusMap = {
+export const bugResolutionMap = {
+  'all bug resolutions': -1,
   new: 0,
   fixed: 1,
   invalid: 2,
