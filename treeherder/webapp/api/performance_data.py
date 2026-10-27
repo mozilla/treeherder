@@ -1788,7 +1788,7 @@ class PerfCompareResults(generics.ListAPIView):
             perf_data = perf_data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
 
         if number_of_data_points:
-            return perf_data.order_by("push_timestamp", "id")[:number_of_data_points]
+            return perf_data.order_by("-push_timestamp", "-id")[:number_of_data_points]
         return perf_data
 
     @staticmethod
