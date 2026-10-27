@@ -4,9 +4,7 @@ import { Link, useNavigate } from 'react-router';
 import {
   ago,
   authorName,
-  fetchHealth,
   fetchPushes,
-  fetchSummary,
   progressOf,
   pushTitle,
   pushUrl,
@@ -14,6 +12,7 @@ import {
 import { queued, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
 import { LIST, MINI_RING, PICKER, POLL_MS } from './constants';
+import { loadPushJobs } from './jobs';
 import Kit from './Kit';
 import Nav from './Nav';
 import {
@@ -27,33 +26,22 @@ import {
 export const describeSummary = (summary) => {
   if (!summary) return { tone: 'quiet', text: '' };
   const progress = progressOf(summary.status);
-  // testFailureCount is per test per config, so it would disagree with the
-  // detail screen's count. Say what's failing; the detail screen counts it.
-  const broken = [
-    [summary.testFailureCount, LIST.failingKinds.tests],
-    [summary.buildFailureCount, LIST.failingKinds.build],
-    [summary.lintFailureCount, LIST.failingKinds.lint],
-  ]
-    .filter(([n]) => n > 0)
-    .map(([, what]) => what);
-
-  if (broken.length) {
-    const text = LIST.failing(broken);
+  if (summary.failed) {
+    const parts = [LIST.failed(summary.failed)];
+    if (summary.fresh) parts.push(LIST.newCount(summary.fresh));
+    if (!summary.open) parts.push(LIST.allClassified);
+    const text = parts.join(' · ');
     return {
-      tone: 'bad',
+      tone: summary.open ? 'bad' : 'quiet',
       text: progress.running ? LIST.stillRunning(text) : text,
     };
   }
-  const failed = ['testfailed', 'busted', 'exception'].some(
-    (r) => summary.status?.[r] > 0,
-  );
   if (progress.running) {
     return {
       tone: 'running',
       text: LIST.running(progress.done, progress.total),
     };
   }
-  if (failed) return { tone: 'quiet', text: LIST.onlySeenBefore };
   return { tone: 'good', text: LIST.green };
 };
 
@@ -63,14 +51,16 @@ const PushRow = ({ push, repo, author, refreshKey, index }) => {
   );
 
   useEffect(() => {
+    // A finished push's counts don't change, so it's only fetched once.
+    if (cachedSummary(repo, push.revision)?.finished) return undefined;
     let live = true;
-    queued(() => fetchSummary(repo, push.revision)).then(
-      (s) => live && s && setSummary(s),
+    queued(() => loadPushJobs(repo, push.id, push.revision)).then(
+      (jobs) => live && jobs && setSummary(cachedSummary(repo, push.revision)),
     );
     return () => {
       live = false;
     };
-  }, [repo, push.revision, refreshKey]);
+  }, [repo, push.id, push.revision, refreshKey]);
 
   const { tone, text } = describeSummary(summary);
   const pulsing = usePulse(summary ? `${tone}:${text}` : undefined);
@@ -82,7 +72,7 @@ const PushRow = ({ push, repo, author, refreshKey, index }) => {
         to={pushUrl({ repo, author, revision: push.revision })}
         onPointerDown={() => {
           rememberPush(repo, push);
-          fetchHealth(repo, push.revision);
+          loadPushJobs(repo, push.id, push.revision);
         }}
         onClick={() => rememberPush(repo, push)}
       >

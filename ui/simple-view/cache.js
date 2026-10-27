@@ -27,8 +27,9 @@ const boundedMap = (key, max) => ({
   },
 });
 
-const summaries = boundedMap('summaries', CACHE_LIMITS.summaries);
-const healths = boundedMap('health', CACHE_LIMITS.health);
+// Counted from each push's job list. A new key, so summaries from Push Health
+// left by older versions are never read as these.
+const summaries = boundedMap('jobSummaries', CACHE_LIMITS.summaries);
 const pushRecords = boundedMap('push', CACHE_LIMITS.summaries);
 
 export const cachedPushes = (repo, author) => read(`pushes:${repo}:${author}`);
@@ -44,10 +45,18 @@ export const cachedSummary = (repo, revision) =>
 export const rememberSummary = (repo, revision, summary) =>
   summaries.set(`${repo}:${revision}`, summary);
 
-export const cachedHealth = (repo, revision) =>
-  healths.get(`${repo}:${revision}`);
-export const rememberHealth = (repo, revision, health) =>
-  healths.set(`${repo}:${revision}`, health);
+// Whole job lists are too big for storage, so they're kept for this visit
+// only: the list's rows fill this, and the push screen opens from it.
+const jobLists = new Map();
+export const cachedJobs = (repo, pushId) => jobLists.get(`${repo}:${pushId}`) || null;
+export const rememberJobs = (repo, pushId, jobs) => {
+  const key = `${repo}:${pushId}`;
+  jobLists.delete(key);
+  jobLists.set(key, jobs);
+  if (jobLists.size > CACHE_LIMITS.jobLists) {
+    jobLists.delete(jobLists.keys().next().value);
+  }
+};
 
 // A fetch started when a finger lands on a row is the one the detail screen
 // picks up, instead of starting over.
