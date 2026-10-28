@@ -15,6 +15,7 @@ from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceFramework,
+    PerformanceSignature,
 )
 
 pytestmark = pytest.mark.perf
@@ -945,6 +946,7 @@ def test_pagesize_is_limited_from_params(
         data={
             "framework": 1,
             "limit": 1,
+            "ordering": "-id",
         },
     )
     assert resp.status_code == 200
@@ -1503,3 +1505,122 @@ def test_failed_backfill_jobs_count_is_batched_per_page(
     assert resp.status_code == 200
     alert = resp.json()["results"][0]["alerts"][0]
     assert alert["backfill_record"]["failed_jobs_count"] == 1
+
+
+def _create_urgency_summary(create_push, repository, framework, index, created, **fields):
+    push = create_push(repository, revision=f"{index:040d}", time=created)
+    prev_push = create_push(repository, revision=f"{index + 1000:040d}", time=created)
+    summary = PerformanceAlertSummary.objects.create(
+        repository=repository,
+        framework=framework,
+        prev_push=prev_push,
+        push=push,
+        manually_created=False,
+        created=created,
+    )
+    PerformanceAlertSummary.objects.filter(id=summary.id).update(created=created, **fields)
+    return summary
+
+
+def test_alert_summaries_default_ordering_by_urgency(
+    client, create_push, test_repository, test_perf_framework, test_issue_tracker
+):
+    now = datetime.now()
+    specs = [
+        (PerformanceSignature.CRITICAL, -12, -5),
+        (PerformanceSignature.SUBCRITICAL, -10, -2),
+        (PerformanceSignature.CRITICAL, -1, 3),
+        (PerformanceSignature.NORMAL, -5, -1),
+        (PerformanceSignature.NORMAL, -3, 1),
+        (PerformanceSignature.NORMAL, -0.5, None),
+    ]
+    expected_ids = []
+    for index, (severity, created_offset, due_offset) in enumerate(specs, start=1):
+        triage_due_date = now + timedelta(hours=due_offset) if due_offset is not None else None
+        summary = _create_urgency_summary(
+            create_push,
+            test_repository,
+            test_perf_framework,
+            index,
+            created=now + timedelta(hours=created_offset),
+            severity=severity,
+            triage_due_date=triage_due_date,
+        )
+        expected_ids.append(summary.id)
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert [summary["id"] for summary in resp.json()["results"]] == expected_ids
+
+
+def test_alert_summaries_default_ordering_only_ranks_pending_deadlines(
+    client, create_push, test_repository, test_perf_framework, test_issue_tracker
+):
+    now = datetime.now()
+    upcoming = _create_urgency_summary(
+        create_push,
+        test_repository,
+        test_perf_framework,
+        1,
+        created=now - timedelta(hours=1),
+        severity=PerformanceSignature.NORMAL,
+        triage_due_date=now + timedelta(hours=1),
+    )
+    investigating = _create_urgency_summary(
+        create_push,
+        test_repository,
+        test_perf_framework,
+        2,
+        created=now - timedelta(hours=2),
+        severity=PerformanceSignature.NORMAL,
+        status=PerformanceAlertSummary.INVESTIGATING,
+        triage_due_date=now - timedelta(hours=10),
+    )
+    no_deadline = _create_urgency_summary(
+        create_push,
+        test_repository,
+        test_perf_framework,
+        3,
+        created=now - timedelta(hours=40),
+        severity=PerformanceSignature.NORMAL,
+        triage_due_date=None,
+    )
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert [summary["id"] for summary in resp.json()["results"]] == [
+        upcoming.id,
+        investigating.id,
+        no_deadline.id,
+    ]
+
+
+def test_alert_summaries_explicit_ordering_overrides_urgency(
+    client, create_push, test_repository, test_perf_framework, test_issue_tracker
+):
+    now = datetime.now()
+    severe = _create_urgency_summary(
+        create_push,
+        test_repository,
+        test_perf_framework,
+        1,
+        created=now - timedelta(hours=1),
+        severity=PerformanceSignature.CRITICAL,
+        triage_due_date=None,
+    )
+    normal = _create_urgency_summary(
+        create_push,
+        test_repository,
+        test_perf_framework,
+        2,
+        created=now - timedelta(hours=2),
+        severity=PerformanceSignature.NORMAL,
+        triage_due_date=now - timedelta(hours=1),
+    )
+    url = reverse("performance-alert-summaries-list")
+
+    resp = client.get(url)
+    assert [summary["id"] for summary in resp.json()["results"]] == [severe.id, normal.id]
+
+    resp = client.get(url, {"ordering": "-id"})
+    assert [summary["id"] for summary in resp.json()["results"]] == [normal.id, severe.id]

@@ -23,7 +23,9 @@ from django.db.models import (
     Case,
     CharField,
     Count,
+    DateTimeField,
     Exists,
+    F,
     OuterRef,
     Q,
     QuerySet,
@@ -834,8 +836,26 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             get_profile_artifact_url(alert, metadata_key="prev_taskcluster_metadata"),
         )
 
+    @staticmethod
+    def _apply_urgency_ordering(
+        queryset: QuerySet[PerformanceAlertSummary],
+    ) -> QuerySet[PerformanceAlertSummary]:
+        severe_severities = [PerformanceSignature.CRITICAL, PerformanceSignature.SUBCRITICAL]
+        untriaged = PerformanceAlertSummary.UNTRIAGED
+        return queryset.annotate(
+            severity_rank=Case(When(severity__in=severe_severities, then=0), default=1),
+            next_due_date=Case(
+                When(status=untriaged, first_triaged__isnull=True, then=F("triage_due_date")),
+                When(status=untriaged, bug_number__isnull=True, then=F("bug_due_date")),
+                default=None,
+                output_field=DateTimeField(),
+            ),
+        ).order_by("severity_rank", F("next_due_date").asc(nulls_last=True), "-created", "-id")
+
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = self.filter_queryset(self.queryset)
+        if "ordering" not in request.query_params:
+            queryset = self._apply_urgency_ordering(queryset)
         pk = request.query_params.get("id")
         if not pk:
             if request.query_params.get("monitored_alerts"):
