@@ -545,4 +545,31 @@ describe('detected push revision', () => {
     await waitFor(() => getByTestId(`alert ${alert.id} sherlock icon`));
     expect(queryByTestId('failed-backfill-jobs')).toBeNull();
   });
+
+  test('renders the bisection badge when needs_bisection is true', async () => {
+    const alert = alertWithBackfill({
+      detected_push_revision: 'a1b2c3d4e5f6',
+      needs_bisection: true,
+    });
+    const { getByTestId } = alertTableRowTest({ alert, tags: false });
+
+    const badge = await waitFor(() =>
+      getByTestId(`alert ${alert.id} bisection badge`),
+    );
+    expect(badge).toHaveTextContent('bisection');
+  });
+
+  test('does not render the bisection badge when needs_bisection is false', async () => {
+    const alert = alertWithBackfill({
+      detected_push_revision: 'a1b2c3d4e5f6',
+      needs_bisection: false,
+    });
+    const { getByTestId, queryByTestId } = alertTableRowTest({
+      alert,
+      tags: false,
+    });
+
+    await waitFor(() => getByTestId(`alert ${alert.id} sherlock icon`));
+    expect(queryByTestId(`alert ${alert.id} bisection badge`)).toBeNull();
+  });
 });
