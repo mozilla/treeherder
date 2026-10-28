@@ -152,7 +152,7 @@ describe('buildTestSummary', () => {
     ]);
   });
 
-  test('lists a message reported as both a subtest and the test_end once', () => {
+  test('prints a message-less subtest as TBPL does, beside the test_end message', () => {
     const summary = buildTestSummary([
       { action: 'test_start', time: 0, group: 'g', test: 'browser_t.js' },
       {
@@ -176,8 +176,12 @@ describe('buildTestSummary', () => {
       },
     ]);
     const test = findTest(summary, 'g', 'browser_t.js');
-    expect(test.results[0].messages).toEqual(['Test timed out.']);
-    expect(test.results[0].logTimes).toEqual([5]);
+    expect(test.results[0].messages).toEqual([
+      'Test timed out. - expected PASS',
+      'Test timed out',
+    ]);
+    expect(test.results[0].statuses).toEqual(['FAIL', 'TIMEOUT']);
+    expect(test.results[0].logTimes).toEqual([5, 10]);
   });
 
   test('keeps an unexpected subtest status that carries no message', () => {
@@ -203,7 +207,10 @@ describe('buildTestSummary', () => {
       },
     ]);
     const test = findTest(summary, 'g', 'browser_slow.js');
-    expect(test.results[0].messages).toEqual(['Test timed out']);
+    expect(test.results[0].messages).toEqual([
+      'Test timed out - expected PASS',
+      'expected PASS',
+    ]);
   });
 
   test('ignores passing (expected) subtest statuses', () => {
@@ -735,8 +742,13 @@ describe('matchBugSuggestions', () => {
         },
       ]);
 
-      // Only the second line is new, though the first one carries the bugs.
-      expect(failures.map(s => s.failure_new_in_rev)).toEqual([false, true]);
+      // Only the second line is new, though the first one carries the bugs;
+      // the test_end's own line ("expected PASS") is neither.
+      expect(failures.map(s => s.failure_new_in_rev)).toEqual([
+        false,
+        true,
+        false,
+      ]);
     });
   });
 });
@@ -945,8 +957,10 @@ describe('bug suggestions for lines the classic list lacks', () => {
 
       const completed = withLineBugSuggestions(failures, results);
 
-      expect(completed.map(s => s.bugs.open_recent.length)).toEqual([1, 0]);
-      expect(completed.map(s => s.counter)).toEqual([0, 0]);
+      expect(completed.map(s => s.bugs.open_recent.length)).toEqual([
+        1, 0, 0,
+      ]);
+      expect(completed.map(s => s.counter)).toEqual([0, 0, 0]);
     });
 
     test('leaves its inputs untouched', () => {
@@ -2708,5 +2722,292 @@ describe('log targets', () => {
     ]);
 
     expect(buildFailureSuggestions(summary)[0].logTarget.time).toBeNull();
+  });
+});
+
+describe('buildTestSummary with web-platform-tests records', () => {
+  const testsNamed = (summary, testName) =>
+    summary.groups.flatMap((g) => g.tests).filter((t) => t.name === testName);
+  const findTest = (summary, testName) => testsNamed(summary, testName)[0];
+  // wptrunner always sends the two fields, an empty list and the default
+  // subsuite included.
+  const wpt = (records) =>
+    records.map((record) =>
+      record.action === 'test_status' || record.action === 'test_end'
+        ? { subsuite: '', known_intermittent: [], ...record }
+        : record,
+    );
+
+  test('fails a test ending OK on an unexpected subtest, with its status', () => {
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/css/a.html' },
+        {
+          action: 'test_status',
+          time: 5,
+          test: '/css/a.html',
+          subtest: 'passes',
+          status: 'PASS',
+        },
+        {
+          action: 'test_status',
+          time: 6,
+          test: '/css/a.html',
+          subtest: 'fails',
+          status: 'FAIL',
+          expected: 'PASS',
+          message: 'assert_equals: expected 1 but got 2',
+        },
+        { action: 'test_end', time: 9, test: '/css/a.html', status: 'OK' },
+      ]),
+    );
+    const test = findTest(summary, '/css/a.html');
+    expect(test.success).toBe(false);
+    expect(test.status).toBe('FAIL');
+    expect(test.results[0].messages).toEqual([
+      'fails - assert_equals: expected 1 but got 2',
+    ]);
+    expect(test.results[0].statuses).toEqual(['FAIL']);
+    expect(test.results[0].logTimes).toEqual([6]);
+    expect(summary.counts).toMatchObject({
+      total: 1,
+      PASS: 0,
+      FAIL: 1,
+      knownIntermittent: 0,
+    });
+    expect(summary.realFailCounts).toEqual({ FAIL: 1 });
+    expect(buildFailureSuggestions(summary).map((s) => s.search)).toEqual([
+      'TEST-UNEXPECTED-FAIL | /css/a.html | fails - assert_equals: expected 1 but got 2',
+    ]);
+  });
+
+  test('counts a test ending OK with expected subtests as passed', () => {
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/css/a.html' },
+        {
+          action: 'test_status',
+          time: 5,
+          test: '/css/a.html',
+          subtest: 'passes',
+          status: 'PASS',
+        },
+        {
+          action: 'test_status',
+          time: 6,
+          test: '/css/a.html',
+          subtest: 'known to fail',
+          status: 'FAIL',
+        },
+        { action: 'test_end', time: 9, test: '/css/a.html', status: 'OK' },
+      ]),
+    );
+    const test = findTest(summary, '/css/a.html');
+    expect(test.success).toBe(true);
+    expect(test.status).toBe('OK');
+    expect(summary.counts).toMatchObject({
+      total: 1,
+      PASS: 1,
+      knownIntermittent: 0,
+    });
+    expect(summary.realFailCounts).toEqual({});
+    expect(buildFailureSuggestions(summary)).toEqual([]);
+  });
+
+  test('counts a known intermittent subtest status, without a line', () => {
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/css/a.html' },
+        {
+          action: 'test_status',
+          time: 5,
+          test: '/css/a.html',
+          subtest: 'flaky',
+          status: 'FAIL',
+          expected: 'PASS',
+          known_intermittent: ['FAIL'],
+          message: 'sometimes',
+        },
+        { action: 'test_end', time: 9, test: '/css/a.html', status: 'OK' },
+      ]),
+    );
+    const test = findTest(summary, '/css/a.html');
+    expect(test.success).toBe(true);
+    expect(test.results[0].knownIntermittent).toBe(true);
+    expect(summary.counts).toMatchObject({
+      total: 1,
+      PASS: 1,
+      knownIntermittent: 1,
+    });
+    expect(summary.groups[0].counts.knownIntermittent).toBe(1);
+    expect(buildFailureSuggestions(summary)).toEqual([]);
+  });
+
+  test('counts a known intermittent test end as passed', () => {
+    // A reftest has no subtests: its end carries the result.
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/css/ref.html' },
+        {
+          action: 'test_end',
+          time: 9,
+          test: '/css/ref.html',
+          status: 'FAIL',
+          expected: 'PASS',
+          known_intermittent: ['FAIL'],
+        },
+      ]),
+    );
+    const test = findTest(summary, '/css/ref.html');
+    expect(test.success).toBe(true);
+    expect(test.status).toBe('FAIL');
+    expect(summary.counts).toMatchObject({
+      total: 1,
+      PASS: 0,
+      FAIL: 1,
+      knownIntermittent: 1,
+    });
+    expect(summary.realFailCounts).toEqual({});
+    expect(buildFailureSuggestions(summary)).toEqual([]);
+  });
+
+  test('prints the expected status when an unexpected record has no message', () => {
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/css/slow.html' },
+        {
+          action: 'test_status',
+          time: 5,
+          test: '/css/slow.html',
+          subtest: 'never ran',
+          status: 'NOTRUN',
+          expected: 'PASS',
+        },
+        {
+          action: 'test_end',
+          time: 9,
+          test: '/css/slow.html',
+          status: 'TIMEOUT',
+          expected: 'OK',
+        },
+      ]),
+    );
+    const test = findTest(summary, '/css/slow.html');
+    expect(test.status).toBe('TIMEOUT');
+    expect(test.results[0].messages).toEqual([
+      'never ran - expected PASS',
+      'expected OK',
+    ]);
+    expect(test.results[0].statuses).toEqual(['NOTRUN', 'TIMEOUT']);
+    expect(buildFailureSuggestions(summary).map((s) => s.search)).toEqual([
+      'TEST-UNEXPECTED-NOTRUN | /css/slow.html | never ran - expected PASS',
+      'TEST-UNEXPECTED-TIMEOUT | /css/slow.html | expected OK',
+    ]);
+  });
+
+  test('keeps a harness error beside the subtest failures, each with its status', () => {
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/dom/b.html' },
+        {
+          action: 'test_status',
+          time: 5,
+          test: '/dom/b.html',
+          subtest: 'first',
+          status: 'FAIL',
+          expected: 'PASS',
+          message: 'nope',
+        },
+        {
+          action: 'test_end',
+          time: 9,
+          test: '/dom/b.html',
+          status: 'ERROR',
+          expected: 'OK',
+          message: 'Uncaught TypeError',
+        },
+      ]),
+    );
+    const test = findTest(summary, '/dom/b.html');
+    expect(test.status).toBe('ERROR');
+    expect(test.results[0].messages).toEqual([
+      'first - nope',
+      'Uncaught TypeError',
+    ]);
+    expect(test.results[0].statuses).toEqual(['FAIL', 'ERROR']);
+    expect(summary.realFailCounts).toEqual({ ERROR: 1 });
+  });
+
+  test('reports an unexpected pass', () => {
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/css/ref.html' },
+        {
+          action: 'test_end',
+          time: 9,
+          test: '/css/ref.html',
+          status: 'PASS',
+          expected: 'FAIL',
+        },
+      ]),
+    );
+    expect(findTest(summary, '/css/ref.html').success).toBe(false);
+    expect(buildFailureSuggestions(summary).map((s) => s.search)).toEqual([
+      'TEST-UNEXPECTED-PASS | /css/ref.html | expected FAIL',
+    ]);
+  });
+
+  test('keeps the runs of a test in two subsuites apart', () => {
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/x.html', subsuite: '' },
+        { action: 'test_start', time: 1, test: '/x.html', subsuite: 'private' },
+        {
+          action: 'test_status',
+          time: 2,
+          test: '/x.html',
+          subsuite: 'private',
+          subtest: 'a',
+          status: 'FAIL',
+          expected: 'PASS',
+          message: 'in private browsing',
+        },
+        { action: 'test_end', time: 3, test: '/x.html', subsuite: '', status: 'OK' },
+        {
+          action: 'test_end',
+          time: 4,
+          test: '/x.html',
+          subsuite: 'private',
+          status: 'OK',
+        },
+      ]),
+    );
+    const runs = testsNamed(summary, '/x.html');
+    expect(runs.map((t) => t.success)).toEqual([true, false]);
+    expect(runs.map((t) => t.results[0].start)).toEqual([0, 1]);
+    expect(runs.map((t) => t.retried)).toEqual([false, false]);
+    expect(runs[1].results[0].messages).toEqual(['a - in private browsing']);
+    expect(summary.counts).toMatchObject({ total: 2, PASS: 1, FAIL: 1 });
+    expect(summary.realFailCounts).toEqual({ FAIL: 1 });
+  });
+
+  test('names a reftest by its joined id', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, test: ['a.html', '==', 'b.html'] },
+      {
+        action: 'test_end',
+        time: 9,
+        test: ['a.html', '==', 'b.html'],
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'image comparison, max difference: 255',
+      },
+    ]);
+    const test = findTest(summary, 'a.html == b.html');
+    expect(test.success).toBe(false);
+    expect(test.results[0].start).toBe(0);
+    expect(buildFailureSuggestions(summary)[0].search).toBe(
+      'TEST-UNEXPECTED-FAIL | a.html == b.html | image comparison, max difference: 255',
+    );
   });
 });

@@ -292,6 +292,22 @@ describe('SummaryTab loading and error states', () => {
     expect(screen.getByText('1 failed')).toBeInTheDocument();
     // Shown even at zero, so the row does not change shape between jobs.
     expect(screen.getByText('0 skipped')).toBeInTheDocument();
+    expect(screen.queryByText(/known intermittent/)).toBeNull();
+  });
+
+  test('counts a web-platform-test ending OK as passed', () => {
+    const wptJsonl = [
+      '{"action":"test_start","time":0,"test":"/css/a.html"}',
+      '{"action":"test_status","time":5,"test":"/css/a.html","subtest":"flaky","status":"FAIL","expected":"PASS","known_intermittent":["FAIL"]}',
+      '{"action":"test_end","time":10,"test":"/css/a.html","status":"OK","known_intermittent":[]}',
+    ].join('\n');
+    renderWith({ summary: buildTestSummary(wptJsonl) });
+
+    expect(screen.getByText('tests:', { exact: false })).toHaveTextContent(
+      '1 tests: 1 passed, 0 failed, 0 skipped, 1 known intermittent',
+    );
+    expect(screen.getByText('1 known intermittent')).toBeInTheDocument();
+    expect(screen.getByText('No failures found in the summary.')).toBeInTheDocument();
   });
 
   test('reports an empty summary once loading is done', () => {

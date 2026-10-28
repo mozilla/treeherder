@@ -213,6 +213,14 @@ const SummaryTab = ({
           {', '}
           {/* Always rendered, zero included, so the row keeps one shape. */}
           <span className="text-muted">{summary.counts.SKIP || 0} skipped</span>
+          {summary.counts.knownIntermittent > 0 && (
+            <>
+              {', '}
+              <span className="text-muted">
+                {summary.counts.knownIntermittent} known intermittent
+              </span>
+            </>
+          )}
         </p>
       )}
       <ul className="list-unstyled w-100 h-100 mb-0 overflow-auto text-small font-size-11">
