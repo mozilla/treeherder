@@ -90,6 +90,10 @@ class BackfillRecordSerializer(serializers.Serializer):
     total_backfills_failed = serializers.IntegerField()
     total_backfills_successful = serializers.IntegerField()
     total_backfills_in_progress = serializers.IntegerField()
+    in_progress = serializers.SerializerMethodField()
+
+    def get_in_progress(self, record):
+        return record.is_backfill_in_progress()
 
     def to_representation(self, instance):
         # detected_push_id / detected_push_revision are injected here rather than
