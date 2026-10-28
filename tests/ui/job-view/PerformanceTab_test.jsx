@@ -79,6 +79,10 @@ describe('PerformanceTab', () => {
             url: 'dummy',
             value: 'profile_build_resources.json',
           },
+          {
+            url: 'https://example.com/public/profile_run-task-resource-usage.json',
+            value: 'profile_run-task-resource-usage.json',
+          },
         ],
         perfJobDetail: [
           {
@@ -151,6 +155,10 @@ describe('PerformanceTab', () => {
           hasSideBySide: false,
         },
         jobDetails: [
+          {
+            url: 'https://example.com/public/profile_run-task-resource-usage.json',
+            value: 'profile_run-task-resource-usage.json',
+          },
           {
             url: 'dummy',
             value: 'profile_resource-usage.json',
@@ -262,6 +270,40 @@ describe('PerformanceTab', () => {
     const openProfiler = getByTestId('open-profiler');
     expect(openProfiler.href).toBe(
       'https://profiler.firefox.com/from-url/profile_something.zip',
+    );
+  });
+
+  test('non-perf job prefers the run-task resource profile to a generic profile', () => {
+    const resourceUrl =
+      'https://example.com/public/profile_run-task-resource-usage.json';
+    const { getByTestId } = render(
+      testPerformanceTab({
+        selectedJobFull: {
+          job_type_name: 'build-linux/opt',
+          job_type_symbol: 'B',
+          job_group_name: 'Builds',
+          task_id: 'task-id',
+          retry_id: 0,
+        },
+        jobDetails: [
+          { url: 'profile_something.json', value: 'profile_something.json' },
+          {
+            url: resourceUrl,
+            value: 'profile_run-task-resource-usage.json',
+          },
+        ],
+        perfJobDetail: [
+          {
+            frameworkName: 'build_metrics',
+            perfdocs: { hasDocumentation: () => false },
+          },
+        ],
+      }),
+    );
+
+    expect(getByTestId('open-profiler').href).toBe(
+      `https://profiler.firefox.com/from-url/${encodeURIComponent(resourceUrl)}` +
+        `?profileName=${encodeURIComponent('build-linux/opt (task-id.0)')}`,
     );
   });
 });
