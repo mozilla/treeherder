@@ -15,6 +15,7 @@ import JobLogUrlModel from '../../models/jobLogUrl';
 import PerfSeriesModel from '../../models/perfSeries';
 import { Perfdocs } from '../../perfherder/perf-helpers/perfdocs';
 import useJobSummary from './useJobSummary';
+import useLineBugSuggestions from './useLineBugSuggestions';
 
 // Debounce delay for loading job details when rapidly switching jobs
 const JOB_DETAILS_DEBOUNCE_MS = 200;
@@ -495,6 +496,12 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     selectedJob,
     jobDetails,
   );
+  const lineBugSuggestions = useLineBugSuggestions(
+    selectedJob,
+    summary,
+    bugSuggestions,
+    bugSuggestionsLoading,
+  );
 
   return {
     selectedJobFull,
@@ -512,6 +519,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     bugs,
     bugSuggestions,
     bugSuggestionsLoading,
+    lineBugSuggestions,
     summary,
     summaryLoading,
     summaryError,

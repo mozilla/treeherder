@@ -13,6 +13,8 @@ import {
   matchBugSuggestions,
   computeSummaryDivergence,
   findNewFailureLines,
+  withLineBugSuggestions,
+  withWorkerLines,
 } from '../../../../helpers/testSummary';
 import {
   requiredInternalOccurrences,
@@ -42,6 +44,7 @@ const SummaryTab = ({
   currentRepo,
   bugSuggestions = null,
   bugSuggestionsLoading = false,
+  lineBugSuggestions = null,
 }) => {
   const [isBugFilerOpen, setIsBugFilerOpen] = useState(false);
   const [isInternalIssueFilerOpen, setIsInternalIssueFilerOpen] =
@@ -53,10 +56,18 @@ const SummaryTab = ({
     [summary],
   );
 
-  const suggestions = useMemo(
-    () => matchBugSuggestions(failureSuggestions, bugSuggestions || []),
-    [failureSuggestions, bugSuggestions],
-  );
+  // Lines the classic list does not hold (all of them when the log was not
+  // parsed) get their bugs from their own text instead. The worker's own
+  // lines (a max-run-time abort) cannot be in the artifact, so they are taken
+  // from the classic list. Without an artifact there is no summary to
+  // complete: the classic list is then shown as is.
+  const suggestions = useMemo(() => {
+    const matched = withLineBugSuggestions(
+      matchBugSuggestions(failureSuggestions, bugSuggestions || []),
+      lineBugSuggestions,
+    );
+    return summary ? withWorkerLines(matched, bugSuggestions || []) : matched;
+  }, [summary, failureSuggestions, bugSuggestions, lineBugSuggestions]);
 
   // Compare the two summaries once both are loaded. When they disagree, the
   // classic Failure Summary is rendered stacked below the summary so no
@@ -64,9 +75,9 @@ const SummaryTab = ({
   const divergence = useMemo(
     () =>
       summary && bugSuggestions && !bugSuggestionsLoading
-        ? computeSummaryDivergence(failureSuggestions, bugSuggestions)
+        ? computeSummaryDivergence(suggestions, bugSuggestions)
         : { diverged: false },
-    [summary, failureSuggestions, bugSuggestions, bugSuggestionsLoading],
+    [summary, suggestions, bugSuggestions, bugSuggestionsLoading],
   );
 
   // New failure lines of both lists, flagged exactly as the Failure Summary tab
@@ -202,6 +213,14 @@ const SummaryTab = ({
           {', '}
           {/* Always rendered, zero included, so the row keeps one shape. */}
           <span className="text-muted">{summary.counts.SKIP || 0} skipped</span>
+          {summary.counts.knownIntermittent > 0 && (
+            <>
+              {', '}
+              <span className="text-muted">
+                {summary.counts.knownIntermittent} known intermittent
+              </span>
+            </>
+          )}
         </p>
       )}
       <ul className="list-unstyled w-100 h-100 mb-0 overflow-auto text-small font-size-11">
@@ -382,6 +401,7 @@ SummaryTab.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   bugSuggestions: PropTypes.arrayOf(PropTypes.shape({})),
   bugSuggestionsLoading: PropTypes.bool,
+  lineBugSuggestions: PropTypes.instanceOf(Map),
 };
 
 export default SummaryTab;
