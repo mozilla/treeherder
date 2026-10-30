@@ -113,9 +113,9 @@ export const bugResolutionMap = {
 };
 
 export const changeTypeOptions = [
-  'all types', 
-  'regression', 
-  'improvement'
+  'all types',
+  'regression',
+  'improvement',
 ];
 
 export const alertBackfillResultStatusMap = {

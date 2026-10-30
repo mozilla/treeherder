@@ -10,8 +10,8 @@ import { getFrameworkName, getTitle } from '../perf-helpers/helpers';
 import { severeAlertSeverities } from '../perf-helpers/constants';
 
 const changeTypeBadges = {
-  regression: { text: 'regression', variant: 'danger' },
-  improvement: { text: 'improvement', variant: 'success' },
+  regression: 'danger',
+  improvement: 'success',
 };
 
 export default class AlertHeaderTitle extends React.Component {
@@ -48,7 +48,11 @@ export default class AlertHeaderTitle extends React.Component {
               </span>
             </h6>
             <Col>
-              <Badge bg="secondary" text="white" className="me-2 mb-2 flex-shrink-0">
+              <Badge
+                bg="secondary"
+                text="white"
+                className="me-2 mb-2 flex-shrink-0"
+              >
                 {getFrameworkName(frameworks, alertSummary.framework)}
               </Badge>
               {showSeverity ? (
@@ -59,13 +63,13 @@ export default class AlertHeaderTitle extends React.Component {
               {changeTypeBadge ? (
                 <Badge
                   bg="light"
-                  text={changeTypeBadge.variant}
-                  className={`flex-shrink-0 me-2 border border-${changeTypeBadge.variant}`}
+                  text={changeTypeBadge}
+                  className={`flex-shrink-0 me-2 border border-${changeTypeBadge}`}
                 >
-                  {changeTypeBadge.text}
+                  {changeType}
                 </Badge>
-              ) : null}    
-            </Col>        
+              ) : null}
+            </Col>
           </Link>
           <Clipboard
             text={`${alertSummary.id}`}
