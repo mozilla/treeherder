@@ -16,6 +16,7 @@ from treeherder.perf.models import (
     PerformanceAlertSummary,
     PerformanceFramework,
 )
+from treeherder.webapp.api.performance_data import PerformanceAlertSummaryViewSet
 
 pytestmark = pytest.mark.perf
 
@@ -1026,6 +1027,35 @@ def test_alert_summaries_filter_by_id(client, test_perf_alert_summary, test_perf
     summary_ids = [summary["id"] for summary in retrieved_summaries]
 
     assert summary_ids == [test_perf_alert_summary.id]
+
+
+@pytest.mark.parametrize(
+    ("framework_name", "expected_calls"),
+    [("browsertime", 1), ("test_talos", 0)],
+)
+def test_profile_urls_fetched_only_for_browsertime(
+    client, test_perf_alert, monkeypatch, framework_name, expected_calls
+):
+    framework, _ = PerformanceFramework.objects.get_or_create(
+        name=framework_name, defaults={"enabled": True}
+    )
+    summary = test_perf_alert.summary
+    summary.framework = framework
+    summary.save()
+
+    calls = []
+
+    def fake_fetch_profile_urls(alert):
+        calls.append(alert["id"])
+        return "profile", "prev_profile"
+
+    monkeypatch.setattr(
+        PerformanceAlertSummaryViewSet, "_fetch_profile_urls", staticmethod(fake_fetch_profile_urls)
+    )
+
+    resp = client.get(reverse("performance-alert-summaries-list"), data={"id": summary.id})
+    assert resp.status_code == 200
+    assert len(calls) == expected_calls
 
 
 def test_alert_summaries_filter_by_status(
