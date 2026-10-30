@@ -17,11 +17,11 @@ jobs:
     name: javascript-tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
       - uses: ./.github/actions/setup-pnpm
       - name: Run Jest tests
         run: pnpm test:ci
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: javascript
@@ -33,14 +33,14 @@ jobs:
     env:
       CI: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
       - uses: ./.github/actions/setup-pnpm
 
       - name: Get Playwright version
         id: playwright-version
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v4.3.0
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
@@ -58,7 +58,7 @@ jobs:
       - name: Run Playwright integration tests
         run: pnpm test:integration
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         if: always()
         with:
           name: playwright-report
@@ -71,7 +71,7 @@ jobs:
     name: javascript-lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
       - uses: ./.github/actions/setup-pnpm
       - name: Run linting
         run: pnpm lint
@@ -82,16 +82,16 @@ jobs:
     name: builds
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4.4.0
+      - uses: actions/setup-python@v5.6.0
         with:
-          python-version: '3.14'
+          python-version: '3.14.10'
           cache: pip
           cache-dependency-path: |
             tox.ini
             requirements/*.txt
       # pre-commit's biome hook needs node; setup-node without pnpm is enough.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version-file: package.json
       - run: pip install tox
@@ -104,16 +104,16 @@ jobs:
     name: python-tests-general
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4.4.0
+      - uses: actions/setup-python@v5.6.0
         with:
-          python-version: '3.14'
+          python-version: '3.14.10'
           cache: pip
           cache-dependency-path: tox.ini
       - run: pip install tox
       - name: Run tests and coverage within Docker container
         run: tox -e docker-general
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: python
@@ -123,16 +123,16 @@ jobs:
     name: python-tests-perf
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4.4.0
+      - uses: actions/setup-python@v5.6.0
         with:
-          python-version: '3.14'
+          python-version: '3.14.10'
           cache: pip
           cache-dependency-path: tox.ini
       - run: pip install tox
       - name: Run tests and coverage within Docker container
         run: tox -e docker-perf
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: python
@@ -142,16 +142,16 @@ jobs:
     name: python-tests-frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4.4.0
+      - uses: actions/setup-python@v5.6.0
         with:
-          python-version: '3.14'
+          python-version: '3.14.10'
           cache: pip
           cache-dependency-path: tox.ini
       - run: pip install tox
       - name: Run tests and coverage within Docker container
         run: tox -e docker-frontend
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: python
@@ -161,16 +161,16 @@ jobs:
     name: python-tests-telemetry
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4.4.0
+      - uses: actions/setup-python@v5.6.0
         with:
-          python-version: '3.14'
+          python-version: '3.14.10'
           cache: pip
           cache-dependency-path: tox.ini
       - run: pip install tox
       - name: Run tests and coverage within Docker container
         run: tox -e docker-telemetry
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: python
@@ -180,7 +180,7 @@ jobs:
     name: test-docker-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
       - name: Create version.json
         run: |
           # https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
@@ -189,8 +189,8 @@ jobs:
             "" \
             "$GITHUB_REPOSITORY" \
             "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > version.json
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v6
+      - uses: docker/setup-buildx-action@v3.12.0
+      - uses: docker/build-push-action@v6.19.2
         with:
           context: .
           file: docker/Dockerfile
