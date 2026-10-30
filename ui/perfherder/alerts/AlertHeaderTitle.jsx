@@ -9,6 +9,11 @@ import Clipboard from '../../shared/Clipboard';
 import { getFrameworkName, getTitle } from '../perf-helpers/helpers';
 import { severeAlertSeverities } from '../perf-helpers/constants';
 
+const changeTypeBadges = {
+  regression: 'danger',
+  improvement: 'success',
+};
+
 export default class AlertHeaderTitle extends React.Component {
   constructor(props) {
     super(props);
@@ -18,8 +23,9 @@ export default class AlertHeaderTitle extends React.Component {
   render() {
     const { alertSummary, frameworks } = this.props;
 
-    const { severity } = alertSummary;
+    const { severity, change_type: changeType } = alertSummary;
     const showSeverity = severeAlertSeverities.includes(severity);
+    const changeTypeBadge = changeTypeBadges[changeType];
 
     return (
       <Row>
@@ -32,14 +38,6 @@ export default class AlertHeaderTitle extends React.Component {
             data-testid={`alert summary ${alertSummary.id.toString()} title`}
           >
             <h6 className="font-weight-bold d-flex align-items-start gap-2">
-              <Badge bg="secondary" text="white" className="flex-shrink-0 mt-1">
-                {getFrameworkName(frameworks, alertSummary.framework)}
-              </Badge>
-              {showSeverity ? (
-                <Badge bg="danger" className="flex-shrink-0 mt-1">
-                  {severity}
-                </Badge>
-              ) : null}
               <span>
                 Alert #{alertSummary.id} - {alertSummary.repository} -{' '}
                 {getTitle(alertSummary)}{' '}
@@ -49,6 +47,29 @@ export default class AlertHeaderTitle extends React.Component {
                 />
               </span>
             </h6>
+            <Col>
+              <Badge
+                bg="secondary"
+                text="white"
+                className="me-2 mb-2 flex-shrink-0"
+              >
+                {getFrameworkName(frameworks, alertSummary.framework)}
+              </Badge>
+              {showSeverity ? (
+                <Badge bg="danger" className="flex-shrink-0 me-2">
+                  {severity}
+                </Badge>
+              ) : null}
+              {changeTypeBadge ? (
+                <Badge
+                  bg="light"
+                  text={changeTypeBadge}
+                  className={`flex-shrink-0 me-2 border border-${changeTypeBadge}`}
+                >
+                  {changeType}
+                </Badge>
+              ) : null}
+            </Col>
           </Link>
           <Clipboard
             text={`${alertSummary.id}`}

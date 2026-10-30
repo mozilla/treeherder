@@ -365,6 +365,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     )
     assignee_email = serializers.SerializerMethodField()
     duplicated_summaries = serializers.SerializerMethodField()
+    change_type = serializers.SerializerMethodField()
     # marking these fields as readonly, the user should not be modifying them
     # (after the item is first created, where we don't use this serializer
     # class)
@@ -414,6 +415,9 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     def get_assignee_email(self, performance_alert_summary):
         return getattr(performance_alert_summary.assignee, "email", None)
 
+    def get_change_type(self, performance_alert_summary):
+        return getattr(performance_alert_summary, "change_type", None)
+
     def get_duplicated_summaries(self, performance_alert_summary):
         duplicated_summaries_map = self.context.get("duplicated_summaries_map")
         if duplicated_summaries_map is not None:
@@ -451,6 +455,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "bug_due_date",
             "bug_updated",
             "severity",
+            "change_type",
             "issue_tracker",
             "notes",
             "revision",

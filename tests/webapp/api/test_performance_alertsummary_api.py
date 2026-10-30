@@ -107,6 +107,7 @@ def test_alert_summaries_get(
         "performance_tags",
         "duplicated_summaries",
         "severity",
+        "change_type",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
     assert set(resp.json()["results"][0]["alerts"][0].keys()) == {
@@ -369,6 +370,7 @@ def test_alert_summaries_get_onhold(
         "performance_tags",
         "duplicated_summaries",
         "severity",
+        "change_type",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
     assert set(resp.json()["results"][0]["alerts"][0].keys()) == {
@@ -1503,3 +1505,175 @@ def test_failed_backfill_jobs_count_is_batched_per_page(
     assert resp.status_code == 200
     alert = resp.json()["results"][0]["alerts"][0]
     assert alert["backfill_record"]["failed_jobs_count"] == 1
+
+
+@pytest.fixture
+def regression_and_improvement_summaries(
+    test_perf_alert_summary, test_perf_alert, test_perf_alert_summary_2, test_perf_alert_2
+):
+    # summary 1 has a regression alert, summary 2 has only an improvement alert
+    test_perf_alert_2.is_regression = False
+    test_perf_alert_2.save()
+    return test_perf_alert_summary, test_perf_alert_summary_2
+
+
+def _get_summary_ids(client, **params):
+    resp = client.get(reverse("performance-alert-summaries-list"), data=params)
+    assert resp.status_code == 200
+    return [summary["id"] for summary in resp.json()["results"]]
+
+
+def _get_change_types(client, **params):
+    resp = client.get(reverse("performance-alert-summaries-list"), data=params)
+    assert resp.status_code == 200
+    return {summary["id"]: summary["change_type"] for summary in resp.json()["results"]}
+
+
+def test_alert_summaries_change_type_reflects_alerts(client, regression_and_improvement_summaries):
+    regression_summary, improvement_summary = regression_and_improvement_summaries
+
+    assert _get_change_types(client) == {
+        regression_summary.id: "regression",
+        improvement_summary.id: "improvement",
+    }
+
+
+def test_alert_summaries_change_type_follows_reassigned_regression(
+    client, regression_and_improvement_summaries, test_perf_alert
+):
+    _, improvement_summary = regression_and_improvement_summaries
+    test_perf_alert.status = PerformanceAlert.REASSIGNED
+    test_perf_alert.related_summary = improvement_summary
+    test_perf_alert.save()
+
+    assert _get_change_types(client)[improvement_summary.id] == "regression"
+    assert improvement_summary.id in _get_summary_ids(client, change_type="regression")
+
+
+def test_alert_summaries_change_type_reverts_when_reassignment_removed(
+    client, regression_and_improvement_summaries, test_perf_alert
+):
+    _, improvement_summary = regression_and_improvement_summaries
+    test_perf_alert.status = PerformanceAlert.REASSIGNED
+    test_perf_alert.related_summary = improvement_summary
+    test_perf_alert.save()
+    test_perf_alert.status = PerformanceAlert.UNTRIAGED
+    test_perf_alert.related_summary = None
+    test_perf_alert.save()
+
+    assert _get_change_types(client)[improvement_summary.id] == "improvement"
+
+
+def test_alert_summary_detail_includes_change_type(client, regression_and_improvement_summaries):
+    _, improvement_summary = regression_and_improvement_summaries
+
+    resp = client.get(
+        reverse("performance-alert-summaries-detail", kwargs={"pk": improvement_summary.id})
+    )
+    assert resp.status_code == 200
+    assert resp.json()["change_type"] == "improvement"
+
+
+@pytest.mark.parametrize(
+    "change_type, expected_summary_index",
+    [("regression", 0), ("improvement", 1)],
+)
+def test_alert_summaries_filter_by_change_type(
+    client, regression_and_improvement_summaries, change_type, expected_summary_index
+):
+    summaries = regression_and_improvement_summaries
+
+    assert _get_summary_ids(client, change_type=change_type) == [
+        summaries[expected_summary_index].id
+    ]
+
+
+def test_alert_summaries_filter_by_change_type_mixed_summary_counts_as_regression(
+    client, regression_and_improvement_summaries, test_perf_signature_2
+):
+    regression_summary, improvement_summary = regression_and_improvement_summaries
+    create_perf_alert(
+        summary=regression_summary,
+        series_signature=test_perf_signature_2,
+        is_regression=False,
+    )
+
+    assert _get_summary_ids(client, change_type="improvement") == [improvement_summary.id]
+    assert _get_summary_ids(client, change_type="regression") == [regression_summary.id]
+
+
+def test_alert_summaries_filter_by_change_type_rejects_unknown_value(
+    client, test_perf_alert_summary
+):
+    resp = client.get(reverse("performance-alert-summaries-list"), data={"change_type": "bogus"})
+    assert resp.status_code == 400
+
+
+def test_alert_summaries_change_type_filter_combines_with_status_and_framework(
+    client, regression_and_improvement_summaries
+):
+    regression_summary, improvement_summary = regression_and_improvement_summaries
+    regression_summary.status = PerformanceAlertSummary.UNTRIAGED
+    regression_summary.save()
+
+    improvement_summary.status = PerformanceAlertSummary.INVALID
+    improvement_summary.framework = PerformanceFramework.objects.create(
+        name="other_framework", enabled=True
+    )
+    improvement_summary.save()
+
+    assert _get_summary_ids(
+        client,
+        change_type="regression",
+        status=PerformanceAlertSummary.UNTRIAGED,
+    ) == [regression_summary.id]
+    assert (
+        _get_summary_ids(
+            client,
+            change_type="regression",
+            status=PerformanceAlertSummary.INVALID,
+        )
+        == []
+    )
+    assert _get_summary_ids(
+        client,
+        change_type="improvement",
+        status=PerformanceAlertSummary.INVALID,
+    ) == [improvement_summary.id]
+    assert _get_summary_ids(
+        client,
+        change_type="improvement",
+        framework=improvement_summary.framework_id,
+    ) == [improvement_summary.id]
+    assert (
+        _get_summary_ids(
+            client,
+            change_type="regression",
+            framework=improvement_summary.framework_id,
+        )
+        == []
+    )
+
+
+def test_alert_summaries_filter_by_change_type_empty_value_is_noop(
+    client, regression_and_improvement_summaries
+):
+    regression_summary, improvement_summary = regression_and_improvement_summaries
+
+    assert set(_get_summary_ids(client, change_type="")) == {
+        regression_summary.id,
+        improvement_summary.id,
+    }
+
+
+def test_alert_summary_put_returns_change_type(
+    authorized_sheriff_client, regression_and_improvement_summaries
+):
+    _, improvement_summary = regression_and_improvement_summaries
+
+    resp = authorized_sheriff_client.put(
+        reverse("performance-alert-summaries-list") + f"{improvement_summary.id}/",
+        {"notes": "human created notes"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["change_type"] == "improvement"
