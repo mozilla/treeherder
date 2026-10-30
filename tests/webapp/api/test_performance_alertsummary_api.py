@@ -16,6 +16,7 @@ from treeherder.perf.models import (
     PerformanceAlertSummary,
     PerformanceFramework,
 )
+from treeherder.webapp.api import performance_serializers
 
 pytestmark = pytest.mark.perf
 
@@ -1503,3 +1504,28 @@ def test_failed_backfill_jobs_count_is_batched_per_page(
     assert resp.status_code == 200
     alert = resp.json()["results"][0]["alerts"][0]
     assert alert["backfill_record"]["failed_jobs_count"] == 1
+
+
+def test_needs_bisection_is_batched_per_page(client, monkeypatch, test_perf_alert):
+    detected_push = Push.objects.filter(repository=test_perf_alert.summary.repository).order_by(
+        "time"
+    )[1]
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    BackfillRecord.objects.create(
+        alert=test_perf_alert,
+        report=report,
+        status=BackfillRecord.SUCCESSFUL,
+        backfill_logs=json.dumps(
+            [{"iteration": 1, "detected_push_id": detected_push.id, "detected_push_revision": "a"}]
+        ),
+    )
+
+    def per_record_query(records):
+        raise AssertionError("needs_bisection should come from the page map")
+
+    monkeypatch.setattr(performance_serializers, "build_bisection_map", per_record_query)
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    alert = resp.json()["results"][0]["alerts"][0]
+    assert alert["backfill_record"]["needs_bisection"] is True

@@ -528,6 +528,21 @@ export default class AlertTableRow extends React.Component {
                   Failed jobs: {failedJobsCount}
                 </span>
               )}
+              {alert.backfill_record?.needs_bisection && (
+                <SimpleTooltip
+                  text={
+                    <Badge
+                      bg="white"
+                      text="primary"
+                      className="ms-1 border border-primary"
+                      data-testid={`alert ${alert.id.toString()} bisection badge`}
+                    >
+                      bisection
+                    </Badge>
+                  }
+                  tooltipText="No data on the push before the suggested culprit"
+                />
+              )}
             </>
           )}
         </td>

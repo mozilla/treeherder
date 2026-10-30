@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import OuterRef, Subquery
 from rest_framework import exceptions, serializers
 
 from treeherder.model.models import Job, Repository, TaskclusterMetadata
@@ -83,6 +84,56 @@ class RepositoryScopedRevisionField(serializers.SlugRelatedField):
         return queryset
 
 
+def build_bisection_map(records) -> dict[int, bool]:
+    """
+    Returns a dict mapping alert_id -> needs_bisection: True when the Sherlock
+    suggested culprit can't be trusted because the push right before it has no
+    data points for the alert's signature (job missing or failed), False otherwise.
+    Only records whose investigation has ended are considered.
+    """
+    detected = {}
+    for record in records:
+        # while Sherlock is still iterating, a gap before the detected push is expected
+        if record.status not in (BackfillRecord.SUCCESSFUL, BackfillRecord.FAILED):
+            continue
+        latest = record.get_latest_detected_push()
+        if latest:
+            detected[record.alert_id] = (record.alert, latest["detected_push_id"])
+    if not detected:
+        return {}
+
+    previous_push = Push.objects.filter(
+        repository_id=OuterRef("repository_id"), time__lt=OuterRef("time")
+    ).order_by("-time")
+    rows = (
+        Push.objects.filter(id__in={push_id for _, push_id in detected.values()})
+        .annotate(previous_push_id=Subquery(previous_push.values("id")[:1]))
+        .values_list("id", "repository_id", "previous_push_id")
+    )
+    previous_pushes = {}
+    for push_id, repository_id, previous_push_id in rows:
+        previous_pushes[push_id] = (repository_id, previous_push_id)
+
+    targets = {}
+    for alert_id, (alert, push_id) in detected.items():
+        repository_id, previous_push_id = previous_pushes.get(push_id, (None, None))
+        if previous_push_id is not None:
+            targets[alert_id] = (repository_id, alert.series_signature_id, previous_push_id)
+    if not targets:
+        return {}
+
+    with_data = set(
+        PerformanceDatum.objects.filter(
+            repository_id__in={repo_id for repo_id, _, _ in targets.values()},
+            signature_id__in={sig_id for _, sig_id, _ in targets.values()},
+            push_id__in={push_id for _, _, push_id in targets.values()},
+        )
+        .values_list("repository_id", "signature_id", "push_id")
+        .distinct()
+    )
+    return {alert_id: key not in with_data for alert_id, key in targets.items()}
+
+
 class BackfillRecordSerializer(serializers.Serializer):
     context = serializers.JSONField()
     status = serializers.IntegerField()
@@ -105,6 +156,10 @@ class BackfillRecordSerializer(serializers.Serializer):
             data["failed_jobs_count"] = failed_jobs_map.get(instance.alert_id, 0)
         else:
             data["failed_jobs_count"] = instance.get_failed_backfill_jobs_count()
+        bisection_map = self.context.get("bisection_map")
+        if bisection_map is None:
+            bisection_map = build_bisection_map([instance])
+        data["needs_bisection"] = bisection_map.get(instance.alert_id, False)
 
         return data
 
