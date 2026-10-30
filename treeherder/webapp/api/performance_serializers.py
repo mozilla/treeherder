@@ -725,6 +725,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     new_parent_signature = serializers.IntegerField()
     base_signature_id = serializers.IntegerField()
     new_signature_id = serializers.IntegerField()
+    alert_id = serializers.IntegerField(allow_null=True, default=None)
+    alert_summary_id = serializers.IntegerField(allow_null=True, default=None)
     has_subtests = serializers.BooleanField()
 
     class Meta:
@@ -778,6 +780,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             "new_parent_signature",
             "base_signature_id",
             "new_signature_id",
+            "alert_id",
+            "alert_summary_id",
             "has_subtests",
         ]
 
@@ -858,6 +862,8 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     new_parent_signature = serializers.IntegerField()
     base_signature_id = serializers.IntegerField()
     new_signature_id = serializers.IntegerField()
+    alert_id = serializers.IntegerField(allow_null=True, default=None)
+    alert_summary_id = serializers.IntegerField(allow_null=True, default=None)
     has_subtests = serializers.BooleanField()
     shapiro_wilk_test_base = StatisticsTestSerializer(many=False, default=None)
     shapiro_wilk_test_new = StatisticsTestSerializer(many=False, default=None)
@@ -909,6 +915,8 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "new_parent_signature",
             "base_signature_id",
             "new_signature_id",
+            "alert_id",
+            "alert_summary_id",
             "has_subtests",
             "base_standard_stats",
             "new_standard_stats",
