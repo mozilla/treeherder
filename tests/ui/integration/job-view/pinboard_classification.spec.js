@@ -23,8 +23,14 @@ const selectBuildJob = async (page) => {
   ).toBeVisible();
 };
 
+// The mobile layout moves the pinboard into the job details sheet and the
+// signed-in user's name into the navigation drawer; these specs target the
+// desktop layout (mobile pinning is covered in jobs_view.spec.js).
+const DESKTOP_ONLY = 'desktop layout only';
+
 test.describe('Pinboard', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === 'mobile-firefox', DESKTOP_ONLY);
     await mockJobsViewApi(page);
     await page.goto('/jobs?repo=autoland');
     await expect(page.getByTestId('push-header').first()).toBeVisible();
@@ -112,7 +118,8 @@ test.describe('Classification', () => {
 
   test('a logged-in user can classify a pinned job with a bug', async ({
     page,
-  }) => {
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'mobile-firefox', DESKTOP_ONLY);
     await seedLoggedInSession(page);
     const captured = await mockJobsViewApi(page, { user: [SHERIFF_USER] });
     await page.goto('/jobs?repo=autoland');
