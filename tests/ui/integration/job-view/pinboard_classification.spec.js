@@ -25,7 +25,7 @@ const selectBuildJob = async (page) => {
 
 // The mobile layout moves the pinboard into the job details sheet and the
 // signed-in user's name into the navigation drawer; these specs target the
-// desktop layout (mobile pinning is covered in jobs_view.spec.js).
+// desktop layout; see 'Mobile pinboard and classification' below.
 const DESKTOP_ONLY = 'desktop layout only';
 
 test.describe('Pinboard', () => {
@@ -223,5 +223,128 @@ test.describe('Classification', () => {
     await expect(
       jobPush.locator('[data-testid="job-btn"]').filter({ hasText: /^B/ }),
     ).toHaveCount(0);
+  });
+});
+
+// Mobile counterparts of the desktop-only specs above. On a phone the
+// pinboard lives in the job details sheet behind a "Show pinboard" toggle,
+// pinning is done with the sheet's "Pin job" button rather than keyboard
+// shortcuts, and the signed-in user's name is in the navigation drawer.
+test.describe('Mobile pinboard and classification', () => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox', 'mobile layout only');
+  });
+
+  const sheet = (page) => page.locator('.mobile-job-details');
+
+  const pinBuildJobFromSheet = async (page) => {
+    await page.getByTestId('job-btn').filter({ hasText: /^B$/ }).first().click();
+    await sheet(page).getByRole('button', { name: 'Pin job', exact: true }).click();
+    await sheet(page)
+      .getByRole('button', { name: 'Show pinboard (1 pinned)' })
+      .click();
+    const pinboard = sheet(page).locator('#pinboard-panel');
+    await expect(pinboard).toBeVisible();
+    await expect(pinboard.locator('.pinned-job')).toHaveText('B');
+    return pinboard;
+  };
+
+  const addRelatedBug = async (page, pinboard, bugId) => {
+    await pinboard.locator('#add-related-bug-button').click();
+    const bugInput = pinboard.locator('#related-bug-input');
+    await expect(bugInput).toBeVisible();
+    await bugInput.fill(String(bugId));
+    await bugInput.press('Enter');
+    await expect(page.getByTestId(`pinboard-bug-${bugId}`)).toBeVisible();
+    // Same race as the desktop spec: Enter does not always close the
+    // input, and blurring a non-empty input would add the bug again.
+    if (await bugInput.isVisible()) {
+      await bugInput.fill('');
+      await bugInput.blur();
+    }
+    await expect(bugInput).toBeHidden();
+  };
+
+  test('a related bug can be added to and a job un-pinned from the sheet pinboard', async ({
+    page,
+  }) => {
+    await mockJobsViewApi(page);
+    await page.goto('/jobs?repo=autoland');
+
+    const pinboard = await pinBuildJobFromSheet(page);
+    await addRelatedBug(page, pinboard, 123456);
+
+    await pinboard.getByTitle('un-pin this job').click();
+    await expect(pinboard.locator('.pinned-job')).toHaveCount(0);
+    await expect(
+      sheet(page).getByRole('button', { name: 'Pin job', exact: true }),
+    ).toBeVisible();
+  });
+
+  test('the push header pin-all button pins every shown job on the push', async ({
+    page,
+  }) => {
+    await mockJobsViewApi(page);
+    await page.goto('/jobs?repo=autoland');
+    await expect(page.getByTestId('push-header').first()).toBeVisible();
+
+    await page.locator('.pin-all-jobs-btn').first().click();
+
+    // Pinning opens the details sheet on the first pinned job; the fixture
+    // push has five jobs: D, B, yaml, Cpp and Meh.
+    await sheet(page)
+      .getByRole('button', { name: 'Show pinboard (5 pinned)' })
+      .click();
+    await expect(
+      sheet(page).locator('#pinboard-panel .pinned-job'),
+    ).toHaveCount(5);
+  });
+
+  test('a logged-in user can classify a pinned job with a bug', async ({
+    page,
+  }) => {
+    await seedLoggedInSession(page);
+    const captured = await mockJobsViewApi(page, { user: [SHERIFF_USER] });
+    await page.goto('/jobs?repo=autoland');
+
+    // The user's name is in the navigation drawer on mobile.
+    await page.getByRole('button', { name: 'Open navigation' }).click();
+    const drawer = page.locator('#mobile-navigation');
+    await expect(drawer).toContainText('Sheriff Tester');
+    await drawer.getByRole('button', { name: 'Close' }).click();
+    await expect(drawer).toBeHidden();
+
+    const pinboard = await pinBuildJobFromSheet(page);
+    await addRelatedBug(page, pinboard, 123456);
+    await expect(
+      pinboard.locator('#pinboard-classification-select'),
+    ).toHaveValue('4');
+
+    await pinboard.locator('.save-btn').click();
+
+    await expect
+      .poll(() => captured.notes.length, { message: 'note POST sent' })
+      .toBe(1);
+    expect(captured.notes[0]).toMatchObject({
+      job_id: BUILD_JOB.id,
+      failure_classification_id: 4,
+    });
+    await expect
+      .poll(() => captured.bugJobMaps.length, {
+        message: 'bug-job-map POST sent',
+      })
+      .toBe(1);
+    expect(captured.bugJobMaps[0]).toMatchObject({
+      job_id: BUILD_JOB.id,
+      bug_id: 123456,
+      type: 'annotation',
+    });
+
+    await expect(pinboard.locator('.pinned-job')).toHaveCount(0);
+    const classifiedB = page
+      .getByTestId(`push-${BUILD_JOB.push_id}`)
+      .locator('[data-testid="job-btn"][data-classified="true"]')
+      .filter({ hasText: /^B/ });
+    await expect(classifiedB).toHaveCount(1);
   });
 });
