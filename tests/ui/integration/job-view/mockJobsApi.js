@@ -199,4 +199,7 @@ module.exports = {
   FAILURE_CLASSIFICATIONS,
   BUG_SUGGESTIONS,
   pushList,
+  jobList,
+  json,
+  loadFixture,
 };
