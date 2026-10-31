@@ -121,13 +121,9 @@ test.describe('Job selection', () => {
       await expect(selectedJob(page)).toBeVisible();
       await expect(page).toHaveURL(/selectedTaskRun=/);
 
-      // Selecting a job can push more than one (identical) history
-      // entry, so step back until we reach the pre-selection entry.
-      let backSteps = 0;
-      do {
-        await page.goBack();
-        backSteps += 1;
-      } while (/selectedTaskRun=/.test(page.url()) && backSteps < 5);
+      // Selecting a job adds exactly one history entry, so a single Back
+      // returns to the pre-selection URL.
+      await page.goBack();
 
       await expect(page).not.toHaveURL(/selectedTaskRun=/);
       await expect(
