@@ -77,7 +77,12 @@ test.describe('Failure summary tab', () => {
 
   test('a logged-in user can classify from a suggested bug', async ({
     page,
-  }) => {
+  }, testInfo) => {
+    // On mobile the signed-in user's name lives in the navigation drawer.
+    test.skip(
+      testInfo.project.name === 'mobile-firefox',
+      'desktop layout only',
+    );
     await seedLoggedInSession(page);
     const captured = await mockJobsViewApi(page, {
       user: [SHERIFF_USER],

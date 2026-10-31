@@ -9,7 +9,14 @@
 
 const { test, expect } = require('@playwright/test');
 
-const { mockJobsViewApi, BUILD_JOB } = require('./mockJobsApi');
+const {
+  mockJobsViewApi,
+  BUILD_JOB,
+  pushList,
+  jobList,
+  json,
+  loadFixture,
+} = require('./mockJobsApi');
 
 test.describe('Jobs View', () => {
   test.beforeEach(async ({ page }) => {
