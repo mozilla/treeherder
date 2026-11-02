@@ -229,16 +229,13 @@ def interpret_cles(
     mann_stat,
     new_revision,
     base_revision,
-    delta,
-    interpretation,
-    lower_is_better,
 ):
     try:
         cles = None
         if (len(new_revision) > 0) and (len(base_revision) > 0) and mann_stat is not None:
             cles = mann_stat / (len(new_revision) * len(base_revision))
         else:
-            return None, None, None, None, None, None
+            return None, None
 
         mann_whitney_u_cles = ""
         # Mann-Whitney U Common Language Effect Size
@@ -251,25 +248,14 @@ def interpret_cles(
         else:
             mann_whitney_u_cles = ""
 
-        # Generate CLES explanation
-        cles_explanation, is_base_greater = interpret_cles_direction(cles)
-        # Cliff's delta CLES
-        cliffs_delta_cles = f"Cliff's Delta: {delta:.2f} → {interpretation}" if delta else ""
+        # Keep the direction interpretation; it drives direction_of_change.
+        _, is_base_greater = interpret_cles_direction(cles)
 
         cles_obj = {
             "cles": cles,
-            "cles_explanation": cles_explanation,
             "mann_whitney_u_cles": mann_whitney_u_cles,
-            "cliffs_delta_cles": cliffs_delta_cles,
         }
 
-        return (
-            cles_obj,
-            cles,
-            cles_explanation,
-            mann_whitney_u_cles,
-            cliffs_delta_cles,
-            is_base_greater,
-        )
+        return cles_obj, is_base_greater
     except Exception:
-        return None, None, None, None, None, None
+        return None, None
