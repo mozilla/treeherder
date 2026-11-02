@@ -411,6 +411,7 @@ export default class AlertTableRow extends React.Component {
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     const detectedPushRevision = alert.backfill_record?.detected_push_revision;
     const failedJobsCount = alert.backfill_record?.failed_jobs_count;
+    const sherlockInProgress = alert.backfill_record?.in_progress;
     let sherlockTooltip = backfillStatusInfo?.message;
     if (backfillStatusInfo?.displayTasksCount) {
       sherlockTooltip = (
@@ -511,6 +512,19 @@ export default class AlertTableRow extends React.Component {
                   tooltipText={sherlockTooltip}
                 />
               </span>
+              {sherlockInProgress && (
+                <>
+                  <Badge
+                    className="ms-1"
+                    bg="warning"
+                    text="dark"
+                    data-testid={`alert ${alert.id} sherlock in-progress badge`}
+                  >
+                    Sherlock in progress
+                  </Badge>
+                  {(detectedPushRevision || failedJobsCount > 0) && <br />}
+                </>
+              )}
               {detectedPushRevision && (
                 <span
                   className="ms-1 fst-italic text-muted small"
