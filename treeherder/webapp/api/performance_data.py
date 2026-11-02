@@ -1818,7 +1818,7 @@ class PerfCompareResults(generics.ListAPIView):
 
             cached = PerfCompareMwuCache.objects.filter(hash_key=cache_key).first()
             if cached:
-                return Response(data=self._add_alert_ids(cached.results, alerts_by_signature))
+                return Response(data=self._add_alerts(cached.results, alerts_by_signature))
 
             comparison_results = PerfCompareResults._process_mann_whitney_u(
                 comparison_inputs, header_names, platforms
@@ -1835,12 +1835,15 @@ class PerfCompareResults(generics.ListAPIView):
             json_safe_data = json.loads(json.dumps(serialized_data, cls=DecimalEncoder))
             PerfCompareMwuCache.objects.get_or_create(hash_key=cache_key, results=json_safe_data)
 
-        return Response(data=self._add_alert_ids(serialized_data, alerts_by_signature))
+        return Response(data=self._add_alerts(serialized_data, alerts_by_signature))
 
     @staticmethod
-    def _get_alerts_by_signature(new_push: models.Push) -> dict[int, tuple[int, int]]:
+    def _get_alerts_by_signature(
+        new_push: models.Push,
+    ) -> dict[int, Sequence[dict[str, int]]]:
         """
-        Map signature id -> (alert id, tracking summary id) for alerts on new_push.
+        Map signature id -> every alert on new_push for that test, as
+        {"id": alert id, "summary_id": id of the summary tracking it}.
         Reassigned alerts belong to the push of the summary they were moved to.
         Downstream alerts stay on their own push and point to the upstream summary.
         Invalid alerts are ignored.
@@ -1859,24 +1862,24 @@ class PerfCompareResults(generics.ListAPIView):
                 | Q(status=PerformanceAlert.REASSIGNED, related_summary_id__in=summaries_on_push)
             )
             .exclude(status=PerformanceAlert.INVALID)
-            # deterministic when several alerts share a signature: the newest one wins
+            # stable order of the alerts listed for a test
             .order_by("id")
         )
-        return {
-            signature_id: (alert_id, related_summary_id or summary_id)
-            for alert_id, signature_id, summary_id, related_summary_id in alerts.values_list(
-                "id", "series_signature_id", "summary_id", "related_summary_id"
+        alerts_by_signature: dict[int, list[dict[str, int]]] = defaultdict(list)
+        for alert_id, signature_id, summary_id, related_summary_id in alerts.values_list(
+            "id", "series_signature_id", "summary_id", "related_summary_id"
+        ):
+            alerts_by_signature[signature_id].append(
+                {"id": alert_id, "summary_id": related_summary_id or summary_id}
             )
-        }
+        return dict(alerts_by_signature)
 
     @staticmethod
-    def _add_alert_ids(
-        rows: MutableSequence[dict], alerts_by_signature: dict[int, tuple[int, int]]
+    def _add_alerts(
+        rows: MutableSequence[dict], alerts_by_signature: dict[int, Sequence[dict[str, int]]]
     ) -> MutableSequence[dict]:
         for row in rows:
-            row["alert_id"], row["alert_summary_id"] = alerts_by_signature.get(
-                row["new_signature_id"], (None, None)
-            )
+            row["alerts"] = alerts_by_signature.get(row["new_signature_id"], [])
         return rows
 
     @staticmethod
