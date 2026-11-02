@@ -264,8 +264,7 @@ def test_perfcompare_results_against_no_base(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
-            "alert_id": None,
-            "alert_summary_id": None,
+            "alerts": [],
             "has_subtests": response["has_subtests"],
         },
     ]
@@ -545,8 +544,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
-            "alert_id": None,
-            "alert_summary_id": None,
+            "alerts": [],
             "has_subtests": response["has_subtests"],
         },
     ]
@@ -719,8 +717,7 @@ def test_perfcompare_results_without_base_signature(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
-            "alert_id": None,
-            "alert_summary_id": None,
+            "alerts": [],
             "has_subtests": response["has_subtests"],
         },
     ]
@@ -893,8 +890,7 @@ def test_perfcompare_results_subtests_support(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
-            "alert_id": None,
-            "alert_summary_id": None,
+            "alerts": [],
             "has_subtests": response["has_subtests"],
         },
     ]
@@ -1391,8 +1387,7 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
-            "alert_id": None,
-            "alert_summary_id": None,
+            "alerts": [],
             "has_subtests": response["has_subtests"],
             "cles": {
                 "cles": 0.0,
@@ -2074,7 +2069,7 @@ def _mwu_query_params(try_repository, test_repository, new_push, test_perf_signa
         "reassigned_away_from_compared_push",
     ],
 )
-def test_perfcompare_results_alert_ids(
+def test_perfcompare_results_alerts(
     client,
     create_push,
     create_signature,
@@ -2131,16 +2126,13 @@ def test_perfcompare_results_alert_ids(
     )
     assert response.status_code == 200
 
-    row = response.json()[0]
-    if expected_summary:
-        assert row["alert_id"] == alert.id
-        assert row["alert_summary_id"] == summaries[expected_summary].id
-    else:
-        assert row["alert_id"] is None
-        assert row["alert_summary_id"] is None
+    expected_alerts = (
+        [{"id": alert.id, "summary_id": summaries[expected_summary].id}] if expected_summary else []
+    )
+    assert response.json()[0]["alerts"] == expected_alerts
 
 
-def test_perfcompare_results_alert_ids_newest_alert_wins(
+def test_perfcompare_results_alerts_lists_every_alert_for_a_test(
     client,
     create_push,
     create_signature,
@@ -2169,23 +2161,26 @@ def test_perfcompare_results_alert_ids_newest_alert_wins(
     framework = test_perf_signature.framework
     other_push = create_push(test_repository, revision="aaaa1111bbbb2222cccc3333dddd4444eeee5555")
     # Given: two summaries on the compared push (different prev pushes), each alerting on the test
-    older = _create_summary(test_repository, framework, test_perfcomp_push, test_perfcomp_push_2)
-    newer = _create_summary(test_repository, framework, other_push, test_perfcomp_push_2)
-    create_perf_alert(summary=older, series_signature=new_sig)
-    newer_alert = create_perf_alert(summary=newer, series_signature=new_sig)
+    first_summary = _create_summary(
+        test_repository, framework, test_perfcomp_push, test_perfcomp_push_2
+    )
+    second_summary = _create_summary(test_repository, framework, other_push, test_perfcomp_push_2)
+    first_alert = create_perf_alert(summary=first_summary, series_signature=new_sig)
+    second_alert = create_perf_alert(summary=second_summary, series_signature=new_sig)
 
     url = reverse("perfcompare-results") + _mwu_query_params(
         try_repository, test_repository, test_perfcomp_push_2, test_perf_signature
     )
 
-    # Then: the summary of the most recently created alert is returned, consistently
+    # Then: both alerts are listed for the test, in a stable order
     for _ in range(2):
-        row = client.get(url).json()[0]
-        assert row["alert_id"] == newer_alert.id
-        assert row["alert_summary_id"] == newer.id
+        assert client.get(url).json()[0]["alerts"] == [
+            {"id": first_alert.id, "summary_id": first_summary.id},
+            {"id": second_alert.id, "summary_id": second_summary.id},
+        ]
 
 
-def test_perfcompare_results_alert_ids_not_stale_when_cached(
+def test_perfcompare_results_alerts_not_stale_when_cached(
     client,
     create_signature,
     create_perf_datum,
@@ -2216,8 +2211,7 @@ def test_perfcompare_results_alert_ids_not_stale_when_cached(
 
     # Given: a comparison computed and cached before any alert existed
     first = client.get(url)
-    assert first.json()[0]["alert_id"] is None
-    assert first.json()[0]["alert_summary_id"] is None
+    assert first.json()[0]["alerts"] == []
     assert PerfCompareMwuCache.objects.count() == 1
 
     # When: an alert is created afterwards, and the same comparison is served from the cache
@@ -2227,7 +2221,6 @@ def test_perfcompare_results_alert_ids_not_stale_when_cached(
     alert = create_perf_alert(summary=summary, series_signature=new_sig)
     second = client.get(url)
 
-    # Then: the cached response still carries the current alert summary id
+    # Then: the cached response still lists the current alert
     assert PerfCompareMwuCache.objects.count() == 1
-    assert second.json()[0]["alert_id"] == alert.id
-    assert second.json()[0]["alert_summary_id"] == summary.id
+    assert second.json()[0]["alerts"] == [{"id": alert.id, "summary_id": summary.id}]
