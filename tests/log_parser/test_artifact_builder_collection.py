@@ -31,7 +31,8 @@ def test_default_builders():
         "foo-url",
     )
     assert isinstance(lpc.builders, list)
-    assert len(lpc.builders) == 2
+    assert len(lpc.builders) == 1
+    assert isinstance(lpc.builders[0], LogViewerArtifactBuilder)
 
 
 @responses.activate
