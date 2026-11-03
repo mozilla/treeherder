@@ -366,8 +366,10 @@ def _should_ingest(framework_name: str, suites: list, is_perfherder_data_json: b
     """
     This function will be removed after migration to JSON artifact.
     Ingestion policy:
-      - Default: ingest JSON artifacts
-      - Exception: build_metrics:fetch_content => Log parsing only
+      - Only JSON artifacts (perfherder-data*.json) are ingested.
+      - PERFHERDER_DATA is no longer parsed from logs (see
+        ArtifactBuilderCollection), so the allowlist in `_is_suite_allowed`
+        must stay empty: an allowlisted suite would get no data at all.
     """
     is_allowed = _is_suite_allowed(suites, framework_name)
     if is_allowed:
