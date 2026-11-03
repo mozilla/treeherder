@@ -852,7 +852,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             context["failed_backfill_jobs_map"] = self._build_failed_backfill_jobs_map(page)
             serializer = self.get_serializer(page, many=True, context=context)
             # profile links are only shown for browsertime alerts
-            if pk and any(s.id == int(pk) and s.framework.name == "browsertime" for s in page):
+            if pk and any(s.framework.name == "browsertime" for s in page):
                 for summary in serializer.data:
                     if summary["id"] == int(pk):
                         regression_alerts = [
