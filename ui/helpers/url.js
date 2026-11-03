@@ -123,6 +123,7 @@ export const isResourceUsageProfile = function isResourceUsageProfile(
   return [
     'profile_build_resources.json',
     'profile_resource-usage.json',
+    'profile_run-task-resource-usage.json',
   ].includes(fileName);
 };
 

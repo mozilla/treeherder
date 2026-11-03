@@ -15,6 +15,7 @@ import {
   getPerfCompareChooserUrl,
   getJobsUrl,
   getPerfAnalysisUrl,
+  isResourceUsageProfile,
 } from '../../../helpers/url';
 import { triggerTask } from '../../../helpers/performance';
 import { isPerfTest } from '../../../helpers/job';
@@ -27,13 +28,8 @@ import PerfData from './PerfData';
 
 const PROFILE_ZIP_RELEVANCE = 4;
 const PROFILE_RESOURCE_RELEVANCE = 3;
-const PROFILE_BUILD_RELEVANCE = 2;
 const PROFILE_JSON_RELEVANCE = 1;
 const NO_PROFILE_RELEVANCE = 0;
-const NON_PERFTEST_RELEVANCES = [
-  PROFILE_RESOURCE_RELEVANCE,
-  PROFILE_BUILD_RELEVANCE,
-];
 
 /**
  * The performance tab shows performance-oriented information about a test run.
@@ -89,12 +85,8 @@ class PerformanceTab extends React.PureComponent {
       return PROFILE_ZIP_RELEVANCE;
     }
 
-    if (value === 'profile_resource-usage.json') {
+    if (isResourceUsageProfile(value)) {
       return PROFILE_RESOURCE_RELEVANCE;
-    }
-
-    if (value === 'profile_build_resources.json') {
-      return PROFILE_BUILD_RELEVANCE;
     }
 
     return PROFILE_JSON_RELEVANCE;
@@ -109,10 +101,8 @@ class PerformanceTab extends React.PureComponent {
       if (relevance === NO_PROFILE_RELEVANCE) {
         continue;
       }
-      if (perfTestOnly) {
-        if (NON_PERFTEST_RELEVANCES.includes(relevance)) {
-          continue;
-        }
+      if (perfTestOnly && relevance === PROFILE_RESOURCE_RELEVANCE) {
+        continue;
       }
 
       profiles.push({ jobDetail, relevance });
