@@ -141,6 +141,10 @@ class BackfillRecordSerializer(serializers.Serializer):
     total_backfills_failed = serializers.IntegerField()
     total_backfills_successful = serializers.IntegerField()
     total_backfills_in_progress = serializers.IntegerField()
+    in_progress = serializers.SerializerMethodField()
+
+    def get_in_progress(self, record):
+        return record.is_backfill_in_progress()
 
     def to_representation(self, instance):
         # detected_push_id / detected_push_revision are injected here rather than
@@ -907,11 +911,7 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     delta_percentage = PerfCompareDecimalField(required=False)
     is_new_better = OptionalBooleanField()
     lower_is_better = OptionalBooleanField()
-    is_confident = OptionalBooleanField()
     graphs_link = serializers.CharField()
-    more_runs_are_needed = OptionalBooleanField(default=False)
-    is_improvement = serializers.BooleanField(required=False)
-    is_regression = serializers.BooleanField(required=False)
     is_meaningful = serializers.BooleanField(required=False)
     base_parent_signature = serializers.IntegerField()
     new_parent_signature = serializers.IntegerField()
@@ -962,11 +962,7 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "delta_percentage",
             "is_new_better",
             "lower_is_better",
-            "is_confident",
-            "more_runs_are_needed",
             "direction_of_change",
-            "is_improvement",
-            "is_regression",
             "is_meaningful",
             "base_parent_signature",
             "new_parent_signature",

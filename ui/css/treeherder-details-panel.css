@@ -847,3 +847,8 @@ div.performance-panel {
 .artifacts-table td:last-child {
   padding-right: 12px;
 }
+
+#summary-panel .dependency-link {
+  font-size: inherit;
+  vertical-align: baseline;
+}

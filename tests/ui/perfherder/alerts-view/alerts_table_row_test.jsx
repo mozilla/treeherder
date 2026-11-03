@@ -572,4 +572,27 @@ describe('detected push revision', () => {
     await waitFor(() => getByTestId(`alert ${alert.id} sherlock icon`));
     expect(queryByTestId(`alert ${alert.id} bisection badge`)).toBeNull();
   });
+
+  test('renders the Sherlock in progress badge when backfill is in progress', async () => {
+    const alert = alertWithBackfill({ in_progress: true });
+    const { getByTestId } = alertTableRowTest({ alert, tags: false });
+
+    const badge = await waitFor(() =>
+      getByTestId(`alert ${alert.id} sherlock in-progress badge`),
+    );
+    expect(badge).toHaveTextContent('Sherlock in progress');
+  });
+
+  test('does not render the Sherlock in progress badge when backfill is not in progress', async () => {
+    const alert = alertWithBackfill({ in_progress: false });
+    const { getByTestId, queryByTestId } = alertTableRowTest({
+      alert,
+      tags: false,
+    });
+
+    await waitFor(() => getByTestId(`alert ${alert.id} sherlock icon`));
+    expect(
+      queryByTestId(`alert ${alert.id} sherlock in-progress badge`),
+    ).toBeNull();
+  });
 });

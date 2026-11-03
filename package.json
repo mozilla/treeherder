@@ -39,9 +39,9 @@
     "prop-types": "15.8.1",
     "qrcode.react": "4.2.0",
     "query-string": "7.0.1",
-    "react": "19.2.8",
+    "react": "19.2.9",
     "react-bootstrap": "2.10.10",
-    "react-dom": "19.2.8",
+    "react-dom": "19.2.9",
     "react-highlight-words": "0.21.1",
     "react-hot-keys": "2.7.3",
     "react-linkify": "0.2.2",
@@ -49,7 +49,7 @@
     "react-router": "7.13.2",
     "react-table-6": "6.11.0",
     "react-tabs": "6.1.1",
-    "react-virtuoso": "4.18.19",
+    "react-virtuoso": "4.18.20",
     "redoc": "2.4.0",
     "stream-browserify": "3.0.0",
     "styled-components": "6.1.19",
@@ -59,7 +59,7 @@
     "url": "0.11.4",
     "victory": "37.3.6",
     "vm-browserify": "1.1.2",
-    "zustand": "5.0.15"
+    "zustand": "5.0.16"
   },
   "devDependencies": {
     "@babel/core": "7.26.10",

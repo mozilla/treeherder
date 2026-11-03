@@ -207,6 +207,7 @@ describe('fetchTaskData', () => {
     expect(await fetchTaskData(null, null)).toEqual({
       testGroups: [],
       taskQueueId: null,
+      dependencies: [],
       taskExpired: false,
     });
   });
@@ -221,6 +222,7 @@ describe('fetchTaskData', () => {
     expect(result).toEqual({
       testGroups: [],
       taskQueueId: null,
+      dependencies: [],
       taskExpired: true,
     });
   });
@@ -229,6 +231,7 @@ describe('fetchTaskData', () => {
     Queue.mockImplementationOnce(() => ({
       task: jest.fn().mockResolvedValue({
         taskQueueId: 'gecko-3/b-linux',
+        dependencies: ['BUILD_TASK', 'DOCKER_TASK'],
         payload: { env: {} },
       }),
     }));
@@ -238,6 +241,7 @@ describe('fetchTaskData', () => {
     expect(result).toEqual({
       testGroups: [],
       taskQueueId: 'gecko-3/b-linux',
+      dependencies: ['BUILD_TASK', 'DOCKER_TASK'],
       taskExpired: false,
     });
   });

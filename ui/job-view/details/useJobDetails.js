@@ -19,9 +19,10 @@ const JOB_DETAILS_DEBOUNCE_MS = 200;
 export const fetchTaskData = async (taskId, rootUrl) => {
   let testGroups = [];
   let taskQueueId = null;
+  let dependencies = [];
 
   if (!taskId || !rootUrl) {
-    return { testGroups, taskQueueId, taskExpired: false };
+    return { testGroups, taskQueueId, dependencies, taskExpired: false };
   }
 
   const queue = new Queue({ rootUrl });
@@ -34,10 +35,11 @@ export const fetchTaskData = async (taskId, rootUrl) => {
     // and flag the task as expired so the UI can communicate the degraded state.
     // eslint-disable-next-line no-console
     console.error('Error fetching Taskcluster task definition:', error);
-    return { testGroups, taskQueueId, taskExpired: true };
+    return { testGroups, taskQueueId, dependencies, taskExpired: true };
   }
   if (taskDefinition) {
     taskQueueId = taskDefinition.taskQueueId;
+    dependencies = taskDefinition.dependencies || [];
     if (taskDefinition.payload.env?.MOZHARNESS_TEST_PATHS) {
       try {
         const testPathsData = JSON.parse(
@@ -55,7 +57,7 @@ export const fetchTaskData = async (taskId, rootUrl) => {
     }
   }
 
-  return { testGroups, taskQueueId, taskExpired: false };
+  return { testGroups, taskQueueId, dependencies, taskExpired: false };
 };
 
 const fetchClassifications = async (jobId, signal) => {
@@ -299,6 +301,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
           ...jobResultData,
           hasSideBySide: selectedJob.hasSideBySide,
           taskQueueId: taskData.taskQueueId,
+          taskDependencies: taskData.dependencies,
         };
         addAggregateFields(fullJob);
 

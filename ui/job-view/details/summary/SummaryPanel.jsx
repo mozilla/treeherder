@@ -5,6 +5,7 @@ import JobInfo from '../../../shared/JobInfo';
 
 import ActionBar from './ActionBar';
 import ClassificationsPanel from './ClassificationsPanel';
+import DependsOn from './DependsOn';
 import StatusPanel from './StatusPanel';
 
 class SummaryPanel extends React.PureComponent {
@@ -101,6 +102,10 @@ class SummaryPanel extends React.PureComponent {
                   job={selectedJobFull}
                   extraFields={[...logStatus, ...artifactStatus]}
                   currentRepo={currentRepo}
+                />
+                <DependsOn
+                  taskIds={selectedJobFull.taskDependencies}
+                  pushId={selectedJobFull.push_id}
                 />
               </ul>
             </div>
