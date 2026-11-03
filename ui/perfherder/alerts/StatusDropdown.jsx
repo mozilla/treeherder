@@ -8,6 +8,7 @@ import {
   getFilledBugSummary,
   getFrameworkName,
   getStatus,
+  isNotReassigned,
   updateAlertSummary,
 } from '../perf-helpers/helpers';
 import { create, getData } from '../../helpers/http';
@@ -94,6 +95,8 @@ export default class StatusDropdown extends React.Component {
           severeAlertSeverities.includes(alert.severity) &&
           ![alertStatusMap.invalid, alertStatusMap.infra].includes(alert.status),
       )
+      // alerts moved to another summary no longer belong to this one
+      .filter((alert) => isNotReassigned(alert, alertSummary.id))
       .map(({ series_signature: signature }) => {
         const { suite, test, machine_platform: platform } = signature;
         const name = test && test !== suite ? `${suite} ${test}` : suite;

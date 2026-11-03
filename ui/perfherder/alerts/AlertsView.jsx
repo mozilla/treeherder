@@ -146,8 +146,6 @@ function AlertsView({
   issueTrackersRef.current = issueTrackers;
   const optionCollectionMapRef = useRef(optionCollectionMap);
   optionCollectionMapRef.current = optionCollectionMap;
-  const alertSummariesRef = useRef(alertSummaries);
-  alertSummariesRef.current = alertSummaries;
   const countRef = useRef(count);
   countRef.current = count;
   const errorMessagesRef = useRef(errorMessages);
@@ -208,7 +206,6 @@ function AlertsView({
       const currentErrorMessages = errorMessagesRef.current;
       const currentIssueTrackers = issueTrackersRef.current;
       const currentOptionCollectionMap = optionCollectionMapRef.current;
-      const currentAlertSummaries = alertSummariesRef.current;
 
       const {
         status,
@@ -300,16 +297,21 @@ function AlertsView({
         const nextCount = Math.ceil(summary.count / 10);
 
         if (update) {
-          if(summary.results.length !== 0) {
-            const newSummaries = [...currentAlertSummaries];
-            const index = newSummaries.findIndex(
-              (item) => item.id === summary.results[0].id,
-            );     
+          if (summary.results.length !== 0) {
+            // merge into the latest list, not the one from when this request started,
+            // so refreshes of several summaries at once don't overwrite each other
+            setAlertSummaries((previousSummaries) => {
+              const index = previousSummaries.findIndex(
+                (item) => item.id === summary.results[0].id,
+              );
 
-            if (index !== -1) {
+              if (index === -1) {
+                return previousSummaries;
+              }
+              const newSummaries = [...previousSummaries];
               newSummaries.splice(index, 1, summary.results[0]);
-              setAlertSummaries(newSummaries);
-            }
+              return newSummaries;
+            });
           }
         } else {
           setAlertSummaries(summary.results);

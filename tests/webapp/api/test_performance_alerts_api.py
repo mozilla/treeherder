@@ -12,6 +12,7 @@ from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceFramework,
+    PerformanceSignature,
 )
 
 pytestmark = pytest.mark.perf
@@ -116,6 +117,93 @@ def test_alerts_put(
     )
     assert resp.status_code == 200
     assert PerformanceAlert.objects.get(id=1).related_summary_id is None
+
+
+@pytest.fixture
+def critical_alert_with_sibling(test_perf_alert, test_perf_alert_summary, test_perf_signature_2):
+    test_perf_alert.severity = PerformanceSignature.CRITICAL
+    test_perf_alert.save()
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature_2,
+        severity=PerformanceSignature.NORMAL,
+    )
+    return test_perf_alert
+
+
+def severity_of(client, summary):
+    resp = client.get(reverse("performance-alert-summaries-detail", kwargs={"pk": summary.id}))
+    assert resp.status_code == 200
+    return resp.json()["severity"]
+
+
+def reassign_through_api(client, alert, summary):
+    # same payload the alerts view sends when it reassigns an alert
+    resp = client.put(
+        reverse("performance-alerts-list") + f"{alert.id}/",
+        {"related_summary_id": summary.id, "status": PerformanceAlert.REASSIGNED},
+    )
+    assert resp.status_code == 200
+
+
+def test_reassigning_a_critical_alert_moves_the_severity_to_the_destination(
+    authorized_sheriff_client,
+    push_stored,
+    test_repository,
+    critical_alert_with_sibling,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+):
+    assert severity_of(authorized_sheriff_client, test_perf_alert_summary) == "critical"
+
+    reassign_through_api(
+        authorized_sheriff_client, critical_alert_with_sibling, test_perf_alert_summary_2
+    )
+
+    assert severity_of(authorized_sheriff_client, test_perf_alert_summary) == "normal"
+    assert severity_of(authorized_sheriff_client, test_perf_alert_summary_2) == "critical"
+
+
+def test_moving_a_reassigned_alert_on_clears_the_summary_it_left_through_the_api(
+    authorized_sheriff_client,
+    push_stored,
+    test_repository,
+    critical_alert_with_sibling,
+    test_perf_alert_summary_2,
+    test_perf_alert_summary_3,
+):
+    reassign_through_api(
+        authorized_sheriff_client, critical_alert_with_sibling, test_perf_alert_summary_2
+    )
+    reassign_through_api(
+        authorized_sheriff_client, critical_alert_with_sibling, test_perf_alert_summary_3
+    )
+
+    assert severity_of(authorized_sheriff_client, test_perf_alert_summary_2) is None
+    assert severity_of(authorized_sheriff_client, test_perf_alert_summary_3) == "critical"
+
+
+def test_undoing_a_reassignment_restores_the_parent_severity_through_the_api(
+    authorized_sheriff_client,
+    push_stored,
+    test_repository,
+    critical_alert_with_sibling,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+):
+    reassign_through_api(
+        authorized_sheriff_client, critical_alert_with_sibling, test_perf_alert_summary_2
+    )
+
+    # same payload the "Reset" button sends
+    resp = authorized_sheriff_client.put(
+        reverse("performance-alerts-list") + f"{critical_alert_with_sibling.id}/",
+        {"related_summary_id": None, "status": PerformanceAlert.UNTRIAGED},
+    )
+    assert resp.status_code == 200
+
+    assert severity_of(authorized_sheriff_client, test_perf_alert_summary) == "critical"
+    assert severity_of(authorized_sheriff_client, test_perf_alert_summary_2) is None
 
 
 def test_reassign_different_repository(

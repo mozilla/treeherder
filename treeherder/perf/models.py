@@ -575,15 +575,15 @@ class PerformanceAlertSummary(PerformanceAlertSummaryBase):
 
     def update_severity(self):
         # alerts reach a summary over time, since generate_alerts runs per signature,
-        # so the most severe one is only known once they have all landed
+        # so the most severe one is only known once they have all landed.
+        # An alert moved to another summary (reassigned or downstream) keeps this one
+        # as its summary, so it is excluded here and only counts for the one it moved to
         rank = PerformanceSignature.SEVERITY_RANK
         severities = PerformanceAlert.objects.filter(
-            Q(summary=self) | Q(related_summary=self)
+            Q(summary=self, related_summary__isnull=True) | Q(related_summary=self)
         ).values_list("severity", flat=True)
 
-        most_severe = max(severities, key=lambda severity: rank.get(severity, 0), default=None)
-        if rank.get(most_severe, 0) > rank.get(self.severity, 0):
-            self.severity = most_severe
+        self.severity = max(severities, key=lambda severity: rank.get(severity, 0), default=None)
 
     class Meta:
         db_table = "performance_alert_summary"
@@ -766,6 +766,16 @@ class PerformanceAlert(PerformanceAlertBase):
         if self._state.adding and self.severity is None:
             self.severity = self.series_signature.alert_severity
 
+        # the summary this alert was related to before this save, so it can be
+        # refreshed if the alert is moved away from it
+        previous_related_summary_id = None
+        if not self._state.adding:
+            previous_related_summary_id = (
+                PerformanceAlert.objects.filter(pk=self.pk)
+                .values_list("related_summary_id", flat=True)
+                .first()
+            )
+
         # validate that we set a status that makes sense for presence
         # or absence of a related summary
         if self.related_summary and self.status not in self.RELATIONAL_STATUS_IDS:
@@ -803,6 +813,10 @@ class PerformanceAlert(PerformanceAlertBase):
         self.summary.update_status(using=using)
         if self.related_summary:
             self.related_summary.update_status(using=using)
+        if previous_related_summary_id not in (None, self.related_summary_id):
+            PerformanceAlertSummary.objects.get(pk=previous_related_summary_id).update_status(
+                using=using
+            )
 
     class Meta:
         db_table = "performance_alert"
