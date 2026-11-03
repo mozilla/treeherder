@@ -1,4 +1,3 @@
-
 import { render, waitFor, cleanup, fireEvent } from '@testing-library/react';
 
 import testAlertSummaries from '../../mock/alert_summaries';
@@ -152,9 +151,11 @@ test('The backout comment names each severe test once', () => {
   });
 
   const severeTests = dropdown.getSevereTests({
+    id: 1,
     alerts: [
       {
         severity: 'critical',
+        related_summary_id: null,
         series_signature: {
           suite: 'speedometer3',
           test: 'score',
@@ -164,6 +165,7 @@ test('The backout comment names each severe test once', () => {
       {
         // a suite with no subtests repeats its name in test
         severity: 'subcritical',
+        related_summary_id: null,
         series_signature: {
           suite: 'newssite-applink-startup',
           test: 'newssite-applink-startup',
@@ -172,6 +174,7 @@ test('The backout comment names each severe test once', () => {
       },
       {
         severity: 'normal',
+        related_summary_id: null,
         series_signature: {
           suite: 'other',
           test: 'total',
@@ -199,10 +202,19 @@ test('The backout comment lists a repeated test only once', () => {
   };
 
   const severeTests = dropdown.getSevereTests({
+    id: 1,
     alerts: [
       // same test, distinct signatures: different extra options or application
-      { severity: 'critical', series_signature: { ...signature } },
-      { severity: 'critical', series_signature: { ...signature } },
+      {
+        severity: 'critical',
+        related_summary_id: null,
+        series_signature: { ...signature },
+      },
+      {
+        severity: 'critical',
+        related_summary_id: null,
+        series_signature: { ...signature },
+      },
     ],
   });
 
@@ -216,9 +228,11 @@ test('The backout comment covers alerts reassigned into the summary', () => {
   });
 
   const severeTests = dropdown.getSevereTests({
+    id: 1,
     alerts: [
       {
         severity: 'critical',
+        related_summary_id: null,
         series_signature: {
           suite: 'speedometer3',
           test: 'score',
@@ -229,6 +243,7 @@ test('The backout comment covers alerts reassigned into the summary', () => {
     related_alerts: [
       {
         severity: 'subcritical',
+        related_summary_id: 1,
         series_signature: {
           suite: 'newssite-applink-startup',
           test: 'applink_startup',
@@ -242,6 +257,130 @@ test('The backout comment covers alerts reassigned into the summary', () => {
     'speedometer3 score windows11-64-24h2-shippable, ' +
       'newssite-applink-startup applink_startup android-hw-a55-14-0-aarch64-shippable',
   );
+});
+
+test('The backout comment skips critical alerts moved to another summary', () => {
+  const dropdown = new StatusDropdown({
+    alertSummary: testAlertSummaries[0],
+    frameworks: [],
+  });
+
+  const severeTests = dropdown.getSevereTests({
+    id: 1,
+    alerts: [
+      // reassigned to summary 2, so it is no longer part of summary 1
+      {
+        severity: 'critical',
+        status: alertStatusMap.reassigned,
+        related_summary_id: 2,
+        series_signature: {
+          suite: 'speedometer3',
+          test: 'score',
+          machine_platform: 'windows11-64-24h2-shippable',
+        },
+      },
+    ],
+    related_alerts: [
+      // reassigned into summary 1 from elsewhere, so it still counts
+      {
+        severity: 'critical',
+        status: alertStatusMap.reassigned,
+        related_summary_id: 1,
+        series_signature: {
+          suite: 'newssite-applink-startup',
+          test: 'applink_startup',
+          machine_platform: 'android-hw-a55-14-0-aarch64-shippable',
+        },
+      },
+    ],
+  });
+
+  expect(severeTests).toBe(
+    'newssite-applink-startup applink_startup android-hw-a55-14-0-aarch64-shippable',
+  );
+});
+
+test('The backout comment leaves out invalid and infra alerts', () => {
+  const dropdown = new StatusDropdown({
+    alertSummary: testAlertSummaries[0],
+    frameworks: [],
+  });
+
+  const severeTests = dropdown.getSevereTests({
+    id: 1,
+    alerts: [
+      {
+        severity: 'critical',
+        status: alertStatusMap.invalid,
+        related_summary_id: null,
+        series_signature: {
+          suite: 'speedometer3',
+          test: 'score',
+          machine_platform: 'windows11-64-24h2-shippable',
+        },
+      },
+      {
+        severity: 'critical',
+        status: alertStatusMap.infra,
+        related_summary_id: null,
+        series_signature: {
+          suite: 'speedometer3',
+          test: 'total',
+          machine_platform: 'linux2404-64-shippable',
+        },
+      },
+      {
+        severity: 'critical',
+        status: alertStatusMap.untriaged,
+        related_summary_id: null,
+        series_signature: {
+          suite: 'newssite-applink-startup',
+          test: 'applink_startup',
+          machine_platform: 'android-hw-a55-14-0-aarch64-shippable',
+        },
+      },
+    ],
+  });
+
+  expect(severeTests).toBe(
+    'newssite-applink-startup applink_startup android-hw-a55-14-0-aarch64-shippable',
+  );
+});
+
+test('The backout comment is empty once every severe alert has moved to another summary', () => {
+  const dropdown = new StatusDropdown({
+    alertSummary: testAlertSummaries[0],
+    frameworks: [],
+  });
+
+  const severeTests = dropdown.getSevereTests({
+    id: 1,
+    alerts: [
+      {
+        severity: 'critical',
+        status: alertStatusMap.reassigned,
+        related_summary_id: 2,
+        series_signature: {
+          suite: 'speedometer3',
+          test: 'score',
+          machine_platform: 'windows11-64-24h2-shippable',
+        },
+      },
+      {
+        severity: 'subcritical',
+        status: alertStatusMap.downstream,
+        related_summary_id: 3,
+        series_signature: {
+          suite: 'newssite-applink-startup',
+          test: 'applink_startup',
+          machine_platform: 'android-hw-a55-14-0-aarch64-shippable',
+        },
+      },
+    ],
+    related_alerts: [],
+  });
+
+  expect(severeTests).toBe('');
 });
 
 test("'Request backout' is not offered for a summary with no severity", async () => {
