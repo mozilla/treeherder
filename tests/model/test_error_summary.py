@@ -143,6 +143,20 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             "search_term": ["pointerevent_touch-action-table-test_touch-manual.html"],
         },
     ),
+    (
+        (
+            "PROCESS-CRASH "
+            "| 5edaf170-5a96-b6d3-3dd8-6657408b7a2f "
+            "| No database found [@ <mozglue_static::panic_hook as core::ops::function::Fn<] "
+            "| testing/xpcshell/test/unit/test_tasks_skipall.js"
+        ),
+        {
+            "path_end": "testing/xpcshell/test/unit/test_tasks_skipall.js",
+            "search_term": [
+                "No database found [@ <mozglue_static::panic_hook as core::ops::function::Fn<]"
+            ],
+        },
+    ),
 )
 
 
