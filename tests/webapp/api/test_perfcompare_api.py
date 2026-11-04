@@ -6,9 +6,12 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
+from tests.conftest import create_perf_alert
 from treeherder.model.models import Job
 from treeherder.perf.models import (
     PerfCompareMwuCache,
+    PerformanceAlert,
+    PerformanceAlertSummary,
     PerformanceDatum,
     PerformanceDatumReplicate,
 )
@@ -261,6 +264,8 @@ def test_perfcompare_results_against_no_base(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
+            "alert_id": None,
+            "alert_summary_id": None,
             "has_subtests": response["has_subtests"],
         },
     ]
@@ -540,6 +545,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
+            "alert_id": None,
+            "alert_summary_id": None,
             "has_subtests": response["has_subtests"],
         },
     ]
@@ -712,6 +719,8 @@ def test_perfcompare_results_without_base_signature(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
+            "alert_id": None,
+            "alert_summary_id": None,
             "has_subtests": response["has_subtests"],
         },
     ]
@@ -884,6 +893,8 @@ def test_perfcompare_results_subtests_support(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
+            "alert_id": None,
+            "alert_summary_id": None,
             "has_subtests": response["has_subtests"],
         },
     ]
@@ -1387,6 +1398,8 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
+            "alert_id": None,
+            "alert_summary_id": None,
             "has_subtests": response["has_subtests"],
             "cles": {
                 "cles": 0.0,
@@ -1628,3 +1641,203 @@ def test_mwu_cache_recalculates_after_data_change(
     assert PerfCompareMwuCache.objects.count() == 2
     cache_keys = list(PerfCompareMwuCache.objects.values_list("hash_key", flat=True))
     assert cache_keys[0] != cache_keys[1]
+
+
+def _create_summary(repository, framework, prev_push, push):
+    return PerformanceAlertSummary.objects.create(
+        repository=repository,
+        framework=framework,
+        prev_push=prev_push,
+        push=push,
+        manually_created=False,
+        created=datetime.datetime.now(),
+    )
+
+
+def _mwu_query_params(try_repository, test_repository, new_push, test_perf_signature):
+    return (
+        f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+        f"&new_revision={new_push.revision}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&interval=604800&no_subtests=true&test_version=mann-whitney-u"
+    )
+
+
+@pytest.mark.parametrize(
+    "alert_status, alert_on, related_to, expected_summary",
+    [
+        (PerformanceAlert.UNTRIAGED, "compared", None, "compared"),
+        (PerformanceAlert.INVALID, "compared", None, None),
+        (None, None, None, None),
+        # downstream alerts stay on their push and link the upstream summary
+        (PerformanceAlert.DOWNSTREAM, "compared", "other", "other"),
+        # reassigned alerts belong to the push of the summary they were moved to
+        (PerformanceAlert.REASSIGNED, "other", "compared", "compared"),
+        (PerformanceAlert.REASSIGNED, "compared", "other", None),
+    ],
+    ids=[
+        "alert_on_compared_push",
+        "invalid_alert_ignored",
+        "no_alert",
+        "downstream_links_upstream_summary",
+        "reassigned_into_compared_push",
+        "reassigned_away_from_compared_push",
+    ],
+)
+def test_perfcompare_results_alert_ids(
+    client,
+    create_push,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+    test_issue_tracker,
+    alert_status,
+    alert_on,
+    related_to,
+    expected_summary,
+):
+    _, new_sig = setup_mwu_compatible_data(
+        [32.4, 33.1, 31.8],
+        [40.2, 41.5, 39.8],
+        test_perfcomp_push,
+        try_repository,
+        test_perfcomp_push_2,
+        create_signature,
+        test_linux_platform,
+        test_perf_signature,
+        test_repository,
+    )
+    framework = test_perf_signature.framework
+    other_push = create_push(test_repository, revision="aaaa1111bbbb2222cccc3333dddd4444eeee5555")
+    summaries = {
+        # summary on the push being compared (new revision)
+        "compared": _create_summary(
+            test_repository, framework, test_perfcomp_push, test_perfcomp_push_2
+        ),
+        # summary on a different push
+        "other": _create_summary(test_repository, framework, test_perfcomp_push, other_push),
+    }
+    alert = None
+    if alert_status is not None:
+        alert = create_perf_alert(
+            summary=summaries[alert_on],
+            series_signature=new_sig,
+            status=alert_status,
+            related_summary=summaries[related_to] if related_to else None,
+        )
+
+    response = client.get(
+        reverse("perfcompare-results")
+        + _mwu_query_params(
+            try_repository, test_repository, test_perfcomp_push_2, test_perf_signature
+        )
+    )
+    assert response.status_code == 200
+
+    row = response.json()[0]
+    if expected_summary:
+        assert row["alert_id"] == alert.id
+        assert row["alert_summary_id"] == summaries[expected_summary].id
+    else:
+        assert row["alert_id"] is None
+        assert row["alert_summary_id"] is None
+
+
+def test_perfcompare_results_alert_ids_newest_alert_wins(
+    client,
+    create_push,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+    test_issue_tracker,
+):
+    _, new_sig = setup_mwu_compatible_data(
+        [32.4, 33.1, 31.8],
+        [40.2, 41.5, 39.8],
+        test_perfcomp_push,
+        try_repository,
+        test_perfcomp_push_2,
+        create_signature,
+        test_linux_platform,
+        test_perf_signature,
+        test_repository,
+    )
+    framework = test_perf_signature.framework
+    other_push = create_push(test_repository, revision="aaaa1111bbbb2222cccc3333dddd4444eeee5555")
+    # Given: two summaries on the compared push (different prev pushes), each alerting on the test
+    older = _create_summary(test_repository, framework, test_perfcomp_push, test_perfcomp_push_2)
+    newer = _create_summary(test_repository, framework, other_push, test_perfcomp_push_2)
+    create_perf_alert(summary=older, series_signature=new_sig)
+    newer_alert = create_perf_alert(summary=newer, series_signature=new_sig)
+
+    url = reverse("perfcompare-results") + _mwu_query_params(
+        try_repository, test_repository, test_perfcomp_push_2, test_perf_signature
+    )
+
+    # Then: the summary of the most recently created alert is returned, consistently
+    for _ in range(2):
+        row = client.get(url).json()[0]
+        assert row["alert_id"] == newer_alert.id
+        assert row["alert_summary_id"] == newer.id
+
+
+def test_perfcompare_results_alert_ids_not_stale_when_cached(
+    client,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+    test_issue_tracker,
+):
+    _, new_sig = setup_mwu_compatible_data(
+        [32.4, 33.1, 31.8],
+        [40.2, 41.5, 39.8],
+        test_perfcomp_push,
+        try_repository,
+        test_perfcomp_push_2,
+        create_signature,
+        test_linux_platform,
+        test_perf_signature,
+        test_repository,
+    )
+    url = reverse("perfcompare-results") + _mwu_query_params(
+        try_repository, test_repository, test_perfcomp_push_2, test_perf_signature
+    )
+
+    # Given: a comparison computed and cached before any alert existed
+    first = client.get(url)
+    assert first.json()[0]["alert_id"] is None
+    assert first.json()[0]["alert_summary_id"] is None
+    assert PerfCompareMwuCache.objects.count() == 1
+
+    # When: an alert is created afterwards, and the same comparison is served from the cache
+    summary = _create_summary(
+        test_repository, test_perf_signature.framework, test_perfcomp_push, test_perfcomp_push_2
+    )
+    alert = create_perf_alert(summary=summary, series_signature=new_sig)
+    second = client.get(url)
+
+    # Then: the cached response still carries the current alert summary id
+    assert PerfCompareMwuCache.objects.count() == 1
+    assert second.json()[0]["alert_id"] == alert.id
+    assert second.json()[0]["alert_summary_id"] == summary.id
