@@ -21,7 +21,7 @@ jobs:
       - uses: ./.github/actions/setup-pnpm
       - name: Run Jest tests
         run: pnpm test:ci
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: javascript
@@ -113,7 +113,7 @@ jobs:
       - run: pip install tox
       - name: Run tests and coverage within Docker container
         run: tox -e docker-general
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: python
@@ -132,7 +132,7 @@ jobs:
       - run: pip install tox
       - name: Run tests and coverage within Docker container
         run: tox -e docker-perf
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: python
@@ -151,7 +151,7 @@ jobs:
       - run: pip install tox
       - name: Run tests and coverage within Docker container
         run: tox -e docker-frontend
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: python
@@ -170,7 +170,7 @@ jobs:
       - run: pip install tox
       - name: Run tests and coverage within Docker container
         run: tox -e docker-telemetry
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: python
