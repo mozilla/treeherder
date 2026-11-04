@@ -6,13 +6,14 @@ from django.db.models import Count
 from rest_framework import generics
 from rest_framework.response import Response
 
+from treeherder.config.db_routing import ReadReplicaMixin
 from treeherder.model.models import Job
 from treeherder.webapp.api.serializers import GroupNameSerializer
 
 logger = logging.getLogger(__name__)
 
 
-class SummaryByGroupName(generics.ListAPIView):
+class SummaryByGroupName(ReadReplicaMixin, generics.ListAPIView):
     """
     This yields group names/status summary for the given group and day.
     """
