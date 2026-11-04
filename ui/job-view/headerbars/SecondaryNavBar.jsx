@@ -25,6 +25,7 @@ import {
 
 import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';
+import KeepAliveButton from './KeepAliveButton';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -326,6 +327,9 @@ const SecondaryNavBar = ({
             </span>
             )
           </Button>
+
+          {/* Keep-alive toggle for background polling */}
+          <KeepAliveButton />
 
           {/* Result Status Filter Chicklets */}
           <span className="resultStatusChicklets">
