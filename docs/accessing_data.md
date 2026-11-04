@@ -127,8 +127,8 @@ to enable TLS.
 
 When setting up a connection make sure to set the SSL mode to `require` and set
 the SSL CA certificate option to point at the public CA certificate, which for convenience can
-be used directly from the Treeherder repository [here][gcp-cert] for the stage replica or
-[here][gcp-prototype-cert] for prototype.
+be used directly from the Treeherder repository: the [stage replica CA certificate][gcp-cert]
+or the [prototype CA certificate][gcp-prototype-cert].
 
 [pgAdmin]: https://www.pgadmin.org/
 [DBeaver]: https://dbeaver.io/
