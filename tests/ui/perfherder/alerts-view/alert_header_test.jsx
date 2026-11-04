@@ -61,3 +61,37 @@ test('Critical badge is not displayed for a normal summary', async () => {
 
   expect(queryByText('critical')).toBeNull();
 });
+
+test('Regression badge is displayed for a summary with change_type regression', async () => {
+  const { findByText } = alertHeaderTitleTest({
+    ...testAlertSummaries[0],
+    change_type: 'regression',
+  });
+
+  const changeTypeTag = await findByText('regression');
+
+  expect(changeTypeTag.textContent).toBe('regression');
+});
+
+test('Improvement badge is displayed for a summary with change_type improvement', async () => {
+  const { findByText } = alertHeaderTitleTest({
+    ...testAlertSummaries[0],
+    change_type: 'improvement',
+  });
+
+  const changeTypeTag = await findByText('improvement');
+
+  expect(changeTypeTag.textContent).toBe('improvement');
+});
+
+test('No change type badge is displayed when change_type is missing', async () => {
+  const { queryByText, findByText } = alertHeaderTitleTest({
+    ...testAlertSummaries[0],
+    change_type: undefined,
+  });
+
+  await findByText(/Alert #/);
+
+  expect(queryByText('regression')).toBeNull();
+  expect(queryByText('improvement')).toBeNull();
+});
