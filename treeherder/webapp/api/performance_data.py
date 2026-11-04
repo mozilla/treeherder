@@ -497,6 +497,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     with_assignee = django_filters.CharFilter(method="_with_assignee")
     timerange = django_filters.NumberFilter(method="_timerange")
     show_sheriffed_frameworks = django_filters.BooleanFilter(method="_show_sheriffed_frameworks")
+    severity = django_filters.CharFilter(method="_severity")
 
     def _filter_text(
         self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: str
@@ -624,6 +625,15 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.filter(framework__name__in=SHERIFFED_FRAMEWORKS)
 
+    def _severity(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: str
+    ) -> QuerySet[PerformanceAlertSummary]:
+        valid = {choice[0] for choice in PerformanceSignature.ALERT_SEVERITIES}
+        severities = [s.strip() for s in value.split(",") if s.strip() in valid]
+        if severities:
+            return queryset.filter(severity__in=severities)
+        return queryset
+
     class Meta:
         model = PerformanceAlertSummary
         fields = [
@@ -641,6 +651,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             "untriaged_improvements",
             "with_assignee",
             "timerange",
+            "severity",
         ]
 
 
