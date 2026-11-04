@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, permissions
 
 from treeherder.webapp.api.serializers import InternalIssueSerializer
 
@@ -12,3 +12,4 @@ class CreateInternalIssue(generics.CreateAPIView):
     """
 
     serializer_class = InternalIssueSerializer
+    permission_classes = [permissions.IsAuthenticated]
