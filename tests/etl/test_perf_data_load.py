@@ -611,11 +611,11 @@ def test_detection_techniques_are_ingested(test_repository, perf_job, sample_per
     assert suite_signature.detection_techniques == suite_techniques
     subtest_signature = PerformanceSignature.objects.get(suite="youtube-watch", test="fcp")
     assert subtest_signature.detection_techniques == subtest_techniques
-    # subtests don't inherit the suite's detection techniques
+    # subtests without their own detection techniques use the suite's
     other_subtest_signature = PerformanceSignature.objects.get(
         suite="youtube-watch", test="loadtime"
     )
-    assert other_subtest_signature.detection_techniques is None
+    assert other_subtest_signature.detection_techniques == suite_techniques
 
 
 def test_detection_techniques_can_be_updated(test_repository, perf_job, sample_perf_artifact):
@@ -636,3 +636,13 @@ def test_detection_techniques_can_be_updated(test_repository, perf_job, sample_p
     # changing the detection techniques doesn't decouple the signature
     assert signature.signature_hash == original_hash
     assert signature.detection_techniques == ["mwu"]
+
+
+def test_subtests_without_suite_detection_techniques(
+    test_repository, perf_job, sample_perf_artifact
+):
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+
+    store_performance_artifact(perf_job, submit_datum)
+
+    assert not PerformanceSignature.objects.filter(detection_techniques__isnull=False).exists()

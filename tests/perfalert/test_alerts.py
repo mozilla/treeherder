@@ -1,15 +1,28 @@
 import datetime
 import time
+from types import SimpleNamespace
 from unittest import mock
 
+import mozdetect
 import pytest
+from django.db import transaction
+from django.db.utils import OperationalError
 
 from treeherder.model.models import Push
-from treeherder.perf.alerts import generate_new_alerts_in_series
+from treeherder.perf import alerts
+from treeherder.perf.alerts import (
+    AlertProperties,
+    generate_new_alerts_in_series,
+    get_alert_properties,
+    get_detection_alert_properties,
+    store_alert,
+)
+from treeherder.perf.detection_techniques import TTEST, DetectionTechnique
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceDatum,
+    PerformanceDatumReplicate,
     PerformanceSignature,
 )
 from treeherder.perf.utils import BUG_DAYS, TRIAGE_DAYS, calculate_time_to
@@ -542,3 +555,364 @@ def test_manually_created_summary_keeps_prev_push(
     assert PerformanceAlert.objects.filter(summary=summary).count() == 1
     summary.refresh_from_db()
     assert summary.prev_push_id == prev_push.id
+
+
+MWU = "mwu"
+
+
+def _generate_replicated_performance_data(
+    test_repository, test_perf_signature, base_time, start_id, value, amount, replicates=10
+):
+    # Each data point carries `replicates` replicates spread just above its value
+    _generate_performance_data(
+        test_repository, test_perf_signature, base_time, start_id, value, amount
+    )
+    for datum in PerformanceDatum.objects.filter(
+        signature=test_perf_signature,
+        push__revision__in=[f"1234abcd{t}" for t in range(start_id, start_id + amount)],
+    ):
+        PerformanceDatumReplicate.objects.bulk_create(
+            PerformanceDatumReplicate(performance_datum=datum, value=value + 0.01 * i)
+            for i in range(replicates)
+        )
+
+
+def test_default_detection_technique_is_ttest(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    _generate_regression(test_repository, test_perf_signature, time.time(), 30)
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    alert = PerformanceAlert.objects.get()
+    assert alert.detection_method == TTEST
+    assert alert.t_value is not None
+
+
+def test_detect_mwu_alerts_in_series(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    test_perf_signature.detection_techniques = ["mwu"]
+    test_perf_signature.save()
+
+    base_time = time.time()
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, 10
+    )
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 11, 1.0, 10
+    )
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    alert = PerformanceAlert.objects.get()
+    assert alert.detection_method == MWU
+    assert alert.summary.push_id == 11
+    assert alert.summary.prev_push_id == 10
+    assert alert.is_regression
+    # the medians of the replicates on either side of the change
+    assert alert.prev_value == pytest.approx(0.545)
+    assert alert.new_value == pytest.approx(1.045)
+    assert alert.amount_abs == pytest.approx(0.5)
+    assert alert.t_value is None
+    assert 0 <= alert.confidence <= 0.001
+    assert alert.noise_profile == "OK"
+
+    # verify that no new alerts generated if we rerun
+    generate_new_alerts_in_series(test_perf_signature)
+    assert PerformanceAlert.objects.count() == 1
+    assert PerformanceAlertSummary.objects.count() == 1
+
+
+def test_mwu_alerts_respect_alert_threshold(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    test_perf_signature.detection_techniques = ["mwu"]
+    test_perf_signature.alert_threshold = 200.0
+    test_perf_signature.save()
+
+    base_time = time.time()
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, 10
+    )
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 11, 1.0, 10
+    )
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    assert PerformanceAlert.objects.count() == 0
+
+
+@pytest.mark.parametrize(
+    ("detection_techniques", "expected_detection_method"),
+    [(["ttest", "mwu"], "ttest,mwu"), (["mwu", "ttest"], "mwu,ttest")],
+)
+def test_one_alert_per_change_across_techniques(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+    detection_techniques,
+    expected_detection_method,
+):
+    test_perf_signature.detection_techniques = detection_techniques
+    test_perf_signature.save()
+
+    base_time = time.time()
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, 15
+    )
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 16, 1.0, 15
+    )
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    alert = PerformanceAlert.objects.get()
+    assert alert.detection_method == expected_detection_method
+    assert alert.summary.push_id == 16
+
+    # every technique already found it, so nothing changes on a rerun
+    generate_new_alerts_in_series(test_perf_signature)
+    assert PerformanceAlert.objects.get().detection_method == expected_detection_method
+
+
+def test_alert_found_by_another_technique_gets_technique_added(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    _generate_regression(test_repository, test_perf_signature, time.time(), 30)
+    push_timestamp = time.time()
+
+    with transaction.atomic():
+        store_alert(
+            test_perf_signature,
+            DetectionTechnique(name=TTEST, technique=TTEST),
+            16,
+            push_timestamp,
+            15,
+            push_timestamp,
+            get_alert_properties(0.5, 1.0, True),
+            "OK",
+        )
+        store_alert(
+            test_perf_signature,
+            DetectionTechnique(name=MWU, technique=MWU),
+            16,
+            push_timestamp,
+            15,
+            push_timestamp,
+            get_alert_properties(0.5, 2.0, True),
+            "OK",
+        )
+
+        # found again by the T-Test, which updates the alert it described
+        store_alert(
+            test_perf_signature,
+            DetectionTechnique(name=TTEST, technique=TTEST),
+            16,
+            push_timestamp,
+            15,
+            push_timestamp,
+            get_alert_properties(0.5, 3.0, True),
+            "OK",
+        )
+
+    alert = PerformanceAlert.objects.get()
+    assert alert.detection_method == "ttest,mwu"
+    assert alert.new_value == 3.0
+
+
+def test_technique_added_to_legacy_alert(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    _generate_regression(test_repository, test_perf_signature, time.time(), 30)
+    generate_new_alerts_in_series(test_perf_signature)
+    # alerts produced before detection methods were recorded
+    PerformanceAlert.objects.update(detection_method=None)
+
+    with transaction.atomic():
+        store_alert(
+            test_perf_signature,
+            DetectionTechnique(name=MWU, technique=MWU),
+            16,
+            time.time(),
+            15,
+            time.time(),
+            get_alert_properties(0.5, 2.0, True),
+            "OK",
+        )
+
+    alert = PerformanceAlert.objects.get()
+    assert alert.detection_method == "ttest,mwu"
+    assert alert.new_value == 1.0
+
+
+def test_mwu_failure_does_not_prevent_ttest_alerts(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+    monkeypatch,
+):
+    def _fail(*args, **kwargs):
+        raise Exception("MWU failed")
+
+    monkeypatch.setattr(alerts, "generate_new_mozdetect_alerts_in_series", _fail)
+    test_perf_signature.detection_techniques = ["mwu", "ttest"]
+    test_perf_signature.save()
+    _generate_regression(test_repository, test_perf_signature, time.time(), 30)
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    assert PerformanceAlert.objects.get().detection_method == TTEST
+
+
+def test_detect_alerts_with_any_mozdetect_technique(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+    monkeypatch,
+):
+    class StepDetector:
+        # Reports a change at the first push whose value differs from the first push's
+        def __init__(self, timeseries, **kwargs):
+            self.timeseries = timeseries
+
+        def detect_changes(self, scale=1.0, **kwargs):
+            table = self.timeseries.raw_data
+            for previous, (revision, value) in zip(
+                table["value"], zip(table["revision"].iloc[1:], table["value"].iloc[1:])
+            ):
+                if value != previous:
+                    return [
+                        SimpleNamespace(
+                            previous_value=previous * scale,
+                            new_value=value * scale,
+                            confidence=0.5,
+                            location=revision,
+                            direction="up",
+                            # reported by the detector, so taken over what the
+                            # values alone would say
+                            optional_detection_info={
+                                "change": "improvement",
+                                "delta_percentage": 42.0,
+                            },
+                        )
+                    ]
+            return []
+
+    monkeypatch.setattr(
+        mozdetect, "get_timeseries_detectors", lambda detector_type: {"step": StepDetector}
+    )
+    test_perf_signature.detection_techniques = [
+        {"name": "step-scaled", "technique": "step", "args": {"scale": 2.0}}
+    ]
+    test_perf_signature.save()
+    _generate_regression(test_repository, test_perf_signature, time.time(), 30)
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    alert = PerformanceAlert.objects.get()
+    assert alert.detection_method == "step-scaled"
+    assert alert.summary.push_id == 16
+    assert alert.summary.prev_push_id == 15
+    assert alert.prev_value == 1.0
+    assert alert.new_value == 2.0
+    assert alert.amount_abs == 1.0
+    assert alert.amount_pct == 42.0
+    assert not alert.is_regression
+    assert alert.confidence == 0.5
+
+
+def _detection(previous_value, new_value, direction, **optional_detection_info):
+    return SimpleNamespace(
+        previous_value=previous_value,
+        new_value=new_value,
+        direction=direction,
+        optional_detection_info=optional_detection_info,
+    )
+
+
+@pytest.mark.parametrize(
+    ("detection", "lower_is_better", "expected"),
+    [
+        # only what every detection reports
+        (_detection(2.0, 3.0, "up"), True, AlertProperties(50.0, 1.0, True, 2.0, 3.0)),
+        (_detection(2.0, 3.0, "up"), False, AlertProperties(50.0, 1.0, False, 2.0, 3.0)),
+        (_detection(2.0, 1.0, "down"), True, AlertProperties(50.0, -1.0, False, 2.0, 1.0)),
+        (_detection(0.0, 1.0, "up"), True, AlertProperties(0.0, 1.0, True, 0.0, 1.0)),
+        # what the detection computed itself takes precedence
+        (
+            _detection(
+                2.0,
+                3.0,
+                "up",
+                delta_value=0.9,
+                delta_percentage=-45.0,
+                change="improvement",
+            ),
+            True,
+            AlertProperties(45.0, 0.9, False, 2.0, 3.0),
+        ),
+    ],
+)
+def test_detection_alert_properties(detection, lower_is_better, expected):
+    assert get_detection_alert_properties(detection, lower_is_better) == expected
+
+
+def test_retryable_mozdetect_failure_is_raised_after_other_techniques(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+    monkeypatch,
+):
+    def _fail(*args, **kwargs):
+        raise OperationalError("connection lost")
+
+    monkeypatch.setattr(alerts, "generate_new_mozdetect_alerts_in_series", _fail)
+    test_perf_signature.detection_techniques = ["mwu", "ttest"]
+    test_perf_signature.save()
+    _generate_regression(test_repository, test_perf_signature, time.time(), 30)
+
+    # raised so that the generate_alerts task retries it
+    with pytest.raises(OperationalError):
+        generate_new_alerts_in_series(test_perf_signature)
+
+    # but only once the other techniques ran
+    assert PerformanceAlert.objects.get().detection_method == TTEST

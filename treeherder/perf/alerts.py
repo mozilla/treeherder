@@ -1,16 +1,23 @@
 import logging
+import re
 import time
 from collections import namedtuple
 from datetime import datetime
 
 import moz_measure_noise
-import newrelic.agent
+import mozdetect
 import numpy as np
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Subquery
+from django.db.models import Exists, OuterRef, Q, Subquery
+from django.db.utils import InterfaceError, OperationalError
 
 from treeherder.model.models import Push
+from treeherder.perf.detection_techniques import (
+    DETECTION_METHOD_SEPARATOR,
+    TTEST,
+    get_detection_techniques,
+)
 from treeherder.perf.email import AlertNotificationWriter
 from treeherder.perf.methods.CramerVonMisesDetector import CramerVonMisesDetector
 from treeherder.perf.methods.KolmogorovSmirnovDetector import KolmogorovSmirnovDetector
@@ -76,15 +83,34 @@ def get_alert_properties(prev_value, new_value, lower_is_better):
     return AlertProperties(pct_change, delta, is_regression, prev_value, new_value)
 
 
-def generate_new_alerts_in_series(signature):
+def get_detection_methods(alert):
+    """Returns the names of the detection techniques that found an alert.
+
+    Historically, alerts have been created with null detection_methods so we assume
+    that these are TTest.
+    """
+    if alert.detection_method:
+        return alert.detection_method.split(DETECTION_METHOD_SEPARATOR)
+    return [] if alert.manually_created else [TTEST]
+
+
+def get_alerting_series(signature, detection_technique):
     # get series data starting from either:
-    # (1) the last alert, if there is one
+    # (1) the last alert found by this detection technique, if there is one
     # (2) the alerts max age
     # (use whichever is newer)
     max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
     series = PerformanceDatum.objects.filter(signature=signature, push_timestamp__gte=max_alert_age)
+    separator = re.escape(DETECTION_METHOD_SEPARATOR)
+    found_by_technique = Q(
+        detection_method__regex=(
+            rf"(^|{separator}){re.escape(detection_technique.name)}({separator}|$)"
+        )
+    )
+    if detection_technique.technique == TTEST:
+        found_by_technique |= Q(detection_method__isnull=True)
     latest_alert_timestamp = (
-        PerformanceAlert.objects.filter(series_signature=signature)
+        PerformanceAlert.objects.filter(found_by_technique, series_signature=signature)
         .select_related("summary__push__time")
         .order_by("-summary__push__time")
         .values_list("summary__push__time", flat=True)[:1]
@@ -94,6 +120,149 @@ def generate_new_alerts_in_series(signature):
         series = series.filter(push_timestamp__gt=latest_ts)
         if latest_ts > alert_after_ts:
             alert_after_ts = latest_ts
+
+    return series, alert_after_ts
+
+
+def get_noise_profile(values_by_point):
+    """Obtains the noise profile of the data points preceding an alert.
+
+    Only the data up to the data point that shows the regression is given, so
+    that this alert and others in the calculation don't influence the profile.
+    """
+    noise_profile = "N/A"
+    try:
+        noise_data = [geomean(values) for values in values_by_point]
+
+        noise_profile, _ = moz_measure_noise.deviance(noise_data)
+
+        if not isinstance(noise_profile, str):
+            raise Exception(f"Expecting a string as a noise profile, got: {type(noise_profile)}")
+    except Exception:
+        # Fail without breaking the alert computation
+        logger.error("Failed to obtain a noise profile.")
+
+    return noise_profile
+
+
+def add_detection_method(alert, detection_methods, detection_technique):
+    detection_method = DETECTION_METHOD_SEPARATOR.join(
+        [*detection_methods, detection_technique.name]
+    )
+    max_length = PerformanceAlert._meta.get_field("detection_method").max_length
+    if len(detection_method) > max_length:
+        logger.warning(
+            f"Not adding {detection_technique.name} to the detection methods of alert "
+            f"{alert.id}, which would exceed {max_length} characters"
+        )
+        return
+
+    alert.detection_method = detection_method
+    alert.save(update_fields=["detection_method"])
+
+
+def store_alert(
+    signature,
+    detection_technique,
+    push_id,
+    push_timestamp,
+    prev_push_id,
+    prev_push_timestamp,
+    alert_properties,
+    noise_profile,
+    t_value=None,
+    confidence=None,
+):
+    """Creates, or updates, the alert a detection technique found on a push.
+
+    The timestamps are given in seconds since the epoch. Must be called within
+    a transaction.
+    """
+
+    # Lock the push row first. generate_alerts() runs per-signature as separate
+    # Celery tasks (concurrency=3), so two signatures regressing on the same push
+    # can otherwise race here and each create their own duplicate summary or mix
+    # detection methods.
+    Push.objects.select_for_update().get(id=push_id)
+
+    # Check for existing alerts
+    alert = PerformanceAlert.objects.filter(
+        series_signature=signature,
+        sheriffed=not signature.monitor,
+        summary__repository=signature.repository,
+        summary__framework=signature.framework,
+        summary__push_id=push_id,
+    ).first()
+    detection_methods = [detection_technique.name]
+    if alert is not None:
+        # If this alert was generated by another technique, store that
+        detection_methods = get_detection_methods(alert)
+        if detection_technique.name not in detection_methods:
+            add_detection_method(alert, detection_methods, detection_technique)
+            return
+
+        # If this isn't the original technique alerting, then don't continue to
+        # update values
+        if detection_methods[0] != detection_technique.name:
+            return
+
+    # Duplicate summaries may already exist for this push (pre-merge legacy data),
+    # so get() would raise MultipleObjectsReturned here. Use filter() and take
+    # the earliest one instead of crashing.
+    summary = (
+        PerformanceAlertSummary.objects.select_related("prev_push")
+        .filter(
+            repository=signature.repository,
+            framework=signature.framework,
+            push_id=push_id,
+            sheriffed=not signature.monitor,
+        )
+        .order_by("created", "id")
+        .first()
+    )
+    is_new_summary = summary is None
+    if is_new_summary:
+        summary = PerformanceAlertSummary.objects.create(
+            repository=signature.repository,
+            framework=signature.framework,
+            push_id=push_id,
+            sheriffed=not signature.monitor,
+            prev_push_id=prev_push_id,
+            manually_created=False,
+            created=datetime.utcfromtimestamp(push_timestamp),
+        )
+
+    # Widen prev_push to the earliest seen across merged alerts,
+    # unless a sheriff manually created this summary with a specific prev_push.
+    if not is_new_summary and not summary.manually_created and prev_push_id != summary.prev_push_id:
+        existing_prev_timestamp = time.mktime(summary.prev_push.time.timetuple())
+        if prev_push_timestamp < existing_prev_timestamp:
+            summary.prev_push_id = prev_push_id
+            summary.save(update_fields=["prev_push_id"])
+
+    alert, _ = PerformanceAlert.objects.update_or_create(
+        summary=summary,
+        series_signature=signature,
+        sheriffed=not signature.monitor,
+        defaults={
+            "noise_profile": noise_profile,
+            "is_regression": alert_properties.is_regression,
+            "amount_pct": alert_properties.pct_change,
+            "amount_abs": alert_properties.delta,
+            "prev_value": alert_properties.prev_value,
+            "new_value": alert_properties.new_value,
+            "t_value": t_value,
+            "confidence": confidence,
+            "detection_method": DETECTION_METHOD_SEPARATOR.join(detection_methods),
+        },
+    )
+
+    if signature.alert_notify_emails:
+        send_alert_emails(signature.alert_notify_emails.split(), alert, summary)
+
+
+def generate_new_ttest_alerts_in_series(signature, detection_technique):
+    series, alert_after_ts = get_alerting_series(signature, detection_technique)
 
     datum_with_replicates = (
         PerformanceDatum.objects.filter(
@@ -154,29 +323,6 @@ def generate_new_alerts_in_series(signature):
                     prev_value, new_value, signature.lower_is_better
                 )
 
-                noise_profile = "N/A"
-                try:
-                    # Gather all data up to the current data point that
-                    # shows the regression and obtain a noise profile on it.
-                    # This helps us to ignore this alert and others in the
-                    # calculation that could influence the profile.
-                    noise_data = []
-                    for point in analyzed_series:
-                        if point == cur:
-                            break
-                        noise_data.append(geomean(point.values))
-
-                    noise_profile, _ = moz_measure_noise.deviance(noise_data)
-
-                    if not isinstance(noise_profile, str):
-                        raise Exception(
-                            f"Expecting a string as a noise profile, got: {type(noise_profile)}"
-                        )
-                except Exception:
-                    # Fail without breaking the alert computation
-                    newrelic.agent.notice_error()
-                    logger.error("Failed to obtain a noise profile.")
-
                 # ignore regressions below the configured regression
                 # threshold
                 if (
@@ -191,48 +337,9 @@ def generate_new_alerts_in_series(signature):
                 ):
                     continue
 
-                # Lock the push row first. generate_alerts() runs per-signature as separate
-                # Celery tasks (concurrency=3), so two signatures regressing on the same push
-                # can otherwise race here and each create their own duplicate summary below.
-                Push.objects.select_for_update().get(id=cur.push_id)
-
-                # Duplicate summaries may already exist for this push (pre-merge legacy data),
-                # so get() would raise MultipleObjectsReturned here. Use filter() and take
-                # the earliest one instead of crashing.
-                summary = (
-                    PerformanceAlertSummary.objects.select_related("prev_push")
-                    .filter(
-                        repository=signature.repository,
-                        framework=signature.framework,
-                        push_id=cur.push_id,
-                        sheriffed=not signature.monitor,
-                    )
-                    .order_by("created", "id")
-                    .first()
+                noise_profile = get_noise_profile(
+                    point.values for point in analyzed_series[: analyzed_series.index(cur)]
                 )
-                is_new_summary = summary is None
-                if is_new_summary:
-                    summary = PerformanceAlertSummary.objects.create(
-                        repository=signature.repository,
-                        framework=signature.framework,
-                        push_id=cur.push_id,
-                        sheriffed=not signature.monitor,
-                        prev_push_id=prev.push_id,
-                        manually_created=False,
-                        created=datetime.utcfromtimestamp(cur.push_timestamp),
-                    )
-
-                # Widen prev_push to the earliest seen across merged alerts,
-                # unless a sheriff manually created this summary with a specific prev_push.
-                if (
-                    not is_new_summary
-                    and not summary.manually_created
-                    and prev.push_id != summary.prev_push_id
-                ):
-                    existing_prev_timestamp = time.mktime(summary.prev_push.time.timetuple())
-                    if prev.push_timestamp < existing_prev_timestamp:
-                        summary.prev_push_id = prev.push_id
-                        summary.save(update_fields=["prev_push_id"])
 
                 # django/mysql doesn't understand "inf", so just use some
                 # arbitrarily high value for that case
@@ -240,23 +347,120 @@ def generate_new_alerts_in_series(signature):
                 if t_value == float("inf"):
                     t_value = 1000
 
-                alert, _ = PerformanceAlert.objects.update_or_create(
-                    summary=summary,
-                    series_signature=signature,
-                    sheriffed=not signature.monitor,
-                    defaults={
-                        "noise_profile": noise_profile,
-                        "is_regression": alert_properties.is_regression,
-                        "amount_pct": alert_properties.pct_change,
-                        "amount_abs": alert_properties.delta,
-                        "prev_value": prev_value,
-                        "new_value": new_value,
-                        "t_value": t_value,
-                    },
+                store_alert(
+                    signature,
+                    detection_technique,
+                    cur.push_id,
+                    cur.push_timestamp,
+                    prev.push_id,
+                    prev.push_timestamp,
+                    alert_properties,
+                    noise_profile,
+                    t_value=t_value,
                 )
 
-                if signature.alert_notify_emails:
-                    send_alert_emails(signature.alert_notify_emails.split(), alert, summary)
+
+def get_detection_alert_properties(detection, lower_is_better):
+    """Builds the alert properties from what a mozdetect detection reported.
+
+    Mozdetect detections should provide their own values, if needed, for:
+        * delta_value: The absolute difference between the groups.
+        * delat_percentage: The percentage difference between the groups.
+        * change: If the change is an "improvement" or "regression".
+    """
+    detection_info = detection.optional_detection_info
+    prev_value = detection.previous_value
+    new_value = detection.new_value
+
+    delta = detection_info.get("delta_value")
+    if delta is None:
+        delta = new_value - prev_value
+
+    pct_change = detection_info.get("delta_percentage")
+    if pct_change is None:
+        pct_change = 100.0 * delta / prev_value if prev_value != 0 else 0.0
+
+    change = detection_info.get("change")
+    if change in ("regression", "improvement"):
+        is_regression = change == "regression"
+    else:
+        is_regression = (detection.direction == "up") == lower_is_better
+
+    return AlertProperties(abs(pct_change), delta, is_regression, prev_value, new_value)
+
+
+def generate_new_mozdetect_alerts_in_series(signature, detection_technique):
+    # Gather the data for the signature
+    series, _ = get_alerting_series(signature, detection_technique)
+    table = mozdetect.get_signature_table_from_query(
+        series.values(*mozdetect.QUERY_FIELDS),
+        PerformanceSignature.objects.filter(id=signature.id).values().first(),
+    )
+    if table.empty:
+        return
+
+    # Run the detection
+    detector_class = mozdetect.get_timeseries_detectors("ci")[detection_technique.technique]
+    detections = detector_class(mozdetect.TreeherderTimeSeries(table)).detect_changes(
+        **detection_technique.args
+    )
+
+    # Helpers for getting the push ID from what is returned from detections. They
+    # can either be push IDs or revisions but we need IDs for the alerts.
+    positions = {revision: position for position, revision in enumerate(table["revision"])}
+    positions.update({push_id: position for position, push_id in enumerate(table["push_id"])})
+    push_timestamps = [int(time.mktime(ts.timetuple())) for ts in table["push_timestamp"]]
+
+    # Add any new alerts to the DB
+    with transaction.atomic():
+        for detection in detections:
+            position = positions.get(detection.location)
+            if position is None:
+                logger.warning(
+                    f"Skipping {detection_technique.name} detection at unknown push "
+                    f"{detection.location} for signature {signature.id}"
+                )
+                continue
+            if position == 0:
+                continue
+
+            alert_properties = get_detection_alert_properties(detection, signature.lower_is_better)
+            noise_profile = get_noise_profile(table["values"].iloc[:position])
+
+            store_alert(
+                signature,
+                detection_technique,
+                int(table["push_id"].iloc[position]),
+                push_timestamps[position],
+                int(table["push_id"].iloc[position - 1]),
+                push_timestamps[position - 1],
+                alert_properties,
+                noise_profile,
+                confidence=detection.confidence,
+            )
+
+
+def generate_new_alerts_in_series(signature):
+    retryable_error = None
+
+    for detection_technique in get_detection_techniques(signature):
+        if detection_technique.technique == TTEST:
+            generate_new_ttest_alerts_in_series(signature, detection_technique)
+            continue
+
+        # Best-effort here so one mozdetect technique failure doesn't break others
+        try:
+            generate_new_mozdetect_alerts_in_series(signature, detection_technique)
+        except Exception as e:
+            logger.exception(
+                f"Failed to generate {detection_technique.name} alerts for signature {signature.id}"
+            )
+            if retryable_error is None and isinstance(e, InterfaceError | OperationalError):
+                retryable_error = e
+
+    # Raise retryable errors after the full run if needed
+    if retryable_error is not None:
+        raise retryable_error
 
 
 def build_cpd_methods():
@@ -629,7 +833,6 @@ def create_alert(
                 )
     except Exception:
         # Fail without breaking the alert computation
-        newrelic.agent.notice_error()
         logger.error("Failed to obtain a noise profile.")
 
     # Create or get alert summary using the weighted average push's IDs
