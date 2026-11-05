@@ -108,13 +108,13 @@ const AlertHeader = ({
       <AlertHeaderTitle alertSummary={alertSummary} frameworks={frameworks} />
       <Row className="font-weight-normal gap-2">
         <Col className="p-0 pe-1" xs="auto">
-          <Row className="m-0 px-0 py-0">
+          <Row>
             <SimpleTooltip
               text={toMercurialShortDateStr(alertSummaryDatetime)}
               tooltipText="Push date"
             />
           </Row>
-          <Row className="m-0 px-0 py-0">
+          <Row>
             <SimpleTooltip
               text={toMercurialShortDateStr(created)}
               tooltipText="Alert Summary created"
@@ -212,6 +212,7 @@ const AlertHeader = ({
       </Row>
       <Row className="px-0 py-2">
         <a
+          className="p-0"
           href={getPerfCompareBaseURL(
             alertSummary.repository,
             alertSummary.prev_push_revision,

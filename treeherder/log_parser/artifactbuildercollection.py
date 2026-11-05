@@ -4,7 +4,7 @@ import newrelic.agent
 
 from treeherder.utils.http import ITER_LINES_CHUNK_SIZE, make_request
 
-from .artifactbuilders import LogViewerArtifactBuilder, PerformanceDataArtifactBuilder
+from .artifactbuilders import LogViewerArtifactBuilder
 from .parsers import EmptyPerformanceDataError
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class ArtifactBuilderCollection:
     * Parsers:
     * ErrorParser
 
-    PerformanceDataArtifactBuilder
+    PerformanceDataArtifactBuilder (not used by default)
     -------------
     * Builds an artifact from performance data
     * Parsers:
@@ -69,10 +69,11 @@ class ArtifactBuilderCollection:
                 builders = [builders]
             self.builders = builders
         else:
-            # use the defaults
+            # use the defaults. PERFHERDER_DATA is no longer parsed from logs:
+            # performance data is ingested from perfherder-data*.json artifacts
+            # instead (see treeherder.perf.tasks.ingest_perfherder_data).
             self.builders = [
                 LogViewerArtifactBuilder(url=self.url),
-                PerformanceDataArtifactBuilder(url=self.url),
             ]
 
     def parse(self):

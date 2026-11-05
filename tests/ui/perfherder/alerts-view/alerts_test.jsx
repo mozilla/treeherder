@@ -76,9 +76,9 @@ const mockModifyAlert = {
   },
 };
 
-const alertsView = () => {
+const alertsView = (search = '') => {
   return render(
-    <MemoryRouter initialEntries={['/alerts']}>
+    <MemoryRouter initialEntries={[`/alerts${search}`]}>
       <AlertsView
         user={testUser}
         projects={repos}
@@ -124,6 +124,7 @@ const alertsViewControls = ({
           hideAssignedToOthers: false,
           framework: { name: 'talos', id: 1 },
           status: 'untriaged',
+          changeType: 'all types',
         }}
         frameworks={[{ id: 1, name: dummyFrameworkName }]}
         frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
@@ -235,6 +236,53 @@ describe('alert filtering ignores repository and/or options', () => {
       expect(warningMessage).toBeInTheDocument();
     });
   });
+});
+
+test('selecting a change type from the change type dropdown sends change_type to the API', async () => {
+  const { findByText, getAllByText } = alertsView();
+
+  fireEvent.click(await findByText('all types'));
+  const regressionOption = await waitFor(() => {
+    const option = getAllByText('regression').find((element) =>
+      element.closest('.dropdown-item'),
+    );
+    expect(option).toBeDefined();
+    return option;
+  });
+  fireEvent.click(regressionOption);
+
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes('change_type=regression')),
+    ).toBe(true),
+  );
+});
+
+test('changeType in the URL initialises the change type dropdown and is sent to the API', async () => {
+  fetchMock.resetHistory();
+  const { findByText } = alertsView('?changeType=improvement');
+
+  await findByText('improvement');
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes('change_type=improvement')),
+    ).toBe(true),
+  );
+});
+
+test('an unknown changeType in the URL falls back to all types', async () => {
+  fetchMock.resetHistory();
+  const { findByText } = alertsView('?changeType=bogus');
+
+  await findByText('all types');
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes(endpoints.alertSummary)),
+    ).toBe(true),
+  );
+  expect(
+    fetchMock.calls().some(([url]) => url.includes('change_type=')),
+  ).toBe(false);
 });
 
 test('Debug Tools heading not displayed for non-browsertime summaries', async () => {

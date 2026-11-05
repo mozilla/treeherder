@@ -65,11 +65,12 @@ const FilterControls = ({
           {createDropdowns(dropdownOptions, 'py-0 ps-0 pe-3')}
         </Row>
       )}
-      <Row className="pb-3 ps-3 justify-content-left">
+      <Row className="ps-3 justify-content-left">
         {dropdownCol &&
           dropdownOptions.length > 0 &&
           createDropdowns(dropdownOptions, 'py-2 ps-0 pe-3')}
-
+      </Row>
+      <Row className="ps-3 justify-content-left">
         <Col className="col-2 py-2 ps-0 pe-2">
           <InputFilter
             filteredTextValue={filteredTextValue}
