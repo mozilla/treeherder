@@ -24,14 +24,16 @@ from django.db.models import (
     CharField,
     Count,
     Exists,
+    F,
     OuterRef,
     Q,
     QuerySet,
     Subquery,
     Value,
     When,
+    Window,
 )
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, RowNumber
 from rest_framework import (
     exceptions,
     filters,
@@ -1410,6 +1412,7 @@ class PerfCompareResults(generics.ListAPIView):
         new_parent_signature = query_params.validated_data["new_parent_signature"]
         replicates = query_params.validated_data["replicates"]
         test_version = query_params.validated_data["test_version"]
+        number_of_data_points = query_params.validated_data["number_of_data_points"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -1451,10 +1454,22 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         base_perf_data = self._get_perf_data(
-            base_repo_name, base_rev, base_signatures, interval, start_day, end_day
+            base_repo_name,
+            base_rev,
+            base_signatures,
+            interval,
+            start_day,
+            end_day,
+            number_of_data_points,
         )
         new_perf_data = self._get_perf_data(
-            new_repo_name, new_rev, new_signatures, interval, None, None
+            new_repo_name,
+            new_rev,
+            new_signatures,
+            interval,
+            None,
+            None,
+            number_of_data_points,
         )
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
@@ -1786,6 +1801,7 @@ class PerfCompareResults(generics.ListAPIView):
         interval: int | None,
         startday: datetime.datetime | None,
         endday: datetime.datetime | None,
+        number_of_data_points: int | None,
     ) -> QuerySet:
         signature_ids = [signature["id"] for signature in list(signatures)]
         perf_data = PerformanceDatum.objects.select_related("push", "repository").filter(
@@ -1803,6 +1819,21 @@ class PerfCompareResults(generics.ListAPIView):
         else:
             perf_data = perf_data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
 
+        if number_of_data_points:
+            limited_pks = (
+                perf_data.annotate(
+                    row_number=Window(
+                        expression=RowNumber(),
+                        partition_by=[F("signature_id")],
+                        order_by=[F("push_timestamp").desc(), F("id").desc()],
+                    )
+                )
+                .filter(row_number__lte=number_of_data_points)
+                .values("pk")
+            )
+            return PerformanceDatum.objects.filter(pk__in=Subquery(limited_pks)).order_by(
+                "signature_id", "-push_timestamp", "-id"
+            )
         return perf_data
 
     @staticmethod
