@@ -317,7 +317,9 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                     "min_back_window": subtest.get("minBackWindow"),
                     "max_back_window": subtest.get("maxBackWindow"),
                     "fore_window": subtest.get("foreWindow"),
-                    "detection_techniques": subtest.get("detectionTechniques"),
+                    "detection_techniques": subtest.get(
+                        "detectionTechniques", suite.get("detectionTechniques")
+                    ),
                     "parent_signature": summary_signature,
                     "last_updated": job.push.time,
                 },
