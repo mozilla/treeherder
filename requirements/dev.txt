@@ -341,9 +341,9 @@ pytest==8.4.2 \
     #   pytest-testmon
     #   pytest-watch
     #   pytest-xdist
-pytest-asyncio==1.4.1 \
-    --hash=sha256:507afa78ec77c6661164ef1a2368bc7820383fd1a14b2a7f813de8b5a92949cc \
-    --hash=sha256:e8266eb094e5ee9ffdb2068c9836f33e209ea77a970eb846933d416b5602669b
+pytest-asyncio==1.4.1.post1 \
+    --hash=sha256:0755e488cc0a2b9bd2eab7292cc6390d4cbb8390f1020745647bae5a708e0165 \
+    --hash=sha256:f582d9ea4a1c082195abe8bd29a1fe106aeb1cd435e3dad2d3bc2749935c36a2
     # via -r requirements/dev.in
 pytest-cov==7.1.0 \
     --hash=sha256:30674f2b5f6351aa09702a9c8c364f6a01c27aae0c1366ae8016160d1efc56b2 \
