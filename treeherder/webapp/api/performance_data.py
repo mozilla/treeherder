@@ -631,7 +631,11 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
         valid = {choice[0] for choice in PerformanceSignature.ALERT_SEVERITIES}
         severities = [s.strip() for s in value.split(",") if s.strip() in valid]
         if severities:
-            return queryset.filter(severity__in=severities)
+            q = Q(severity__in=severities)
+            if "normal" in severities:
+                # Null severity predates the field and is treated as normal
+                q |= Q(severity__isnull=True)
+            return queryset.filter(q)
         return queryset
 
     class Meta:

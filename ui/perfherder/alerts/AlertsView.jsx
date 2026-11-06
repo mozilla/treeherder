@@ -381,7 +381,7 @@ function AlertsView({
             case 'hideAssignedToOthers':
               return [filterName, +filterValue];
             case 'severity':
-              return [filterName, filterValue.join(',')];
+              return filterValue.length > 0 ? [filterName, filterValue.join(',')] : [filterName, undefined];
             default:
               return [filterName, filterValue];
           }
@@ -397,7 +397,10 @@ function AlertsView({
 
       if (isListMode()) {
         if (doUpdateParams) {
-          validated.updateParams(getParamsFromFilters(updatedFilters));
+          const newParams = getParamsFromFilters(updatedFilters);
+          const toRemove = Object.keys(newParams).filter((k) => newParams[k] === undefined);
+          toRemove.forEach((k) => delete newParams[k]);
+          validated.updateParams(newParams, toRemove);
         }
         setFilters(currentFilters);
         // fetchAlertSummaries will be triggered by the filters change
