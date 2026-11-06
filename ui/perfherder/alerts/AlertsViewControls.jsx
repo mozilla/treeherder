@@ -5,6 +5,7 @@ import FilterControls from '../../shared/FilterControls';
 import {
   bugResolutionMap,
   changeTypeOptions,
+  severityOptions,
   summaryStatusMap,
 } from '../perf-helpers/constants';
 import PaginationGroup from '../shared/Pagination';
@@ -71,6 +72,15 @@ export default class AlertsViewControls extends React.Component {
     this.props.setFiltersState({ changeType });
   };
 
+  updateSeverity = (option) => {
+    const { filters } = this.props;
+    const current = filters.severity;
+    const newSeverity = current.includes(option)
+      ? current.filter((s) => s !== option)
+      : [...current, option];
+    this.props.setFiltersState({ severity: newSeverity });
+  };
+
   updateFramework = (selectedFramework) => {
     const { frameworkOptions, setFiltersState } = this.props;
     const framework = frameworkOptions.find(
@@ -117,6 +127,7 @@ export default class AlertsViewControls extends React.Component {
       status,
       bugResolution,
       changeType,
+      severity,
     } = filters;
 
     let sortedFrameworks = sortData(frameworkOptions, 'name', false);
@@ -167,6 +178,16 @@ export default class AlertsViewControls extends React.Component {
       },
     ];
 
+    const alertMultiSelectDropdowns = [
+      {
+        options: severityOptions,
+        selectedItems: severity,
+        updateData: this.updateSeverity,
+        namespace: 'severity',
+        defaultLabel: 'all severities',
+      },
+    ];
+
     const alertCheckboxes = [
       {
         text: 'Hide downstream / reassigned to / invalid / infra',
@@ -192,6 +213,7 @@ export default class AlertsViewControls extends React.Component {
         <FilterControls
           filteredTextValue={filterText}
           dropdownOptions={isListMode ? alertDropdowns : []}
+          multiSelectDropdowns={isListMode ? alertMultiSelectDropdowns : []}
           filterOptions={alertCheckboxes}
           updateFilter={this.updateFilter}
           updateFilterText={this.updateFilterText}
@@ -258,6 +280,7 @@ AlertsViewControls.propTypes = {
     status: PropTypes.string.isRequired,
     bugResolution: PropTypes.string.isRequired,
     changeType: PropTypes.string.isRequired,
+    severity: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
   setFiltersState: PropTypes.func.isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
