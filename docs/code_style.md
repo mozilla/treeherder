@@ -4,7 +4,7 @@
 
 We use [Prettier](https://prettier.io) for JS/JSX formatting and [Biome](https://biomejs.dev)
 for linting. To run the linter, use `pnpm lint` (or `pnpm lint --write` to auto-fix). See
-Validating Javascript in the [Installation section](installation.md#validating-javascript).
+Validating Javascript in the [Testing section](testing.md#validating-javascript).
 
 Prettier is also used to format JSON/CSS/HTML/Markdown/YAML. To manually check formatting
 run `pnpm format:check`, or to apply formatting fixes run `pnpm format`.
