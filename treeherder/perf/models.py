@@ -115,6 +115,7 @@ class PerformanceSignature(models.Model):
     max_back_window = models.IntegerField(null=True)
     fore_window = models.IntegerField(null=True)
     alert_severity = models.CharField(max_length=80, choices=ALERT_SEVERITIES, default=NORMAL)
+    detection_techniques = models.JSONField(null=True)
 
     @staticmethod
     def _get_alert_change_type(alert_change_type_input):

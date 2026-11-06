@@ -72,7 +72,7 @@
           "properties": {
             "name": {
               "title": "Detection technique name",
-              "description": "Name surfaced in the alerts this technique produces. Defaults to \"<technique>-<hash>\", where <hash> is a hash of this object, or to \"<technique>-<preset>\" when a preset is given without custom arguments",
+              "description": "Name surfaced in the alerts this technique produces. Defaults to \"<technique>-<preset>-<hash>\", where <hash> is a hash of the custom arguments, and the preset or hash are left out when no preset or custom arguments are given",
               "type": "string",
               "minLength": 1,
               "maxLength": 50
@@ -93,7 +93,7 @@
             },
             "args": {
               "title": "Technique arguments",
-              "description": "Settings for the technique, overriding those of the preset, or the technique's defaults when no preset is given, e.g. {\"p_value_threshold\": 0.01}",
+              "description": "Settings for the technique, overriding those of the preset, or the technique's defaults when no preset is given, e.g. {\"pvalue_threshold\": 0.01}",
               "type": "object",
               "additionalProperties": {
                 "type": ["number", "string", "boolean"]
@@ -188,7 +188,7 @@
         },
         "detectionTechniques": {
           "title": "Detection techniques",
-          "description": "Change detection techniques to run on this subtest's data, and how to configure them",
+          "description": "Change detection techniques to run on this subtest's data, and how to configure them. Defaults to the suite's detection techniques",
           "type": "array",
           "items": {
             "$ref": "#/definitions/detection_technique_schema"
