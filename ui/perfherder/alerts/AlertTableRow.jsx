@@ -18,7 +18,7 @@ import { getPerfCompareBaseSubtestsURL } from '../../helpers/url';
 import {
   getStatus,
   getGraphsURL,
-  modifyAlert,
+  modifyAlerts,
   formatConfidence,
   getFrameworkName,
   getTimeRange,
@@ -85,13 +85,13 @@ export default class AlertTableRow extends React.Component {
       alert,
       fetchAlertSummaries,
       alertSummary,
-      modifyAlert: modifyAlertFn = modifyAlert,
+      modifyAlerts: modifyAlertsFn = modifyAlerts,
     } = this.props;
     const updatedStar = {
       starred: !starred,
     };
     // passed as prop only for testing purposes
-    const { data, failureStatus } = await modifyAlertFn(alert, updatedStar);
+    const { data, failureStatus } = await modifyAlertsFn([alert.id], updatedStar);
 
     if (!failureStatus) {
       // now refresh UI, by syncing with backend
@@ -677,5 +677,5 @@ AlertTableRow.propTypes = {
   updateSelectedAlerts: PropTypes.func.isRequired,
   selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateViewState: PropTypes.func.isRequired,
-  modifyAlert: PropTypes.func,
+  modifyAlerts: PropTypes.func,
 };

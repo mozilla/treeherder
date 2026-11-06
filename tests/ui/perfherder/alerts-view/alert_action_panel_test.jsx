@@ -4,7 +4,7 @@ const buildPanel = ({
   selectedAlerts,
   alertSummary,
   alertSummaries,
-  modifyAlert = jest.fn().mockResolvedValue({ failureStatus: false }),
+  modifyAlerts = jest.fn().mockResolvedValue({ failureStatus: false }),
 }) => {
   const fetchAlertSummaries = jest.fn();
   const updateViewState = jest.fn();
@@ -15,7 +15,7 @@ const buildPanel = ({
     fetchAlertSummaries,
     updateViewState,
     updateState: jest.fn(),
-    modifyAlert,
+    modifyAlerts,
   });
   return { panel, fetchAlertSummaries, updateViewState };
 };
@@ -251,14 +251,14 @@ test('Failed updates do not refresh any summary', async () => {
   const selectedAlert = { id: 10, related_summary_id: null };
   const alertSummary = { id: 1, alerts: [selectedAlert], related_alerts: [] };
   const alertSummaries = [alertSummary, { id: 2, alerts: [], related_alerts: [] }];
-  const modifyAlert = jest
+  const modifyAlerts = jest
     .fn()
     .mockResolvedValue({ failureStatus: 500, data: 'Server error' });
   const { panel, fetchAlertSummaries, updateViewState } = buildPanel({
     selectedAlerts: [selectedAlert],
     alertSummary,
     alertSummaries,
-    modifyAlert,
+    modifyAlerts,
   });
 
   await panel.updateAndFetch('reassigned', 2);
