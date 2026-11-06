@@ -2054,18 +2054,14 @@ class PerfCompareResults(generics.ListAPIView):
         base_variance = float(np.var(base_rev_data)) if base_rev_data else 0
         base_mean = perfcompare_utils.get_avg(base_rev_data, header)
         base_stddev = perfcompare_utils.get_stddev(base_rev_data, header)
-        base_count = len(base_rev_data)
         base_median = float(np.median(base_rev_data)) if base_rev_data else 0
-        base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
 
         new_min = float(np.min(new_rev_data)) if len(new_rev_data) > 0 else 0
         new_max = float(np.max(new_rev_data)) if len(new_rev_data) > 0 else 0
         new_variance = float(np.var(new_rev_data)) if new_rev_data else 0
         new_mean = perfcompare_utils.get_avg(new_rev_data, header)
         new_stddev = perfcompare_utils.get_stddev(new_rev_data, header)
-        new_count = len(new_rev_data)
         new_median = float(np.median(new_rev_data)) if new_rev_data else 0
-        new_stddev_pct = perfcompare_utils.get_stddev_pct(new_mean, new_stddev)
 
         # Basic statistics, normality test"
         # Shapiro-Wilk test
@@ -2089,8 +2085,6 @@ class PerfCompareResults(generics.ListAPIView):
             mann_pvalue,
             is_significant,
         ) = stats.interpret_mann_whitneyu(base_rev_data, new_rev_data, pvalue_threshold)
-        delta_value = new_median - base_median
-        delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
 
         # Cliff's delta to take into account effect size:
         # https://www.researchgate.net/post/What_is_the_most_appropriate_effect_size_type_for_mann_whitney_u_analysis
@@ -2105,53 +2099,36 @@ class PerfCompareResults(generics.ListAPIView):
         cliffs_interpretation, is_effect_meaningful = stats.interpret_effect_size(c_delta)
 
         # returns CLES
-        (
-            cles_obj,
-            cles,
-            cles_explanation,
-            mann_whitney_u_cles,
-            cliffs_delta_cles,
-            is_base_greater,
-        ) = stats.interpret_cles(
+        cles_obj, is_base_greater = stats.interpret_cles(
             mann_stat,
             new_rev_data,
             base_rev_data,
-            c_delta,
-            cliffs_interpretation,
-            lower_is_better,
         )
 
-        direction, is_new_better = stats.is_new_better(
+        direction, _ = stats.is_new_better(
             is_effect_meaningful, is_base_greater, is_significant, lower_is_better
         )
 
         if cles_obj:
-            cles_obj["effect_size"] = cliffs_interpretation
             cles_obj["cles_direction"] = direction
 
         stats_data = {
             "base_standard_stats": {
-                "count": base_count,
                 "min": base_min,
                 "max": base_max,
                 "mean": base_mean,
                 "median": base_median,
                 "variance": base_variance,
                 "stddev": base_stddev,
-                "stddev_pct": base_stddev_pct,
             },
             "new_standard_stats": {
-                "count": new_count,
                 "min": new_min,
                 "max": new_max,
                 "mean": new_mean,
                 "median": new_median,
                 "variance": new_variance,
                 "stddev": new_stddev,
-                "stddev_pct": new_stddev_pct,
             },
-            "delta_value": delta_value,
-            "delta_percentage": delta_percentage,
             # i.i.d tests: Shapiro-Wilk, Kolmogorov-Smirnov and Mann-Whitney
             # Shapiro-Wilk: Normality test
             "shapiro_wilk_test_base": shapiro_results_base,
@@ -2168,8 +2145,6 @@ class PerfCompareResults(generics.ListAPIView):
             # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
             "cles": cles_obj,
             # short form summary based on former tests shapiro, etc...
-            "is_new_better": is_new_better,
-            "is_meaningful": is_effect_meaningful,
             "lower_is_better": lower_is_better,
             "direction_of_change": direction,  # 'no change', 'improvement', or 'regression'
         }

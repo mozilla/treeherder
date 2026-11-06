@@ -800,14 +800,10 @@ class StandardStatsSerializer(serializers.Serializer):
     mean = PerfCompareDecimalField()
     median = PerfCompareDecimalField()
     stddev = PerfCompareDecimalField()
-    count = serializers.IntegerField()
     variance = PerfCompareDecimalField()
-    stddev_pct = PerfCompareDecimalField()
 
 
 class StatisticsTestSerializer(serializers.Serializer):
-    test_name = serializers.CharField()
-    stat = PerfCompareDecimalField(required=False)
     pvalue = PerfCompareDecimalField(required=False)
     interpretation = serializers.CharField(required=False)
 
@@ -816,9 +812,6 @@ class CLESSerializer(serializers.Serializer):
     cles = PerfCompareDecimalField(required=False)
     cles_direction = serializers.CharField(default="")
     mann_whitney_u_cles = serializers.CharField(default="")
-    cliffs_delta_cles = serializers.CharField(default="")
-    effect_size = serializers.CharField(default="")
-    cles_explanation = serializers.CharField(default="")
 
 
 class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
@@ -832,7 +825,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
         max_length=10,
         default="",
     )
-    is_complete = serializers.BooleanField()
     platform = serializers.CharField()
     header_name = serializers.CharField()
     base_repository_name = serializers.CharField()
@@ -860,12 +852,8 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     )
     base_standard_stats = StandardStatsSerializer(many=False)
     new_standard_stats = StandardStatsSerializer(many=False)
-    delta_value = PerfCompareDecimalField(required=False)
-    delta_percentage = PerfCompareDecimalField(required=False)
-    is_new_better = OptionalBooleanField()
     lower_is_better = OptionalBooleanField()
     graphs_link = serializers.CharField()
-    is_meaningful = serializers.BooleanField(required=False)
     base_parent_signature = serializers.IntegerField()
     new_parent_signature = serializers.IntegerField()
     base_signature_id = serializers.IntegerField()
@@ -898,7 +886,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "header_name",
             "base_repository_name",
             "new_repository_name",
-            "is_complete",
             "base_measurement_unit",
             "new_measurement_unit",
             "base_retriggerable_job_ids",
@@ -911,12 +898,8 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "option_name",
             "extra_options",
             "graphs_link",
-            "delta_value",
-            "delta_percentage",
-            "is_new_better",
             "lower_is_better",
             "direction_of_change",
-            "is_meaningful",
             "base_parent_signature",
             "new_parent_signature",
             "base_signature_id",

@@ -33,26 +33,20 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold=PVALUE_THRESHOL
     try:
         warnings = []
 
-        stat_base = None
         interpretation_base = ""
         is_base_normal = None
         p_base = None
-        stat_new = None
         interpretation_new = ""
         is_new_normal = None
         p_new = None
         base_name = "Base Revision"
 
         shapiro_results_base = {
-            "test_name": "Shapiro-Wilk",
-            "stat": None,
             "pvalue": None,
             "interpretation": interpretation_base,
         }
 
         shapiro_results_new = {
-            "test_name": "Shapiro-Wilk",
-            "stat": None,
             "pvalue": None,
             "interpretation": interpretation_new,
         }
@@ -60,10 +54,9 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold=PVALUE_THRESHOL
         # shapiro needs minimum 3 data points else NaN values returns
         if len(base) >= 3:
             try:
-                stat_base, p_base = stats.shapiro(base)
+                _, p_base = stats.shapiro(base)
                 if not np.isnan(p_base):
                     is_base_normal = p_base > pvalue_threshold
-                    shapiro_results_base["stat"] = float(stat_base)
                     shapiro_results_base["pvalue"] = float(p_base)
                     shapiro_results_base["interpretation"] = (
                         f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'likely normal' if is_base_normal else 'not normal'}"
@@ -83,10 +76,9 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold=PVALUE_THRESHOL
         new_rev_name = "New Revision"
         if len(new) >= 3:
             try:
-                stat_new, p_new = stats.shapiro(new)
+                _, p_new = stats.shapiro(new)
                 if not np.isnan(p_new):
                     is_new_normal = p_new > pvalue_threshold
-                    shapiro_results_new["stat"] = float(stat_new)
                     shapiro_results_new["pvalue"] = float(p_new)
                     shapiro_results_new["interpretation"] = (
                         f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'likely normal' if is_new_normal else 'not normal'}"
@@ -110,7 +102,7 @@ def interpret_ks_test(base, new, pvalue_threshold=PVALUE_THRESHOLD):
         if len(base) < 1 or len(new) < 1:
             return None, None
 
-        ks_stat, ks_p = ks_2samp(base, new)
+        _, ks_p = ks_2samp(base, new)
         ks_warning = None
         ks_comment = None
 
@@ -123,8 +115,6 @@ def interpret_ks_test(base, new, pvalue_threshold=PVALUE_THRESHOLD):
             ks_comment = f"KS test p-value: {ks_p:.3f}, poor fit"
 
         ks_test = {
-            "test_name": "Kolmogorov-Smirnov",
-            "stat": float(ks_stat) if ks_stat is not None else None,
             "pvalue": float(ks_p) if ks_p is not None else None,
             "interpretation": ks_comment,
         }
@@ -162,8 +152,6 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     )
 
     mann_whitney = {
-        "test_name": "Mann-Whitney U",
-        "stat": mann_stat,
         "pvalue": mann_pvalue,
         "interpretation": p_value_interpretation,
     }
@@ -229,16 +217,13 @@ def interpret_cles(
     mann_stat,
     new_revision,
     base_revision,
-    delta,
-    interpretation,
-    lower_is_better,
 ):
     try:
         cles = None
         if (len(new_revision) > 0) and (len(base_revision) > 0) and mann_stat is not None:
             cles = mann_stat / (len(new_revision) * len(base_revision))
         else:
-            return None, None, None, None, None, None
+            return None, None
 
         mann_whitney_u_cles = ""
         # Mann-Whitney U Common Language Effect Size
@@ -251,25 +236,14 @@ def interpret_cles(
         else:
             mann_whitney_u_cles = ""
 
-        # Generate CLES explanation
-        cles_explanation, is_base_greater = interpret_cles_direction(cles)
-        # Cliff's delta CLES
-        cliffs_delta_cles = f"Cliff's Delta: {delta:.2f} → {interpretation}" if delta else ""
+        # Keep the direction interpretation; it drives direction_of_change.
+        _, is_base_greater = interpret_cles_direction(cles)
 
         cles_obj = {
             "cles": cles,
-            "cles_explanation": cles_explanation,
             "mann_whitney_u_cles": mann_whitney_u_cles,
-            "cliffs_delta_cles": cliffs_delta_cles,
         }
 
-        return (
-            cles_obj,
-            cles,
-            cles_explanation,
-            mann_whitney_u_cles,
-            cliffs_delta_cles,
-            is_base_greater,
-        )
+        return cles_obj, is_base_greater
     except Exception:
-        return None, None, None, None, None, None
+        return None, None
