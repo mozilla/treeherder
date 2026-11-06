@@ -10,7 +10,7 @@ from collections.abc import Iterable, Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any, NoReturn
+from typing import Any
 from urllib.parse import urlencode
 
 import django_filters
@@ -18,6 +18,7 @@ import numpy as np
 import orjson
 from cliffs_delta import cliffs_delta
 from django.conf import settings
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.db.models import (
     Case,
@@ -34,14 +35,17 @@ from django.db.models import (
     Window,
 )
 from django.db.models.functions import Concat, RowNumber
+from django.utils import timezone
 from rest_framework import (
     exceptions,
     filters,
     generics,
+    mixins,
     pagination,
     serializers,
     viewsets,
 )
+from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -76,6 +80,7 @@ from .performance_serializers import (
     PerfCompareResultsQueryParamsSerializer,
     PerfCompareResultsSerializer,
     PerfCompareResultsSerializerV2,
+    PerformanceAlertBulkUpdateSerializer,
     PerformanceAlertSerializer,
     PerformanceAlertSummarySerializer,
     PerformanceAlertSummaryTasksSerializer,
@@ -86,6 +91,7 @@ from .performance_serializers import (
     PerformanceTagSerializer,
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,
+    check_related_summary_compatibility,
 )
 from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 
@@ -931,7 +937,13 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
-class PerformanceAlertViewSet(viewsets.ModelViewSet):
+class PerformanceAlertViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = PerformanceAlert.objects.all()
     permission_classes = (IsStaffOrReadOnly,)
 
@@ -947,19 +959,88 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
     pagination_class = AlertPagination
 
-    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        new_push_id = request.data.get("push_id")
-        new_prev_push_id = request.data.get("prev_push_id")
+    @action(detail=False, methods=["put"], url_path="update")
+    def bulk_update(self, request: Request) -> Response:
+        serializer = PerformanceAlertBulkUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        alert_ids = set(serializer.validated_data["alert_ids"])
+        status = serializer.validated_data.get("status")
+        starred = serializer.validated_data.get("starred")
+        related_summary = serializer.validated_data.get("related_summary")
+        update_related = "related_summary" in serializer.validated_data
 
-        if new_push_id is None and new_prev_push_id is None:
-            request.data["classifier"] = request.user.username
-            return super().update(request, *args, **kwargs)
-        else:
-            alert = PerformanceAlert.objects.get(pk=kwargs["pk"])
-            if all([new_push_id, new_prev_push_id]) and alert.summary.push.id != new_push_id:
-                return self.nudge(alert, new_push_id, new_prev_push_id)
+        # lock the selected alerts, then their summaries, always in id order, so
+        # overlapping requests queue up instead of recalculating stale statuses
+        with transaction.atomic():
+            alerts = list(
+                PerformanceAlert.objects.select_for_update().filter(id__in=alert_ids).order_by("id")
+            )
+            if len(alerts) != len(alert_ids):
+                missing_ids = sorted(alert_ids - {alert.id for alert in alerts})
+                return Response(
+                    {"message": f"Alerts not found: {missing_ids}"}, status=HTTP_400_BAD_REQUEST
+                )
 
-            return Response({"message": "Incorrect push was provided"}, status=HTTP_400_BAD_REQUEST)
+            summary_ids = {alert.summary_id for alert in alerts} | {
+                alert.related_summary_id for alert in alerts
+            }
+            if related_summary:
+                summary_ids.add(related_summary.id)
+            summary_ids.discard(None)
+            summaries = {
+                summary.id: summary
+                for summary in PerformanceAlertSummary.objects.select_for_update()
+                .filter(id__in=summary_ids)
+                .order_by("id")
+            }
+            new_related_summary = summaries[related_summary.id] if related_summary else None
+
+            for alert in alerts:
+                alert.summary = summaries[alert.summary_id]
+                alert.related_summary = (
+                    new_related_summary
+                    if update_related
+                    else summaries.get(alert.related_summary_id)
+                )
+                if status is not None:
+                    alert.status = status
+                if starred is not None:
+                    alert.starred = starred
+                if update_related:
+                    check_related_summary_compatibility(
+                        alert.summary, alert.related_summary, alert.status
+                    )
+                try:
+                    alert.validate_related_summary_status()
+                except DjangoValidationError as error:
+                    message = f"Alert {alert.id}: {error.messages[0]}"
+                    raise exceptions.ValidationError(message) from error
+
+            now = timezone.now()
+            fields = {"classifier": request.user, "last_updated": now}
+            if status is not None:
+                fields["status"] = status
+            if starred is not None:
+                fields["starred"] = starred
+            if update_related:
+                fields["related_summary"] = new_related_summary
+
+            untriaged = [alert for alert in alerts if alert.first_triaged is None]
+            for alert in untriaged:
+                alert.summary.timestamp_first_triage()
+            if new_related_summary and any(
+                alert.status in PerformanceAlert.RELATIONAL_STATUS_IDS for alert in alerts
+            ):
+                new_related_summary.timestamp_first_triage()
+
+            PerformanceAlert.objects.filter(id__in=alert_ids).update(**fields)
+            PerformanceAlert.objects.filter(
+                id__in=[alert.id for alert in untriaged], first_triaged__isnull=True
+            ).update(first_triaged=now)
+            for summary in summaries.values():
+                summary.update_status()
+
+        return Response({"alert_ids": sorted(alert_ids)})
 
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         data = request.data
@@ -1018,14 +1099,6 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         new_value = sum(new_values) / len(new_values)
 
         return get_alert_properties(prev_value, new_value, series_signature.lower_is_better)
-
-    @transaction.atomic
-    def nudge(
-        self, alert: PerformanceAlert, new_push_id: int | None, new_prev_push_id: int | None
-    ) -> NoReturn:
-        # Bug 1532230 disabled nudging because it broke links
-        # Bug 1532283 will re enable a better version of it
-        raise exceptions.APIException("Nudging has been disabled", 400)
 
 
 class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
