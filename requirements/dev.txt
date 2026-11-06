@@ -357,9 +357,9 @@ pytest-freezer==0.4.9 \
     --hash=sha256:21bf16bc9cc46bf98f94382c4b5c3c389be7056ff0be33029111ae11b3f1c82a \
     --hash=sha256:8b6c50523b7d4aec4590b52bfa5ff766d772ce506e2bf4846c88041ea9ccae59
     # via -r requirements/dev.in
-pytest-testmon==2.2.0 \
-    --hash=sha256:01f488e955ed0e0049777bee598bf1f647dd524e06f544c31a24e68f8d775a51 \
-    --hash=sha256:2604ca44a54d61a2e830d9ce828b41a837075e4ebc1f81b148add8e90d34815b
+pytest-testmon==2.3.0 \
+    --hash=sha256:7bcd50afce305393edc6b530ee77a61c91949efafe0c54f799f12fe3da999623 \
+    --hash=sha256:fd541506efa483e5a217e6cc5c07c73b382619c218d1ed4ffa80584c34defd77
     # via -r requirements/dev.in
 pytest-watch==4.2.0 \
     --hash=sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9
