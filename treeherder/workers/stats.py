@@ -10,7 +10,6 @@ from django.utils import timezone
 
 from treeherder.model.models import Job, Push
 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 

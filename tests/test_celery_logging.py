@@ -7,6 +7,9 @@ Cloud Logging as severity ERROR). See bug 2075229.
 """
 
 import logging
+import os
+import subprocess
+import sys
 
 import pytest
 from celery.app.log import Logging
@@ -47,3 +50,44 @@ def test_worker_log_setup_routes_celery_logs_at_worker_level(fresh_celery_log_se
     assert celery_logger.handlers, "Celery's own records need a handler of their own"
     assert celery_logger.propagate is False
     assert celery_logger.level == logging.WARNING
+
+
+# Run in a fresh interpreter: by the time this test runs, the task modules are
+# already imported, so an import-time ``logging.basicConfig()`` would not fire
+# again in-process.
+WORKER_STARTUP_SCRIPT = """
+import logging
+
+import django
+
+django.setup()
+
+from treeherder.celery import app
+
+# Same order as a real worker: WorkController imports the task modules
+# (init_worker) before it configures logging.
+app.loader.init_worker()
+app.log.setup_logging_subsystem(loglevel=logging.INFO, redirect_stdouts=False)
+logging.getLogger("treeherder.log_parser.tasks").info("worker-log-marker")
+"""
+
+
+def test_worker_startup_logs_each_treeherder_record_once():
+    """Importing task modules must not attach a handler to the root logger.
+
+    A ``logging.basicConfig()`` in a task module adds a plain-text stderr
+    handler to root before Celery's ``setup_logging`` signal fires. Every
+    propagating ``treeherder`` record is then printed a second time, which
+    Cloud Logging shows as a duplicate entry with severity ERROR.
+    """
+    result = subprocess.run(
+        [sys.executable, "-c", WORKER_STARTUP_SCRIPT],
+        capture_output=True,
+        text=True,
+        env={**os.environ, "DJANGO_SETTINGS_MODULE": "treeherder.config.settings"},
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stderr
+
+    output = result.stdout + result.stderr
+    assert output.count("worker-log-marker") == 1, output
