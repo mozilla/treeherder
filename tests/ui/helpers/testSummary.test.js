@@ -679,6 +679,133 @@ describe('matchBugSuggestions', () => {
       expect(failures.map(s => s.failure_new_in_rev)).toEqual([false, true]);
     });
   });
+
+  describe('classic lines with the text of a summary line', () => {
+    const classic = (search, pathEnd, bugId) => ({
+      search,
+      path_end: pathEnd,
+      bugs: { open_recent: [{ id: bugId, internal_id: bugId }], all_others: [] },
+    });
+    const bugIdsOf = failures =>
+      failures.map(s => s.bugs.open_recent.map(b => b.id));
+
+    const group = 'dom/manifest.ini';
+    // A process whose log had no leak total line.
+    const total = {
+      action: 'mozleak_total',
+      time: 3,
+      process: 'tab',
+      bytes: null,
+      threshold: 0,
+      objects: [],
+      scope: group,
+      induced_crash: false,
+      ignore_missing: false,
+    };
+
+    test('give their bugs to a line with no path', () => {
+      // A leak total and a LeakSanitizer report get no path, in the artifact
+      // as in the backend: nothing matches them by path.
+      const totalLine =
+        'TEST-UNEXPECTED-FAIL | leakcheck | tab 856 bytes leaked (CondVar, Mutex)';
+      const lsanLine =
+        'TEST-UNEXPECTED-FAIL | LeakSanitizer | leak at Alloc, nsTSubstring, Append';
+      const summary = buildTestSummary([
+        { action: 'group_start', time: 1, name: group },
+        { ...total, bytes: 856, objects: ['CondVar', 'Mutex'] },
+        { action: 'log', time: 4, level: 'ERROR', message: lsanLine },
+      ]);
+
+      const failures = matchBugSuggestions(buildFailureSuggestions(summary), [
+        classic(totalLine, null, 1),
+        classic(lsanLine, null, 2),
+      ]);
+
+      expect(failures.map(s => s.search)).toEqual([totalLine, lsanLine]);
+      expect(failures.map(s => s.path_end)).toEqual([null, null]);
+      expect(bugIdsOf(failures)).toEqual([[1], [2]]);
+      expect(failures.every(s => s.showBugSuggestions)).toBe(true);
+    });
+
+    test('give their bugs to that line only, not to every line of its path', () => {
+      // The leakcheck line of every process has the path "leakcheck".
+      const line = process =>
+        `TEST-UNEXPECTED-FAIL | leakcheck | ${process} missing output line for total leaks!`;
+      const summary = buildTestSummary([
+        { action: 'group_start', time: 1, name: group },
+        total,
+        { ...total, process: 'default' },
+      ]);
+
+      const failures = matchBugSuggestions(buildFailureSuggestions(summary), [
+        classic(line('tab'), 'leakcheck', 1),
+        classic(line('default'), 'leakcheck', 2),
+      ]);
+
+      expect(failures.map(s => s.search)).toEqual([line('tab'), line('default')]);
+      expect(failures.map(s => s.path_end)).toEqual(['leakcheck', 'leakcheck']);
+      expect(bugIdsOf(failures)).toEqual([[1], [2]]);
+    });
+
+    test('leave a classic line the summary lacks to go by test path', () => {
+      const failures = matchBugSuggestions(buildFailures(), [
+        classic(
+          'TEST-UNEXPECTED-FAIL | dom/tests/test_fail.html | assertion failed',
+          'dom/tests/test_fail.html',
+          1,
+        ),
+        classic(
+          'PROCESS-CRASH | application crashed | dom/tests/test_fail.html',
+          'dom/tests/test_fail.html',
+          2,
+        ),
+      ]);
+      const failed = failures.find(
+        s => s.path_end === 'dom/tests/test_fail.html',
+      );
+
+      expect(failed.bugs.open_recent.map(b => b.id)).toEqual([1, 2]);
+    });
+
+    test('give the first line of a test the bugs of its other lines', () => {
+      const summary = buildTestSummary([
+        { action: 'test_start', time: 0, group: 'g', test: 'browser_all.js' },
+        ...['first failure', 'second failure'].map(message => ({
+          action: 'test_status',
+          time: 3,
+          group: 'g',
+          test: 'browser_all.js',
+          subtest: null,
+          status: 'FAIL',
+          expected: 'PASS',
+          message,
+        })),
+        {
+          action: 'test_end',
+          time: 10,
+          group: 'g',
+          test: 'browser_all.js',
+          status: 'FAIL',
+          expected: 'PASS',
+        },
+      ]);
+
+      const failures = matchBugSuggestions(buildFailureSuggestions(summary), [
+        classic(
+          'TEST-UNEXPECTED-FAIL | browser_all.js | first failure',
+          'browser_all.js',
+          1,
+        ),
+        classic(
+          'TEST-UNEXPECTED-FAIL | browser_all.js | second failure',
+          'browser_all.js',
+          2,
+        ),
+      ]);
+
+      expect(bugIdsOf(failures)).toEqual([[1, 2], []]);
+    });
+  });
 });
 
 describe('harness failures (ERROR/CRITICAL log lines)', () => {
