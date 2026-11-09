@@ -65,7 +65,7 @@ const SummaryTab = ({
     () =>
       summary && bugSuggestions && !bugSuggestionsLoading
         ? computeSummaryDivergence(failureSuggestions, bugSuggestions)
-        : { diverged: false },
+        : { diverged: false, onlyInSummary: [], onlyInClassic: [] },
     [summary, failureSuggestions, bugSuggestions, bugSuggestionsLoading],
   );
 
@@ -89,20 +89,26 @@ const SummaryTab = ({
 
   // The classic failure summary is a second opinion on failures the summary
   // above already lists, so it sits under a heading that folds it away, folded
-  // by default. When the artifact found nothing, it is the only content there
+  // by default. Not when it holds lines the summary does not (an infra or
+  // harness error the artifact cannot see): a reader classifying from the
+  // summary alone would miss them, so the heading counts them and the section
+  // starts open. When the artifact found nothing, it is the only content there
   // is: shown as is, with no heading, nothing to fold, and no border or note
   // setting it apart from a summary with nothing in it.
   const summaryIsEmpty = !summaryLoading && suggestions.length === 0;
   const classicFoldable = !summaryIsEmpty;
-  const [showClassic, setShowClassic] = useState(false);
+  const classicOnlyCount = divergence.onlyInClassic.length;
+  // The reader's own choice once made; until then the divergence decides.
+  const [showClassic, setShowClassic] = useState(null);
   const [prevSummaryIsEmpty, setPrevSummaryIsEmpty] = useState(summaryIsEmpty);
   if (summaryIsEmpty !== prevSummaryIsEmpty) {
-    // The artifact finished loading (or another job was selected): fold the
-    // section again rather than keeping the previous job's fold state.
+    // The artifact finished loading (or another job was selected): forget the
+    // choice rather than keeping the previous job's.
     setPrevSummaryIsEmpty(summaryIsEmpty);
-    setShowClassic(false);
+    setShowClassic(null);
   }
-  const classicOpen = !classicFoldable || showClassic;
+  const classicOpen =
+    !classicFoldable || (showClassic ?? classicOnlyCount > 0);
 
   // Number of failing tests (not error lines — a test can emit several).
   const failedCount = summary
@@ -278,15 +284,22 @@ const SummaryTab = ({
                 <Button
                   variant="link"
                   className="failure-summary-line-empty p-0 fw-bold text-decoration-none"
-                  onClick={() => setShowClassic((prev) => !prev)}
-                  aria-expanded={showClassic}
+                  onClick={() => setShowClassic(!classicOpen)}
+                  aria-expanded={classicOpen}
                   aria-controls="classic-failure-summary"
                 >
                   <FontAwesomeIcon
-                    icon={showClassic ? faAngleUp : faAngleDown}
+                    icon={classicOpen ? faAngleUp : faAngleDown}
                     className="me-2"
                   />
                   Failure Summary (classic)
+                  {classicOnlyCount > 0 && (
+                    <span className="fw-normal text-muted ms-2">
+                      {`${classicOnlyCount} ${
+                        classicOnlyCount === 1 ? 'line' : 'lines'
+                      } not shown above`}
+                    </span>
+                  )}
                 </Button>
               </h3>
             )}
