@@ -76,8 +76,9 @@ const renderWith = (props) =>
     </MemoryRouter>,
   );
 
-// The classic section is folded by default; open it to read its content.
-const expandClassic = () =>
+// Folds or unfolds the classic section. It starts folded, unless the classic
+// list holds lines the summary lacks.
+const toggleClassic = () =>
   fireEvent.click(
     screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
   );
@@ -85,17 +86,43 @@ const expandClassic = () =>
 describe('SummaryTab divergence with the classic failure summary', () => {
   afterEach(cleanup);
 
-  test('stacks the classic failure summary below when the two diverge', () => {
+  test('stacks the classic failure summary below, open, when it has lines the summary lacks', () => {
     renderSummaryTab(
       prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
     );
 
-    expect(screen.getByText('Failure Summary (classic)')).toBeInTheDocument();
-    // Folded by default: the summary above already lists the failures.
-    expect(screen.queryByText(/application crashed/)).toBeNull();
-
-    expandClassic();
+    // Open by default, the heading saying what the summary above misses: a
+    // reader classifying from the summary alone would never see that line.
+    const toggle = screen.getByRole('button', {
+      name: /Failure Summary \(classic\)/,
+    });
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle).toHaveTextContent('1 line not shown above');
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/differs from the summary above/),
+    ).toBeInTheDocument();
+  });
+
+  test('stays folded when only the summary has lines the other lacks', () => {
+    // Nothing is hidden from the reader: the extra line is in the summary.
+    const twoFailuresJsonl = [
+      summaryJsonl,
+      '{"action":"test_start","time":20,"group":"dom/manifest.ini","test":"dom/tests/test_more.html"}',
+      '{"action":"test_end","time":30,"group":"dom/manifest.ini","test":"dom/tests/test_more.html","status":"FAIL","expected":"PASS","message":"also failed"}',
+    ].join('\n');
+    renderSummaryTab(
+      prepareBugSuggestions([matchingSuggestion()]),
+      twoFailuresJsonl,
+    );
+
+    const toggle = screen.getByRole('button', {
+      name: /Failure Summary \(classic\)/,
+    });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).not.toHaveTextContent('not shown above');
+    // The two still differ, which the note says once the section is open.
+    toggleClassic();
     expect(
       screen.getByText(/differs from the summary above/),
     ).toBeInTheDocument();
@@ -110,7 +137,7 @@ describe('SummaryTab divergence with the classic failure summary', () => {
     expect(
       screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
     ).toHaveAttribute('aria-expanded', 'false');
-    expandClassic();
+    toggleClassic();
     expect(screen.queryByText(/differs from the summary above/)).toBeNull();
   });
 });
@@ -240,8 +267,8 @@ describe('SummaryTab loading and error states', () => {
 describe('SummaryTab new failure lines in the classic section', () => {
   afterEach(cleanup);
 
-  // The classic section is only stacked below when the two summaries diverge,
-  // so every case here needs a line the summary artifact does not have.
+  // Every case here needs a line the summary artifact does not have, for the
+  // classic section to be stacked below; holding it, the section starts open.
   const divergingWith = (overrides) =>
     prepareBugSuggestions([
       matchingSuggestion(),
@@ -251,8 +278,6 @@ describe('SummaryTab new failure lines in the classic section', () => {
   test('flags the first new failure and counts them all', () => {
     renderSummaryTab(divergingWith({ failure_new_in_rev: true }));
 
-    expandClassic();
-
     expect(
       screen.getByText(/1 new failure line\(s\)\. First one is flagged/),
     ).toBeInTheDocument();
@@ -261,7 +286,6 @@ describe('SummaryTab new failure lines in the classic section', () => {
 
   test('renders no banner when no line is new', () => {
     renderSummaryTab(divergingWith({}));
-    expandClassic();
 
     expect(screen.queryByText(/new failure line/)).toBeNull();
     expect(screen.queryByText('NEW')).toBeNull();
@@ -269,14 +293,12 @@ describe('SummaryTab new failure lines in the classic section', () => {
 
   test('counts a never-seen line on try only', () => {
     renderSummaryTab(divergingWith({ counter: 0 }));
-    expandClassic();
     expect(screen.queryByText('NEW')).toBeNull();
     cleanup();
 
     renderSummaryTab(divergingWith({ counter: 0 }), summaryJsonl, {
       name: 'try',
     });
-    expandClassic();
     expect(screen.getByText('NEW')).toBeInTheDocument();
   });
 
@@ -291,7 +313,7 @@ describe('SummaryTab new failure lines in the classic section', () => {
     expect(screen.getAllByText('NEW')).toHaveLength(1);
 
     // ...and the classic section flags its own copy once opened.
-    expandClassic();
+    toggleClassic();
     expect(screen.getAllByText('NEW')).toHaveLength(2);
     expect(screen.getAllByText(/1 new failure line\(s\)/)).toHaveLength(2);
   });
@@ -326,6 +348,9 @@ describe('SummaryTab new failure lines in the summary', () => {
       ]),
     );
 
+    // Fold the classic section, open since it holds a line the summary lacks,
+    // to look at the summary's own flags.
+    toggleClassic();
     expect(screen.queryByText(/new failure line/)).toBeNull();
     expect(screen.queryByText('NEW')).toBeNull();
   });
@@ -346,16 +371,35 @@ describe('SummaryTab new failure lines in the summary', () => {
 describe('SummaryTab classic section folding', () => {
   afterEach(cleanup);
 
-  test('is folded by default when the summary lists failures', () => {
-    renderSummaryTab(
-      prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
-    );
+  test('is folded by default when the summary holds every classic line', () => {
+    renderSummaryTab(prepareBugSuggestions([matchingSuggestion()]));
 
     const toggle = screen.getByRole('button', {
       name: /Failure Summary \(classic\)/,
     });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByText(/application crashed/)).toBeNull();
+    expect(toggle).not.toHaveTextContent('not shown above');
+    expect(
+      document.getElementById('classic-failure-summary'),
+    ).toBeEmptyDOMElement();
+  });
+
+  test('counts the classic lines the summary lacks in the heading', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([
+        matchingSuggestion(),
+        classicOnlySuggestion(),
+        {
+          ...classicOnlySuggestion(),
+          search:
+            'TEST-UNEXPECTED-TIMEOUT | dom/tests/test_fail.html | Test timed out',
+        },
+      ]),
+    );
+
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveTextContent('2 lines not shown above');
   });
 
   test('has no heading to fold when the summary artifact found no failures', () => {
@@ -411,11 +455,14 @@ describe('SummaryTab classic section folding', () => {
       prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
     );
 
-    expandClassic();
+    // Open at first: the classic line is one the summary lacks.
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
 
-    expandClassic();
+    toggleClassic();
     expect(screen.queryByText(/application crashed/)).toBeNull();
+
+    toggleClassic();
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
   });
 });
 
