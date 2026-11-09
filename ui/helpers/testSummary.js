@@ -727,15 +727,21 @@ const normalizeSearchLine = (search) =>
 
 /**
  * Enrich the testsummary-derived failure suggestions with the Bugzilla bug
- * suggestions returned by the `/bug_suggestions/` API, matching on test path.
+ * suggestions returned by the `/bug_suggestions/` API.
  *
  * The testsummary artifact gives us the canonical list of failing tests, but
- * carries no Bugzilla data; the API gives us bugs keyed by log error line. We
- * match the two by test path (`path_end`) and attach every matching bug to the
- * corresponding failing test, merging when several error lines map to one test.
+ * carries no Bugzilla data; the API gives us bugs keyed by log error line. A
+ * classic line the summary holds with the same text gives its bugs to that
+ * line (to the first line of its test, the one carrying the bugs) and to no
+ * other: the leakcheck line of each process shares the path "leakcheck" with
+ * the others yet keeps its own bugs, and a line with no path at all (a leak
+ * total, a LeakSanitizer report) still gets them. The classic lines left,
+ * worded differently or missing from the artifact, go by test path
+ * (`path_end`) to every failing test they match, merging when several map to
+ * one test.
  *
  * Whether a line is new (`failure_new_in_rev` / `counter`) is copied from the
- * API line with the same text instead: the backend decides it per line, so
+ * API line with the same text too: the backend decides it per line, so
  * another message of the same test being new says nothing about this one. A
  * line the classic summary prints differently is matched on that classic
  * text.
@@ -751,17 +757,33 @@ export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
     return failureSuggestions;
   }
 
+  // The text a summary line is matched on: the classic one when it differs.
+  const textOf = suggestion =>
+    normalizeSearchLine(suggestion.classicLine ?? suggestion.search);
+
   const classicByLine = new Map();
   bugSuggestions.forEach((bugSuggestion) => {
     const key = normalizeSearchLine(bugSuggestion.search);
     if (!classicByLine.has(key)) classicByLine.set(key, bugSuggestion);
   });
 
+  // The texts of each test's lines, under the first line of the test, which
+  // carries the bugs: a test's other lines follow its first one.
+  const textsByPrimary = new Map();
+  let primary = null;
+  failureSuggestions.forEach(suggestion => {
+    if (suggestion.primary !== false || !primary) {
+      primary = suggestion;
+      textsByPrimary.set(primary, new Set());
+    }
+    textsByPrimary.get(primary).add(textOf(suggestion));
+  });
+  // A classic line with one of these texts belongs to that line's test only.
+  const claimedTexts = new Set(failureSuggestions.map(textOf).filter(Boolean));
+
   failureSuggestions.forEach((suggestion) => {
     // Every line gets this, primary or not: each one is its own message.
-    const classic = classicByLine.get(
-      normalizeSearchLine(suggestion.classicLine ?? suggestion.search),
-    );
+    const classic = classicByLine.get(textOf(suggestion));
     suggestion.failure_new_in_rev = classic?.failure_new_in_rev ?? false;
     suggestion.counter = classic?.counter ?? null;
 
@@ -771,9 +793,13 @@ export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
       decorateBugs(suggestion);
       return;
     }
-    const matches = bugSuggestions.filter((bugSuggestion) =>
-      pathsMatch(suggestion.path_end, bugSuggestion.path_end),
-    );
+    const texts = textsByPrimary.get(suggestion);
+    const matches = bugSuggestions.filter(bugSuggestion => {
+      const text = normalizeSearchLine(bugSuggestion.search);
+      return claimedTexts.has(text)
+        ? texts.has(text)
+        : pathsMatch(suggestion.path_end, bugSuggestion.path_end);
+    });
     matches.forEach((match) => {
       mergeBugs(suggestion.bugs.open_recent, match.bugs?.open_recent || []);
       mergeBugs(suggestion.bugs.all_others, match.bugs?.all_others || []);
