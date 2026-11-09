@@ -14,6 +14,7 @@ import {
 import {
   bugResolutionMap,
   changeTypeOptions,
+  severityOptions,
   summaryStatusMap,
   endpoints,
   notSupportedAlertFiltersMessage,
@@ -107,6 +108,11 @@ function AlertsView({
       ? params.changeType
       : 'all types';
 
+  const getDefaultSeverity = (params) => {
+    if (!params.severity) return [];
+    return params.severity.split(',').filter((s) => severityOptions.includes(s));
+  };
+
   const getFiltersFromParams = useCallback(
     (params, frameworkOptions = extendedOptions) => {
       return {
@@ -121,6 +127,7 @@ function AlertsView({
         hideDownstream: convertParams(params, 'hideDwnToInv'),
         hideAssignedToOthers: convertParams(params, 'hideAssignedToOthers'),
         monitoredAlerts: convertParams(params, 'monitoredAlerts'),
+        severity: getDefaultSeverity(params),
       };
     },
     [extendedOptions],
@@ -226,6 +233,7 @@ function AlertsView({
         hideDownstream,
         hideAssignedToOthers,
         monitoredAlerts,
+        severity,
       } = currentFilters;
 
       setPage(pg);
@@ -252,6 +260,9 @@ function AlertsView({
         }
         if (changeType !== 'all types') {
           params.change_type = changeType;
+        }
+        if (severity.length > 0) {
+          params.severity = severity.join(',');
         }
         if (hideDownstream) {
           params.hide_related_and_invalid = hideDownstream;
@@ -369,6 +380,8 @@ function AlertsView({
               return ['hideDwnToInv', +filterValue];
             case 'hideAssignedToOthers':
               return [filterName, +filterValue];
+            case 'severity':
+              return filterValue.length > 0 ? [filterName, filterValue.join(',')] : [filterName, undefined];
             default:
               return [filterName, filterValue];
           }
@@ -384,7 +397,10 @@ function AlertsView({
 
       if (isListMode()) {
         if (doUpdateParams) {
-          validated.updateParams(getParamsFromFilters(updatedFilters));
+          const newParams = getParamsFromFilters(updatedFilters);
+          const toRemove = Object.keys(newParams).filter((k) => newParams[k] === undefined);
+          toRemove.forEach((k) => delete newParams[k]);
+          validated.updateParams(newParams, toRemove);
         }
         setFilters(currentFilters);
         // fetchAlertSummaries will be triggered by the filters change
@@ -429,8 +445,9 @@ function AlertsView({
       params.filterText !== prevParams.filterText ||
       params.hideDwnToInv !== prevParams.hideDwnToInv ||
       params.hideAssignedToOthers !== prevParams.hideAssignedToOthers ||
-      params.monitoredAlerts !== prevParams.monitoredAlerts
-      
+      params.monitoredAlerts !== prevParams.monitoredAlerts ||
+      params.severity !== prevParams.severity
+
     // check if page displays an alerts list or a specific alert
     const isDetailMode = Boolean(params.id);
 
