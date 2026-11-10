@@ -17,6 +17,7 @@ import {
   usePinnedJobsStore,
 } from '../../../ui/shared/stores/pinnedJobsStore';
 import FailureSummaryTab from '../../../ui/shared/tabs/failureSummary/FailureSummaryTab';
+import { bugSuggestionsCache } from '../../../ui/models/bugSuggestions';
 import jobMap from '../mock/job_map';
 import bugSuggestions from '../mock/bug_suggestions.json';
 import jobLogUrls from '../mock/job_log_urls.json';
@@ -40,6 +41,9 @@ describe('FailureSummaryTab', () => {
   afterEach(() => {
     cleanup();
     fetchMock.reset();
+    // Bug suggestions are cached per jobId at module level; clear between
+    // tests so each test's fetch mock is actually exercised.
+    bugSuggestionsCache.clear();
     // Reset Zustand pinned jobs store
     usePinnedJobsStore.setState({
       pinnedJobs: {},
