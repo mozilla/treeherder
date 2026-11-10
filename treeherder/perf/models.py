@@ -1293,6 +1293,16 @@ class BackfillRecord(models.Model):
             }
         return None
 
+    def is_validated(self) -> bool:
+        """
+        True when Sherlock's latest iteration ended as "stabilized", i.e. the
+        detected culprit matched the previous one and no gap remains before it.
+        """
+        if self.is_backfill_in_progress():
+            return False
+        logs = self.get_backfill_logs()
+        return bool(logs) and logs[-1].get("status") == "stabilized"
+
     def compute_needs_bisection(self) -> bool:
         """
         True when the push right before Sherlock's suggested culprit has no data
