@@ -230,24 +230,39 @@ test.describe('Jobs View', () => {
     test.skip(testInfo.project.name !== 'mobile-firefox');
 
     await page.getByRole('button', { name: 'Show job filters' }).click();
-    await page.locator('button[title="Filter by a job field"]').click();
+    await page.getByRole('button', { name: 'Advanced filters' }).click();
 
-    const form = page.locator('.active-filters-bar form');
-    await expect(form.getByRole('textbox', { name: 'Value' })).toBeVisible();
-    await expect(form.getByRole('button', { name: 'add' })).toBeVisible();
-    await expect(form.getByRole('button', { name: 'cancel' })).toBeVisible();
+    const panel = page.locator('#advanced-filter-panel');
+    const section = panel.getByTestId('field-filter-section');
+    await expect(section.getByRole('combobox', { name: 'Field' })).toBeVisible();
+    // Labelled lookup: the input becomes a combobox once a field's
+    // suggestions datalist is attached.
+    const valueInput = section.getByLabel('New filter value');
+    await expect(valueInput).toBeVisible();
+    await expect(section.getByRole('button', { name: 'add' })).toBeVisible();
     expect(
-      await form.evaluate(
+      await panel.evaluate(
         (element) => element.scrollWidth <= element.clientWidth,
       ),
     ).toBe(true);
-
-    await page
-      .getByRole('combobox', { name: 'Field' })
-      .selectOption('failure_classification_id');
-    await expect(page.locator('#job-filter-choice-value')).toBeVisible();
     expect(
-      await form.evaluate(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+
+    await section
+      .getByRole('combobox', { name: 'Field' })
+      .selectOption('job_type_name');
+    await valueInput.fill('mochitest');
+    await section.getByRole('button', { name: 'add' }).click();
+    await expect(
+      section.getByRole('button', {
+        name: 'Remove filter: job_type_name: mochitest',
+      }),
+    ).toBeVisible();
+    expect(
+      await panel.evaluate(
         (element) => element.scrollWidth <= element.clientWidth,
       ),
     ).toBe(true);

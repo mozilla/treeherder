@@ -7,8 +7,9 @@ import {
   faChevronDown,
   faChevronUp,
   faExclamationCircle,
-  faFilter,
   faTimesCircle,
+  faSliders,
+  faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocation, useNavigate } from 'react-router';
 
@@ -25,6 +26,8 @@ import {
 
 import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';
+import FilterCoachMark from './filter-panel/FilterCoachMark';
+import { hasSeenCoachMark, markCoachMarkSeen } from './filter-panel/helpers';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -50,7 +53,9 @@ const SecondaryNavBar = ({
   setCurrentRepoTreeStatus,
   duplicateJobsVisible,
   groupCountsExpanded,
-  toggleFieldFilterVisible,
+  isFilterPanelOpen,
+  toggleFilterPanel,
+  filterTriggerRef,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -71,6 +76,12 @@ const SecondaryNavBar = ({
   const [watchedRepoNames, setWatchedRepoNames] = useState([]);
   const [repoName, setRepoName] = useState(getRepo());
   const [mobileFiltersExpanded, setMobileFiltersExpanded] = useState(false);
+  const [showCoachMark, setShowCoachMark] = useState(() => !hasSeenCoachMark());
+
+  const dismissCoachMark = useCallback(() => {
+    markCoachMarkSeen();
+    setShowCoachMark(false);
+  }, []);
 
   const saveWatchedRepos = useCallback((repoList) => {
     setWatchedRepoNames(repoList);
@@ -134,6 +145,13 @@ const SecondaryNavBar = ({
       prevLocationSearch.current = location.search;
     }
   }, [location.search, handleUrlChanges]);
+
+  // Auto-dismiss coach mark when panel opens
+  useEffect(() => {
+    if (isFilterPanelOpen && showCoachMark) {
+      dismissCoachMark();
+    }
+  }, [isFilterPanelOpen, showCoachMark, dismissCoachMark]);
 
   const setSearchStr = (ev) => {
     setSearchQueryStr(ev.target.value);
@@ -356,20 +374,6 @@ const SecondaryNavBar = ({
           </span>
 
           <span>
-            <Button
-              size="sm"
-              className="btn-view-nav"
-              onClick={toggleFieldFilterVisible}
-              title="Filter by a job field"
-            >
-              <FontAwesomeIcon
-                icon={faFilter}
-                size="sm"
-                title="Filter by a job field"
-              />
-            </Button>
-          </span>
-          <span>
             <TierIndicator filterModel={filterModel} />
           </span>
           {/* Quick Filter Field */}
@@ -378,6 +382,20 @@ const SecondaryNavBar = ({
             className="form-group form-inline"
             tabIndex={-1}
           >
+            <Button
+              size="sm"
+              ref={filterTriggerRef}
+              className="btn-view-nav advanced-filter-trigger"
+              onClick={toggleFilterPanel}
+              title="Advanced filters"
+              aria-label="Advanced filters"
+              aria-expanded={isFilterPanelOpen}
+              aria-controls="advanced-filter-panel"
+              aria-haspopup="dialog"
+            >
+              <FontAwesomeIcon icon={faSliders} size="sm" />
+              <FontAwesomeIcon icon={faCaretDown} size="xs" />
+            </Button>
             <input
               id="quick-filter"
               className="form-control form-control-sm"
@@ -395,6 +413,7 @@ const SecondaryNavBar = ({
               title="Clear this filter"
               onClick={clearFilterBox}
             />
+            {showCoachMark && <FilterCoachMark onDismiss={dismissCoachMark} />}
           </span>
         </form>
       </span>
@@ -410,7 +429,11 @@ SecondaryNavBar.propTypes = {
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  toggleFieldFilterVisible: PropTypes.func.isRequired,
+  isFilterPanelOpen: PropTypes.bool.isRequired,
+  toggleFilterPanel: PropTypes.func.isRequired,
+  filterTriggerRef: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
 };
 
 export default SecondaryNavBar;
