@@ -19,7 +19,7 @@ import Assignee from './Assignee';
 import TagsList from './TagsList';
 import AlertHeaderTitle from './AlertHeaderTitle';
 import { getStatus } from '../perf-helpers/helpers';
-import { bugResolutionMap } from '../perf-helpers/constants';
+import { bugResolutionMap, summaryStatusMap } from '../perf-helpers/constants';
 
 const AlertHeader = ({
   frameworks,
@@ -200,6 +200,18 @@ const AlertHeader = ({
             ) : (
               { bugNumber }
             )}
+          </Col>
+        )}
+        {alertSummary.status === summaryStatusMap.untriaged && (
+          <Col className="p-0" xs="auto">
+            <Button
+              variant="secondary"
+              size="xs"
+              className="text-white"
+              data-testid="confirm-culprit-button"
+            >
+              Confirm Culprit
+            </Button>
           </Col>
         )}
         <Col className="p-0" xs="auto">
