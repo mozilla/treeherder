@@ -24,14 +24,16 @@ from django.db.models import (
     CharField,
     Count,
     Exists,
+    F,
     OuterRef,
     Q,
     QuerySet,
     Subquery,
     Value,
     When,
+    Window,
 )
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, RowNumber
 from rest_framework import (
     exceptions,
     filters,
@@ -498,6 +500,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     with_assignee = django_filters.CharFilter(method="_with_assignee")
     timerange = django_filters.NumberFilter(method="_timerange")
     show_sheriffed_frameworks = django_filters.BooleanFilter(method="_show_sheriffed_frameworks")
+    severity = django_filters.CharFilter(method="_severity")
 
     def _filter_text(
         self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: str
@@ -625,6 +628,19 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.filter(framework__name__in=SHERIFFED_FRAMEWORKS)
 
+    def _severity(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: str
+    ) -> QuerySet[PerformanceAlertSummary]:
+        valid = {choice[0] for choice in PerformanceSignature.ALERT_SEVERITIES}
+        severities = [s.strip() for s in value.split(",") if s.strip() in valid]
+        if severities:
+            q = Q(severity__in=severities)
+            if "normal" in severities:
+                # Null severity predates the field and is treated as normal
+                q |= Q(severity__isnull=True)
+            return queryset.filter(q)
+        return queryset
+
     class Meta:
         model = PerformanceAlertSummary
         fields = [
@@ -642,6 +658,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             "untriaged_improvements",
             "with_assignee",
             "timerange",
+            "severity",
         ]
 
 
@@ -1418,6 +1435,7 @@ class PerfCompareResults(generics.ListAPIView):
         new_parent_signature = query_params.validated_data["new_parent_signature"]
         replicates = query_params.validated_data["replicates"]
         test_version = query_params.validated_data["test_version"]
+        number_of_data_points = query_params.validated_data["number_of_data_points"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -1459,10 +1477,22 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         base_perf_data = self._get_perf_data(
-            base_repo_name, base_rev, base_signatures, interval, start_day, end_day
+            base_repo_name,
+            base_rev,
+            base_signatures,
+            interval,
+            start_day,
+            end_day,
+            number_of_data_points,
         )
         new_perf_data = self._get_perf_data(
-            new_repo_name, new_rev, new_signatures, interval, None, None
+            new_repo_name,
+            new_rev,
+            new_signatures,
+            interval,
+            None,
+            None,
+            number_of_data_points,
         )
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
@@ -1794,6 +1824,7 @@ class PerfCompareResults(generics.ListAPIView):
         interval: int | None,
         startday: datetime.datetime | None,
         endday: datetime.datetime | None,
+        number_of_data_points: int | None,
     ) -> QuerySet:
         signature_ids = [signature["id"] for signature in list(signatures)]
         perf_data = PerformanceDatum.objects.select_related("push", "repository").filter(
@@ -1811,6 +1842,21 @@ class PerfCompareResults(generics.ListAPIView):
         else:
             perf_data = perf_data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
 
+        if number_of_data_points:
+            limited_pks = (
+                perf_data.annotate(
+                    row_number=Window(
+                        expression=RowNumber(),
+                        partition_by=[F("signature_id")],
+                        order_by=[F("push_timestamp").desc(), F("id").desc()],
+                    )
+                )
+                .filter(row_number__lte=number_of_data_points)
+                .values("pk")
+            )
+            return PerformanceDatum.objects.filter(pk__in=Subquery(limited_pks)).order_by(
+                "signature_id", "-push_timestamp", "-id"
+            )
         return perf_data
 
     @staticmethod
@@ -2031,18 +2077,14 @@ class PerfCompareResults(generics.ListAPIView):
         base_variance = float(np.var(base_rev_data)) if base_rev_data else 0
         base_mean = perfcompare_utils.get_avg(base_rev_data, header)
         base_stddev = perfcompare_utils.get_stddev(base_rev_data, header)
-        base_count = len(base_rev_data)
         base_median = float(np.median(base_rev_data)) if base_rev_data else 0
-        base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
 
         new_min = float(np.min(new_rev_data)) if len(new_rev_data) > 0 else 0
         new_max = float(np.max(new_rev_data)) if len(new_rev_data) > 0 else 0
         new_variance = float(np.var(new_rev_data)) if new_rev_data else 0
         new_mean = perfcompare_utils.get_avg(new_rev_data, header)
         new_stddev = perfcompare_utils.get_stddev(new_rev_data, header)
-        new_count = len(new_rev_data)
         new_median = float(np.median(new_rev_data)) if new_rev_data else 0
-        new_stddev_pct = perfcompare_utils.get_stddev_pct(new_mean, new_stddev)
 
         # Basic statistics, normality test"
         # Shapiro-Wilk test
@@ -2066,8 +2108,6 @@ class PerfCompareResults(generics.ListAPIView):
             mann_pvalue,
             is_significant,
         ) = stats.interpret_mann_whitneyu(base_rev_data, new_rev_data, pvalue_threshold)
-        delta_value = new_median - base_median
-        delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
 
         # Cliff's delta to take into account effect size:
         # https://www.researchgate.net/post/What_is_the_most_appropriate_effect_size_type_for_mann_whitney_u_analysis
@@ -2082,53 +2122,36 @@ class PerfCompareResults(generics.ListAPIView):
         cliffs_interpretation, is_effect_meaningful = stats.interpret_effect_size(c_delta)
 
         # returns CLES
-        (
-            cles_obj,
-            cles,
-            cles_explanation,
-            mann_whitney_u_cles,
-            cliffs_delta_cles,
-            is_base_greater,
-        ) = stats.interpret_cles(
+        cles_obj, is_base_greater = stats.interpret_cles(
             mann_stat,
             new_rev_data,
             base_rev_data,
-            c_delta,
-            cliffs_interpretation,
-            lower_is_better,
         )
 
-        direction, is_new_better = stats.is_new_better(
+        direction, _ = stats.is_new_better(
             is_effect_meaningful, is_base_greater, is_significant, lower_is_better
         )
 
         if cles_obj:
-            cles_obj["effect_size"] = cliffs_interpretation
             cles_obj["cles_direction"] = direction
 
         stats_data = {
             "base_standard_stats": {
-                "count": base_count,
                 "min": base_min,
                 "max": base_max,
                 "mean": base_mean,
                 "median": base_median,
                 "variance": base_variance,
                 "stddev": base_stddev,
-                "stddev_pct": base_stddev_pct,
             },
             "new_standard_stats": {
-                "count": new_count,
                 "min": new_min,
                 "max": new_max,
                 "mean": new_mean,
                 "median": new_median,
                 "variance": new_variance,
                 "stddev": new_stddev,
-                "stddev_pct": new_stddev_pct,
             },
-            "delta_value": delta_value,
-            "delta_percentage": delta_percentage,
             # i.i.d tests: Shapiro-Wilk, Kolmogorov-Smirnov and Mann-Whitney
             # Shapiro-Wilk: Normality test
             "shapiro_wilk_test_base": shapiro_results_base,
@@ -2145,8 +2168,6 @@ class PerfCompareResults(generics.ListAPIView):
             # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
             "cles": cles_obj,
             # short form summary based on former tests shapiro, etc...
-            "is_new_better": is_new_better,
-            "is_meaningful": is_effect_meaningful,
             "lower_is_better": lower_is_better,
             "direction_of_change": direction,  # 'no change', 'improvement', or 'regression'
         }

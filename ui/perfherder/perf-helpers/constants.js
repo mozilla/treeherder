@@ -118,6 +118,8 @@ export const changeTypeOptions = [
   'improvement',
 ];
 
+export const severityOptions = ['normal', 'subcritical', 'critical'];
+
 export const alertBackfillResultStatusMap = {
   preliminary: 0,
   readyForProcessing: 1,

@@ -125,6 +125,7 @@ const alertsViewControls = ({
           framework: { name: 'talos', id: 1 },
           status: 'untriaged',
           changeType: 'all types',
+          severity: [],
         }}
         frameworks={[{ id: 1, name: dummyFrameworkName }]}
         frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
@@ -282,6 +283,53 @@ test('an unknown changeType in the URL falls back to all types', async () => {
   );
   expect(
     fetchMock.calls().some(([url]) => url.includes('change_type=')),
+  ).toBe(false);
+});
+
+test('selecting a severity from the severity dropdown sends severity to the API', async () => {
+  const { findByText, getAllByText } = alertsView();
+
+  fireEvent.click(await findByText('all severities'));
+  const criticalOption = await waitFor(() => {
+    const option = getAllByText('critical').find((element) =>
+      element.closest('.dropdown-item'),
+    );
+    expect(option).toBeDefined();
+    return option;
+  });
+  fireEvent.click(criticalOption);
+
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes('severity=critical')),
+    ).toBe(true),
+  );
+});
+
+test('severity in the URL initialises the severity dropdown and is sent to the API', async () => {
+  fetchMock.resetHistory();
+  const { findByText } = alertsView('?severity=critical');
+
+  await findByText('critical');
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes('severity=critical')),
+    ).toBe(true),
+  );
+});
+
+test('an unknown severity in the URL is ignored', async () => {
+  fetchMock.resetHistory();
+  const { findByText } = alertsView('?severity=bogus');
+
+  await findByText('all severities');
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes(endpoints.alertSummary)),
+    ).toBe(true),
+  );
+  expect(
+    fetchMock.calls().some(([url]) => url.includes('severity=')),
   ).toBe(false);
 });
 

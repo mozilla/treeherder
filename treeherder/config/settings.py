@@ -27,8 +27,9 @@ LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 # When enabled, the `treeherder` logger emits GCP-structured JSON to stdout with
 # task_id/run_id/component attached as queryable Cloud Logging labels (see
-# treeherder.utils.gcp_logging). Off by default so local/dev stays human-readable.
-GCP_STRUCTURED_LOGGING = True
+# treeherder.utils.gcp_logging). Defaults to on in deployed environments and off
+# under TREEHERDER_DEBUG, so local/dev stays human-readable.
+GCP_STRUCTURED_LOGGING = env.bool("GCP_STRUCTURED_LOGGING", default=not DEBUG)
 
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
 NEW_RELIC_INSIGHTS_API_URL = "https://insights-api.newrelic.com/v1/accounts/677903/query"
@@ -252,8 +253,9 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
+        # No handler of its own: records propagate to the `django` logger's
+        # console handler. Giving it one too printed every warning twice.
         "django.request": {
-            "handlers": ["console"],
             "level": "WARNING",
             "propagate": True,
         },
@@ -292,6 +294,13 @@ if GCP_STRUCTURED_LOGGING:
     # Celery's own records otherwise land on stderr as plain text, which Cloud
     # Logging reports as severity ERROR whatever the record's level.
     LOGGING["loggers"]["celery"]["handlers"] = ["gcp_structured"]
+
+if DEBUG:
+    # runserver already logs one line per request (`django.server`), so the
+    # dockerflow request summary only duplicates it, with hostname/agent/version
+    # fields that aren't useful locally. Deployed environments (gunicorn, no
+    # access log) keep it as their request log.
+    LOGGING["loggers"]["request.summary"]["level"] = "WARNING"
 
 # SECURITY
 

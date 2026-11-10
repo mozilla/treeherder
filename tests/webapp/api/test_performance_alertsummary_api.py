@@ -1733,3 +1733,53 @@ def test_alert_summary_put_returns_change_type(
     )
     assert resp.status_code == 200
     assert resp.json()["change_type"] == "improvement"
+
+
+@pytest.fixture
+def severity_summaries(test_perf_alert_summary, test_perf_alert_summary_2):
+    critical_summary = PerformanceAlertSummary.objects.create(
+        repository=test_perf_alert_summary.repository,
+        framework=test_perf_alert_summary.framework,
+        prev_push_id=test_perf_alert_summary.prev_push_id + 2,
+        push_id=test_perf_alert_summary.push_id + 2,
+        manually_created=False,
+        created=datetime.now(),
+        severity="critical",
+    )
+    # test_perf_alert_summary has severity=None (null), test_perf_alert_summary_2 gets "normal"
+    test_perf_alert_summary_2.severity = "normal"
+    test_perf_alert_summary_2.save()
+    return test_perf_alert_summary, test_perf_alert_summary_2, critical_summary
+
+
+def test_alert_summaries_filter_by_severity(client, severity_summaries):
+    null_summary, normal_summary, critical_summary = severity_summaries
+
+    assert set(_get_summary_ids(client, severity="critical")) == {critical_summary.id}
+    assert set(_get_summary_ids(client, severity="subcritical")) == set()
+
+
+def test_alert_summaries_filter_by_normal_severity_includes_null(client, severity_summaries):
+    null_summary, normal_summary, critical_summary = severity_summaries
+
+    # Null severity is treated as normal for older alerts
+    result = set(_get_summary_ids(client, severity="normal"))
+    assert normal_summary.id in result
+    assert null_summary.id in result
+    assert critical_summary.id not in result
+
+
+def test_alert_summaries_filter_by_multiple_severities(client, severity_summaries):
+    null_summary, normal_summary, critical_summary = severity_summaries
+
+    result = set(_get_summary_ids(client, severity="normal,critical"))
+    assert {null_summary.id, normal_summary.id, critical_summary.id} == result
+
+
+def test_alert_summaries_filter_by_unknown_severity_is_ignored(client, severity_summaries):
+    null_summary, normal_summary, critical_summary = severity_summaries
+
+    # Unknown value: filter has no effect, all summaries returned
+    all_ids = set(_get_summary_ids(client))
+    bogus_ids = set(_get_summary_ids(client, severity="bogus"))
+    assert all_ids == bogus_ids

@@ -10,7 +10,7 @@ PyPOM==2.2.4
 pre-commit==4.7.0
 
 # for test driven development
-pytest-testmon==2.2.0
+pytest-testmon==2.3.0
 pytest-watch==4.2.0
 
 # for parallel test execution (pytest -n)
@@ -22,14 +22,14 @@ pytest==8.4.2
 shellcheck-py==0.11.0.1
 
 # To test async code
-pytest-asyncio==1.4.1
+pytest-asyncio==1.4.1.post1
 
 # To test code that's making system time calls
 pytest-freezer==0.4.9
 
 # To test code that's doing advanced communication
 # with web services via `requests` library
-vcrpy==9.2.0
+vcrpy==9.4.2
 
 # pip-compile for pinning versions
 pip-tools==7.6.2
