@@ -30,6 +30,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.restoreAllMocks();
   setLocationSearch('');
 });
 
@@ -67,5 +68,47 @@ describe('syncSelectionFromUrl', () => {
     syncSelectionFromUrl({ [testJob.id]: testJob }, notify);
 
     expect(useSelectedJobStore.getState().selectedJob).toEqual(testJob);
+  });
+
+  // Syncing derives state from the URL the user is already on, so it must
+  // never add history entries: each one is an extra Back press, and an entry
+  // pushed while the user is already going Back re-selects the job.
+  it('does not add history entries when the URL is already normalized', () => {
+    setLocationSearch(
+      '?repo=autoland&selectedTaskRun=OeYt2-iLQSaQb2ashZ_VIQ.0',
+    );
+    const pushState = jest.spyOn(window.history, 'pushState');
+    const replaceState = jest.spyOn(window.history, 'replaceState');
+
+    syncSelectionFromUrl({ [testJob.id]: testJob }, notify);
+
+    expect(pushState).not.toHaveBeenCalled();
+    expect(replaceState).not.toHaveBeenCalled();
+    expect(useSelectedJobStore.getState().selectedJob).toEqual(testJob);
+  });
+
+  it('rewrites a selectedJob URL to selectedTaskRun in place', () => {
+    setLocationSearch(`?repo=autoland&selectedJob=${testJob.id}`);
+    const pushState = jest.spyOn(window.history, 'pushState');
+    const lengthBefore = window.history.length;
+
+    syncSelectionFromUrl({ [testJob.id]: testJob }, notify);
+
+    expect(pushState).not.toHaveBeenCalled();
+    expect(window.history.length).toBe(lengthBefore);
+    expect(window.location.search).toBe(
+      '?repo=autoland&selectedTaskRun=OeYt2-iLQSaQb2ashZ_VIQ.0',
+    );
+    expect(useSelectedJobStore.getState().selectedJob).toEqual(testJob);
+  });
+
+  it('removes a malformed selectedTaskRun in place', () => {
+    setLocationSearch('?repo=autoland&selectedTaskRun=not-a-task-run');
+    const pushState = jest.spyOn(window.history, 'pushState');
+
+    syncSelectionFromUrl({ [testJob.id]: testJob }, notify);
+
+    expect(pushState).not.toHaveBeenCalled();
+    expect(window.location.search).toBe('?repo=autoland');
   });
 });
