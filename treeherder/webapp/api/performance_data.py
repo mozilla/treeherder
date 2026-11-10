@@ -86,7 +86,6 @@ from .performance_serializers import (
     PerformanceTagSerializer,
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,
-    build_bisection_map,
 )
 from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 
@@ -872,7 +871,6 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         ctx["tc_metadata_map"] = None
         ctx["sxs_availability_map"] = None
         ctx["failed_backfill_jobs_map"] = None
-        ctx["bisection_map"] = None
         return ctx
 
     @staticmethod
@@ -898,12 +896,6 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             context["tc_metadata_map"] = self._build_tc_metadata_map(page)
             context["sxs_availability_map"] = self._build_sxs_availability_map(page)
             context["failed_backfill_jobs_map"] = self._build_failed_backfill_jobs_map(page)
-            context["bisection_map"] = build_bisection_map(
-                alert.backfill_record
-                for summary in page
-                for alert in [*summary.alerts.all(), *summary.related_alerts.all()]
-                if hasattr(alert, "backfill_record")
-            )
             serializer = self.get_serializer(page, many=True, context=context)
             # profile links are only shown for browsertime alerts
             if pk and any(s.framework.name == "browsertime" for s in page):

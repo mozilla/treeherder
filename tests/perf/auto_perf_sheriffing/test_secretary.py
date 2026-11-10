@@ -505,3 +505,62 @@ class TestVerifyAndIterate:
 
         record_successful.refresh_from_db()
         assert record_successful.status == BackfillRecord.VERIFICATION_FAILED
+
+
+def _detect_push_without_data_before(record):
+    detected_push = Push.objects.filter(repository=record.repository).order_by("time")[1]
+    record.append_to_backfill_logs(
+        {
+            "iteration": 0,
+            "status": "initial",
+            "detected_push_id": detected_push.id,
+            "detected_push_revision": detected_push.revision,
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+    )
+    record.save()
+
+
+@pytest.mark.parametrize("outcome", [OutcomeStatus.SUCCESSFUL, OutcomeStatus.FAILED])
+def test_check_outcome_sets_needs_bisection_when_sherlock_stops(
+    get_outcome_checker_mock, record_backfilled, outcome
+):
+    _detect_push_without_data_before(record_backfilled)
+    secretary = Secretary(get_outcome_checker_mock(outcome))
+
+    with patch.object(Secretary, "verify_and_iterate"):
+        secretary.check_outcome()
+
+    record_backfilled.refresh_from_db()
+    assert record_backfilled.needs_bisection is True
+
+
+def test_check_outcome_leaves_needs_bisection_unset_while_iterating(
+    get_outcome_checker_mock, record_backfilled
+):
+    _detect_push_without_data_before(record_backfilled)
+    secretary = Secretary(get_outcome_checker_mock(OutcomeStatus.SUCCESSFUL))
+
+    def next_iteration(self, record):
+        record.status = BackfillRecord.READY_FOR_PROCESSING
+        record.save()
+
+    with patch.object(Secretary, "verify_and_iterate", next_iteration):
+        secretary.check_outcome()
+
+    record_backfilled.refresh_from_db()
+    assert record_backfilled.needs_bisection is None
+
+
+def test_check_outcome_sets_needs_bisection_after_72h(get_outcome_checker_mock, record_backfilled):
+    _detect_push_without_data_before(record_backfilled)
+    stale_timestamp = (datetime.now(UTC) - timedelta(hours=73)).isoformat()
+    record_backfilled.append_to_backfill_logs({"iteration": 1, "timestamp": stale_timestamp})
+    record_backfilled.save()
+    secretary = Secretary(get_outcome_checker_mock(OutcomeStatus.IN_PROGRESS))
+
+    secretary.check_outcome()
+
+    record_backfilled.refresh_from_db()
+    assert record_backfilled.status == BackfillRecord.FAILED
+    assert record_backfilled.needs_bisection is True

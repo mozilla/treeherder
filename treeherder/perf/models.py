@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import (
@@ -1130,6 +1130,8 @@ class BackfillRecord(models.Model):
     last_detected_push_id = models.IntegerField(null=True, blank=True)
     # JSON history of backfill iterations
     backfill_logs = models.TextField(default="[]")
+    # Set once Sherlock finishes; None while it's still working (or for older records)
+    needs_bisection = models.BooleanField(null=True, default=None)
 
     @property
     def id(self):
@@ -1290,6 +1292,32 @@ class BackfillRecord(models.Model):
                 "detected_push_revision": None,
             }
         return None
+
+    def compute_needs_bisection(self) -> bool:
+        """
+        True when the push right before Sherlock's suggested culprit has no data
+        points for the alert's signature (job missing or failed).
+        """
+        detected = self.get_latest_detected_push()
+        if detected is None:
+            return False
+        previous_push = Push.objects.filter(
+            repository_id=OuterRef("repository_id"), time__lt=OuterRef("time")
+        ).order_by("-time")
+        row = (
+            Push.objects.filter(id=detected["detected_push_id"])
+            .annotate(previous_push_id=Subquery(previous_push.values("id")[:1]))
+            .values_list("repository_id", "previous_push_id")
+            .first()
+        )
+        if row is None or row[1] is None:
+            return False
+        repository_id, previous_push_id = row
+        return not PerformanceDatum.objects.filter(
+            repository_id=repository_id,
+            signature_id=self.alert.series_signature_id,
+            push_id=previous_push_id,
+        ).exists()
 
     def get_failed_backfill_jobs_count(self) -> int:
         return self.get_failed_backfill_jobs_counts([self])[self.alert_id]

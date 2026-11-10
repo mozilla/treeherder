@@ -549,7 +549,7 @@ export default class AlertTableRow extends React.Component {
                       bg="white"
                       text="primary"
                       className="ms-1 border border-primary"
-                      data-testid={`alert ${alert.id.toString()} bisection badge`}
+                      data-testid={`alert ${alert.id} bisection badge`}
                     >
                       bisection
                     </Badge>
