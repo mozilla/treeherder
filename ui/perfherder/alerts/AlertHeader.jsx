@@ -98,6 +98,13 @@ const AlertHeader = ({
     ? `(${getStatus(alertSummary.bug_resolution, bugResolutionMap)})`
     : '';
 
+  const confirmCulpritPrefixes = {
+    improvement: 'Add comment to - ',
+    regression: 'File bug for - ',
+  };
+  const confirmCulpritPrefix =
+    confirmCulpritPrefixes[alertSummary.change_type] || '';
+
   const performanceTags = alertSummary.performance_tags || [];
   const alertSummaryDatetime = new Date(alertSummary.push_timestamp * 1000);
   const formattedSummaryRevision = alertSummary.revision.slice(0, 12);
@@ -214,7 +221,7 @@ const AlertHeader = ({
               {alertSummary.push_bug_number && (
                 <span style={{ fontSize: '0.9em' }}>
                   {' '}
-                  (Bug {alertSummary.push_bug_number})
+                  ({confirmCulpritPrefix}Bug {alertSummary.push_bug_number})
                 </span>
               )}
             </Button>
