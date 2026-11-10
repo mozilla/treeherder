@@ -211,6 +211,12 @@ const AlertHeader = ({
               data-testid="confirm-culprit-button"
             >
               Confirm Culprit
+              {alertSummary.push_bug_number && (
+                <span style={{ fontSize: '0.9em' }}>
+                  {' '}
+                  (Bug {alertSummary.push_bug_number})
+                </span>
+              )}
             </Button>
           </Col>
         )}
