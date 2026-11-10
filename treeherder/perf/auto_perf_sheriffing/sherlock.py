@@ -199,6 +199,7 @@ class Sherlock:
         if not data_points_to_backfill:
             logger.warning(f"No data points found to backfill [alert_id={record.alert.id}].")
             record.status = BackfillRecord.FAILED
+            record.needs_bisection = record.compute_needs_bisection()
             record.save()
             return left, consumed
 
@@ -264,6 +265,7 @@ class Sherlock:
             outcome = "Backfilled all data points"
         else:
             record.status = BackfillRecord.FAILED
+            record.needs_bisection = record.compute_needs_bisection()
             if actually_backfilled == 0:
                 outcome = "Backfill attempts on all data points failed right upon request."
             elif actually_backfilled < to_backfill:

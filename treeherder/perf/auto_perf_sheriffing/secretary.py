@@ -170,6 +170,7 @@ class Secretary:
                     log_timestamp = log_timestamp.replace(tzinfo=UTC)
                 if log_timestamp < datetime.now(UTC) - timedelta(hours=72):
                     record.status = BackfillRecord.FAILED
+                    record.needs_bisection = record.compute_needs_bisection()
                     new_note = "Backfill exceeded 72-hour limit, marking as FAILED."
                     log_entry = {
                         "notes": f"{last_log.get('notes', '')} {new_note}".strip(),
@@ -190,6 +191,10 @@ class Secretary:
                 record.save()
                 if outcome == OutcomeStatus.SUCCESSFUL or outcome == OutcomeStatus.FAILED:
                     self.verify_and_iterate(record)
+                    # still SUCCESSFUL/FAILED means Sherlock stopped iterating
+                    if record.status in (BackfillRecord.SUCCESSFUL, BackfillRecord.FAILED):
+                        record.needs_bisection = record.compute_needs_bisection()
+                        record.save()
             except ValueError as ex:
                 logger.error(ex)
 

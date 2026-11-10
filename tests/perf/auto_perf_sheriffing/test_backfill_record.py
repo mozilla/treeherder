@@ -10,6 +10,7 @@ from treeherder.perf.models import (
     BackfillRecord,
     BackfillReport,
     BackfillRequest,
+    PerformanceDatum,
 )
 from treeherder.webapp.api.performance_serializers import BackfillRecordSerializer
 
@@ -143,3 +144,49 @@ def test_failed_jobs_count_follows_job_task_ids(test_perf_alert, test_jobs):
 @pytest.mark.django_db
 def test_failed_jobs_count_zero_without_job_task_ids(backfill_record_with_logs):
     assert BackfillRecordSerializer(backfill_record_with_logs).data["failed_jobs_count"] == 0
+
+
+def _record_with_detected_push(alert, push):
+    report = BackfillReport.objects.create(summary=alert.summary)
+    record = BackfillRecord.objects.create(alert=alert, report=report)
+    record.backfill_logs = json.dumps(
+        [{"iteration": 1, "detected_push_id": push.id, "detected_push_revision": push.revision}]
+    )
+    record.save()
+    return record
+
+
+@pytest.mark.django_db
+def test_compute_needs_bisection_when_previous_push_has_no_data(test_perf_alert):
+    previous_push, detected_push = Push.objects.filter(
+        repository=test_perf_alert.summary.repository
+    ).order_by("time")[:2]
+    record = _record_with_detected_push(test_perf_alert, detected_push)
+
+    assert record.compute_needs_bisection() is True
+
+    PerformanceDatum.objects.create(
+        repository=test_perf_alert.summary.repository,
+        signature=test_perf_alert.series_signature,
+        push=previous_push,
+        push_timestamp=previous_push.time,
+        value=1.0,
+    )
+    assert record.compute_needs_bisection() is False
+
+
+@pytest.mark.django_db
+def test_compute_needs_bisection_without_detected_push(test_perf_alert):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)
+    assert record.compute_needs_bisection() is False
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("stored, expected", [(None, False), (False, False), (True, True)])
+def test_serializer_exposes_needs_bisection(test_perf_alert, stored, expected):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    record = BackfillRecord.objects.create(
+        alert=test_perf_alert, report=report, needs_bisection=stored
+    )
+    assert BackfillRecordSerializer(record).data["needs_bisection"] is expected

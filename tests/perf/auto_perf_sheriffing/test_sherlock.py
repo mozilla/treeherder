@@ -6,6 +6,7 @@ from django.db import models
 
 from tests import settings as test_settings
 from tests.perf.auto_perf_sheriffing.conftest import prepare_record_with_search_str
+from treeherder.model.models import Push
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
 from treeherder.perf.exceptions import MaxRuntimeExceededError
 from treeherder.perf.models import BackfillRecord, BackfillReport
@@ -200,3 +201,68 @@ def test_record_fails_when_no_datum_at_last_detected_push_id(
 
     record_ready_for_processing.refresh_from_db()
     assert record_ready_for_processing.status == BackfillRecord.FAILED
+
+
+def _detect_push_without_data_before(record):
+    detected_push = Push.objects.filter(repository=record.repository).order_by("time")[1]
+    record.last_detected_push_id = detected_push.id
+    record.append_to_backfill_logs(
+        {
+            "iteration": 0,
+            "status": "initial",
+            "detected_push_id": detected_push.id,
+            "detected_push_revision": detected_push.revision,
+        }
+    )
+    record.save()
+
+
+def test_needs_bisection_set_when_no_data_points_to_backfill(
+    report_maintainer_mock,
+    backfill_tool_mock,
+    secretary,
+    record_ready_for_processing,
+    sherlock_settings,
+):
+    _detect_push_without_data_before(record_ready_for_processing)
+
+    sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary)
+    sherlock.sheriff(
+        since=EPOCH,
+        frameworks=["test_talos"],
+        repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
+    )
+
+    record_ready_for_processing.refresh_from_db()
+    assert record_ready_for_processing.status == BackfillRecord.FAILED
+    assert record_ready_for_processing.needs_bisection is True
+
+
+@pytest.mark.parametrize("actually_backfilled", [0, 1])
+def test_needs_bisection_set_when_backfill_request_fails(
+    record_ready_for_processing, actually_backfilled
+):
+    _detect_push_without_data_before(record_ready_for_processing)
+
+    Sherlock._note_backfill_outcome(
+        record_ready_for_processing,
+        to_backfill=2,
+        actually_backfilled=actually_backfilled,
+        task_ids={},
+    )
+
+    record_ready_for_processing.refresh_from_db()
+    assert record_ready_for_processing.status == BackfillRecord.FAILED
+    assert record_ready_for_processing.needs_bisection is True
+
+
+def test_needs_bisection_unset_when_backfill_request_succeeds(record_ready_for_processing):
+    _detect_push_without_data_before(record_ready_for_processing)
+
+    Sherlock._note_backfill_outcome(
+        record_ready_for_processing, to_backfill=2, actually_backfilled=2, task_ids={}
+    )
+
+    record_ready_for_processing.refresh_from_db()
+    assert record_ready_for_processing.status == BackfillRecord.BACKFILLED
+    assert record_ready_for_processing.needs_bisection is None

@@ -109,6 +109,7 @@ class BackfillRecordSerializer(serializers.Serializer):
             data["failed_jobs_count"] = failed_jobs_map.get(instance.alert_id, 0)
         else:
             data["failed_jobs_count"] = instance.get_failed_backfill_jobs_count()
+        data["needs_bisection"] = bool(instance.needs_bisection)
 
         return data
 
