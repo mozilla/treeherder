@@ -21,7 +21,6 @@ export default class TestDataModal extends React.Component {
     super(props);
     this.state = {
       platforms: [],
-      framework: { name: 'talos', id: 1 },
       repository_name: this.findObject(
         this.props.projects,
         'name',
@@ -48,7 +47,6 @@ export default class TestDataModal extends React.Component {
   async componentDidMount() {
     const {
       errorMessages,
-      framework,
       innerTimeRange,
       repository_name: repositoryName,
     } = this.state;
@@ -56,7 +54,6 @@ export default class TestDataModal extends React.Component {
     const updates = await getInitialData(
       errorMessages,
       repositoryName,
-      framework,
       innerTimeRange,
     );
     this.setState(updates, this.processOptions);
@@ -98,12 +95,13 @@ export default class TestDataModal extends React.Component {
   async getPlatforms() {
     const {
       errorMessages,
-      framework,
       innerTimeRange,
       repository_name: repositoryName,
     } = this.state;
 
-    const params = { interval: innerTimeRange.value, framework: framework.id };
+    // No framework filter: platforms from every harness are listed, and each
+    // test carries its own framework id when it gets plotted.
+    const params = { interval: innerTimeRange.value };
     const response = await PerfSeriesModel.getPlatformList(
       repositoryName.name,
       params,
@@ -233,7 +231,6 @@ export default class TestDataModal extends React.Component {
     const {
       errorMessages,
       filterText,
-      framework,
       includeSubtests,
       innerTimeRange,
       platform,
@@ -243,7 +240,6 @@ export default class TestDataModal extends React.Component {
 
     const params = {
       interval: innerTimeRange.value,
-      framework: framework.id,
       subtests: +includeSubtests,
     };
     this.setState({ loading: true });
@@ -262,10 +258,10 @@ export default class TestDataModal extends React.Component {
       this.setState({ ...updates, availableTags });
       this.applyFilters(filterText);
     } else {
-      const { frameworks = [], projects = [] } = this.props;
+      const { projects = [] } = this.props;
+      // related tests are always looked up within the original test's harness
       params.framework = relatedSeries.framework_id;
 
-      const relatedFramework = this.findObject(frameworks, 'id', relatedSeries.framework_id) || framework;
       const relatedRepository = this.findObject(projects, 'name', relatedSeries.repository_name) || repositoryName;
 
       const platformResponse = await PerfSeriesModel.getPlatformList(
@@ -276,7 +272,6 @@ export default class TestDataModal extends React.Component {
 
       this.setState({
         ...platformUpdates,
-        framework: relatedFramework,
         repository_name: relatedRepository,
         platform: relatedSeries.platform,
       });
@@ -371,7 +366,6 @@ export default class TestDataModal extends React.Component {
   closeModal = () => {
     this.setState(
       {
-        framework: { name: 'talos', id: 1 },
         repository_name: this.findObject(this.props.projects, 'name', 'mozilla-central'),
         platform: 'linux64',
         selectedTests: [],
@@ -461,7 +455,6 @@ export default class TestDataModal extends React.Component {
       availableTags,
       filterText,
       filteredData,
-      framework,
       includeSubtests,
       innerTimeRange,
       loading,
@@ -474,21 +467,9 @@ export default class TestDataModal extends React.Component {
       seriesData,
       showNoRelatedTests,
     } = this.state;
-    const { frameworks = [], projects, showModal } = this.props;
+    const { projects, showModal } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
     const modalOptions = [
-      {
-        options: frameworks.length ? frameworks.map((item) => item.name) : [],
-        selectedItem: framework.name,
-        updateData: (value) =>
-          this.setState(
-            {
-              framework: this.findObject(frameworks, 'name', value),
-            },
-            this.getPlatforms,
-          ),
-        title: 'Framework',
-      },
       {
         options: projectOptions
           .sort()
@@ -711,7 +692,6 @@ TestDataModal.propTypes = {
   timeRange: PropTypes.shape({}).isRequired,
   toggle: PropTypes.func.isRequired,
   updateTestsAndTimeRange: PropTypes.func,
-  frameworks: PropTypes.arrayOf(PropTypes.shape({})),
   getInitialData: PropTypes.func,
   getSeriesData: PropTypes.func,
   options: PropTypes.shape({

@@ -650,10 +650,9 @@ export const processSelectedParam = (tooltipArray) => ({
 export const getInitialData = async (
   errorMessages,
   repositoryName,
-  framework,
   timeRange,
 ) => {
-  const params = { interval: timeRange.value, framework: framework.id };
+  const params = { interval: timeRange.value };
   const platforms = await PerfSeriesModel.getPlatformList(
     repositoryName.name,
     params,

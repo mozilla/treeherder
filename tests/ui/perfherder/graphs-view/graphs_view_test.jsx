@@ -680,7 +680,6 @@ describe('Mocked API calls', () => {
         seriesData[0].projectName,
       )}${createQueryParams({
         interval: 1209600,
-        framework: testData[0].framework_id,
       })}`,
       [
         'windows10-64-qr',
@@ -715,7 +714,6 @@ describe('Mocked API calls', () => {
         '/performance/signatures/',
         seriesData[0].projectName,
       )}?${queryString.stringify({
-        framework: 1,
         interval: 1209600,
         platform: 'linux64',
         subtests: 0,
