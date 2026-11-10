@@ -190,3 +190,27 @@ def test_serializer_exposes_needs_bisection(test_perf_alert, stored, expected):
         alert=test_perf_alert, report=report, needs_bisection=stored
     )
     assert BackfillRecordSerializer(record).data["needs_bisection"] is expected
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "status, logs, expected",
+    [
+        (BackfillRecord.SUCCESSFUL, [], False),
+        (BackfillRecord.SUCCESSFUL, [{"iteration": 1, "status": "stabilized"}], True),
+        (BackfillRecord.SUCCESSFUL, [{"iteration": 1, "status": "stabilized_with_gap"}], False),
+        (BackfillRecord.SUCCESSFUL, [{"iteration": 1, "status": "stabilized_gap_stuck"}], False),
+        (
+            BackfillRecord.SUCCESSFUL,
+            [{"iteration": 1, "status": "stabilized"}, {"iteration": 2, "status": "moved"}],
+            False,
+        ),
+        (BackfillRecord.READY_FOR_PROCESSING, [{"iteration": 1, "status": "stabilized"}], False),
+    ],
+)
+def test_serializer_exposes_validated(test_perf_alert, status, logs, expected):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    record = BackfillRecord.objects.create(
+        alert=test_perf_alert, report=report, status=status, backfill_logs=json.dumps(logs)
+    )
+    assert BackfillRecordSerializer(record).data["validated"] is expected

@@ -419,6 +419,7 @@ export default class AlertTableRow extends React.Component {
     const detectedPushRevision = alert.backfill_record?.detected_push_revision;
     const failedJobsCount = alert.backfill_record?.failed_jobs_count;
     const sherlockInProgress = alert.backfill_record?.in_progress;
+    const sherlockValidated = alert.backfill_record?.validated;
     let sherlockTooltip = backfillStatusInfo?.message;
     if (backfillStatusInfo?.displayTasksCount) {
       sherlockTooltip = (
@@ -529,6 +530,23 @@ export default class AlertTableRow extends React.Component {
                   >
                     Sherlock in progress
                   </Badge>
+                  {(detectedPushRevision || failedJobsCount > 0) && <br />}
+                </>
+              )}
+              {sherlockValidated && (
+                <>
+                  <SimpleTooltip
+                    text={
+                      <Badge
+                        bg="success"
+                        className="ms-1"
+                        data-testid={`alert ${alert.id} validated badge`}
+                      >
+                        <FontAwesomeIcon icon={faCheck} /> Sherlock Validated
+                      </Badge>
+                    }
+                    tooltipText="Sherlock's suggested culprit stabilized"
+                  />
                   {(detectedPushRevision || failedJobsCount > 0) && <br />}
                 </>
               )}
