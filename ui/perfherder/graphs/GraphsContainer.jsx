@@ -109,6 +109,10 @@ class GraphsContainer extends React.Component {
       this.addHighlights();
     }
 
+    if (prevProps.highlightMissingJobs && !highlightMissingJobs) {
+      this.clearMissingLock();
+    }
+
     if (prevProps.testData !== testData) {
       this.updateGraphs();
     }
