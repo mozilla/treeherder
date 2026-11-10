@@ -10,6 +10,8 @@ import {
   addAggregateFields,
   getTaskRunStr,
   getTaskRun,
+  getComparableJobKey,
+  splitJobsByManifestVariant,
 } from '../../../ui/helpers/job';
 import * as jobButtonRegistry from '../../../ui/hooks/useJobButtonRegistry';
 import * as locationHelpers from '../../../ui/helpers/location';
@@ -664,6 +666,65 @@ describe('job helpers', () => {
         taskId: validTaskId,
         runId: '12',
       });
+    });
+  });
+
+  describe('manifest fingerprints', () => {
+    const bc1 = 'test-linux2404-64/opt-mochitest-browser-chrome-1';
+
+    it('getComparableJobKey includes the manifest hash when present', () => {
+      expect(getComparableJobKey({ job_type_name: bc1 })).toBe(bc1);
+      expect(
+        getComparableJobKey({ job_type_name: bc1, manifest_hash: 'abc' }),
+      ).toBe(`${bc1}#abc`);
+    });
+
+    it('splitJobsByManifestVariant keeps retriggers with the scheduled job and splits out other manifests', () => {
+      const scheduled = { id: 1, job_type_name: bc1, manifest_hash: 'full' };
+      const retrigger = { id: 2, job_type_name: bc1, manifest_hash: 'full' };
+      const backfill = { id: 3, job_type_name: bc1, manifest_hash: 'subset' };
+      const other = { id: 4, job_type_name: 'build', manifest_hash: null };
+
+      // order of the input list must not matter: the lowest id is "scheduled"
+      const { scheduledJobs, variantJobs } = splitJobsByManifestVariant([
+        backfill,
+        other,
+        retrigger,
+        scheduled,
+      ]);
+
+      expect(scheduledJobs.map((job) => job.id).sort()).toEqual([1, 2, 4]);
+      expect(variantJobs.map((job) => job.id)).toEqual([3]);
+    });
+
+    it('splitJobsByManifestVariant does not split jobs without fingerprints', () => {
+      const jobs = [
+        { id: 1, job_type_name: bc1 },
+        { id: 2, job_type_name: bc1, manifest_hash: 'abc' },
+      ];
+
+      const { scheduledJobs, variantJobs } = splitJobsByManifestVariant(jobs);
+
+      expect(scheduledJobs).toHaveLength(2);
+      expect(variantJobs).toHaveLength(0);
+    });
+
+    it('addAggregateFields adds the manifest count to the hover text before the duration', () => {
+      const job = addAggregateFields({
+        state: 'completed',
+        result: 'success',
+        job_group_name: 'Mochitest',
+        job_type_name: bc1,
+        job_type_symbol: 'bc1',
+        platform: 'linux64',
+        platform_option: 'opt',
+        manifest_count: 6,
+        duration: 3,
+      });
+
+      expect(job.hoverText).toBe(
+        'test-linux2404-64/opt-mochitest-browser-chrome - success - 6 test manifests - 3 mins',
+      );
     });
   });
 });

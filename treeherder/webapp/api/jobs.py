@@ -117,6 +117,8 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         "tier",
         "taskcluster_metadata__task_id",
         "taskcluster_metadata__retry_id",
+        "taskcluster_metadata__manifest_hash",
+        "taskcluster_metadata__manifest_count",
     ]
     _output_field_names = [
         "failure_classification_id",
@@ -135,6 +137,8 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         "tier",
         "task_id",
         "retry_id",
+        "manifest_hash",
+        "manifest_count",
         "duration",
         "platform_option",
     ]
@@ -294,6 +298,9 @@ class JobsProjectViewSet(viewsets.ViewSet):
         try:
             resp["task_id"] = job.taskcluster_metadata.task_id
             resp["retry_id"] = job.taskcluster_metadata.retry_id
+            resp["manifest_hash"] = job.taskcluster_metadata.manifest_hash
+            resp["manifest_count"] = job.taskcluster_metadata.manifest_count
+            resp["chunk_total"] = job.taskcluster_metadata.chunk_total
             # Keep for backwards compatability
             resp["taskcluster_metadata"] = {
                 "task_id": job.taskcluster_metadata.task_id,

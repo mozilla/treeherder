@@ -189,6 +189,15 @@ fieldset[disabled] .btn-push:hover {
   text-align: left;
 }
 
+.manifest-variant-heading {
+  font-size: 12px;
+  font-style: italic;
+  color: #6f6d70;
+  border-top: 1px dashed lightgrey;
+  padding: 2px 0 0;
+  text-align: left;
+}
+
 .job-row {
   display: table-cell;
   line-height: 15px;

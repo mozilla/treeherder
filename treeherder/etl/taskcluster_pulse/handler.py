@@ -1,4 +1,6 @@
 # Code imported from https://github.com/taskcluster/taskcluster/blob/32629c562f8d6f5a6b608a3141a8ee2e0984619f/services/treeherder/src/handler.js
+import hashlib
+import json
 import logging
 import os
 
@@ -34,6 +36,47 @@ class PulseHandlerError(Exception):
     """Base error"""
 
     pass
+
+
+def get_test_manifest_info(task):
+    """
+    Fingerprint the test manifests a task was asked to run.
+
+    Gecko test tasks list their manifests in ``MOZHARNESS_TEST_PATHS`` as JSON
+    (``{suite: [manifest, ...]}``). The same task label can carry different
+    manifests depending on how it was scheduled (bugbug-reduced pushes,
+    backfills), so the label alone doesn't tell us whether two jobs are
+    comparable.
+
+    Returns ``None`` for tasks without test paths.
+    """
+    test_paths = task.get("payload", {}).get("env", {}).get("MOZHARNESS_TEST_PATHS")
+    if not test_paths:
+        return None
+
+    try:
+        manifests_by_suite = json.loads(test_paths)
+    except (TypeError, ValueError):
+        logger.debug("Unparseable MOZHARNESS_TEST_PATHS: %s", test_paths)
+        return None
+    if not isinstance(manifests_by_suite, dict):
+        return None
+
+    normalized = {
+        suite: sorted(set(manifests))
+        for suite, manifests in manifests_by_suite.items()
+        if isinstance(manifests, list)
+    }
+    canonical = json.dumps(normalized, sort_keys=True, separators=(",", ":"))
+
+    info = {
+        "hash": hashlib.sha1(canonical.encode("utf-8")).hexdigest()[:16],
+        "count": sum(len(manifests) for manifests in normalized.values()),
+    }
+    chunk_total = task.get("extra", {}).get("chunks", {}).get("total")
+    if isinstance(chunk_total, int) and chunk_total > 0:
+        info["chunkTotal"] = chunk_total
+    return info
 
 
 def state_from_run(job_run):
@@ -291,6 +334,10 @@ def build_message(push_info, task, run_id, payload):
     if treeherder_config.get("groupName"):
         job["display"]["groupName"] = treeherder_config["groupName"]
 
+    test_manifests = get_test_manifest_info(task)
+    if test_manifests:
+        job["testManifests"] = test_manifests
+
     return job
 
 
@@ -355,6 +402,10 @@ def handle_task_defined(push_info, task, message):
 
     if treeherder_config.get("groupName"):
         job["display"]["groupName"] = treeherder_config["groupName"]
+
+    test_manifests = get_test_manifest_info(task)
+    if test_manifests:
+        job["testManifests"] = test_manifests
 
     return job
 
