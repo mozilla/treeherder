@@ -3,7 +3,7 @@ import queryString from 'query-string';
 
 import dayjs from '../../helpers/dayjs';
 import { getApiUrl, getJobsUrl } from '../../helpers/url';
-import { update, processResponse } from '../../helpers/http';
+import { update } from '../../helpers/http';
 import PerfSeriesModel, {
   getSeriesName,
   getTestName,
@@ -647,56 +647,61 @@ export const processSelectedParam = (tooltipArray) => ({
   dataPointId: parseInt(tooltipArray[1], 10),
 });
 
-export const getInitialData = async (
-  errorMessages,
-  repositoryName,
-  framework,
-  timeRange,
-) => {
-  const params = { interval: timeRange.value, framework: framework.id };
-  const platforms = await PerfSeriesModel.getPlatformList(
-    repositoryName.name,
-    params,
-  );
+// Signature lists are large (tens of thousands per repository) but change
+// slowly, so each (repository, interval) list is fetched once per page load
+// and shared between every opening of the "Add test data" modal.
+const signatureListCache = new Map();
 
-  const updates = {
-    ...processResponse(platforms, 'platforms', errorMessages),
-  };
-  return updates;
+const buildSearchText = (series, frameworks) =>
+  [
+    series.projectName,
+    series.platform,
+    series.name,
+    series.application,
+    series.suite,
+    getFrameworkName(frameworks, series.frameworkId),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+export const loadRepositorySignatures = (repositoryName, interval, frameworks) => {
+  const key = `${repositoryName}:${interval}`;
+
+  if (!signatureListCache.has(key)) {
+    const request = PerfSeriesModel.getSeriesList(repositoryName, {
+      interval,
+      subtests: 0,
+    }).then((response) => {
+      if (response.failureStatus) {
+        // don't cache failures, so reopening the modal retries
+        signatureListCache.delete(key);
+        return response;
+      }
+      const data = response.data.map((series) => ({
+        ...series,
+        searchText: buildSearchText(series, frameworks),
+      }));
+      return { data, failureStatus: null };
+    });
+    signatureListCache.set(key, request);
+  }
+  return signatureListCache.get(key);
 };
 
-export const updateSeriesData = (origSeriesData, testData) =>
-  origSeriesData.filter(
-    (item) =>
-      testData.findIndex((test) => item.id === test.signature_id) === -1,
-  );
-
-export const getSeriesData = async (
-  params,
-  errorMessages,
-  repositoryName,
-  testData,
-) => {
-  let updates = {
-    filteredData: [],
-    relatedTests: [],
-    showNoRelatedTests: false,
-    loading: false,
-  };
+export const loadSubtestSignatures = async (parentSeries, interval) => {
   const response = await PerfSeriesModel.getSeriesList(
-    repositoryName.name,
-    params,
+    parentSeries.projectName,
+    { interval, parent_signature: parentSeries.signature },
   );
-  updates = {
-    ...updates,
-    ...processResponse(response, 'origSeriesData', errorMessages),
-  };
+  return response;
+};
 
-  if (updates.origSeriesData) {
-    updates.seriesData = updateSeriesData(updates.origSeriesData, testData);
-  }
-
-  return updates;
+// Every whitespace-separated word of the query has to appear somewhere in the
+// series' search text, in any order.
+export const matchesQuery = (searchText, query) => {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  return words.every((word) => searchText.includes(word));
 };
 
 export const scrollWithOffset = function scrollWithOffset(el) {
