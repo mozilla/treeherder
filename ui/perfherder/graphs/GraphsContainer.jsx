@@ -92,7 +92,7 @@ class GraphsContainer extends React.Component {
       highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
-      highlightMissingJobs,
+      showMissingJobs,
       testData,
       changelogData,
       timeRange,
@@ -104,12 +104,12 @@ class GraphsContainer extends React.Component {
       prevProps.highlightCommonAlerts !== highlightCommonAlerts ||
       prevProps.highlightChangelogData !== highlightChangelogData ||
       prevProps.highlightedRevisions !== highlightedRevisions ||
-      prevProps.highlightMissingJobs !== highlightMissingJobs
+      prevProps.showMissingJobs !== showMissingJobs
     ) {
       this.addHighlights();
     }
 
-    if (prevProps.highlightMissingJobs && !highlightMissingJobs) {
+    if (prevProps.showMissingJobs && !showMissingJobs) {
       this.clearMissingLock();
     }
 
@@ -347,7 +347,7 @@ class GraphsContainer extends React.Component {
       highlightAlerts,
       highlightCommonAlerts,
       highlightedRevisions,
-      highlightMissingJobs,
+      showMissingJobs,
     } = this.props;
     let highlights = [];
     let highlightCommonAlertsData = [];
@@ -395,7 +395,7 @@ class GraphsContainer extends React.Component {
           highlights.push(dataPoint);
         }
 
-        if (highlightMissingJobs && series.missingData) {
+        if (showMissingJobs && series.missingData) {
           const missingPoint = series.missingData.find(
             (item) => item.revision?.includes(rev),
           );
@@ -579,7 +579,7 @@ class GraphsContainer extends React.Component {
       highlightChangelogData,
       highlightCommonAlerts,
       highlightInitialDataPoints,
-      highlightMissingJobs,
+      showMissingJobs,
     } = this.props;
     const {
       highlights,
@@ -796,7 +796,7 @@ class GraphsContainer extends React.Component {
                     />
                   )}
 
-                  {highlightMissingJobs &&
+                  {showMissingJobs &&
                     testData.map((series) => {
                       if (
                         !series.visible ||
@@ -1081,7 +1081,7 @@ GraphsContainer.propTypes = {
   selectedDataPoint: PropTypes.shape({}),
   highlightAlerts: PropTypes.bool,
   highlightInitialDataPoints: PropTypes.bool,
-  highlightMissingJobs: PropTypes.bool,
+  showMissingJobs: PropTypes.bool,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),

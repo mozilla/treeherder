@@ -1266,8 +1266,13 @@ class PerformanceSummary(generics.ListAPIView):
             )
             all_platform_ids = {meta["platform_id"] for meta in sig_meta.values()}
             all_option_hashes = {meta["option_hash"] for meta in sig_meta.values()}
+            candidate_push_id_set = set(all_candidate_pushes.keys())
+            min_push_id = min(candidate_push_id_set)
+            max_push_id = max(candidate_push_id_set)
             for job in models.Job.objects.filter(
-                push_id__in=all_candidate_pushes.keys(),
+                repository_id=repo_id,
+                push_id__gte=min_push_id,
+                push_id__lte=max_push_id,
                 state__in=("pending", "running", "completed"),
                 job_type_id__in=all_expected_job_type_ids,
                 machine_platform_id__in=all_platform_ids,
@@ -1281,7 +1286,8 @@ class PerformanceSummary(generics.ListAPIView):
                 "machine_platform_id",
                 "option_collection_hash",
             ):
-                all_jobs_by_push[job["push_id"]].append(job)
+                if job["push_id"] in candidate_push_id_set:
+                    all_jobs_by_push[job["push_id"]].append(job)
         # --- end of missing-data pre-fetch ---
 
         if signature and all_data:

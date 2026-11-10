@@ -8,7 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router';
 
-import { getJobsUrl, getPerfCompareBaseSubtestsURL } from '../../helpers/url';
+import { getJobsUrl, getPerfCompareBaseURL } from '../../helpers/url';
 import { getStatus } from '../perf-helpers/helpers';
 import { notify } from '../../shared/stores/notificationStore';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -122,21 +122,18 @@ const MissingJobTooltip = ({
       })
     : getJobsUrl({
         repo: datum.repository_name,
+        revision: datum.revision,
         group_state: 'expanded',
-        tochange: datum.revision,
-        ...(prevRevision ? { fromchange: prevRevision } : {}),
         searchStr: testDetails.name,
       });
 
   const compareUrl = prevRevision
-    ? getPerfCompareBaseSubtestsURL(
+    ? getPerfCompareBaseURL(
         testDetails.repository_name,
         prevRevision,
         testDetails.repository_name,
         datum.revision,
         testDetails.framework_id,
-        testDetails.parentSignature || testDetails.signature_id,
-        testDetails.parentSignature || testDetails.signature_id,
       )
     : null;
 
