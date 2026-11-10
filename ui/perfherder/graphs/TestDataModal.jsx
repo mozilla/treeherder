@@ -11,6 +11,8 @@ import {
   Table,
 } from 'react-bootstrap';
 
+import { thPerformanceBranches } from '../../helpers/constants';
+import { phTimeRanges } from '../perf-helpers/constants';
 import {
   getFrameworkName,
   loadRepositorySignatures,
@@ -18,12 +20,27 @@ import {
   matchesQuery,
 } from '../perf-helpers/helpers';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBug } from '@fortawesome/free-solid-svg-icons';
+
 import TimeRangeDropdown from './TimeRangeDropdown';
+import { buildBugUrl } from './fileBug';
 
 const PINNED_REPOS = ['mozilla-central', 'autoland', 'mozilla-beta', 'try'];
-// try is the largest repository and rarely wanted in a general search, so it
-// is only loaded once the user asks for it.
-const DEFAULT_REPOS = ['mozilla-central', 'autoland', 'mozilla-beta'];
+// mozilla-beta and try (the largest repository) are rarely wanted in a
+// general search, so they're only loaded once the user asks for them.
+const DEFAULT_REPOS = ['mozilla-central', 'autoland'];
+// The modal's time range decides which tests are listed. It only changes the
+// graph's time range if the user picks one in the modal.
+const DEFAULT_TIME_RANGE = phTimeRanges.find((item) => item.value === 2592000);
+const SORTABLE_COLUMNS = [
+  { key: 'name', label: 'Test' },
+  { key: 'application', label: 'App' },
+  { key: 'platform', label: 'Platform' },
+  { key: 'projectName', label: 'Repository' },
+  { key: 'framework', label: 'Framework' },
+  { key: 'measurementUnit', label: 'Unit' },
+];
 const REPOS_STORAGE_KEY = 'perfherder-graphs-test-search-repos';
 const MAX_RESULTS = 200;
 const MAX_VISIBLE_GRAPHS = 6;
@@ -101,11 +118,19 @@ const readStoredRepos = () => {
   return DEFAULT_REPOS;
 };
 
-const FilterChip = ({ label, count, active, loading, onClick, title }) => (
+const FilterChip = ({
+  label,
+  count,
+  active,
+  loading,
+  onClick,
+  title,
+  className = '',
+}) => (
   <Button
     size="sm"
     variant={active ? 'darker-info' : 'outline-darker-info'}
-    className="me-1 mb-1 rounded-pill test-search-chip"
+    className={`me-1 mb-1 rounded-pill test-search-chip ${className}`}
     onClick={onClick}
     aria-pressed={active}
     title={title}
@@ -135,6 +160,16 @@ const FilterRow = ({ title, children }) => (
 const TestDataModal = ({
   frameworks = [],
   getTestData,
+  // the graph's settings, described in bugs filed from the modal
+  highlightAlerts = false,
+  highlightChangelogData = false,
+  highlightCommonAlerts = false,
+  highlightInitialDataPoints = false,
+  highlightedRevisions = [],
+  selectedDataPoint = null,
+  showMissingJobs = false,
+  showTable = false,
+  zoom = {},
   loadSignatures = loadRepositorySignatures,
   loadSubtests = loadSubtestSignatures,
   options = undefined,
@@ -154,9 +189,14 @@ const TestDataModal = ({
   const [query, setQuery] = useState('');
   const [platformFilter, setPlatformFilter] = useState([]);
   const [frameworkFilter, setFrameworkFilter] = useState([]);
+  const [browserFilter, setBrowserFilter] = useState([]);
   const [activeTags, setActiveTags] = useState([]);
+  const [includeSubtests, setIncludeSubtests] = useState(false);
   const [showAllPlatforms, setShowAllPlatforms] = useState(false);
-  const [innerTimeRange, setInnerTimeRange] = useState(timeRange);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [innerTimeRange, setInnerTimeRange] = useState(DEFAULT_TIME_RANGE);
+  const [timeRangePicked, setTimeRangePicked] = useState(false);
+  const [sort, setSort] = useState(null);
   const [selected, setSelected] = useState([]);
   const [related, setRelated] = useState(null);
   const [expanded, setExpanded] = useState({});
@@ -167,7 +207,9 @@ const TestDataModal = ({
   const activeRow = useRef(null);
 
   const interval = innerTimeRange.value;
-  const repoKey = (repo) => `${repo}:${interval}`;
+  // what's loaded depends on the time range and whether subtests are included
+  const listSuffix = `:${interval}:${includeSubtests ? 1 : 0}`;
+  const repoKey = (repo) => `${repo}${listSuffix}`;
 
   useEffect(
     () => () => {
@@ -175,10 +217,6 @@ const TestDataModal = ({
     },
     [],
   );
-
-  useEffect(() => {
-    setInnerTimeRange(timeRange);
-  }, [timeRange]);
 
   // The legend card links open the modal pre-filtered to related tests.
   useEffect(() => {
@@ -189,12 +227,23 @@ const TestDataModal = ({
     setQuery('');
     setPlatformFilter([]);
     setFrameworkFilter([]);
+    setBrowserFilter([]);
     setActiveTags([]);
-    setRepos((prev) =>
-      prev.includes(relatedSeries.repository_name)
-        ? prev
-        : [...prev, relatedSeries.repository_name],
-    );
+    // "other branches" and "other platforms" look beyond the series' own
+    // repository, so load the performance branches even if the saved
+    // selection doesn't include them
+    const neededRepos = [
+      relatedSeries.repository_name,
+      ...(option === 'addRelatedBranches' || option === 'addRelatedPlatform'
+        ? thPerformanceBranches
+        : []),
+    ];
+    setRepos((prev) => [
+      ...prev,
+      ...neededRepos.filter(
+        (repo, i) => !prev.includes(repo) && neededRepos.indexOf(repo) === i,
+      ),
+    ]);
   }, [options]);
 
   // Signature lists are only fetched while the modal is open.
@@ -202,13 +251,24 @@ const TestDataModal = ({
     if (!showModal) return;
 
     repos.forEach((repo) => {
-      const key = `${repo}:${interval}`;
+      const key = `${repo}${listSuffix}`;
       if (loaded[key] || failed[key] || pending.current.has(key)) return;
 
       pending.current.add(key);
       setLoading((prev) => [...prev, key]);
-      loadSignatures(repo, interval, frameworks).then(
-        ({ data, failureStatus }) => {
+      // a rejected request must still clear the pending/loading state,
+      // otherwise the repository stays "loading" until the page is reloaded
+      Promise.resolve()
+        .then(() =>
+          loadSignatures(repo, interval, frameworks, {
+            subtests: includeSubtests,
+          }),
+        )
+        .catch((error) => ({
+          data: `failed to load tests (${error?.message || error})`,
+          failureStatus: true,
+        }))
+        .then(({ data, failureStatus }) => {
           pending.current.delete(key);
           if (!mounted.current) return;
 
@@ -221,17 +281,26 @@ const TestDataModal = ({
           } else {
             setLoaded((prev) => ({ ...prev, [key]: data }));
           }
-        },
-      );
+        });
     });
-  }, [showModal, repos, interval, loaded, failed, frameworks, loadSignatures]);
+  }, [
+    showModal,
+    repos,
+    interval,
+    includeSubtests,
+    listSuffix,
+    loaded,
+    failed,
+    frameworks,
+    loadSignatures,
+  ]);
 
   const index = useMemo(
     () =>
       repos
-        .flatMap((repo) => loaded[`${repo}:${interval}`] || [])
+        .flatMap((repo) => loaded[`${repo}${listSuffix}`] || [])
         .sort(compareSeries),
-    [repos, loaded, interval],
+    [repos, loaded, listSuffix],
   );
 
   const plottedIds = useMemo(
@@ -254,48 +323,88 @@ const TestDataModal = ({
     );
   }, [index, related, activeTags, query]);
 
-  const { results, platformCounts, frameworkCounts, availableTags } =
-    useMemo(() => {
-      const platforms = new Map();
-      const frameworkIds = new Map();
-      const tags = new Set(activeTags);
-      const matching = [];
+  const {
+    results,
+    platformCounts,
+    frameworkCounts,
+    browserCounts,
+    availableTags,
+  } = useMemo(() => {
+    // each facet's counts are taken with the other facets' selections applied
+    const facets = [
+      { selected: platformFilter, value: (series) => series.platform },
+      { selected: frameworkFilter, value: (series) => series.frameworkId },
+      { selected: browserFilter, value: (series) => series.application },
+    ].map((facet) => ({ ...facet, counts: new Map() }));
+    const tags = new Set(activeTags);
+    const matching = [];
 
-      baseResults.forEach((series) => {
-        const platformMatches =
-          !platformFilter.length || platformFilter.includes(series.platform);
-        const frameworkMatches =
-          !frameworkFilter.length ||
-          frameworkFilter.includes(series.frameworkId);
+    baseResults.forEach((series) => {
+      const matches = facets.map(
+        ({ selected, value }) =>
+          !selected.length || selected.includes(value(series)),
+      );
+      const failing = matches.filter((match) => !match).length;
+      if (failing > 1) return;
 
-        if (frameworkMatches) {
-          platforms.set(series.platform, (platforms.get(series.platform) || 0) + 1);
-        }
-        if (platformMatches) {
-          frameworkIds.set(
-            series.frameworkId,
-            (frameworkIds.get(series.frameworkId) || 0) + 1,
-          );
-        }
-        if (platformMatches && frameworkMatches) {
-          matching.push(series);
-          series.tags.forEach((tag) => tags.add(tag));
+      facets.forEach(({ value, counts }, i) => {
+        const key = value(series);
+        // only this facet's own selection may exclude the series
+        if (key && (failing === 0 || !matches[i])) {
+          counts.set(key, (counts.get(key) || 0) + 1);
         }
       });
+      if (failing === 0) {
+        matching.push(series);
+        series.tags.forEach((tag) => tags.add(tag));
+      }
+    });
 
-      return {
-        results: matching,
-        platformCounts: platforms,
-        frameworkCounts: frameworkIds,
-        availableTags: [...tags].sort(),
-      };
-    }, [baseResults, platformFilter, frameworkFilter, activeTags]);
+    return {
+      results: matching,
+      platformCounts: facets[0].counts,
+      frameworkCounts: facets[1].counts,
+      browserCounts: facets[2].counts,
+      availableTags: [...tags].sort(),
+    };
+  }, [baseResults, platformFilter, frameworkFilter, browserFilter, activeTags]);
 
-  const displayed = results.slice(0, MAX_RESULTS);
+  // results are already ordered by name, platform and repository; a column
+  // sort reorders them, with empty values last and that order as tie-breaker
+  const sortedResults = useMemo(() => {
+    if (!sort) return results;
+
+    const sortValue = (series) =>
+      (sort.key === 'framework'
+        ? getFrameworkName(frameworks, series.frameworkId)
+        : series[sort.key] || ''
+      ).toLowerCase();
+
+    return results
+      .map((series) => [sortValue(series), series])
+      .sort(([a, seriesA], [b, seriesB]) => {
+        if (a !== b) {
+          if (!a) return 1;
+          if (!b) return -1;
+          return a < b ? -sort.direction : sort.direction;
+        }
+        return compareSeries(seriesA, seriesB);
+      })
+      .map(([, series]) => series);
+  }, [results, sort, frameworks]);
+
+  const displayed = sortedResults.slice(0, MAX_RESULTS);
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [results]);
+  }, [sortedResults]);
+
+  const toggleSort = (key) =>
+    setSort((prev) =>
+      prev?.key === key
+        ? { key, direction: -prev.direction }
+        : { key, direction: 1 },
+    );
 
   useEffect(() => {
     activeRow.current?.scrollIntoView?.({ block: 'nearest' });
@@ -355,8 +464,14 @@ const TestDataModal = ({
     }
     setExpanded((prev) => ({ ...prev, [series.id]: { loading: true } }));
 
-    const { data, failureStatus } = await loadSubtests(series, interval);
+    let response;
+    try {
+      response = await loadSubtests(series, interval);
+    } catch {
+      response = { failureStatus: true };
+    }
     if (!mounted.current) return;
+    const { data, failureStatus } = response;
 
     setExpanded((prev) => {
       if (!prev[series.id]) return prev;
@@ -369,6 +484,39 @@ const TestDataModal = ({
     });
   };
 
+  // Closing the picker, by plotting or dismissing it, ends this "add tests"
+  // session: pending selections are dropped, and a time range picked here no
+  // longer applies, so later changes to the graph's own range are kept. The
+  // search and filters stay so the next test is quicker to find.
+  const endSession = () => {
+    setSelected([]);
+    setTimeRangePicked(false);
+    toggle();
+  };
+
+  // Opens Bugzilla's "Enter Bug" form in a new tab, pre-filled with the
+  // graph's configuration; nothing is filed until it's submitted there.
+  const fileBug = () => {
+    const url = buildBugUrl({
+      pageUrl: window.location.href,
+      timeRange,
+      testData,
+      frameworks,
+      highlightAlerts,
+      highlightCommonAlerts,
+      highlightChangelogData,
+      highlightInitialDataPoints,
+      showMissingJobs,
+      replicates,
+      showTable,
+      selectedDataPoint,
+      zoom,
+      highlightedRevisions: [].concat(highlightedRevisions),
+      userAgent: navigator.userAgent,
+    });
+    window.open(url, '_blank', 'noopener');
+  };
+
   const submitData = () => {
     const displayedTestParams = selected.map((series) => ({
       repository_name: series.projectName,
@@ -377,16 +525,14 @@ const TestDataModal = ({
       replicates,
     }));
 
-    if (innerTimeRange.value !== timeRange.value) {
+    if (timeRangePicked && innerTimeRange.value !== timeRange.value) {
       updateTestsAndTimeRange(displayedTestParams, innerTimeRange);
     } else {
       getTestData(displayedTestParams);
     }
-    // the search and filters are kept so the next test is quicker to add
-    setSelected([]);
     setRelated(null);
     setExpanded({});
-    toggle();
+    endSession();
   };
 
   const onSearchKeyDown = (event) => {
@@ -430,17 +576,33 @@ const TestDataModal = ({
       );
   const hiddenPlatformCount = sortedPlatforms.length - visiblePlatforms.length;
 
+  const sortedBrowsers = [...browserCounts.entries()].sort(
+    (a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1),
+  );
+  // like platforms and frameworks, selected browsers stay visible
+  browserFilter.forEach((browser) => {
+    if (!browserCounts.has(browser)) sortedBrowsers.push([browser, 0]);
+  });
+
+  // framework and tag filters are tucked away; the toggle says how many of
+  // them are active so a hidden filter never silently narrows the results
+  const hiddenActiveFilters = frameworkFilter.length + activeTags.length;
+
   const sortedFrameworks = [...frameworkCounts.entries()].sort(
     (a, b) => b[1] - a[1],
   );
+  // selected frameworks stay visible so they can always be cleared
+  frameworkFilter.forEach((frameworkId) => {
+    if (!frameworkCounts.has(frameworkId)) sortedFrameworks.push([frameworkId, 0]);
+  });
 
-  const isLoading = loading.some((key) => key.endsWith(`:${interval}`));
+  const isLoading = loading.some((key) => key.endsWith(listSuffix));
   const visiblePlotted = testData.filter((series) => series.visible).length;
   const failures = repos
     .filter((repo) => failed[repoKey(repo)])
     .map((repo) => `${repo}: ${failed[repoKey(repo)]}`);
 
-  const renderRow = (series, { isSubtest = false, rowIndex = -1 } = {}) => {
+  const renderRow = (series, { isSubtest = false, rowIndex = -1 }) => {
     const plotted = plottedIds.has(series.id);
     const checked = plotted || isSelected(series);
     const isActive = rowIndex === activeIndex;
@@ -467,7 +629,7 @@ const TestDataModal = ({
           />
         </td>
         <td className={isSubtest ? 'ps-4' : ''}>
-          {series.hasSubtests && !isSubtest && (
+          {series.hasSubtests && !isSubtest && !includeSubtests && (
             <Button
               variant="link"
               size="sm"
@@ -516,13 +678,20 @@ const TestDataModal = ({
     return subtests.data.map((subtest) => renderRow(subtest, { isSubtest: true }));
   };
 
+  const noMatches = repos.length > 0 && !isLoading && !results.length;
+  const includeSubtestsAndSearch = () => {
+    setIncludeSubtests(true);
+    setExpanded({});
+  };
+
   let status;
   if (!index.length && isLoading) {
     status = 'Loading tests…';
   } else if (!repos.length) {
     status = 'Select at least one repository.';
   } else if (!results.length && !isLoading) {
-    status = related ? 'No related tests found.' : 'No tests match.';
+    // the empty results area explains this (and offers to include subtests)
+    status = '0 tests';
   } else if (results.length > MAX_RESULTS) {
     status = `Showing ${MAX_RESULTS} of ${results.length.toLocaleString()} tests, refine the search to see more.`;
   } else {
@@ -532,9 +701,17 @@ const TestDataModal = ({
   }
 
   return (
-    <Modal size="xl" show={showModal} onHide={toggle}>
-      <Modal.Header closeButton>
+    <Modal size="xl" show={showModal} onHide={endSession}>
+      <Modal.Header closeButton className="test-search-header">
         <Modal.Title>Add Test Data</Modal.Title>
+        <Button
+          className="ms-auto me-3 test-search-file-bug"
+          title="Open a Bugzilla bug form pre-filled with this graph's configuration (nothing is filed until you submit it on Bugzilla)"
+          onClick={fileBug}
+        >
+          <FontAwesomeIcon className="me-2" icon={faBug} />
+          This is a redesigned view, file a bug for any issues here
+        </Button>
       </Modal.Header>
       <Modal.Body className="test-search">
         <Form onSubmit={(event) => event.preventDefault()}>
@@ -601,70 +778,135 @@ const TestDataModal = ({
             )}
           </FilterRow>
 
+          <FilterRow title="Time range">
+            <TimeRangeDropdown
+              size="sm"
+              variant="outline-darker-info"
+              toggleClassName="rounded-pill mb-1 test-search-chip"
+              timeRangeText={innerTimeRange.text}
+              updateTimeRange={(newTimeRange) => {
+                setInnerTimeRange(newTimeRange);
+                setTimeRangePicked(true);
+                setExpanded({});
+              }}
+            />
+            <FilterChip
+              label="Include subtests"
+              className="ms-3 align-self-center"
+              active={includeSubtests}
+              title="Search subtests too (loads about twice as much data)"
+              onClick={() => {
+                setIncludeSubtests(!includeSubtests);
+                setExpanded({});
+              }}
+            />
+          </FilterRow>
+
           {sortedPlatforms.length > 0 && (
             <FilterRow title="Platform">
-              {visiblePlatforms.map(([platform, count]) => (
-                <FilterChip
-                  key={platform}
-                  label={platform}
-                  count={count}
-                  active={platformFilter.includes(platform)}
-                  onClick={() =>
-                    setPlatformFilter((prev) => toggleItem(prev, platform))
-                  }
-                />
-              ))}
-              {(hiddenPlatformCount > 0 || showAllPlatforms) && (
+              {/* expanded, the full list can be long, so it scrolls inside a
+                  capped box and the collapse button stays in view below it */}
+              <div
+                className={`d-flex flex-wrap ${
+                  showAllPlatforms ? 'w-100 test-search-expanded-chips' : ''
+                }`}
+              >
+                {visiblePlatforms.map(([platform, count]) => (
+                  <FilterChip
+                    key={platform}
+                    label={platform}
+                    count={count}
+                    active={platformFilter.includes(platform)}
+                    onClick={() =>
+                      setPlatformFilter((prev) => toggleItem(prev, platform))
+                    }
+                  />
+                ))}
+                {!showAllPlatforms && hiddenPlatformCount > 0 && (
+                  <Button
+                    size="sm"
+                    variant="link"
+                    className="mb-1"
+                    onClick={() => setShowAllPlatforms(true)}
+                  >
+                    {`+${hiddenPlatformCount} more`}
+                  </Button>
+                )}
+              </div>
+              {showAllPlatforms && (
                 <Button
                   size="sm"
                   variant="link"
-                  className="mb-1"
-                  onClick={() => setShowAllPlatforms(!showAllPlatforms)}
+                  className="p-0 mb-1"
+                  onClick={() => setShowAllPlatforms(false)}
                 >
-                  {showAllPlatforms ? 'fewer' : `+${hiddenPlatformCount} more`}
+                  show fewer
                 </Button>
               )}
             </FilterRow>
           )}
 
-          {sortedFrameworks.length > 0 && (
-            <FilterRow title="Framework">
-              {sortedFrameworks.map(([frameworkId, count]) => (
+          {sortedBrowsers.length > 0 && (
+            <FilterRow title="Browser">
+              {sortedBrowsers.map(([browser, count]) => (
                 <FilterChip
-                  key={frameworkId}
-                  label={getFrameworkName(frameworks, frameworkId)}
+                  key={browser}
+                  label={browser}
                   count={count}
-                  active={frameworkFilter.includes(frameworkId)}
+                  active={browserFilter.includes(browser)}
                   onClick={() =>
-                    setFrameworkFilter((prev) => toggleItem(prev, frameworkId))
+                    setBrowserFilter((prev) => toggleItem(prev, browser))
                   }
                 />
               ))}
             </FilterRow>
           )}
 
-          {availableTags.length > 0 && (
-            <FilterRow title="Tags">
-              {availableTags.map((tag) => (
-                <FilterChip
-                  key={tag}
-                  label={tag}
-                  active={activeTags.includes(tag)}
-                  onClick={() => setActiveTags((prev) => toggleItem(prev, tag))}
-                />
-              ))}
-            </FilterRow>
+          {(sortedFrameworks.length > 0 || availableTags.length > 0) && (
+            <Button
+              size="sm"
+              variant="link"
+              className="p-0 mb-1"
+              aria-expanded={showMoreFilters}
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+            >
+              {showMoreFilters ? '▾ Fewer filters' : '▸ More filters'}
+              {hiddenActiveFilters > 0 && ` (${hiddenActiveFilters} active)`}
+            </Button>
+          )}
+          {showMoreFilters && (
+            <>
+            {sortedFrameworks.length > 0 && (
+              <FilterRow title="Framework">
+                {sortedFrameworks.map(([frameworkId, count]) => (
+                  <FilterChip
+                    key={frameworkId}
+                    label={getFrameworkName(frameworks, frameworkId)}
+                    count={count}
+                    active={frameworkFilter.includes(frameworkId)}
+                    onClick={() =>
+                      setFrameworkFilter((prev) => toggleItem(prev, frameworkId))
+                    }
+                  />
+                ))}
+              </FilterRow>
+            )}
+
+            {availableTags.length > 0 && (
+              <FilterRow title="Tags">
+                {availableTags.map((tag) => (
+                  <FilterChip
+                    key={tag}
+                    label={tag}
+                    active={activeTags.includes(tag)}
+                    onClick={() => setActiveTags((prev) => toggleItem(prev, tag))}
+                  />
+                ))}
+              </FilterRow>
+            )}
+            </>
           )}
 
-          <FilterRow title="Time range">
-            <TimeRangeDropdown
-              timeRangeText={innerTimeRange.text}
-              updateTimeRange={(newTimeRange) => {
-                setInnerTimeRange(newTimeRange);
-                setExpanded({});
-              }}
-            />
-          </FilterRow>
 
           {failures.length > 0 && (
             <Alert variant="danger" className="py-1 px-2 my-2 small">
@@ -679,12 +921,30 @@ const TestDataModal = ({
               <thead className="sticky-top bg-white">
                 <tr>
                   <th aria-label="Selected" />
-                  <th>Test</th>
-                  <th>App</th>
-                  <th>Platform</th>
-                  <th>Repository</th>
-                  <th>Framework</th>
-                  <th>Unit</th>
+                  {SORTABLE_COLUMNS.map(({ key, label }) => {
+                    const direction = sort?.key === key ? sort.direction : 0;
+                    return (
+                      <th
+                        key={key}
+                        aria-sort={
+                          { 1: 'ascending', '-1': 'descending' }[direction] ||
+                          'none'
+                        }
+                      >
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="p-0 fw-bold text-reset text-decoration-none text-nowrap"
+                          title={`Sort by ${label}`}
+                          onClick={() => toggleSort(key)}
+                        >
+                          {label}
+                          {direction === 1 && ' ▲'}
+                          {direction === -1 && ' ▼'}
+                        </Button>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody data-testid="tests">
@@ -696,6 +956,28 @@ const TestDataModal = ({
                 ))}
               </tbody>
             </Table>
+            {noMatches && (
+              <div
+                className="text-center text-secondary py-4"
+                data-testid="no-matches"
+              >
+                <div>{related ? 'No related tests found.' : 'No tests match.'}</div>
+                {!includeSubtests && !related && (
+                  <div className="mt-2">
+                    Subtests aren't searched yet.{' '}
+                    <Button
+                      size="sm"
+                      variant="darker-info"
+                      className="ms-1"
+                      data-testid="suggest-subtests"
+                      onClick={includeSubtestsAndSearch}
+                    >
+                      Include subtests
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="small text-secondary mt-1" role="status">
             {status}
@@ -760,6 +1042,18 @@ TestDataModal.propTypes = {
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
+  highlightAlerts: PropTypes.bool,
+  highlightChangelogData: PropTypes.bool,
+  highlightCommonAlerts: PropTypes.bool,
+  highlightInitialDataPoints: PropTypes.bool,
+  highlightedRevisions: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
+  selectedDataPoint: PropTypes.shape({}),
+  showMissingJobs: PropTypes.bool,
+  showTable: PropTypes.bool,
+  zoom: PropTypes.shape({}),
 };
 
 export default TestDataModal;

@@ -6,7 +6,10 @@
  * - Statistical functions: calcPercentOf, calcAverage, getStdDev, getTTest
  * - getCounterMap: Performance comparison data generation
  * - Various helper functions
+ * - Test picker signature helpers: search text, query matching, loading
  */
+import fetchMock from 'fetch-mock';
+
 import {
   formatNumber,
   abbreviatedNumber,
@@ -20,7 +23,13 @@ import {
   containsText,
   getFrameworkName,
   reduceDictToKeys,
+  buildSearchText,
+  matchesQuery,
+  loadRepositorySignatures,
+  loadSubtestSignatures,
 } from '../../../ui/perfherder/perf-helpers/helpers';
+import { getApiUrl } from '../../../ui/helpers/url';
+import { getProjectUrl } from '../../../ui/helpers/location';
 import { summaryStatusMap } from '../../../ui/perfherder/perf-helpers/constants';
 
 describe('Number Formatting', () => {
@@ -328,5 +337,254 @@ describe('reduceDictToKeys', () => {
     const result = reduceDictToKeys(dict, ['a', 'z']);
 
     expect(result).toEqual({ a: 1 });
+  });
+});
+
+describe('Test picker signature helpers', () => {
+  const frameworks = [
+    { id: 1, name: 'talos' },
+    { id: 13, name: 'browsertime' },
+  ];
+  const signature = {
+    id: 1,
+    suite: 'speedometer3',
+    machine_platform: 'android-hw-a55',
+    framework_id: 13,
+    application: 'fenix',
+    signature_hash: 'abc123',
+    has_subtests: true,
+  };
+  // each test uses its own repository, since the loader caches per repository
+  const signaturesUrl = (repo) =>
+    `begin:${getProjectUrl('/performance/signatures/', repo)}`;
+  // the API urls are relative in tests, so give URL a base to parse them
+  const params = (url) =>
+    Object.fromEntries(new URL(url, 'http://localhost').searchParams);
+
+  beforeEach(() => {
+    fetchMock.mock(getApiUrl('/optioncollectionhash/'), []);
+  });
+
+  afterEach(() => {
+    fetchMock.reset();
+  });
+
+  describe('buildSearchText', () => {
+    it('joins repository, platform, name, application, suite and framework in lower case', () => {
+      const series = {
+        projectName: 'mozilla-central',
+        platform: 'Android-HW-A55',
+        name: 'Speedometer3 opt',
+        application: 'fenix',
+        suite: 'speedometer3',
+        frameworkId: 13,
+      };
+
+      expect(buildSearchText(series, frameworks)).toBe(
+        'mozilla-central android-hw-a55 speedometer3 opt fenix speedometer3 browsertime',
+      );
+    });
+
+    it('skips missing values', () => {
+      const series = {
+        projectName: 'autoland',
+        platform: 'linux64',
+        name: 'tp5o opt',
+        application: null,
+        suite: 'tp5o',
+        frameworkId: 1,
+      };
+
+      expect(buildSearchText(series, frameworks)).toBe(
+        'autoland linux64 tp5o opt tp5o talos',
+      );
+    });
+  });
+
+  describe('matchesQuery', () => {
+    const text = 'mozilla-central windows11-64 speedometer3 opt fenix';
+
+    it('matches every word in any order, case insensitively', () => {
+      expect(matchesQuery(text, 'Fenix  speedometer3')).toBe(true);
+      expect(matchesQuery(text, 'speedometer3 chrome')).toBe(false);
+    });
+
+    it('matches everything for an empty or blank query', () => {
+      expect(matchesQuery(text, '')).toBe(true);
+      expect(matchesQuery(text, '   ')).toBe(true);
+    });
+
+    it('treats regex characters literally', () => {
+      expect(matchesQuery('a (b) c++', '(b) c++')).toBe(true);
+      expect(matchesQuery('abc', '.*')).toBe(false);
+    });
+  });
+
+  describe('loadRepositorySignatures', () => {
+    it('returns series with search text, without subtests by default', async () => {
+      fetchMock.mock(signaturesUrl('load-repo'), { 1: signature });
+
+      const result = await loadRepositorySignatures(
+        'load-repo',
+        86400,
+        frameworks,
+      );
+
+      expect(result.failureStatus).toBeNull();
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
+        id: 1,
+        projectName: 'load-repo',
+        platform: 'android-hw-a55',
+        application: 'fenix',
+        searchText: expect.stringContaining('load-repo android-hw-a55'),
+      });
+      expect(params(fetchMock.lastUrl(signaturesUrl('load-repo')))).toEqual({
+        interval: '86400',
+        subtests: '0',
+      });
+    });
+
+    it('fetches each repository and interval only once', async () => {
+      fetchMock.mock(signaturesUrl('cached-repo'), { 1: signature });
+
+      const first = await loadRepositorySignatures('cached-repo', 86400, frameworks);
+      const second = await loadRepositorySignatures('cached-repo', 86400, frameworks);
+      await loadRepositorySignatures('cached-repo', 604800, frameworks);
+
+      expect(second).toBe(first);
+      expect(fetchMock.calls(signaturesUrl('cached-repo'))).toHaveLength(2);
+    });
+
+    it('loads and caches the list with subtests separately', async () => {
+      fetchMock.mock(signaturesUrl('subtests-repo'), { 1: signature });
+
+      await loadRepositorySignatures('subtests-repo', 86400, frameworks);
+      await loadRepositorySignatures('subtests-repo', 86400, frameworks, {
+        subtests: true,
+      });
+      await loadRepositorySignatures('subtests-repo', 86400, frameworks, {
+        subtests: true,
+      });
+
+      const calls = fetchMock.calls(signaturesUrl('subtests-repo'));
+      expect(calls.map(([url]) => params(url).subtests)).toEqual(['0', '1']);
+    });
+
+    it('returns an HTTP error response and retries it next time', async () => {
+      fetchMock.mock(
+        signaturesUrl('http-error-repo'),
+        { status: 500, body: { detail: 'server error' } },
+        { repeat: 1 },
+      );
+      fetchMock.mock(signaturesUrl('http-error-repo'), { 1: signature }, {
+        overwriteRoutes: false,
+      });
+
+      const failure = await loadRepositorySignatures(
+        'http-error-repo',
+        86400,
+        frameworks,
+      );
+      expect(failure.failureStatus).toBe(500);
+
+      const retry = await loadRepositorySignatures(
+        'http-error-repo',
+        86400,
+        frameworks,
+      );
+      expect(retry.failureStatus).toBeNull();
+      expect(retry.data).toHaveLength(1);
+      expect(fetchMock.calls(signaturesUrl('http-error-repo'))).toHaveLength(2);
+    });
+
+    it('turns a network failure into an error result that is retried next time', async () => {
+      fetchMock.mock(signaturesUrl('offline-repo'), {
+        throws: new TypeError('Failed to fetch'),
+      });
+
+      const failure = await loadRepositorySignatures(
+        'offline-repo',
+        86400,
+        frameworks,
+      );
+      expect(failure).toEqual({
+        data: 'failed to load tests (Failed to fetch)',
+        failureStatus: true,
+      });
+
+      fetchMock.reset();
+      fetchMock.mock(getApiUrl('/optioncollectionhash/'), []);
+      fetchMock.mock(signaturesUrl('offline-repo'), { 1: signature });
+
+      const retry = await loadRepositorySignatures(
+        'offline-repo',
+        86400,
+        frameworks,
+      );
+      expect(retry.failureStatus).toBeNull();
+      expect(retry.data).toHaveLength(1);
+    });
+
+    it('describes rejections that are not Error objects', async () => {
+      fetchMock.mock(signaturesUrl('odd-failure-repo'), { throws: 'offline' });
+
+      const failure = await loadRepositorySignatures(
+        'odd-failure-repo',
+        86400,
+        frameworks,
+      );
+
+      expect(failure).toEqual({
+        data: 'failed to load tests (offline)',
+        failureStatus: true,
+      });
+    });
+  });
+
+  describe('loadSubtestSignatures', () => {
+    const parent = {
+      projectName: 'subtest-parent-repo',
+      signature: 'abc123',
+    };
+
+    it("requests the parent's subtests for the interval", async () => {
+      fetchMock.mock(signaturesUrl('subtest-parent-repo'), {
+        2: {
+          ...signature,
+          id: 2,
+          test: 'TodoMVC-React',
+          has_subtests: false,
+          parent_signature: 'abc123',
+        },
+      });
+
+      const { data, failureStatus } = await loadSubtestSignatures(
+        parent,
+        2592000,
+      );
+
+      expect(failureStatus).toBeNull();
+      expect(data).toHaveLength(1);
+      expect(data[0]).toMatchObject({
+        id: 2,
+        name: expect.stringContaining('speedometer3 TodoMVC-React'),
+        parentSignature: 'abc123',
+      });
+      expect(
+        params(fetchMock.lastUrl(signaturesUrl('subtest-parent-repo'))),
+      ).toEqual({ interval: '2592000', parent_signature: 'abc123' });
+    });
+
+    it('turns a network failure into an error result', async () => {
+      fetchMock.mock(signaturesUrl('subtest-parent-repo'), {
+        throws: new TypeError('Failed to fetch'),
+      });
+
+      await expect(loadSubtestSignatures(parent, 86400)).resolves.toEqual({
+        data: 'failed to load tests (Failed to fetch)',
+        failureStatus: true,
+      });
+    });
   });
 });

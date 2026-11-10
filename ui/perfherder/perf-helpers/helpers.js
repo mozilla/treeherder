@@ -648,11 +648,16 @@ export const processSelectedParam = (tooltipArray) => ({
 });
 
 // Signature lists are large (tens of thousands per repository) but change
-// slowly, so each (repository, interval) list is fetched once per page load
-// and shared between every opening of the "Add test data" modal.
+// slowly, so each (repository, interval, subtests) list is fetched once per
+// page load and shared between every opening of the "Add test data" modal.
 const signatureListCache = new Map();
 
-const buildSearchText = (series, frameworks) =>
+const requestFailure = (error) => ({
+  data: `failed to load tests (${error?.message || error})`,
+  failureStatus: true,
+});
+
+export const buildSearchText = (series, frameworks) =>
   [
     series.projectName,
     series.platform,
@@ -665,37 +670,47 @@ const buildSearchText = (series, frameworks) =>
     .join(' ')
     .toLowerCase();
 
-export const loadRepositorySignatures = (repositoryName, interval, frameworks) => {
-  const key = `${repositoryName}:${interval}`;
+// Never rejects: network errors resolve to { data: message, failureStatus }.
+// With subtests the list is roughly twice as large, so it's opt-in.
+export const loadRepositorySignatures = (
+  repositoryName,
+  interval,
+  frameworks,
+  { subtests = false } = {},
+) => {
+  const key = `${repositoryName}:${interval}:${subtests ? 1 : 0}`;
 
   if (!signatureListCache.has(key)) {
     const request = PerfSeriesModel.getSeriesList(repositoryName, {
       interval,
-      subtests: 0,
-    }).then((response) => {
-      if (response.failureStatus) {
-        // don't cache failures, so reopening the modal retries
-        signatureListCache.delete(key);
-        return response;
-      }
-      const data = response.data.map((series) => ({
-        ...series,
-        searchText: buildSearchText(series, frameworks),
-      }));
-      return { data, failureStatus: null };
-    });
+      subtests: subtests ? 1 : 0,
+    })
+      .then((response) => {
+        if (response.failureStatus) return response;
+
+        const data = response.data.map((series) => ({
+          ...series,
+          searchText: buildSearchText(series, frameworks),
+        }));
+        return { data, failureStatus: null };
+      })
+      .catch(requestFailure)
+      .then((result) => {
+        // don't cache failures, so the next attempt retries
+        if (result.failureStatus) signatureListCache.delete(key);
+        return result;
+      });
     signatureListCache.set(key, request);
   }
   return signatureListCache.get(key);
 };
 
-export const loadSubtestSignatures = async (parentSeries, interval) => {
-  const response = await PerfSeriesModel.getSeriesList(
-    parentSeries.projectName,
-    { interval, parent_signature: parentSeries.signature },
-  );
-  return response;
-};
+// Never rejects, like loadRepositorySignatures.
+export const loadSubtestSignatures = (parentSeries, interval) =>
+  PerfSeriesModel.getSeriesList(parentSeries.projectName, {
+    interval,
+    parent_signature: parentSeries.signature,
+  }).catch(requestFailure);
 
 // Every whitespace-separated word of the query has to appear somewhere in the
 // series' search text, in any order.

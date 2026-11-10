@@ -449,6 +449,9 @@ function GraphsView({ projects, frameworks, user }) {
         Boolean(parseInt(replicatesParam, 10)),
       );
       getTestData(seriesParams, true);
+    } else {
+      // nothing to graph yet, so start with picking tests
+      setShowModal(true);
     }
 
     if (hlAlerts) {
