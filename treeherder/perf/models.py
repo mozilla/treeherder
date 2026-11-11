@@ -368,7 +368,29 @@ class PerformanceAlertSummaryBase(models.Model):
         (INFRA, "Infra"),
     )
 
+    RESOLUTIONS = (
+        ("valid", "Valid"),
+        ("invalid", "Invalid"),
+        ("infra", "Infra"),
+        ("downstream", "Downstream"),
+        ("reassigned", "Reassigned"),
+    )
+
+    RESOLUTION_BY_STATUS = {
+        UNTRIAGED: None,
+        DOWNSTREAM: "downstream",
+        REASSIGNED: "reassigned",
+        INVALID: "invalid",
+        IMPROVEMENT: "valid",
+        INVESTIGATING: "valid",
+        WONTFIX: "valid",
+        FIXED: "valid",
+        BACKED_OUT: "valid",
+        INFRA: "infra",
+    }
+
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
+    resolution = models.CharField(max_length=20, choices=RESOLUTIONS, null=True, default=None)
 
     bug_number = models.PositiveIntegerField(null=True)
     bug_due_date = models.DateTimeField(null=True, default=None)
@@ -449,6 +471,11 @@ class PerformanceAlertSummaryBase(models.Model):
         self.save(using=using)
 
     def autodetermine_status(self, alert_model=None):
+        status = self._determine_status(alert_model)
+        self.resolution = self.RESOLUTION_BY_STATUS[status]
+        return status
+
+    def _determine_status(self, alert_model=None):
         summary_class = self.__class__
         if not alert_model:
             alert_model = PerformanceAlert

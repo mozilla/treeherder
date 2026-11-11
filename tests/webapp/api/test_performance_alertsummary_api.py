@@ -109,6 +109,7 @@ def test_alert_summaries_get(
         "duplicated_summaries",
         "severity",
         "change_type",
+        "resolution",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
     assert set(resp.json()["results"][0]["alerts"][0].keys()) == {
@@ -372,6 +373,7 @@ def test_alert_summaries_get_onhold(
         "duplicated_summaries",
         "severity",
         "change_type",
+        "resolution",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
     assert set(resp.json()["results"][0]["alerts"][0].keys()) == {
@@ -429,6 +431,10 @@ def test_alert_summaries_put(
     resp = client.put(reverse("performance-alert-summaries-list") + "1/", {"status": 1})
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.get(id=1).status == 1
+
+    resp = client.put(reverse("performance-alert-summaries-list") + "1/", {"status": 3})
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).resolution == "invalid"
 
     # verify we can set assignee
     client.force_authenticate(user=test_sheriff)
@@ -878,6 +884,46 @@ def test_cannot_add_unregistered_tag_to_a_summary(
     assert test_perf_alert_summary.performance_tags.count() == 1
 
 
+def test_backed_out_status_sets_valid_resolution(
+    client, authorized_sheriff_client, test_perf_alert_summary
+):
+    resp = authorized_sheriff_client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"status": PerformanceAlertSummary.BACKED_OUT},
+    )
+    assert resp.status_code == 200
+
+    test_perf_alert_summary.refresh_from_db()
+    assert test_perf_alert_summary.resolution == "valid"
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"resolution": "valid"},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    assert [summary["id"] for summary in retrieved_summaries] == [test_perf_alert_summary.id]
+
+
+def test_alert_summary_resolution_is_read_only(
+    authorized_sheriff_client, test_perf_alert_summary, test_perf_signature
+):
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        status=PerformanceAlert.INVALID,
+    )
+
+    resp = authorized_sheriff_client.put(
+        reverse("performance-alert-summaries-list") + "1/", {"resolution": "valid"}
+    )
+    assert resp.status_code == 200
+
+    test_perf_alert_summary.refresh_from_db()
+    assert test_perf_alert_summary.resolution == "invalid"
+
+
 def test_timerange_with_summary_outside_range(
     client, create_push, test_repository, test_perf_alert_summary, test_perf_alert_summary_2
 ):
@@ -1264,6 +1310,33 @@ def test_alert_summaries_filter_with_bug_resolution(
     summary_ids = [summary["id"] for summary in retrieved_summaries]
 
     assert summary_ids == [test_perf_alert_summary.id]
+
+
+def test_alert_summaries_filter_by_resolution(
+    client, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    test_perf_alert_summary.resolution = "valid"
+    test_perf_alert_summary.save()
+
+    test_perf_alert_summary_2.resolution = "infra"
+    test_perf_alert_summary_2.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"resolution": "valid"},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert summary_ids == [test_perf_alert_summary.id]
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"resolution": "not-a-resolution"},
+    )
+    assert resp.status_code == 400
 
 
 def test_untriaged_regressions_filter(

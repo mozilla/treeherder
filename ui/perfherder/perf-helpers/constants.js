@@ -112,6 +112,15 @@ export const bugResolutionMap = {
   moved: 8,
 };
 
+export const resolutionMap = {
+  'all resolutions': null,
+  valid: 'valid',
+  invalid: 'invalid',
+  infra: 'infra',
+  downstream: 'downstream',
+  reassigned: 'reassigned',
+};
+
 export const changeTypeOptions = [
   'all types',
   'regression',
