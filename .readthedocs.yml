@@ -4,11 +4,8 @@ build:
   os: ubuntu-22.04
   tools:
     python: '3.10'
-python:
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
-mkdocs:
-  configuration: mkdocs.yml
+  jobs:
+    install:
+        # Since the install step is overridden, pip is no longer updated automatically.
+        - pip install --upgrade pip
+        - pip install -e ".[docs]"
