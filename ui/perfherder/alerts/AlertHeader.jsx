@@ -19,7 +19,7 @@ import Assignee from './Assignee';
 import TagsList from './TagsList';
 import AlertHeaderTitle from './AlertHeaderTitle';
 import { getStatus } from '../perf-helpers/helpers';
-import { bugResolutionMap } from '../perf-helpers/constants';
+import { bugResolutionMap, summaryStatusMap } from '../perf-helpers/constants';
 
 const AlertHeader = ({
   frameworks,
@@ -30,6 +30,7 @@ const AlertHeader = ({
   updateAssignee,
   changeRevision,
   updateViewState,
+  onConfirmCulprit,
 }) => {
   const [inEditMode, setInEditMode] = useState(false);
   const [newRevisionTo, setnewRevisionTo] = useState(alertSummary.revision);
@@ -97,6 +98,26 @@ const AlertHeader = ({
   const bugResolution = (alertSummary.bug_resolution != null && alertSummary.issue_tracker === 1)
     ? `(${getStatus(alertSummary.bug_resolution, bugResolutionMap)})`
     : '';
+
+  const confirmCulpritConfig = {
+    improvement: {
+      prefix: 'Add comment to - ',
+      modalState: 'showAddCommentModal',
+    },
+    regression: {
+      prefix: 'File bug for - ',
+      modalState: 'showFileBugModal',
+    },
+  }[alertSummary.change_type];
+  const confirmCulpritPrefix = confirmCulpritConfig?.prefix || '';
+  const handleConfirmCulprit = () => {
+    if (confirmCulpritConfig && onConfirmCulprit) {
+      onConfirmCulprit(
+        confirmCulpritConfig.modalState,
+        alertSummary.push_bug_number,
+      );
+    }
+  };
 
   const performanceTags = alertSummary.performance_tags || [];
   const alertSummaryDatetime = new Date(alertSummary.push_timestamp * 1000);
@@ -200,6 +221,25 @@ const AlertHeader = ({
             ) : (
               { bugNumber }
             )}
+          </Col>
+        )}
+        {alertSummary.status === summaryStatusMap.untriaged && (
+          <Col className="p-0" xs="auto">
+            <Button
+              variant="secondary"
+              size="xs"
+              className="text-white"
+              data-testid="confirm-culprit-button"
+              onClick={handleConfirmCulprit}
+            >
+              Confirm Culprit
+              {alertSummary.push_bug_number && (
+                <span style={{ fontSize: '0.9em' }}>
+                  {' '}
+                  ({confirmCulpritPrefix}Bug {alertSummary.push_bug_number})
+                </span>
+              )}
+            </Button>
           </Col>
         )}
         <Col className="p-0" xs="auto">
@@ -356,6 +396,7 @@ AlertHeader.propTypes = {
   repoModel: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
+  onConfirmCulprit: PropTypes.func,
 };
 
 export default AlertHeader;

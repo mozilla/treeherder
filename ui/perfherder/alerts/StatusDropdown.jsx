@@ -52,8 +52,17 @@ export default class StatusDropdown extends React.Component {
       isWeekend: isWeekend(),
       fileBugErrorMessage: null,
       addCommentErrorMessage: null,
+      prefilledBugId: '',
     };
   }
+
+  // Opens the File Bug or Add Comment modal with the bug id prefilled
+  openModalWithBugId = (modalState, bugId) => {
+    this.setState({
+      [modalState]: true,
+      prefilledBugId: bugId ? String(bugId) : '',
+    });
+  };
 
   getCulpritDetails = async (culpritId) => {
     const bugDetails = await getData(bugzillaBugsApi(`bug/${culpritId}`));
@@ -472,6 +481,7 @@ export default class StatusDropdown extends React.Component {
       showTagsModal,
       selectedValue,
       isWeekend,
+      prefilledBugId,
     } = this.state;
 
     const alertStatus = getStatus(alertSummary.status);
@@ -544,6 +554,7 @@ export default class StatusDropdown extends React.Component {
           header="File Regression Bug for"
           title="Enter Bug Number"
           submitButtonText="File Bug"
+          initialValue={prefilledBugId}
           user={user}
           errorMessage={this.state.fileBugErrorMessage}
         />
@@ -582,6 +593,7 @@ export default class StatusDropdown extends React.Component {
           title="Enter Bug Number"
           submitButtonText="Add Comment"
           requireInput
+          initialValue={prefilledBugId}
           user={user}
           errorMessage={this.state.addCommentErrorMessage}
         />
