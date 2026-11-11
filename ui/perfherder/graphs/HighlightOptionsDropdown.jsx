@@ -8,6 +8,7 @@ const HighlightOptionsDropdown = ({
   highlightChangelogData,
   highlightCommonAlerts,
   highlightInitialDataPoints,
+  showMissingJobs,
   updateStateParams,
 }) => {
   const highlightOptions = [
@@ -30,6 +31,11 @@ const HighlightOptionsDropdown = ({
       key: 'highlightInitialDataPoints',
       label: 'Highlight initial data points',
       isChecked: highlightInitialDataPoints,
+    },
+    {
+      key: 'showMissingJobs',
+      label: 'Show missing data',
+      isChecked: showMissingJobs,
     },
   ];
 

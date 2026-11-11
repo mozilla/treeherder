@@ -515,6 +515,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     all_data = OptionalBooleanField()
     replicates = OptionalBooleanField()
     no_retriggers = OptionalBooleanField()
+    include_missing_data = OptionalBooleanField()
 
     def validate(self, data):
         if (
@@ -525,6 +526,9 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Required: revision, startday and endday or interval."
             )
+
+        if data["include_missing_data"] and not data["all_data"]:
+            raise serializers.ValidationError("include_missing_data requires all_data=true.")
 
         return data
 
@@ -580,6 +584,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     data = PerformanceDatumSerializer(read_only=True, many=True, default=[])
     repository_name = serializers.CharField()
+    missing_data = serializers.ListField(child=serializers.DictField(), required=False)
 
     class Meta:
         model = PerformanceSignature
@@ -606,6 +611,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
             "alert_change_type",
             "alert_threshold",
             "submit_times",
+            "missing_data",
         ]
 
     def get_name(self, value):
