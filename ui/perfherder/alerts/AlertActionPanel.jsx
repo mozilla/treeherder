@@ -48,8 +48,6 @@ export default class AlertActionPanel extends React.Component {
       updateViewState,
     } = this.props;
 
-    let otherAlertSummaries;
-
     const responses = await this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatusMap[newStatus],
       related_summary_id: alertId,
@@ -68,19 +66,16 @@ export default class AlertActionPanel extends React.Component {
       });
     });
 
-    if (alertId) {
-      otherAlertSummaries = alertSummaries.filter(
-        (summary) => summary.id === alertId,
-      );
-    } else {
-      otherAlertSummaries = selectedAlerts
-        .map((alert) =>
-          alertSummaries.find(
-            (summary) => summary.id === alert.related_summary_id,
-          ),
-        )
-        .filter((summary) => summary !== undefined);
-    }
+    // refresh the new target, and every summary on this page that shows one of
+    // the moved alerts: its own summary, or the one it was moved away from
+    const movedAlertIds = selectedAlerts.map((alert) => alert.id);
+    const otherAlertSummaries = alertSummaries.filter(
+      (summary) =>
+        summary.id === alertId ||
+        [...summary.alerts, ...summary.related_alerts].some((alert) =>
+          movedAlertIds.includes(alert.id),
+        ),
+    );
     const summariesToUpdate = [
       ...new Set([...[alertSummary], ...otherAlertSummaries]),
     ];
@@ -285,15 +280,15 @@ export default class AlertActionPanel extends React.Component {
 
           <Col sm="auto" className="p-2">
             <SimpleTooltip
-                text={
-                  <Button
-                      variant="secondary"
-                      onClick={() => this.toggle('showReassignedModal')}
-                  >
-                      <FontAwesomeIcon icon={faArrowAltCircleRight} /> Reassign
-                  </Button>
-                  }
-                tooltipText="Reassign selected alerts to another alert summary on the same branch"
+              text={
+                <Button
+                  variant="secondary"
+                  onClick={() => this.toggle('showReassignedModal')}
+                >
+                  <FontAwesomeIcon icon={faArrowAltCircleRight} /> Reassign
+                </Button>
+              }
+              tooltipText="Reassign selected alerts to another alert summary on the same branch"
             />
           </Col>
 

@@ -492,6 +492,9 @@ const getPlatformInfo = (platforms) => {
   return platformInfo;
 };
 
+export const isNotReassigned = (alert, summaryId) =>
+  alert.related_summary_id === summaryId || alert.related_summary_id === null;
+
 export const getFilledBugSummary = (alertSummary) => {
   const { alerts, id: summaryId, push_timestamp: pushTimestamp } = alertSummary;
 
@@ -501,11 +504,8 @@ export const getFilledBugSummary = (alertSummary) => {
       alert.status !== alertStatusMap.downstream ||
       alert.summary_id === summaryId;
     const isNotInvalid = alert.status !== alertStatusMap.invalid;
-    const isNotReassigned =
-      alert.related_summary_id === summaryId ||
-      alert.related_summary_id === null;
 
-    return isNotDownstream && isNotInvalid && isNotReassigned;
+    return isNotDownstream && isNotInvalid && isNotReassigned(alert, summaryId);
   });
 
   if (filteredAlerts.length === 0) {
