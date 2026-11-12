@@ -15,6 +15,7 @@ import pytest
 import responses
 import yaml
 from _pytest.monkeypatch import MonkeyPatch
+from celery import shared_task
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.management import call_command
@@ -440,26 +441,22 @@ def test_job_3(hundred_job_blobs, create_jobs):
     return create_jobs(hundred_job_blobs[0:3])[2]
 
 
+@shared_task
+def task_mock(*args, **kwargs):
+    pass
+
+
 @pytest.fixture
 def mock_log_parser(monkeypatch):
-    from celery import shared_task
-
     from treeherder.log_parser import tasks
-
-    @shared_task
-    def task_mock(*args, **kwargs):
-        pass
 
     monkeypatch.setattr(tasks, "parse_logs", task_mock)
 
 
 @pytest.fixture
 def mock_parser(monkeypatch):
-    from celery import shared_task
-
     from treeherder.log_parser import failureline
 
-    @shared_task
     def fetch_mock(*args, **kwargs):
         file_name = args[0].url.split("/")[-1]
         try:
