@@ -381,6 +381,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     triage_due_date = serializers.ReadOnlyField()
     bug_due_date = serializers.ReadOnlyField()
     severity = serializers.ReadOnlyField()
+    resolution = serializers.ReadOnlyField()
     monitored_alerts = serializers.BooleanField(required=False)
 
     def validate(self, data):
@@ -415,6 +416,9 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.timestamp_first_triage()
+        status = validated_data.get("status")
+        if status is not None:
+            validated_data["resolution"] = PerformanceAlertSummary.RESOLUTION_BY_STATUS[status]
         return super().update(instance, validated_data)
 
     def get_assignee_email(self, performance_alert_summary):
@@ -457,6 +461,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "status",
             "bug_number",
             "bug_resolution",
+            "resolution",
             "bug_due_date",
             "bug_updated",
             "severity",

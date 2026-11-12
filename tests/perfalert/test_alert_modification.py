@@ -232,6 +232,7 @@ def test_summary_status_invalid_with_only_invalid_alerts(
     )
 
     assert test_perf_alert_summary.status == PerformanceAlertSummary.INVALID
+    assert test_perf_alert_summary.resolution == "invalid"
 
 
 def test_summary_status_infra_with_only_infra_alerts(test_perf_alert_summary, test_perf_signature):
@@ -243,6 +244,7 @@ def test_summary_status_infra_with_only_infra_alerts(test_perf_alert_summary, te
     )
 
     assert test_perf_alert_summary.status == PerformanceAlertSummary.INFRA
+    assert test_perf_alert_summary.resolution == "infra"
 
 
 def test_summary_status_invalid_with_mixed_invalid_and_infra_alerts(
@@ -275,6 +277,7 @@ def test_summary_status_invalid_with_mixed_invalid_and_infra_alerts(
     )
 
     assert test_perf_alert_summary.status == PerformanceAlertSummary.INVALID
+    assert test_perf_alert_summary.resolution == "invalid"
 
 
 def test_summary_status_preserves_terminal_states_on_acknowledgement(
@@ -291,6 +294,7 @@ def test_summary_status_preserves_terminal_states_on_acknowledgement(
     )
 
     assert test_perf_alert_summary.status == PerformanceAlertSummary.FIXED
+    assert test_perf_alert_summary.resolution == "valid"
 
 
 def test_summary_status_reassigned_with_only_reassigned_alerts(
@@ -305,6 +309,7 @@ def test_summary_status_reassigned_with_only_reassigned_alerts(
     )
 
     assert test_perf_alert_summary.status == PerformanceAlertSummary.REASSIGNED
+    assert test_perf_alert_summary.resolution == "reassigned"
 
 
 def test_summary_status_downstream_with_only_downstream_alerts(
@@ -319,3 +324,27 @@ def test_summary_status_downstream_with_only_downstream_alerts(
     )
 
     assert test_perf_alert_summary.status == PerformanceAlertSummary.DOWNSTREAM
+    assert test_perf_alert_summary.resolution == "downstream"
+
+
+def test_summary_resolution_follows_alert_status_changes(
+    test_perf_alert_summary, test_perf_signature
+):
+    alert = create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        status=PerformanceAlert.ACKNOWLEDGED,
+        is_regression=True,
+    )
+    test_perf_alert_summary.refresh_from_db()
+    assert test_perf_alert_summary.resolution == "valid"
+
+    alert.status = PerformanceAlert.INVALID
+    alert.save()
+    test_perf_alert_summary.refresh_from_db()
+    assert test_perf_alert_summary.resolution == "invalid"
+
+    alert.status = PerformanceAlert.UNTRIAGED
+    alert.save()
+    test_perf_alert_summary.refresh_from_db()
+    assert test_perf_alert_summary.resolution is None
