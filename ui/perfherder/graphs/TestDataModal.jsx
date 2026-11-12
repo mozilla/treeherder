@@ -1,707 +1,914 @@
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Col, Form, Modal, Row, Badge } from 'react-bootstrap';
-import flatMap from 'lodash/flatMap';
-
-import { createDropdowns } from '../../shared/FilterControls';
-import InputFilter from '../../shared/InputFilter';
-import { processResponse } from '../../helpers/http';
-import PerfSeriesModel from '../../models/perfSeries';
-import { thPerformanceBranches } from '../../helpers/constants';
 import {
-  containsText,
-  getInitialData as getInitialDataFunc,
-  getSeriesData as getSeriesDataFunc,
+  Alert,
+  Button,
+  CloseButton,
+  Dropdown,
+  Form,
+  Modal,
+  Spinner,
+  Table,
+} from 'react-bootstrap';
+
+import { thPerformanceBranches } from '../../helpers/constants';
+import { phTimeRanges } from '../perf-helpers/constants';
+import {
+  getFrameworkName,
+  loadRepositorySignatures,
+  loadSubtestSignatures,
+  matchesQuery,
 } from '../perf-helpers/helpers';
 
 import TimeRangeDropdown from './TimeRangeDropdown';
 
-export default class TestDataModal extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      platforms: [],
-      framework: { name: 'talos', id: 1 },
-      repository_name: this.findObject(
-        this.props.projects,
-        'name',
-        'mozilla-central',
-      ),
-      platform: 'linux64',
-      pinnedProjects: ['autoland', 'mozilla-central', 'mozilla-beta', 'try'],
-      errorMessages: [],
-      includeSubtests: false,
-      seriesData: [],
-      relatedTests: [],
-      selectedTests: [],
-      filteredData: [],
-      showNoRelatedTests: false,
-      filterText: '',
-      loading: true,
-      selectedUnits: new Set(),
-      activeTags: [],
-      availableTags: [],
-      innerTimeRange: this.props.timeRange,
-    };
-  }
+const PINNED_REPOS = ['mozilla-central', 'autoland', 'mozilla-beta', 'try'];
+// mozilla-beta and try (the largest repository) are rarely wanted in a
+// general search, so they're only loaded once the user asks for them.
+const DEFAULT_REPOS = ['mozilla-central', 'autoland'];
+// The modal's time range decides which tests are listed. It only changes the
+// graph's time range if the user picks one in the modal.
+const DEFAULT_TIME_RANGE = phTimeRanges.find((item) => item.value === 2592000);
+const REPOS_STORAGE_KEY = 'perfherder-graphs-test-search-repos';
+const MAX_RESULTS = 200;
+const MAX_VISIBLE_GRAPHS = 6;
 
-  async componentDidMount() {
-    const {
-      errorMessages,
-      framework,
-      innerTimeRange,
-      repository_name: repositoryName,
-    } = this.state;
-    const { getInitialData = getInitialDataFunc } = this.props;
-    const updates = await getInitialData(
-      errorMessages,
-      repositoryName,
-      framework,
-      innerTimeRange,
-    );
-    this.setState(updates, this.processOptions);
-  }
+const removeSubstring = (subString, fromString) =>
+  subString && fromString.includes(subString)
+    ? fromString.split(subString).join('').trim()
+    : fromString;
 
-  componentDidUpdate(prevProps, prevState) {
-    const { activeTags, availableTags, platform, platforms } = this.state;
-    const { testData = [], timeRange } = this.props;
+// The legend card links open the modal pre-filtered to tests related to the
+// clicked series. Related tests always come from the same framework.
+export const relatedFilters = {
+  addRelatedConfigs: {
+    label: 'Other configurations of',
+    matches: (series, related) =>
+      series.projectName === related.repository_name &&
+      series.platform === related.platform &&
+      series.suite === related.suite &&
+      series.name !== related.name,
+  },
+  addRelatedBranches: {
+    label: 'Same test on other branches as',
+    matches: (series, related) =>
+      series.projectName !== related.repository_name &&
+      series.platform === related.platform &&
+      series.name.trim() === related.name.trim(),
+  },
+  addRelatedPlatform: {
+    label: 'Same test on other platforms as',
+    matches: (series, related) =>
+      series.platform !== related.platform &&
+      series.name.trim() === related.name.trim(),
+  },
+  addRelatedApplications: {
+    label: 'Same test in other applications as',
+    matches: (series, related) =>
+      series.projectName === related.repository_name &&
+      series.platform === related.platform &&
+      series.application !== related.application &&
+      removeSubstring(series.application, series.name) ===
+        removeSubstring(related.application, related.name),
+  },
+};
 
-    if (prevState.platforms !== platforms) {
-      const newPlatform = platforms.find((item) => item === platform)
-        ? platform
-        : platforms[0];
+const compareSeries = (a, b) => {
+  if (a.name !== b.name) return a.name < b.name ? -1 : 1;
+  if (a.platform !== b.platform) return a.platform < b.platform ? -1 : 1;
+  if (a.projectName !== b.projectName)
+    return a.projectName < b.projectName ? -1 : 1;
+  return 0;
+};
 
-      this.setState({ platform: newPlatform });
+const toggleItem = (list, item) =>
+  list.includes(item) ? list.filter((x) => x !== item) : [...list, item];
+
+// The search box keeps focus while the arrow keys move through the results
+// (an ARIA combobox controlling a grid), so screen readers follow the active
+// result through aria-activedescendant, which needs stable row IDs.
+const RESULTS_ID = 'test-search-results';
+const rowId = (series) => `test-search-row-${series.id}`;
+
+const getFullTestName = (series) =>
+  `${series.projectName} ${series.platform} ${series.name} ${
+    series.application || ''
+  }`.trim();
+
+const readStoredRepos = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(REPOS_STORAGE_KEY));
+    if (
+      Array.isArray(stored) &&
+      stored.length &&
+      stored.every((repo) => typeof repo === 'string')
+    ) {
+      return stored;
     }
-
-    if (prevState.availableTags !== availableTags) {
-      const newActiveTags = activeTags.filter((tag) =>
-        availableTags.includes(tag),
-      );
-
-      this.setState({ activeTags: newActiveTags }, this.applyFilters);
-    }
-
-    if (this.props.options !== prevProps.options) {
-      this.processOptions(true);
-    }
-
-    if (timeRange !== prevProps.timeRange) {
-      this.setState({ innerTimeRange: timeRange });
-    }
-
-    if (testData !== prevProps.testData) {
-      this.processOptions();
-    }
+  } catch {
+    // fall through to the defaults
   }
+  return DEFAULT_REPOS;
+};
 
-  async getPlatforms() {
-    const {
-      errorMessages,
-      framework,
-      innerTimeRange,
-      repository_name: repositoryName,
-    } = this.state;
+const FilterChip = ({
+  label,
+  count,
+  active,
+  loading,
+  onClick,
+  title,
+  className = '',
+}) => (
+  <Button
+    size="sm"
+    variant={active ? 'darker-info' : 'outline-darker-info'}
+    className={`me-1 mb-1 rounded-pill test-search-chip ${className}`}
+    onClick={onClick}
+    aria-pressed={active}
+    title={title}
+  >
+    {label}
+    {count !== undefined && <span className="ms-1 opacity-75">{count}</span>}
+    {loading && (
+      <Spinner
+        animation="border"
+        size="sm"
+        className="ms-1"
+        aria-label={`Loading ${label}`}
+      />
+    )}
+  </Button>
+);
 
-    const params = { interval: innerTimeRange.value, framework: framework.id };
-    const response = await PerfSeriesModel.getPlatformList(
-      repositoryName.name,
-      params,
-    );
+// For long lists like platforms: a dropdown of alphabetically sorted
+// checkboxes with a filter box, which is far easier to scan than many pills.
+// It stays open while several values are ticked.
+export const CheckboxDropdown = ({
+  noun,
+  plural,
+  options,
+  selected,
+  onToggle,
+  onClear,
+}) => {
+  const [filter, setFilter] = useState('');
+  const shown = options.filter(([value]) =>
+    matchesQuery(value.toLowerCase(), filter),
+  );
 
-    const updates = processResponse(response, 'platforms', errorMessages);
-    this.setState(updates);
-    this.processOptions();
-  }
+  let summary = `All ${plural}`;
+  if (selected.length === 1) [summary] = selected;
+  if (selected.length > 1) summary = `${selected.length} ${plural}`;
 
-  getTagOptions(seriesData) {
-    const newAvailableTags = flatMap(seriesData, (test) => test.tags);
-    return [...new Set(newAvailableTags)];
-  }
+  return (
+    <Dropdown
+      autoClose="outside"
+      onToggle={(open) => {
+        if (!open) setFilter('');
+      }}
+    >
+      <Dropdown.Toggle
+        size="sm"
+        variant={selected.length ? 'darker-info' : 'outline-darker-info'}
+        className="rounded-pill mb-1 test-search-chip"
+        aria-label={`${noun} filter: ${summary}`}
+      >
+        {summary}
+      </Dropdown.Toggle>
+      <Dropdown.Menu className="p-2 test-search-checkbox-menu">
+        <Form.Control
+          type="search"
+          size="sm"
+          className="mb-2"
+          placeholder={`Filter ${plural}`}
+          aria-label={`Filter ${plural}`}
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+        />
+        <div className="test-search-checkbox-list">
+          {shown.map(([value, count]) => (
+            <Form.Check
+              key={value}
+              id={`test-search-${noun}-${value}`}
+              type="checkbox"
+              checked={selected.includes(value)}
+              onChange={() => onToggle(value)}
+              label={
+                <>
+                  {value} <span className="text-secondary">{count}</span>
+                </>
+              }
+            />
+          ))}
+          {!shown.length && (
+            <div className="small text-secondary">
+              No {plural} match "{filter}".
+            </div>
+          )}
+        </div>
+        {selected.length > 0 && (
+          <Button variant="link" size="sm" className="p-0 mt-2" onClick={onClear}>
+            Clear
+          </Button>
+        )}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+};
 
-  getDropdownOptions(options) {
-    return options.length ? options.map((item) => item.name) : [];
-  }
+const FilterRow = ({ title, children }) => (
+  <div className="d-flex align-items-baseline mb-1">
+    <span className="test-search-facet-title text-secondary small">
+      {title}
+    </span>
+    <div className="d-flex flex-wrap">{children}</div>
+  </div>
+);
 
-  addRelatedApplications = async (params) => {
-    const { relatedSeries: relatedSignature } = this.props.options ?? {};
-    const { errorMessages } = this.state;
-    let relatedTests = [];
+const TestDataModal = ({
+  frameworks = [],
+  getTestData,
+  loadSignatures = loadRepositorySignatures,
+  loadSubtests = loadSubtestSignatures,
+  options = undefined,
+  plottedUnits,
+  projects,
+  replicates = false,
+  showModal,
+  testData = [],
+  timeRange,
+  toggle,
+  updateTestsAndTimeRange = undefined,
+}) => {
+  const [repos, setRepos] = useState(readStoredRepos);
+  const [loaded, setLoaded] = useState({});
+  const [loading, setLoading] = useState([]);
+  const [failed, setFailed] = useState({});
+  const [query, setQuery] = useState('');
+  const [platformFilter, setPlatformFilter] = useState([]);
+  const [activeTags, setActiveTags] = useState([]);
+  const [includeSubtests, setIncludeSubtests] = useState(false);
+  const [innerTimeRange, setInnerTimeRange] = useState(DEFAULT_TIME_RANGE);
+  const [timeRangePicked, setTimeRangePicked] = useState(false);
+  const [selected, setSelected] = useState([]);
+  const [related, setRelated] = useState(null);
+  const [expanded, setExpanded] = useState({});
+  // the highlighted test; null means the first result
+  const [activeId, setActiveId] = useState(null);
 
-    const { data, failureStatus } = await PerfSeriesModel.getSeriesList(
-      relatedSignature.repository_name,
-      params,
-    );
+  const pending = useRef(new Set());
+  const mounted = useRef(true);
+  const activeRow = useRef(null);
+  // identifies each subtest request, so only the latest one for a row is used
+  const subtestRequest = useRef(0);
 
-    if (!failureStatus) {
-      relatedTests = data.filter((signature) => {
-        const differentApplications =
-          signature.application !== relatedSignature.application;
-        const similarTestNames =
-          this.removeSubstring(signature.application, signature.name) ===
-          this.removeSubstring(
-            relatedSignature.application,
-            relatedSignature.name,
-          );
-        const samePlatform = signature.platform === relatedSignature.platform;
-        const sameProject =
-          signature.projectName === relatedSignature.repository_name;
+  const interval = innerTimeRange.value;
+  // what's loaded depends on the time range and whether subtests are included
+  const listSuffix = `:${interval}:${includeSubtests ? 1 : 0}`;
+  const repoKey = (repo) => `${repo}${listSuffix}`;
 
-        return (
-          differentApplications &&
-          similarTestNames &&
-          samePlatform &&
-          sameProject
-        );
-      });
-    } else {
-      errorMessages.push(data);
-    }
+  useEffect(
+    () => () => {
+      mounted.current = false;
+    },
+    [],
+  );
 
-    this.setState({
-      relatedTests,
-      showNoRelatedTests: relatedTests.length === 0,
-      errorMessages,
-      loading: false,
-    });
-  };
+  // The legend card links open the modal pre-filtered to related tests.
+  useEffect(() => {
+    const { option, relatedSeries } = options ?? {};
+    if (!relatedSeries || !relatedFilters[option]) return;
 
-  addRelatedConfigs = async (params) => {
-    const { relatedSeries } = this.props.options ?? {};
-    const { errorMessages } = this.state;
-
-    const response = await PerfSeriesModel.getSeriesList(
+    setRelated({ option, series: relatedSeries });
+    setQuery('');
+    setPlatformFilter([]);
+    setActiveTags([]);
+    // "other branches" and "other platforms" look beyond the series' own
+    // repository, so load the performance branches even if the saved
+    // selection doesn't include them
+    const neededRepos = [
       relatedSeries.repository_name,
-      params,
-    );
-    const updates = processResponse(response, 'relatedTests', errorMessages);
+      ...(option === 'addRelatedBranches' || option === 'addRelatedPlatform'
+        ? thPerformanceBranches
+        : []),
+    ];
+    setRepos((prev) => [
+      ...prev,
+      ...neededRepos.filter(
+        (repo, i) => !prev.includes(repo) && neededRepos.indexOf(repo) === i,
+      ),
+    ]);
+  }, [options]);
 
-    if (updates.relatedTests.length) {
-      const tests = updates.relatedTests.filter(
-        (series) =>
-          series.platform === relatedSeries.platform &&
-          series.suite === relatedSeries.suite &&
-          series.name !== relatedSeries.name,
-      );
-      
-      updates.relatedTests = tests;
-    }
-    updates.showNoRelatedTests = updates.relatedTests.length === 0;
-    updates.loading = false;
+  // Signature lists are only fetched while the modal is open.
+  useEffect(() => {
+    if (!showModal) return;
 
-    this.setState(updates);
-  };
+    repos.forEach((repo) => {
+      const key = `${repo}${listSuffix}`;
+      if (loaded[key] || failed[key] || pending.current.has(key)) return;
 
-  addRelatedBranches = async (params, samePlatform = true) => {
-    const { relatedSeries } = this.props.options ?? {};
-    const { errorMessages } = this.state;
+      pending.current.add(key);
+      setLoading((prev) => [...prev, key]);
+      // a rejected request must still clear the pending/loading state,
+      // otherwise the repository stays "loading" until the page is reloaded
+      Promise.resolve()
+        .then(() =>
+          loadSignatures(repo, interval, frameworks, {
+            subtests: includeSubtests,
+          }),
+        )
+        .catch((error) => ({
+          data: `failed to load tests (${error?.message || error})`,
+          failureStatus: true,
+        }))
+        .then(({ data, failureStatus }) => {
+          pending.current.delete(key);
+          if (!mounted.current) return;
 
-    const relatedProjects = thPerformanceBranches.filter(
-      (repositoryName) => repositoryName !== relatedSeries.repository_name,
-    );
-
-    const requests = relatedProjects.map((projectName) =>
-      PerfSeriesModel.getSeriesList(projectName, params),
-    );
-    const responses = await Promise.all(requests);
-    const relatedTests = responses
-      // eslint-disable-next-line array-callback-return
-      .flatMap((item) => {
-        if (!item.failureStatus) {
-          return item.data;
-        }
-        errorMessages.push(item.data);
-      })
-      .filter(
-        (responseSeries) =>
-          responseSeries.name.trim() === relatedSeries.name.trim() &&
-          (samePlatform
-            ? responseSeries.platform === relatedSeries.platform
-            : responseSeries.platform !== relatedSeries.platform),
-      );
-
-    this.setState({
-      relatedTests,
-      showNoRelatedTests: relatedTests.length === 0,
-      errorMessages,
-      loading: false,
+          setLoading((prev) => prev.filter((item) => item !== key));
+          if (failureStatus) {
+            setFailed((prev) => ({
+              ...prev,
+              [key]: typeof data === 'string' ? data : 'failed to load tests',
+            }));
+          } else {
+            setLoaded((prev) => ({ ...prev, [key]: data }));
+          }
+        });
     });
-  };
+  }, [
+    showModal,
+    repos,
+    interval,
+    includeSubtests,
+    listSuffix,
+    loaded,
+    failed,
+    frameworks,
+    loadSignatures,
+  ]);
 
-  processOptions = async (relatedTestsMode = false) => {
-    const { option, relatedSeries } = this.props.options ?? {};
-    const {
-      errorMessages,
-      filterText,
-      framework,
-      includeSubtests,
-      innerTimeRange,
-      platform,
-      repository_name: repositoryName,
-    } = this.state;
-    const { getSeriesData = getSeriesDataFunc, testData = [] } = this.props;
+  const index = useMemo(
+    () =>
+      repos
+        .flatMap((repo) => loaded[`${repo}${listSuffix}`] || [])
+        .sort(compareSeries),
+    [repos, loaded, listSuffix],
+  );
 
-    const params = {
-      interval: innerTimeRange.value,
-      framework: framework.id,
-      subtests: +includeSubtests,
-    };
-    this.setState({ loading: true });
+  const plottedIds = useMemo(
+    () => new Set(testData.map((series) => series.signature_id)),
+    [testData],
+  );
 
-    if (!relatedTestsMode) {
-      params.platform = platform;
-      const updates = await getSeriesData(
-        params,
-        errorMessages,
-        repositoryName,
-        testData,
-      );
-      const { seriesData } = updates;
-      const availableTags = this.getTagOptions(seriesData);
+  // query, tags and related-test filters; platform and framework facets are
+  // applied below so each facet can show counts for the other's selection
+  const baseResults = useMemo(() => {
+    const relatedFilter = related && relatedFilters[related.option];
 
-      this.setState({ ...updates, availableTags });
-      this.applyFilters(filterText);
-    } else {
-      const { frameworks = [], projects = [] } = this.props;
-      params.framework = relatedSeries.framework_id;
+    return index.filter(
+      (series) =>
+        (!relatedFilter ||
+          (series.frameworkId === related.series.framework_id &&
+            relatedFilter.matches(series, related.series))) &&
+        activeTags.every((tag) => series.tags.includes(tag)) &&
+        matchesQuery(series.searchText, query),
+    );
+  }, [index, related, activeTags, query]);
 
-      const relatedFramework = this.findObject(frameworks, 'id', relatedSeries.framework_id) || framework;
-      const relatedRepository = this.findObject(projects, 'name', relatedSeries.repository_name) || repositoryName;
+  const { results, platformCounts, availableTags } = useMemo(() => {
+    // platform counts ignore the platform selection itself, so the other
+    // platforms still show how many tests they would add
+    const platforms = new Map();
+    const tags = new Set(activeTags);
+    const matching = [];
 
-      const platformResponse = await PerfSeriesModel.getPlatformList(
-        relatedRepository.name,
-        { interval: innerTimeRange.value, framework: relatedSeries.framework_id },
-      );
-      const platformUpdates = processResponse(platformResponse, 'platforms', errorMessages);
-
-      this.setState({
-        ...platformUpdates,
-        framework: relatedFramework,
-        repository_name: relatedRepository,
-        platform: relatedSeries.platform,
-      });
-      
-      if (option === 'addRelatedPlatform') {        
-        this.addRelatedBranches(params, false);
-      } else if (option === 'addRelatedConfigs') {
-        this.addRelatedConfigs(params);
-      } else if (option === 'addRelatedBranches') {
-        this.addRelatedBranches(params);
-      } else if (option === 'addRelatedApplications') {
-        this.addRelatedApplications(params);
+    baseResults.forEach((series) => {
+      platforms.set(series.platform, (platforms.get(series.platform) || 0) + 1);
+      if (!platformFilter.length || platformFilter.includes(series.platform)) {
+        matching.push(series);
+        series.tags.forEach((tag) => tags.add(tag));
       }
-      this.applyFilters(filterText);
-    }
-  };
-
-  findObject = (list, key, value) => list.find((item) => item[key] === value);
-
-  filterTestsByText = (tests, filterText) => {
-    return tests.filter((test) => {
-      // spell out all searchable characteristics
-      // into a single encompassing string
-      const textToSearch = `${test.name} ${test.application}`;
-
-      return containsText(textToSearch, filterText);
     });
-  };
 
-  applyFilters = (filterText) => {
-    const { seriesData, activeTags } = this.state;
-    let filteredData = activeTags.length ? [] : [...seriesData];
+    return {
+      results: matching,
+      platformCounts: platforms,
+      availableTags: [...tags].sort(),
+    };
+  }, [baseResults, platformFilter, activeTags]);
 
-    if (activeTags.length) {
-      filteredData = seriesData.filter((test) =>
-        activeTags.every((activeTag) => test.tags.includes(activeTag)),
-      );
-    }
+  const displayed = results.slice(0, MAX_RESULTS);
 
-    if (filterText) {
-      filteredData = this.filterTestsByText(filteredData, filterText);
-    }
+  // back to the first result when the search or filters change, but not when
+  // another repository's list arrives while the user moves through results
+  useEffect(() => {
+    setActiveId(null);
+  }, [query, platformFilter, activeTags, related]);
 
-    this.setState({ filteredData, filterText });
-  };
+  // the highlighted test's row, or the first row if it isn't listed (any more)
+  const activeRowIndex = Math.max(
+    displayed.findIndex((series) => series.id === activeId),
+    0,
+  );
 
-  toggleTag = (tag) => {
-    const { filterText, activeTags } = this.state;
-    let newActiveTags = [...activeTags];
+  useEffect(() => {
+    activeRow.current?.scrollIntoView?.({ block: 'nearest' });
+  }, [activeRowIndex]);
 
-    if (activeTags.includes(tag)) {
-      newActiveTags = activeTags.filter((activeTag) => activeTag !== tag);
-    } else {
-      newActiveTags = activeTags.concat(tag);
-    }
+  const selectedUnits = useMemo(
+    () => new Set(selected.map((series) => series.measurementUnit)),
+    [selected],
+  );
 
-    this.setState({ activeTags: newActiveTags }, () => {
-      this.applyFilters(filterText);
-    });
-  };
-
-  updateSelectedTests = (test, removeTest = false) => {
-    let { selectedTests, selectedUnits } = this.state;
-    const index = selectedTests.indexOf(test);
-
-    if (index === -1) {
-      selectedTests = [...selectedTests, ...[test]];
-      selectedUnits = this.extractUniqueUnits(selectedTests);
-
-      this.setState({
-        selectedTests,
-        selectedUnits,
-      });
-    } else if (index !== -1 && removeTest) {
-      selectedTests.splice(index, 1);
-      selectedUnits = this.extractUniqueUnits(selectedTests);
-
-      this.setState({ selectedTests, selectedUnits });
-    }
-  };
-
-  getFullTestName = (test) =>
-    `${test.projectName} ${test.platform} ${test.name} ${
-      test.application || ''
-    }`;
-
-  getOriginalTestName = (test) =>
-    this.state.relatedTests.length > 0
-      ? this.getFullTestName(test)
-      : `${test.name} ${test.application || ''}`;
-
-  closeModal = () => {
-    this.setState(
-      {
-        framework: { name: 'talos', id: 1 },
-        repository_name: this.findObject(this.props.projects, 'name', 'mozilla-central'),
-        platform: 'linux64',
-        selectedTests: [],
-        relatedTests: [],
-        filteredData: [],
-        showNoRelatedTests: false,
-        filterText: '',
-        innerTimeRange: this.props.timeRange,
-      },
-      this.props.toggle,
+  const hasDifferentUnit = (series) => {
+    const unit = series.measurementUnit;
+    return Boolean(
+      (plottedUnits.size && !plottedUnits.has(unit)) ||
+        selectedUnits.size >= 2 ||
+        (selectedUnits.size && !selectedUnits.has(unit)),
     );
   };
 
-  submitData = () => {
-    const { selectedTests, innerTimeRange } = this.state;
-    const {
-      getTestData,
-      timeRange: parentTimeRange,
-      updateTestsAndTimeRange,
-      replicates,
-    } = this.props;
+  const rowTitle = (series) =>
+    hasDifferentUnit(series)
+      ? `Warning: ${getFullTestName(series)} has a different measurement unit (${
+          series.measurementUnit || 'none'
+        })`
+      : getFullTestName(series);
 
-    const displayedTestParams = selectedTests.map((series) => ({
+  const isSelected = (series) => selected.some((item) => item.id === series.id);
+
+  const toggleSelected = (series) => {
+    if (plottedIds.has(series.id)) return;
+    setSelected((prev) =>
+      prev.some((item) => item.id === series.id)
+        ? prev.filter((item) => item.id !== series.id)
+        : [...prev, series],
+    );
+  };
+
+  const toggleRepo = (repo) => {
+    const newRepos = toggleItem(repos, repo);
+    setRepos(newRepos);
+    // unselecting a repository that failed to load lets the user retry it
+    setFailed((prev) => {
+      const { [repoKey(repo)]: removed, ...rest } = prev;
+      return rest;
+    });
+    try {
+      localStorage.setItem(REPOS_STORAGE_KEY, JSON.stringify(newRepos));
+    } catch {
+      // storage can be unavailable (e.g. private browsing); not essential
+    }
+  };
+
+  const toggleSubtests = async (series) => {
+    if (expanded[series.id]) {
+      setExpanded(({ [series.id]: removed, ...rest }) => rest);
+      return;
+    }
+    subtestRequest.current += 1;
+    const request = subtestRequest.current;
+    setExpanded((prev) => ({ ...prev, [series.id]: { loading: true, request } }));
+
+    let response;
+    try {
+      response = await loadSubtests(series, interval);
+    } catch {
+      response = { failureStatus: true };
+    }
+    if (!mounted.current) return;
+    const { data, failureStatus } = response;
+
+    setExpanded((prev) => {
+      // ignore replies for rows that were collapsed, or re-expanded since
+      // (e.g. after a time range change) by a newer request
+      if (prev[series.id]?.request !== request) return prev;
+      return {
+        ...prev,
+        [series.id]: failureStatus
+          ? { error: 'Failed to load subtests', request }
+          : { data: [...data].sort(compareSeries), request },
+      };
+    });
+  };
+
+  // Closing the picker, by plotting or dismissing it, ends this "add tests"
+  // session: pending selections are dropped, and a time range picked here no
+  // longer applies, so later changes to the graph's own range are kept. The
+  // search and filters stay so the next test is quicker to find.
+  const endSession = () => {
+    setSelected([]);
+    setTimeRangePicked(false);
+    setRelated(null);
+    toggle();
+  };
+
+  const submitData = () => {
+    const displayedTestParams = selected.map((series) => ({
       repository_name: series.projectName,
       signature_id: parseInt(series.id, 10),
       framework_id: parseInt(series.frameworkId, 10),
       replicates,
     }));
 
-    this.setState({
-      selectedTests: [],
-      selectedUnits: new Set(),
-      filterText: '',
-    });
-
-    if (innerTimeRange.value !== parentTimeRange.value) {
+    if (timeRangePicked && innerTimeRange.value !== timeRange.value) {
       updateTestsAndTimeRange(displayedTestParams, innerTimeRange);
     } else {
       getTestData(displayedTestParams);
     }
-    this.closeModal();
+    setExpanded({});
+    endSession();
   };
 
-  selectableTestClassName = (test) => {
-    return this.hasDifferentUnit(test) ? 'bg-warning' : '';
-  };
-
-  selectableTestTitle = (test) => {
-    if (this.hasDifferentUnit(test)) {
-      return `Warning: ${this.getOriginalTestName(
-        test,
-      )} has a different measurement unit (${test.measurementUnit}) `;
+  const onSearchKeyDown = (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const next = displayed[activeRowIndex + 1];
+      if (next) setActiveId(next.id);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      const previous = displayed[activeRowIndex - 1];
+      if (previous) setActiveId(previous.id);
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      if (event.metaKey || event.ctrlKey) {
+        if (selected.length) submitData();
+      } else if (displayed[activeRowIndex]) {
+        toggleSelected(displayed[activeRowIndex]);
+      }
     }
-    return this.getOriginalTestName(test);
   };
 
-  hasDifferentUnit = (test) => {
-    const { plottedUnits } = this.props;
-    const { selectedUnits } = this.state;
-    const unit = test.measurementUnit;
+  const otherRepos = projects
+    .map((project) => project.name)
+    .filter((name) => !PINNED_REPOS.includes(name) && !repos.includes(name))
+    .sort();
+  const repoChips = [
+    ...PINNED_REPOS,
+    ...repos.filter((repo) => !PINNED_REPOS.includes(repo)),
+  ];
 
-    const differentThanPlottedUnits =
-      plottedUnits.size && !plottedUnits.has(unit);
-    const selectedUnitTypesMismatch = selectedUnits.size >= 2;
-    const differentThanSelectedUnits =
-      selectedUnits.size && !selectedUnits.has(unit);
+  // listed alphabetically; selected platforms stay listed when nothing
+  // else matches them, so they can always be cleared
+  const platformOptions = [...platformCounts.entries()];
+  platformFilter.forEach((platform) => {
+    if (!platformCounts.has(platform)) platformOptions.push([platform, 0]);
+  });
+  platformOptions.sort(([a], [b]) => a.localeCompare(b));
+
+  const isLoading = repos.some((repo) => loading.includes(repoKey(repo)));
+  const visiblePlotted = testData.filter((series) => series.visible).length;
+  const failures = repos
+    .filter((repo) => failed[repoKey(repo)])
+    .map((repo) => `${repo}: ${failed[repoKey(repo)]}`);
+
+  const renderRow = (series, { isSubtest = false, rowIndex = -1 }) => {
+    const plotted = plottedIds.has(series.id);
+    const checked = plotted || isSelected(series);
+    const isActive = rowIndex === activeRowIndex;
+    const subtests = expanded[series.id];
 
     return (
-      differentThanPlottedUnits ||
-      selectedUnitTypesMismatch ||
-      differentThanSelectedUnits
+      <tr
+        key={series.id}
+        id={rowId(series)}
+        aria-selected={checked}
+        ref={isActive ? activeRow : null}
+        data-testid={series.id.toString()}
+        title={plotted ? `${getFullTestName(series)} is already plotted` : rowTitle(series)}
+        className={`${isActive ? 'table-active' : ''} ${
+          plotted ? 'text-muted' : 'pointer'
+        }`}
+        onClick={() => toggleSelected(series)}
+      >
+        <td>
+          <Form.Check
+            type="checkbox"
+            checked={checked}
+            disabled={plotted}
+            readOnly
+            aria-label={`Select ${getFullTestName(series)}`}
+          />
+        </td>
+        <td className={isSubtest ? 'ps-4' : ''}>
+          {series.hasSubtests && !isSubtest && !includeSubtests && (
+            <Button
+              variant="link"
+              size="sm"
+              className="p-0 me-1 text-decoration-none"
+              aria-expanded={Boolean(subtests)}
+              title={subtests ? 'Hide subtests' : 'Show subtests'}
+              onClick={(event) => {
+                event.stopPropagation();
+                toggleSubtests(series);
+              }}
+            >
+              {subtests ? '▾' : '▸'}
+            </Button>
+          )}
+          {series.name}
+        </td>
+        <td>{series.application || ''}</td>
+        <td>{series.platform}</td>
+        <td>{series.projectName}</td>
+        <td>{getFrameworkName(frameworks, series.frameworkId)}</td>
+        <td>
+          {series.measurementUnit}
+          {hasDifferentUnit(series) && !plotted && (
+            <span className="ms-1 text-warning" aria-label="different unit">
+              ⚠
+            </span>
+          )}
+        </td>
+      </tr>
     );
   };
 
-  removeSubstring = (subString, fromString) =>
-    fromString.includes(subString)
-      ? fromString.split(subString).join('').trim()
-      : fromString;
+  const renderSubtests = (series) => {
+    const subtests = expanded[series.id];
+    if (!subtests) return null;
+    if (subtests.loading || subtests.error) {
+      return (
+        <tr key={`${series.id}-subtests`}>
+          <td />
+          <td colSpan={6} className="ps-4 small text-secondary">
+            {subtests.error || 'Loading subtests…'}
+          </td>
+        </tr>
+      );
+    }
+    return subtests.data.map((subtest) => renderRow(subtest, { isSubtest: true }));
+  };
 
-  extractUniqueUnits(tests) {
-    return new Set(tests.map((aTest) => aTest.measurementUnit));
+  const allFailed =
+    repos.length > 0 && repos.every((repo) => failed[repoKey(repo)]);
+  const noMatches =
+    repos.length > 0 && !isLoading && !allFailed && !results.length;
+  const includeSubtestsAndSearch = () => {
+    setIncludeSubtests(true);
+    setExpanded({});
+  };
+
+  let status;
+  if (!index.length && isLoading) {
+    status = 'Loading tests…';
+  } else if (!repos.length) {
+    status = 'Select at least one repository.';
+  } else if (allFailed) {
+    status = "Couldn't load any tests, see the errors above.";
+  } else if (!results.length && !isLoading) {
+    // the empty results area explains this (and offers to include subtests)
+    status = '0 tests';
+  } else if (results.length > MAX_RESULTS) {
+    status = `Showing ${MAX_RESULTS} of ${results.length.toLocaleString()} tests, refine the search to see more.`;
+  } else {
+    status = `${results.length.toLocaleString()} tests${
+      isLoading ? ', still loading…' : ''
+    }`;
   }
 
-  render() {
-    const {
-      activeTags,
-      availableTags,
-      filterText,
-      filteredData,
-      framework,
-      includeSubtests,
-      innerTimeRange,
-      loading,
-      pinnedProjects,
-      platform,
-      platforms,
-      relatedTests,
-      repository_name: repositoryName,
-      selectedTests,
-      seriesData,
-      showNoRelatedTests,
-    } = this.state;
-    const { frameworks = [], projects, showModal } = this.props;
-    const projectOptions = this.getDropdownOptions(projects);
-    const modalOptions = [
-      {
-        options: frameworks.length ? frameworks.map((item) => item.name) : [],
-        selectedItem: framework.name,
-        updateData: (value) =>
-          this.setState(
-            {
-              framework: this.findObject(frameworks, 'name', value),
-            },
-            this.getPlatforms,
-          ),
-        title: 'Framework',
-      },
-      {
-        options: projectOptions
-          .sort()
-          .filter((item) => !pinnedProjects.includes(item)),
-        selectedItem: repositoryName.name || '',
-        pinnedProjects: pinnedProjects.filter((item) =>
-          projectOptions.includes(item),
-        ),
-        updateData: (value) =>
-          this.setState(
-            { repository_name: this.findObject(projects, 'name', value) },
-            this.getPlatforms,
-          ),
-        title: 'Project',
-      },
-      {
-        options: platforms.sort(),
-        selectedItem: platform,
-        updateData: (platform) =>
-          this.setState({ platform }, this.processOptions),
-        title: 'Platform',
-      },
-    ];
+  return (
+    <Modal size="xl" show={showModal} onHide={endSession}>
+      <Modal.Header closeButton>
+        <Modal.Title>Add Test Data</Modal.Title>
+      </Modal.Header>
+      <Modal.Body className="test-search">
+        <Form onSubmit={(event) => event.preventDefault()}>
+          <Form.Control
+            type="search"
+            autoFocus
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={onSearchKeyDown}
+            placeholder="Search tests, e.g. speedometer3 android fenix"
+            aria-label="Search tests"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-haspopup="grid"
+            aria-controls={RESULTS_ID}
+            aria-expanded={displayed.length > 0}
+            aria-activedescendant={
+              displayed[activeRowIndex]
+                ? rowId(displayed[activeRowIndex])
+                : undefined
+            }
+            className="mb-2"
+          />
 
-    let tests = [];
-    if (filterText || activeTags.length) {
-      tests = filteredData;
-    } else if (relatedTests.length || showNoRelatedTests) {
-      tests = relatedTests;
-    } else if (seriesData.length && !loading) {
-      tests = seriesData;
-    }
+          {related && (
+            <Alert
+              variant="info"
+              className="py-1 px-2 mb-2 d-flex align-items-center justify-content-between small"
+            >
+              <span>
+                {relatedFilters[related.option].label}{' '}
+                <strong>{getFullTestName({
+                  projectName: related.series.repository_name,
+                  platform: related.series.platform,
+                  name: related.series.name,
+                  application: related.series.application,
+                })}</strong>
+              </span>
+              <CloseButton
+                aria-label="Show all tests"
+                title="Show all tests"
+                onClick={() => setRelated(null)}
+              />
+            </Alert>
+          )}
 
-    return (
-      <Modal size="lg" show={showModal} onHide={this.closeModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add Test Data</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="container-fluid test-chooser">
-          <Form>
-            <Row className="justify-content-start">
-              {createDropdowns(modalOptions, 'p-2', true)}
-              {innerTimeRange && (
-                <Col sm="auto" className="p-2">
-                  <TimeRangeDropdown
-                    timeRangeText={innerTimeRange.text}
-                    updateTimeRange={(newTimeRange) =>
-                      this.setState(
-                        { innerTimeRange: newTimeRange },
-                        this.getPlatforms,
-                      )
-                    }
-                  />
-                </Col>
-              )}
-              <Col sm="auto" className="p-2">
-                <Button
+          <FilterRow title="Repository">
+            {repoChips.map((repo) => (
+              <FilterChip
+                key={repo}
+                label={repo}
+                active={repos.includes(repo)}
+                loading={loading.includes(repoKey(repo))}
+                onClick={() => toggleRepo(repo)}
+              />
+            ))}
+            {otherRepos.length > 0 && (
+              <Dropdown className="d-inline-block">
+                <Dropdown.Toggle
+                  size="sm"
                   variant="outline-secondary"
-                  className={
-                    includeSubtests
-                      ? 'bg-darker-info text-white'
-                      : 'text-darker-info'
-                  }
-                  onClick={() =>
-                    this.setState(
-                      { includeSubtests: !includeSubtests },
-                      this.processOptions,
-                    )
-                  }
-                  active={includeSubtests}
+                  className="rounded-pill mb-1 test-search-chip"
                 >
-                  Include subtests
-                </Button>
-              </Col>
-            </Row>
-            <Row className="justify-content-start">
-              <Col className="p-2 col-4">
-                <InputFilter
-                  disabled={relatedTests.length > 0}
-                  placeholder="filter tests e.g. linux tp5o"
-                  updateFilterText={this.applyFilters}
-                />
-              </Col>
-            </Row>
-            {availableTags.length > 1 && (
-              <>
-                <Row className="justify-content-start">
-                  <Col className="p-2">
-                    <Form.Group>
-                      <Form.Label htmlFor="selectMultiTags">Tags</Form.Label>
-                      <Form.Control
-                        className="fa"
-                        as="select"
-                        name="selectMultiTags"
-                        id="selectMultiTags"
-                        multiple
-                      >
-                        {availableTags.sort().map((tag) => (
-                          <option
-                            key={`available-tag-${tag}`}
-                            data-testid={`available-tag ${tag}`}
-                            onClick={() => this.toggleTag(tag)}
-                          >
-                            {tag}
-                          </option>
-                        ))}
-                      </Form.Control>
-                    </Form.Group>
-                  </Col>
-                </Row>
-                <Row className="pb-2 justify-content-start">
-                  <Col className="p-2" sm="auto">
-                    {activeTags.sort().map((tag, index) => (
-                      <React.Fragment key={`active-tag-${tag}`}>
-                        <Badge
-                          id={`active-tag-${index}`}
-                          data-testid={`active-tag ${tag}`}
-                          className="me-2 btn btn-darker-secondary"
-                          role="button"
-                          title="Click to remove tag"
-                          pill
-                          onClick={() => this.toggleTag(tag)}
-                        >
-                          {tag} ×
-                        </Badge>
-                      </React.Fragment>
-                    ))}
-                  </Col>
-                </Row>
-              </>
+                  more
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="overflow-auto test-search-repo-menu">
+                  {otherRepos.map((repo) => (
+                    <Dropdown.Item key={repo} onClick={() => toggleRepo(repo)}>
+                      {repo}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
             )}
-            <Row className="p-2 justify-content-start">
-              <Col className="p-0">
-                <Form.Label htmlFor="exampleSelect">
-                  {relatedTests.length > 0 ? 'Related tests' : 'Tests'}
-                </Form.Label>
-                <Form.Control
-                  className="fa"
-                  data-testid="tests"
-                  as="select"
-                  name="selectMulti"
-                  id="selectTests"
-                  multiple
-                >
-                  {tests.length > 0 &&
-                    tests.sort().map((test) => (
-                      <option
-                        key={test.id}
-                        className={this.selectableTestClassName(test)}
-                        data-testid={test.id.toString()}
-                        onClick={() => this.updateSelectedTests(test)}
-                        title={this.selectableTestTitle(test)}
-                      >
-                        {this.getOriginalTestName(test)}
-                      </option>
-                    ))}
-                </Form.Control>
-                {showNoRelatedTests && (
-                  <p className="text-info pt-2">No related tests found.</p>
+          </FilterRow>
+
+          <FilterRow title="Time range">
+            <TimeRangeDropdown
+              size="sm"
+              variant="outline-darker-info"
+              toggleClassName="rounded-pill mb-1 test-search-chip"
+              timeRangeText={innerTimeRange.text}
+              updateTimeRange={(newTimeRange) => {
+                setInnerTimeRange(newTimeRange);
+                setTimeRangePicked(true);
+                setExpanded({});
+              }}
+            />
+            <FilterChip
+              label="Include subtests"
+              className="ms-3 align-self-center"
+              active={includeSubtests}
+              title="Search subtests too (loads about twice as much data)"
+              onClick={() => {
+                setIncludeSubtests(!includeSubtests);
+                setExpanded({});
+              }}
+            />
+          </FilterRow>
+
+          {platformOptions.length > 0 && (
+            <FilterRow title="Platform">
+              <CheckboxDropdown
+                noun="Platform"
+                plural="platforms"
+                options={platformOptions}
+                selected={platformFilter}
+                onToggle={(platform) =>
+                  setPlatformFilter((prev) => toggleItem(prev, platform))
+                }
+                onClear={() => setPlatformFilter([])}
+              />
+            </FilterRow>
+          )}
+
+          {availableTags.length > 0 && (
+            <FilterRow title="Tags">
+              {availableTags.map((tag) => (
+                <FilterChip
+                  key={tag}
+                  label={tag}
+                  active={activeTags.includes(tag)}
+                  onClick={() => setActiveTags((prev) => toggleItem(prev, tag))}
+                />
+              ))}
+            </FilterRow>
+          )}
+
+          {failures.length > 0 && (
+            <Alert variant="danger" className="py-1 px-2 my-2 small">
+              {failures.map((failure) => (
+                <div key={failure}>{failure}</div>
+              ))}
+            </Alert>
+          )}
+
+          <div className="test-search-results border rounded mt-2">
+            <Table
+              size="sm"
+              hover
+              className="mb-0 small"
+              id={RESULTS_ID}
+              role="grid"
+              aria-label="Tests"
+              aria-multiselectable="true"
+            >
+              <thead className="sticky-top bg-white">
+                <tr>
+                  <th aria-label="Selected" />
+                  <th>Test</th>
+                  <th>App</th>
+                  <th>Platform</th>
+                  <th>Repository</th>
+                  <th>Framework</th>
+                  <th>Unit</th>
+                </tr>
+              </thead>
+              <tbody data-testid="tests">
+                {displayed.map((series, rowIndex) => (
+                  <React.Fragment key={series.id}>
+                    {renderRow(series, { rowIndex })}
+                    {renderSubtests(series)}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </Table>
+            {noMatches && (
+              <div
+                className="text-center text-secondary py-4"
+                data-testid="no-matches"
+              >
+                <div>{related ? 'No related tests found.' : 'No tests match.'}</div>
+                {!includeSubtests && !related && (
+                  <div className="mt-2">
+                    Subtests aren't searched yet.{' '}
+                    <Button
+                      size="sm"
+                      variant="darker-info"
+                      className="ms-1"
+                      data-testid="suggest-subtests"
+                      onClick={includeSubtestsAndSearch}
+                    >
+                      Include subtests
+                    </Button>
+                  </div>
                 )}
-              </Col>
-            </Row>
-            <Row className="p-2 justify-content-start">
-              <Col className="p-0">
-                <Form.Label htmlFor="exampleSelect">
-                  Selected tests{' '}
-                  <span className="small">(click a test to remove it)</span>
-                </Form.Label>
-                <Form.Control
-                  data-testid="selectedTests"
-                  as="select"
-                  name="selectMulti"
-                  id="selectTests"
-                  multiple
-                >
-                  {selectedTests.length > 0 &&
-                    selectedTests.map((test) => (
-                      <option
-                        key={test.id}
-                        className={this.selectableTestClassName(test)}
-                        onClick={() => this.updateSelectedTests(test, true)}
-                        title={this.selectableTestTitle(test)}
-                      >
-                        {this.getFullTestName(test)}
-                      </option>
-                    ))}
-                </Form.Control>
-                {selectedTests.length > 6 && (
-                  <p className="text-info pt-2">
-                    Displaying more than 6 graphs at a time is not supported in
-                    the UI.
-                  </p>
-                )}
-              </Col>
-            </Row>
-            <Row className="p-2 justify-content-end">
-              <Col sm="auto" className="py-2 px-0">
-                <Button
-                  variant="darker-info"
-                  disabled={!selectedTests.length}
-                  onClick={this.submitData}
-                  onKeyPress={(event) => event.preventDefault()}
-                >
-                  Plot graphs
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-        </Modal.Body>
-      </Modal>
-    );
-  }
-}
+              </div>
+            )}
+          </div>
+          <div className="small text-secondary mt-1" role="status">
+            {status}
+            {displayed.length > 0 &&
+              ' · ↑/↓ to move, Enter to select, Ctrl/⌘+Enter to plot'}
+          </div>
+
+          <div className="d-flex align-items-start mt-3">
+            <div className="flex-grow-1">
+              <div className="small text-secondary mb-1">
+                Selected ({selected.length})
+              </div>
+              <div data-testid="selectedTests" className="d-flex flex-wrap">
+                {selected.map((series) => (
+                  <Button
+                    key={series.id}
+                    size="sm"
+                    variant={hasDifferentUnit(series) ? 'warning' : 'light'}
+                    className="me-1 mb-1 rounded-pill border"
+                    title={`Remove ${rowTitle(series)}`}
+                    onClick={() => toggleSelected(series)}
+                  >
+                    {getFullTestName(series)} ×
+                  </Button>
+                ))}
+              </div>
+              {visiblePlotted + selected.length > MAX_VISIBLE_GRAPHS && (
+                <div className="small text-info">
+                  Only {MAX_VISIBLE_GRAPHS} tests can be visible on the graph at
+                  once; the rest are added hidden.
+                </div>
+              )}
+            </div>
+            <Button
+              variant="darker-info"
+              disabled={!selected.length}
+              onClick={submitData}
+            >
+              Plot graphs{selected.length ? ` (${selected.length})` : ''}
+            </Button>
+          </div>
+        </Form>
+      </Modal.Body>
+    </Modal>
+  );
+};
 
 TestDataModal.propTypes = {
   getTestData: PropTypes.func.isRequired,
@@ -710,13 +917,16 @@ TestDataModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
   timeRange: PropTypes.shape({}).isRequired,
   toggle: PropTypes.func.isRequired,
-  updateTestsAndTimeRange: PropTypes.func,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})),
-  getInitialData: PropTypes.func,
-  getSeriesData: PropTypes.func,
+  updateTestsAndTimeRange: PropTypes.func,
+  loadSignatures: PropTypes.func,
+  loadSubtests: PropTypes.func,
+  replicates: PropTypes.bool,
   options: PropTypes.shape({
     option: PropTypes.string,
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
 };
+
+export default TestDataModal;

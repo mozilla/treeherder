@@ -18,26 +18,6 @@ const RECORDINGS_DIR = path.resolve(
 );
 
 test.describe('Graphs View', () => {
-  test('Add test data modal lists the recorded frameworks', async ({
-    page,
-  }) => {
-    await page.routeFromHAR(
-      path.join(RECORDINGS_DIR, 'Record-requests_2171382282/recording.har'),
-      { url: '**/api/**', notFound: 'fallback' },
-    );
-
-    await page.goto('/perfherder/graphs');
-
-    // Open the Add Test Data modal
-    await page.locator('button[title="Add test data"]').click();
-
-    // Open the Framework dropdown inside the modal and count its items
-    const frameworkDropdown = page.locator('div[title="Framework"]');
-    await frameworkDropdown.locator('button').click();
-
-    await expect(frameworkDropdown.locator('a.dropdown-item')).toHaveCount(9);
-  });
-
   test('Clicking on Table View / Graphs view button should toggle between views', async ({
     page,
   }) => {

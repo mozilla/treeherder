@@ -3,7 +3,7 @@ import queryString from 'query-string';
 
 import dayjs from '../../helpers/dayjs';
 import { getApiUrl, getJobsUrl } from '../../helpers/url';
-import { update, processResponse } from '../../helpers/http';
+import { update } from '../../helpers/http';
 import PerfSeriesModel, {
   getSeriesName,
   getTestName,
@@ -646,58 +646,6 @@ export const processSelectedParam = (tooltipArray) => ({
   signature_id: parseInt(tooltipArray[0], 10),
   dataPointId: parseInt(tooltipArray[1], 10),
 });
-
-export const getInitialData = async (
-  errorMessages,
-  repositoryName,
-  framework,
-  timeRange,
-) => {
-  const params = { interval: timeRange.value, framework: framework.id };
-  const platforms = await PerfSeriesModel.getPlatformList(
-    repositoryName.name,
-    params,
-  );
-
-  const updates = {
-    ...processResponse(platforms, 'platforms', errorMessages),
-  };
-  return updates;
-};
-
-export const updateSeriesData = (origSeriesData, testData) =>
-  origSeriesData.filter(
-    (item) =>
-      testData.findIndex((test) => item.id === test.signature_id) === -1,
-  );
-
-export const getSeriesData = async (
-  params,
-  errorMessages,
-  repositoryName,
-  testData,
-) => {
-  let updates = {
-    filteredData: [],
-    relatedTests: [],
-    showNoRelatedTests: false,
-    loading: false,
-  };
-  const response = await PerfSeriesModel.getSeriesList(
-    repositoryName.name,
-    params,
-  );
-  updates = {
-    ...updates,
-    ...processResponse(response, 'origSeriesData', errorMessages),
-  };
-
-  if (updates.origSeriesData) {
-    updates.seriesData = updateSeriesData(updates.origSeriesData, testData);
-  }
-
-  return updates;
-};
 
 // Signature lists are large (tens of thousands per repository) but change
 // slowly, so each (repository, interval, subtests) list is fetched once per
