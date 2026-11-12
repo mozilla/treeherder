@@ -52,7 +52,7 @@ def backfill_resolution(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0086_performancealertsummary_resolution_and_more"),
+        ("perf", "0087_performancealertsummary_resolution_and_more"),
     ]
 
     operations = [
