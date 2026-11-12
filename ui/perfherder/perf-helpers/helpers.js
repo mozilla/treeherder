@@ -699,6 +699,94 @@ export const getSeriesData = async (
   return updates;
 };
 
+// Signature lists are large (tens of thousands per repository) but change
+// slowly, so each (repository, interval, subtests) list is fetched once per
+// page load and shared between every opening of the "Add test data" modal.
+const signatureListCache = new Map();
+
+const requestFailure = (error) => ({
+  data: `failed to load tests (${error?.message || error})`,
+  failureStatus: true,
+});
+
+export const buildSearchText = (series, frameworks) =>
+  [
+    series.projectName,
+    series.platform,
+    series.name,
+    series.application,
+    series.suite,
+    getFrameworkName(frameworks, series.frameworkId),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+// Never rejects: network errors resolve to { data: message, failureStatus }.
+// With subtests the list is roughly twice as large, so it's opt-in.
+export const loadRepositorySignatures = (
+  repositoryName,
+  interval,
+  frameworks,
+  { subtests = false } = {},
+) => {
+  const key = `${repositoryName}:${interval}:${subtests ? 1 : 0}`;
+
+  if (!signatureListCache.has(key)) {
+    const request = PerfSeriesModel.getSeriesList(repositoryName, {
+      interval,
+      subtests: subtests ? 1 : 0,
+    })
+      .then((response) => {
+        if (response.failureStatus) return response;
+
+        const data = response.data.map((series) => ({
+          ...series,
+          searchText: buildSearchText(series, frameworks),
+        }));
+        return { data, failureStatus: null };
+      })
+      .catch(requestFailure)
+      .then((result) => {
+        // don't cache failures, so the next attempt retries
+        if (result.failureStatus) signatureListCache.delete(key);
+        return result;
+      });
+    signatureListCache.set(key, request);
+  }
+  return signatureListCache.get(key);
+};
+
+// Never rejects, like loadRepositorySignatures.
+// A signature hash doesn't include the framework or application, so the
+// same hash can belong to e.g. a chrome and a custom-car test, and the API's
+// parent_signature lookup returns the subtests of all of them. Keep only the
+// subtests of this parent's framework and application.
+export const loadSubtestSignatures = (parentSeries, interval) =>
+  PerfSeriesModel.getSeriesList(parentSeries.projectName, {
+    interval,
+    parent_signature: parentSeries.signature,
+    framework: parentSeries.frameworkId,
+  })
+    .then((response) =>
+      response.failureStatus
+        ? response
+        : {
+            ...response,
+            data: response.data.filter(
+              (series) => series.application === parentSeries.application,
+            ),
+          },
+    )
+    .catch(requestFailure);
+
+// Every whitespace-separated word of the query has to appear somewhere in the
+// series' search text, in any order.
+export const matchesQuery = (searchText, query) => {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  return words.every((word) => searchText.includes(word));
+};
+
 export const scrollWithOffset = function scrollWithOffset(el) {
   // solution from https://github.com/rafrex/react-router-hash-link/issues/25#issuecomment-536688104
 
