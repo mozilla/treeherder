@@ -2028,6 +2028,8 @@ def test_get_perf_data_limits_per_signature_when_datums_have_replicates(
     # Then: each signature keeps two distinct datums, despite the replicates
     assert set(grouped.values[test_perf_signature.id]) == {2.0, 3.0}
     assert set(grouped.values[test_perf_signature_2.id]) == {102.0, 103.0}
+
+
 def _create_summary(repository, framework, prev_push, push):
     return PerformanceAlertSummary.objects.create(
         repository=repository,
