@@ -84,6 +84,9 @@ const search = (getByLabelText, text) =>
 const waitForRows = async (getByTestId, count) =>
   waitFor(() => expect(rows(getByTestId)).toHaveLength(count));
 
+// the filter row labels, as opposed to e.g. the "Framework" column header
+const facetLabel = { selector: '.test-search-facet-title' };
+
 const openPlatforms = (getByRole) =>
   fireEvent.click(getByRole('button', { name: /^Platform filter:/ }));
 
@@ -97,6 +100,9 @@ const platformOptions = (getByRole) =>
 
 const tickPlatform = (getByLabelText, platform) =>
   fireEvent.click(getByLabelText(new RegExp(`^${platform} \\d+$`)));
+
+const openMoreFilters = (getByRole) =>
+  fireEvent.click(getByRole('button', { name: /More filters/ }));
 
 const allDefaultCount =
   linuxSeries.length + windowsSeries.length + autolandSeries.length;
@@ -207,12 +213,23 @@ test('The platform dropdown lists platforms alphabetically with counts and filte
   expect(getByLabelText(/^windows7-32 \d+$/)).toBeChecked();
 });
 
+test('Framework chips filter the results', async () => {
+  const { getByRole, getByTestId } = renderModal();
+  await waitForRows(getByTestId, allDefaultCount);
+  openMoreFilters(getByRole);
+
+  fireEvent.click(getByRole('button', { name: /^build_metrics/ }));
+
+  await waitForRows(getByTestId, autolandSeries.length);
+});
+
 test('Tag used in multiple tests appears once in the tags list', async () => {
   const loadSignatures = makeLoader({
     'mozilla-central': indexed(seriesWithRepeatedTag),
   });
-  const { getAllByRole, getByTestId } = renderModal({ loadSignatures });
+  const { getByRole, getAllByRole, getByTestId } = renderModal({ loadSignatures });
   await waitForRows(getByTestId, seriesWithRepeatedTag.length);
+  openMoreFilters(getByRole);
 
   expect(getAllByRole('button', { name: 'repeated-tag' })).toHaveLength(1);
 });
@@ -224,6 +241,7 @@ test('Selecting two tags shows the tests that have both tags; clicking again rem
   const [tag1, tag2] = seriesWithRepeatedTag[0].tags;
   const { getByRole, getByTestId } = renderModal({ loadSignatures });
   await waitForRows(getByTestId, seriesWithRepeatedTag.length);
+  openMoreFilters(getByRole);
 
   fireEvent.click(getByRole('button', { name: tag1 }));
   fireEvent.click(getByRole('button', { name: tag2 }));
@@ -241,8 +259,9 @@ test('Tag chips are not shown when no test has tags', async () => {
       linuxSeries.map((series) => ({ ...series, tags: [] })),
     ),
   });
-  const { getByTestId, queryByText } = renderModal({ loadSignatures });
+  const { getByRole, getByTestId, queryByText } = renderModal({ loadSignatures });
   await waitForRows(getByTestId, linuxSeries.length);
+  openMoreFilters(getByRole);
 
   expect(queryByText('Tags')).toBeNull();
 });
@@ -526,6 +545,25 @@ test('No subtests suggestion is shown once subtests are included', async () => {
   expect(within(noMatches).queryByRole('button')).toBeNull();
 });
 
+test('A selected framework stays visible and can be cleared when nothing matches it', async () => {
+  const { getByLabelText, getByRole, getByTestId } = renderModal();
+  await waitForRows(getByTestId, allDefaultCount);
+  openMoreFilters(getByRole);
+
+  fireEvent.click(getByRole('button', { name: /^talos/ }));
+  // only the autoland copies are build_metrics, so talos matches nothing
+  search(getByLabelText, 'autoland');
+  await waitForRows(getByTestId, 0);
+
+  const talosChip = getByRole('button', { name: /^talos/ });
+  expect(talosChip).toHaveAttribute('aria-pressed', 'true');
+  expect(talosChip).toHaveTextContent('talos0');
+
+  fireEvent.click(talosChip);
+
+  await waitForRows(getByTestId, autolandSeries.length);
+});
+
 test('Related branches option loads the other performance branches even when not selected', async () => {
   const autolandCopy = indexed([
     { ...linuxSeries[0], id: 7, projectName: 'autoland' },
@@ -641,6 +679,56 @@ test('Tests are listed for the last 30 days, without changing the graph time ran
   ]);
 });
 
+const columnValues = (getByTestId, column) =>
+  rows(getByTestId).map((row) => row.children[column].textContent);
+
+test('Clicking a column header sorts the results, clicking again reverses them', async () => {
+  const { getByRole, getByTestId } = renderModal();
+  await waitForRows(getByTestId, allDefaultCount);
+  const platformHeader = getByRole('button', { name: 'Platform' });
+
+  fireEvent.click(platformHeader);
+
+  const ascending = columnValues(getByTestId, 3);
+  expect(ascending).toEqual([...ascending].sort());
+  expect(ascending[0]).toBe('linux64');
+  expect(platformHeader.closest('th')).toHaveAttribute('aria-sort', 'ascending');
+  expect(platformHeader).toHaveTextContent('Platform ▲');
+
+  fireEvent.click(platformHeader);
+
+  expect(columnValues(getByTestId, 3)).toEqual([...ascending].reverse());
+  expect(platformHeader.closest('th')).toHaveAttribute(
+    'aria-sort',
+    'descending',
+  );
+});
+
+test('Sorting by repository and framework uses their names', async () => {
+  const { getByRole, getByTestId } = renderModal();
+  await waitForRows(getByTestId, allDefaultCount);
+
+  fireEvent.click(getByRole('button', { name: 'Repository' }));
+  expect(columnValues(getByTestId, 4)[0]).toBe('autoland');
+
+  fireEvent.click(getByRole('button', { name: 'Framework' }));
+  // build_metrics sorts before talos
+  expect(columnValues(getByTestId, 5)[0]).toBe('build_metrics');
+});
+
+test('Tests without a value in the sorted column are listed last', async () => {
+  const { getByRole, getByTestId } = renderModal();
+  await waitForRows(getByTestId, allDefaultCount);
+  const unitHeader = getByRole('button', { name: 'Unit' });
+
+  // only dromaeo_dom has a unit ("score")
+  fireEvent.click(unitHeader);
+  expect(rows(getByTestId)[0]).toBe(getByTestId(linuxSeries[3].id.toString()));
+
+  fireEvent.click(unitHeader);
+  expect(rows(getByTestId)[0]).toBe(getByTestId(linuxSeries[3].id.toString()));
+});
+
 test('The platform filter box narrows the options; several can be ticked and cleared', async () => {
   const { getByLabelText, getByRole, getByTestId, getByText } = renderModal();
   await waitForRows(getByTestId, allDefaultCount);
@@ -681,6 +769,128 @@ test('Closing the platform dropdown clears its filter box', async () => {
   await waitFor(() =>
     expect(getByLabelText('Filter platforms')).toHaveValue(''),
   );
+});
+
+describe('Browser filter', () => {
+  const browserSeries = indexed(
+    [
+      ['linux64', 'firefox'],
+      ['linux64', 'chrome'],
+      ['windows7-32', 'firefox'],
+      ['windows7-32', null],
+    ].map(([platform, application], i) => ({
+      ...linuxSeries[0],
+      id: i + 1,
+      name: `test${i} opt`,
+      platform,
+      application,
+    })),
+  );
+  const renderWithBrowsers = () =>
+    renderModal({
+      loadSignatures: makeLoader({ 'mozilla-central': browserSeries }),
+    });
+
+  test('lists each browser with its count, and tests without one are not counted', async () => {
+    const { getByRole, getByTestId, queryByRole } = renderWithBrowsers();
+    await waitForRows(getByTestId, 4);
+
+    expect(getByRole('button', { name: /^firefox/ })).toHaveTextContent(
+      'firefox2',
+    );
+    expect(getByRole('button', { name: /^chrome/ })).toHaveTextContent(
+      'chrome1',
+    );
+    expect(queryByRole('button', { name: /^null/ })).toBeNull();
+  });
+
+  test('selecting browsers filters the results', async () => {
+    const { getByRole, getByTestId } = renderWithBrowsers();
+    await waitForRows(getByTestId, 4);
+
+    fireEvent.click(getByRole('button', { name: /^firefox/ }));
+
+    await waitForRows(getByTestId, 2);
+    expect(getByTestId('1')).toBeInTheDocument();
+    expect(getByTestId('3')).toBeInTheDocument();
+
+    fireEvent.click(getByRole('button', { name: /^chrome/ }));
+
+    await waitForRows(getByTestId, 3);
+  });
+
+    test('browser and platform counts each reflect the other selection', async () => {
+    const { getByLabelText, getByRole, getByTestId } = renderWithBrowsers();
+    await waitForRows(getByTestId, 4);
+
+    openPlatforms(getByRole);
+    tickPlatform(getByLabelText, 'linux64');
+
+    await waitForRows(getByTestId, 2);
+    expect(getByRole('button', { name: /^firefox/ })).toHaveTextContent(
+      'firefox1',
+    );
+
+    fireEvent.click(getByRole('button', { name: /^firefox/ }));
+
+    await waitForRows(getByTestId, 1);
+    // windows7-32 still shows how many firefox tests it has
+    expect(platformOptions(getByRole)).toEqual([
+      'linux64 1',
+      'windows7-32 1',
+    ]);
+  });
+
+  test('a selected browser stays visible when nothing matches it', async () => {
+    const { getByLabelText, getByRole, getByTestId } = renderWithBrowsers();
+    await waitForRows(getByTestId, 4);
+
+    fireEvent.click(getByRole('button', { name: /^chrome/ }));
+    search(getByLabelText, 'windows7');
+    await waitForRows(getByTestId, 0);
+
+    const chromeChip = getByRole('button', { name: /^chrome/ });
+    expect(chromeChip).toHaveTextContent('chrome0');
+
+    fireEvent.click(chromeChip);
+
+    await waitForRows(getByTestId, 2);
+  });
+});
+
+test('Framework and tag filters are hidden until "More filters" is expanded', async () => {
+  const { getByRole, getByTestId, queryByText } = renderModal();
+  await waitForRows(getByTestId, allDefaultCount);
+
+  expect(queryByText('Framework', facetLabel)).toBeNull();
+  expect(queryByText('Tags', facetLabel)).toBeNull();
+  const toggle = getByRole('button', { name: '▸ More filters' });
+  expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+  fireEvent.click(toggle);
+
+  expect(queryByText('Framework', facetLabel)).toBeInTheDocument();
+  expect(queryByText('Tags', facetLabel)).toBeInTheDocument();
+
+  fireEvent.click(getByRole('button', { name: '▾ Fewer filters' }));
+
+  expect(queryByText('Framework', facetLabel)).toBeNull();
+});
+
+test('The "More filters" toggle shows how many hidden filters are active', async () => {
+  const { getByRole, getByTestId } = renderModal();
+  await waitForRows(getByTestId, allDefaultCount);
+  openMoreFilters(getByRole);
+
+  fireEvent.click(getByRole('button', { name: /^build_metrics/ }));
+  fireEvent.click(getByRole('button', { name: linuxSeries[0].tags[0] }));
+  fireEvent.click(getByRole('button', { name: /Fewer filters/ }));
+
+  // still applied while hidden
+  await waitForRows(getByTestId, 1);
+  expect(
+    getByRole('button', { name: '▸ More filters (2 active)' }),
+  ).toBeInTheDocument();
 });
 
 describe('Closing the picker ends the "add tests" session', () => {
@@ -990,7 +1200,7 @@ describe('Edge cases', () => {
     expect(getByLabelText(/^windows7-32 0$/)).toBeChecked();
   });
 
-    test('Platforms are listed alphabetically, whatever their case', async () => {
+    test('Platforms are listed alphabetically, and browser chips with equal counts too', async () => {
     const series = indexed(
       [
         ['p-delta', 'safari'],
@@ -1000,14 +1210,14 @@ describe('Edge cases', () => {
       ].map(([platform, application], i) => ({
         ...linuxSeries[0],
         id: i + 1,
-        // results are ordered by name, so this keeps the platforms out of
-        // alphabetical order before they're sorted
+        // results are ordered by name, so this keeps the platforms (and
+        // browsers) out of alphabetical order before they're sorted
         name: `test${i} opt`,
         platform,
         application,
       })),
     );
-    const { getByRole, getByTestId } = renderModal({
+    const { getAllByRole, getByRole, getByTestId } = renderModal({
       loadSignatures: makeLoader({ 'mozilla-central': series }),
     });
     await waitForRows(getByTestId, 4);
@@ -1020,6 +1230,35 @@ describe('Edge cases', () => {
       'p-charlie 1',
       'p-delta 1',
     ]);
+    expect(
+      getAllByRole('button', { name: /^(chrome|edge|firefox|safari) \d/ }).map(
+        (chip) => chip.textContent,
+      ),
+    ).toEqual(['chrome1', 'edge1', 'firefox1', 'safari1']);
+  });
+
+  test('Sorting puts tests without a value last in both directions', async () => {
+    const series = indexed(
+      [null, 'beta', null, 'alpha', null, 'gamma'].map((application, i) => ({
+        ...linuxSeries[0],
+        id: i + 1,
+        name: `test${i} opt`,
+        application,
+      })),
+    );
+    const { getByRole, getByTestId } = renderModal({
+      loadSignatures: makeLoader({ 'mozilla-central': series }),
+    });
+    await waitForRows(getByTestId, 6);
+    const apps = () => columnValues(getByTestId, 2);
+
+    // the header's name gains the sort arrow once sorted
+    const appHeader = getByRole('button', { name: 'App' });
+    fireEvent.click(appHeader);
+    expect(apps()).toEqual(['alpha', 'beta', 'gamma', '', '', '']);
+
+    fireEvent.click(appHeader);
+    expect(apps()).toEqual(['gamma', 'beta', 'alpha', '', '', '']);
   });
 
   test('A rejection that is not an Error, or a failure without a message, still shows an error', async () => {
@@ -1332,5 +1571,79 @@ describe('Review fixes', () => {
       "Couldn't load any tests, see the errors above.",
     );
     expect(queryByTestId('no-matches')).toBeNull();
+  });
+});
+
+describe('Filter chip review fixes', () => {
+  const series = indexed(
+    [
+      ...Array(3).fill(['linux64', 'firefox', 1]),
+      ['windows7-32', 'firefox', 2],
+      ['windows7-32', 'chrome', 1],
+      ['windows7-32', 'chrome', 1],
+    ].map(([platform, application, frameworkId], i) => ({
+      ...linuxSeries[0],
+      id: i + 1,
+      name: `test${i} opt`,
+      platform,
+      application,
+      frameworkId,
+    })),
+  );
+  const renderChips = () =>
+    renderModal({ loadSignatures: makeLoader({ 'mozilla-central': series }) });
+  const chipNames = (getAllByRole, pattern) =>
+    getAllByRole('button', { name: pattern }).map((chip) => chip.textContent);
+
+  test('browser chips are alphabetical and keep their place when other filters change', async () => {
+    const { getAllByRole, getByLabelText, getByRole, getByTestId } =
+      renderChips();
+    await waitForRows(getByTestId, 6);
+    const browsers = /^(chrome|firefox) \d/;
+
+    // firefox has more tests, but chrome comes first
+    expect(chipNames(getAllByRole, browsers)).toEqual(['chrome2', 'firefox4']);
+
+    // on windows chrome has more tests; the chips still don't move
+    openPlatforms(getByRole);
+    tickPlatform(getByLabelText, 'windows7-32');
+    await waitForRows(getByTestId, 3);
+
+    expect(chipNames(getAllByRole, browsers)).toEqual(['chrome2', 'firefox1']);
+  });
+
+  test('framework chips are alphabetical by name', async () => {
+    const { getAllByRole, getByRole, getByTestId } = renderChips();
+    await waitForRows(getByTestId, 6);
+    openMoreFilters(getByRole);
+
+    // talos has more tests, but build_metrics comes first
+    expect(chipNames(getAllByRole, /^(build_metrics|talos) \d/)).toEqual([
+      'build_metrics1',
+      'talos5',
+    ]);
+  });
+
+  test('the browser and framework rows can be cleared in one click', async () => {
+    const { getByRole, getByTestId, queryByRole } = renderChips();
+    await waitForRows(getByTestId, 6);
+    expect(queryByRole('button', { name: 'clear' })).toBeNull();
+
+    fireEvent.click(getByRole('button', { name: /^chrome/ }));
+    fireEvent.click(getByRole('button', { name: /^firefox/ }));
+    await waitForRows(getByTestId, 6);
+    fireEvent.click(getByRole('button', { name: 'clear' }));
+    expect(getByRole('button', { name: /^chrome/ })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+
+    openMoreFilters(getByRole);
+    fireEvent.click(getByRole('button', { name: /^talos/ }));
+    await waitForRows(getByTestId, 5);
+    fireEvent.click(getByRole('button', { name: 'clear' }));
+
+    await waitForRows(getByTestId, 6);
+    expect(queryByRole('button', { name: 'clear' })).toBeNull();
   });
 });

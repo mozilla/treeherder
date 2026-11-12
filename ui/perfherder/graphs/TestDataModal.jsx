@@ -29,6 +29,14 @@ const DEFAULT_REPOS = ['mozilla-central', 'autoland'];
 // The modal's time range decides which tests are listed. It only changes the
 // graph's time range if the user picks one in the modal.
 const DEFAULT_TIME_RANGE = phTimeRanges.find((item) => item.value === 2592000);
+const SORTABLE_COLUMNS = [
+  { key: 'name', label: 'Test' },
+  { key: 'application', label: 'App' },
+  { key: 'platform', label: 'Platform' },
+  { key: 'projectName', label: 'Repository' },
+  { key: 'framework', label: 'Framework' },
+  { key: 'measurementUnit', label: 'Unit' },
+];
 const REPOS_STORAGE_KEY = 'perfherder-graphs-test-search-repos';
 const MAX_RESULTS = 200;
 const MAX_VISIBLE_GRAPHS = 6;
@@ -217,6 +225,19 @@ export const CheckboxDropdown = ({
   );
 };
 
+// A filter's options: each value with its count, plus selected values that no
+// longer match anything (with 0, so they can always be cleared). They're in
+// alphabetical order of their labels, so they don't move as counts change.
+export const filterOptions = (counts, selected, label = (value) => value) => {
+  const options = [...counts.entries()];
+  selected.forEach((value) => {
+    if (!counts.has(value)) options.push([value, 0]);
+  });
+  return options.sort(([a], [b]) =>
+    String(label(a)).localeCompare(String(label(b))),
+  );
+};
+
 const FilterRow = ({ title, children }) => (
   <div className="d-flex align-items-baseline mb-1">
     <span className="test-search-facet-title text-secondary small">
@@ -247,10 +268,14 @@ const TestDataModal = ({
   const [failed, setFailed] = useState({});
   const [query, setQuery] = useState('');
   const [platformFilter, setPlatformFilter] = useState([]);
+  const [frameworkFilter, setFrameworkFilter] = useState([]);
+  const [browserFilter, setBrowserFilter] = useState([]);
   const [activeTags, setActiveTags] = useState([]);
   const [includeSubtests, setIncludeSubtests] = useState(false);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [innerTimeRange, setInnerTimeRange] = useState(DEFAULT_TIME_RANGE);
   const [timeRangePicked, setTimeRangePicked] = useState(false);
+  const [sort, setSort] = useState(null);
   const [selected, setSelected] = useState([]);
   const [related, setRelated] = useState(null);
   const [expanded, setExpanded] = useState({});
@@ -283,6 +308,8 @@ const TestDataModal = ({
     setRelated({ option, series: relatedSeries });
     setQuery('');
     setPlatformFilter([]);
+    setFrameworkFilter([]);
+    setBrowserFilter([]);
     setActiveTags([]);
     // "other branches" and "other platforms" look beyond the series' own
     // repository, so load the performance branches even if the saved
@@ -378,16 +405,38 @@ const TestDataModal = ({
     );
   }, [index, related, activeTags, query]);
 
-  const { results, platformCounts, availableTags } = useMemo(() => {
-    // platform counts ignore the platform selection itself, so the other
-    // platforms still show how many tests they would add
-    const platforms = new Map();
+  const {
+    results,
+    platformCounts,
+    frameworkCounts,
+    browserCounts,
+    availableTags,
+  } = useMemo(() => {
+    // each facet's counts are taken with the other facets' selections applied
+    const facets = [
+      { selected: platformFilter, value: (series) => series.platform },
+      { selected: frameworkFilter, value: (series) => series.frameworkId },
+      { selected: browserFilter, value: (series) => series.application },
+    ].map((facet) => ({ ...facet, counts: new Map() }));
     const tags = new Set(activeTags);
     const matching = [];
 
     baseResults.forEach((series) => {
-      platforms.set(series.platform, (platforms.get(series.platform) || 0) + 1);
-      if (!platformFilter.length || platformFilter.includes(series.platform)) {
+      const matches = facets.map(
+        ({ selected, value }) =>
+          !selected.length || selected.includes(value(series)),
+      );
+      const failing = matches.filter((match) => !match).length;
+      if (failing > 1) return;
+
+      facets.forEach(({ value, counts }, i) => {
+        const key = value(series);
+        // only this facet's own selection may exclude the series
+        if (key && (failing === 0 || !matches[i])) {
+          counts.set(key, (counts.get(key) || 0) + 1);
+        }
+      });
+      if (failing === 0) {
         matching.push(series);
         series.tags.forEach((tag) => tags.add(tag));
       }
@@ -395,24 +444,58 @@ const TestDataModal = ({
 
     return {
       results: matching,
-      platformCounts: platforms,
+      platformCounts: facets[0].counts,
+      frameworkCounts: facets[1].counts,
+      browserCounts: facets[2].counts,
       availableTags: [...tags].sort(),
     };
-  }, [baseResults, platformFilter, activeTags]);
+  }, [baseResults, platformFilter, frameworkFilter, browserFilter, activeTags]);
 
-  const displayed = results.slice(0, MAX_RESULTS);
+  // results are already ordered by name, platform and repository; a column
+  // sort reorders them, with empty values last and that order as tie-breaker
+  const sortedResults = useMemo(() => {
+    if (!sort) return results;
+
+    const sortValue = (series) =>
+      (sort.key === 'framework'
+        ? getFrameworkName(frameworks, series.frameworkId)
+        : series[sort.key] || ''
+      ).toLowerCase();
+
+    return results
+      .map((series) => [sortValue(series), series])
+      .sort(([a, seriesA], [b, seriesB]) => {
+        if (a !== b) {
+          if (!a) return 1;
+          if (!b) return -1;
+        }
+        return (
+          a.localeCompare(b) * sort.direction || compareSeries(seriesA, seriesB)
+        );
+      })
+      .map(([, series]) => series);
+  }, [results, sort, frameworks]);
+
+  const displayed = sortedResults.slice(0, MAX_RESULTS);
 
   // back to the first result when the search or filters change, but not when
   // another repository's list arrives while the user moves through results
   useEffect(() => {
     setActiveId(null);
-  }, [query, platformFilter, activeTags, related]);
+  }, [query, platformFilter, activeTags, related, browserFilter, frameworkFilter, sort]);
 
   // the highlighted test's row, or the first row if it isn't listed (any more)
   const activeRowIndex = Math.max(
     displayed.findIndex((series) => series.id === activeId),
     0,
   );
+
+  const toggleSort = (key) =>
+    setSort((prev) =>
+      prev?.key === key
+        ? { key, direction: -prev.direction }
+        : { key, direction: 1 },
+    );
 
   useEffect(() => {
     activeRow.current?.scrollIntoView?.({ block: 'nearest' });
@@ -552,13 +635,19 @@ const TestDataModal = ({
     ...repos.filter((repo) => !PINNED_REPOS.includes(repo)),
   ];
 
-  // listed alphabetically; selected platforms stay listed when nothing
-  // else matches them, so they can always be cleared
-  const platformOptions = [...platformCounts.entries()];
-  platformFilter.forEach((platform) => {
-    if (!platformCounts.has(platform)) platformOptions.push([platform, 0]);
-  });
-  platformOptions.sort(([a], [b]) => a.localeCompare(b));
+  const platformOptions = filterOptions(platformCounts, platformFilter);
+
+  const browserOptions = filterOptions(browserCounts, browserFilter);
+
+  // framework and tag filters are tucked away; the toggle says how many of
+  // them are active so a hidden filter never silently narrows the results
+  const hiddenActiveFilters = frameworkFilter.length + activeTags.length;
+
+  const frameworkOptions = filterOptions(
+    frameworkCounts,
+    frameworkFilter,
+    (frameworkId) => getFrameworkName(frameworks, frameworkId),
+  );
 
   const isLoading = repos.some((repo) => loading.includes(repoKey(repo)));
   const visiblePlotted = testData.filter((series) => series.visible).length;
@@ -790,17 +879,87 @@ const TestDataModal = ({
             </FilterRow>
           )}
 
-          {availableTags.length > 0 && (
-            <FilterRow title="Tags">
-              {availableTags.map((tag) => (
+          {browserOptions.length > 0 && (
+            <FilterRow title="Browser">
+              {browserOptions.map(([browser, count]) => (
                 <FilterChip
-                  key={tag}
-                  label={tag}
-                  active={activeTags.includes(tag)}
-                  onClick={() => setActiveTags((prev) => toggleItem(prev, tag))}
+                  key={browser}
+                  label={browser}
+                  count={count}
+                  active={browserFilter.includes(browser)}
+                  onClick={() =>
+                    setBrowserFilter((prev) => toggleItem(prev, browser))
+                  }
                 />
               ))}
+              {browserFilter.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="link"
+                  className="p-0 mb-1 ms-1"
+                  onClick={() => setBrowserFilter([])}
+                >
+                  clear
+                </Button>
+              )}
             </FilterRow>
+          )}
+
+          {(frameworkOptions.length > 0 || availableTags.length > 0) && (
+            <Button
+              size="sm"
+              variant="link"
+              className="p-0 mb-1"
+              aria-expanded={showMoreFilters}
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+            >
+              {showMoreFilters ? '▾ Fewer filters' : '▸ More filters'}
+              {hiddenActiveFilters > 0 && ` (${hiddenActiveFilters} active)`}
+            </Button>
+          )}
+          {showMoreFilters && (
+            <>
+              {frameworkOptions.length > 0 && (
+                <FilterRow title="Framework">
+                  {frameworkOptions.map(([frameworkId, count]) => (
+                    <FilterChip
+                      key={frameworkId}
+                      label={getFrameworkName(frameworks, frameworkId)}
+                      count={count}
+                      active={frameworkFilter.includes(frameworkId)}
+                      onClick={() =>
+                        setFrameworkFilter((prev) =>
+                          toggleItem(prev, frameworkId),
+                        )
+                      }
+                    />
+                  ))}
+                  {frameworkFilter.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="link"
+                      className="p-0 mb-1 ms-1"
+                      onClick={() => setFrameworkFilter([])}
+                    >
+                      clear
+                    </Button>
+                  )}
+                </FilterRow>
+              )}
+
+              {availableTags.length > 0 && (
+                <FilterRow title="Tags">
+                  {availableTags.map((tag) => (
+                    <FilterChip
+                      key={tag}
+                      label={tag}
+                      active={activeTags.includes(tag)}
+                      onClick={() => setActiveTags((prev) => toggleItem(prev, tag))}
+                    />
+                  ))}
+                </FilterRow>
+              )}
+            </>
           )}
 
           {failures.length > 0 && (
@@ -824,12 +983,30 @@ const TestDataModal = ({
               <thead className="sticky-top bg-white">
                 <tr>
                   <th aria-label="Selected" />
-                  <th>Test</th>
-                  <th>App</th>
-                  <th>Platform</th>
-                  <th>Repository</th>
-                  <th>Framework</th>
-                  <th>Unit</th>
+                  {SORTABLE_COLUMNS.map(({ key, label }) => {
+                    const direction = sort?.key === key ? sort.direction : 0;
+                    return (
+                      <th
+                        key={key}
+                        aria-sort={
+                          { 1: 'ascending', '-1': 'descending' }[direction] ||
+                          'none'
+                        }
+                      >
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="p-0 fw-bold text-reset text-decoration-none text-nowrap"
+                          title={`Sort by ${label}`}
+                          onClick={() => toggleSort(key)}
+                        >
+                          {label}
+                          {direction === 1 && ' ▲'}
+                          {direction === -1 && ' ▼'}
+                        </Button>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody data-testid="tests">
