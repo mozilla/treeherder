@@ -20,7 +20,11 @@ import {
   matchesQuery,
 } from '../perf-helpers/helpers';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBug } from '@fortawesome/free-solid-svg-icons';
+
 import TimeRangeDropdown from './TimeRangeDropdown';
+import { buildBugUrl } from './fileBug';
 
 const PINNED_REPOS = ['mozilla-central', 'autoland', 'mozilla-beta', 'try'];
 // mozilla-beta and try (the largest repository) are rarely wanted in a
@@ -250,6 +254,16 @@ const FilterRow = ({ title, children }) => (
 const TestDataModal = ({
   frameworks = [],
   getTestData,
+  // the graph's settings, described in bugs filed from the modal
+  highlightAlerts = false,
+  highlightChangelogData = false,
+  highlightCommonAlerts = false,
+  highlightInitialDataPoints = false,
+  highlightedRevisions = [],
+  selectedDataPoint = null,
+  showMissingJobs = false,
+  showTable = false,
+  zoom = {},
   loadSignatures = loadRepositorySignatures,
   loadSubtests = loadSubtestSignatures,
   options = undefined,
@@ -590,6 +604,51 @@ const TestDataModal = ({
     toggle();
   };
 
+  // Opens Bugzilla's "Enter Bug" form in a new tab, pre-filled with the
+  // graph's configuration; nothing is filed until it's submitted there.
+  const fileBug = () => {
+    const url = buildBugUrl({
+      pageUrl: window.location.href,
+      timeRange,
+      testData,
+      frameworks,
+      highlightAlerts,
+      highlightCommonAlerts,
+      highlightChangelogData,
+      highlightInitialDataPoints,
+      showMissingJobs,
+      replicates,
+      showTable,
+      selectedDataPoint,
+      zoom,
+      highlightedRevisions: [].concat(highlightedRevisions),
+      userAgent: navigator.userAgent,
+      // what the picker shows, since most reports will be about it
+      picker: {
+        query,
+        repositories: repos,
+        timeRange: innerTimeRange.text,
+        includeSubtests,
+        platforms: platformFilter,
+        browsers: browserFilter,
+        frameworks: frameworkFilter.map((frameworkId) =>
+          getFrameworkName(frameworks, frameworkId),
+        ),
+        tags: activeTags,
+        related: related
+          ? `${relatedFilters[related.option].label} ${getFullTestName({
+              projectName: related.series.repository_name,
+              platform: related.series.platform,
+              name: related.series.name,
+              application: related.series.application,
+            })}`
+          : '',
+        matching: results.length,
+      },
+    });
+    window.open(url, '_blank', 'noopener');
+  };
+
   const submitData = () => {
     const displayedTestParams = selected.map((series) => ({
       repository_name: series.projectName,
@@ -762,8 +821,16 @@ const TestDataModal = ({
 
   return (
     <Modal size="xl" show={showModal} onHide={endSession}>
-      <Modal.Header closeButton>
+      <Modal.Header closeButton className="test-search-header">
         <Modal.Title>Add Test Data</Modal.Title>
+        <Button
+          className="ms-auto me-3 test-search-file-bug"
+          title="Open a Bugzilla bug form pre-filled with this graph's configuration (nothing is filed until you submit it on Bugzilla)"
+          onClick={fileBug}
+        >
+          <FontAwesomeIcon className="me-2" icon={faBug} />
+          This is a redesigned view, file a bug for any issues here
+        </Button>
       </Modal.Header>
       <Modal.Body className="test-search">
         <Form onSubmit={(event) => event.preventDefault()}>
@@ -1104,6 +1171,18 @@ TestDataModal.propTypes = {
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
+  highlightAlerts: PropTypes.bool,
+  highlightChangelogData: PropTypes.bool,
+  highlightCommonAlerts: PropTypes.bool,
+  highlightInitialDataPoints: PropTypes.bool,
+  highlightedRevisions: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
+  selectedDataPoint: PropTypes.shape({}),
+  showMissingJobs: PropTypes.bool,
+  showTable: PropTypes.bool,
+  zoom: PropTypes.shape({}),
 };
 
 export default TestDataModal;

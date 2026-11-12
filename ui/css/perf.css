@@ -207,6 +207,25 @@ h1 {
   white-space: nowrap;
 }
 
+/* the "File a bug" button takes the free space, so keep the close button
+   next to it instead of splitting the space with Bootstrap's auto margin */
+.test-search-header .btn-close {
+  margin-left: 0;
+}
+
+/* Bugzilla's green, for the "File a bug" button */
+.test-search-file-bug.btn {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #2e8540;
+  --bs-btn-border-color: #2e8540;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #256b33;
+  --bs-btn-hover-border-color: #256b33;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #1f5a2b;
+  --bs-btn-active-border-color: #1f5a2b;
+}
+
 .test-search-repo-menu {
   max-height: 300px;
 }
