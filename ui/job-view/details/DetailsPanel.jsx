@@ -61,6 +61,11 @@ function DetailsPanel({
     classifications,
     testGroups,
     bugs,
+    bugSuggestions,
+    bugSuggestionsLoading,
+    summary,
+    summaryLoading,
+    summaryError,
     taskExpired,
   } = useJobDetails(selectedJob, currentRepo, pushList, frameworks);
 
@@ -152,9 +157,11 @@ function DetailsPanel({
           perfJobDetail={perfJobDetail}
           repoName={currentRepo?.name}
           jobRevision={jobRevision}
-          suggestions={[]}
-          errors={undefined}
-          bugSuggestionsLoading={false}
+          bugSuggestions={bugSuggestions}
+          bugSuggestionsLoading={bugSuggestionsLoading}
+          summary={summary}
+          summaryLoading={summaryLoading}
+          summaryError={summaryError}
           logParseStatus={logParseStatus}
           classifications={classifications}
           classificationMap={classificationMap}
