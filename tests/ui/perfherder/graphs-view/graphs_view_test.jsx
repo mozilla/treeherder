@@ -3,8 +3,8 @@ import {
   cleanup,
   fireEvent,
   waitFor,
-  waitForElementToBeRemoved,
   act,
+  within,
 } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router';
 import fetchMock from 'fetch-mock';
@@ -24,7 +24,10 @@ import seriesData from '../../mock/performance_signature_formatted.json';
 import seriesData2 from '../../mock/performance_signature_formatted2.json';
 import commonAlerts from '../../mock/alert_summaries_common.json';
 import { getProjectUrl } from '../../../../ui/helpers/location';
-import { createGraphData } from '../../../../ui/perfherder/perf-helpers/helpers';
+import {
+  buildSearchText,
+  createGraphData,
+} from '../../../../ui/perfherder/perf-helpers/helpers';
 import {
   createApiUrl,
   createQueryParams,
@@ -55,33 +58,24 @@ const graphData = createGraphData(
   [...graphSymbols],
   [...commonAlerts],
 );
-const inputPlaceholder = 'filter tests e.g. linux tp5o';
 const frameworks = [
   { id: 1, name: 'talos' },
   { id: 2, name: 'build_metrics' },
 ];
-const platforms = ['linux64', 'windows10-64', 'windows7-32'];
 
-const updates = {
-  filteredData: [],
-  loading: false,
-  relatedTests: [],
-  seriesData,
-  showNoRelatedTests: false,
+// one of the selectable tests is the series already plotted on the graph
+const plottedSeries = {
+  ...seriesData[0],
+  id: testData[0].signature_id,
+  name: testData[0].name,
 };
-const updates2 = { ...updates };
-updates2.seriesData = seriesData2;
-
-const setFilterText = (filterField, text) => {
-  fireEvent.click(filterField);
-  fireEvent.change(filterField, { target: { value: text } });
-};
-
-const mockGetSeriesData = jest
-  .fn()
-  .mockResolvedValueOnce(updates)
-  .mockResolvedValueOnce(updates2)
-  .mockResolvedValue(updates);
+const signatures = [plottedSeries, ...seriesData.slice(1), ...seriesData2].map(
+  (series) => ({ ...series, searchText: buildSearchText(series, frameworks) }),
+);
+const mockLoadSignatures = jest.fn(async (repo) => ({
+  data: repo === 'mozilla-central' ? signatures : [],
+  failureStatus: null,
+}));
 
 const mockShowModal = jest
   .fn()
@@ -99,6 +93,7 @@ const graphsViewControls = async (
   },
   skipWait = false,
   highlightInitialDataPoints = false,
+  getTestData = () => {},
 ) => {
   const updateStateParams = () => {};
 
@@ -116,12 +111,9 @@ const graphsViewControls = async (
         projects={repos}
         timeRange={{ value: 172800, text: 'Last two days' }}
         options={{}}
-        getTestData={() => {}}
+        getTestData={getTestData}
         testData={data}
-        getInitialData={() => ({
-          platforms,
-        })}
-        getSeriesData={mockGetSeriesData}
+        loadSignatures={mockLoadSignatures}
         showModal={Boolean(mockShowModal)}
         toggle={mockShowModal}
         selectedDataPoint={selectedDataPoint}
@@ -157,181 +149,84 @@ const graphsViewControls = async (
 };
 afterEach(cleanup);
 
-test('Changing the platform dropdown in the Test Data Modal displays expected tests', async () => {
-  const { getByText, getByTitle, getByTestId, queryByText, container } =
-    await graphsViewControls();
-
+const openModal = async ({ getByText, getByTestId }) => {
   fireEvent.click(getByText('Add test data'));
-
-  // Wait for the modal to fully load with platforms and dropdowns to settle
   await waitFor(() => {
     expect(getByText('Add Test Data')).toBeInTheDocument();
+    expect(
+      within(getByTestId('tests')).queryAllByRole('row'),
+    ).toHaveLength(signatures.length);
   });
+};
 
-  // Wait for dropdowns to initialize (Popper.js positioning)
-  await waitFor(() => {
-    expect(getByTitle('Platform')).toBeInTheDocument();
-  });
+test('Test Data Modal lists tests from every platform without choosing one first', async () => {
+  const result = await graphsViewControls();
+  await openModal(result);
 
-  const platform = await waitFor(() => getByTitle('Platform'));
-
-  // The Platform title might be on the dropdown div, find the actual button
-  const platformButton =
-    platform.querySelector('button') ||
-    platform.querySelector('.dropdown-toggle');
-  if (platformButton) {
-    fireEvent.click(platformButton);
-  } else {
-    fireEvent.click(platform);
-  }
-
-  // Small delay to allow dropdown animation
-  await new Promise((resolve) => {
-    setTimeout(resolve, 100);
-  });
-
-  // Try to find windows7-32 in the dropdown
-  let windowsPlatform = queryByText('windows7-32');
-
-  // If not found, try clicking the dropdown again (sometimes it needs a second click)
-  if (!windowsPlatform) {
-    const dropdownButton = container.querySelector(
-      '[title="Platform"] button.dropdown-toggle',
-    );
-    if (dropdownButton) {
-      fireEvent.click(dropdownButton);
-      await new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      });
-    }
-  }
-
-  // Now wait for the platform option to appear
-  windowsPlatform = await waitFor(() => getByText('windows7-32'), {
-    timeout: 3000,
-  });
-  fireEvent.click(windowsPlatform);
-
-  // Wait for the platform change to update the tests
-  await waitFor(() => {
-    expect(getByTestId(seriesData2[0].id.toString())).toBeInTheDocument();
-  });
-
-  // 'mozilla-central windows7-32 a11yr opt e10s stylo'
-  const existingTest = await waitFor(() =>
-    getByTestId(seriesData2[0].id.toString()),
-  );
-  expect(existingTest).toBeInTheDocument();
-  expect(mockShowModal.mock.calls).toHaveLength(1);
+  expect(result.getByTestId(seriesData[1].id.toString())).toBeInTheDocument();
+  expect(result.getByTestId(seriesData2[0].id.toString())).toBeInTheDocument();
   mockShowModal.mockClear();
 });
 
-test('Tests section in Test Data Modal only shows tests not already displayed in graph', async () => {
-  const { getByText, getByLabelText } = await graphsViewControls();
+test('Tests already displayed in the graph are checked and disabled in the Test Data Modal', async () => {
+  const result = await graphsViewControls();
+  await openModal(result);
 
-  fireEvent.click(getByText('Add test data'));
-
-  // Wait for modal to open
-  await waitFor(() => {
-    expect(getByText('Add Test Data')).toBeInTheDocument();
-  });
-
-  const testDataModal = getByText('Add Test Data');
-  expect(testDataModal).toBeInTheDocument();
-
-  // Note: We're not checking if the test is filtered out because the component
-  // behavior has changed or the timing is different with the async updates.
-  // The main goal of this test is to verify the modal opens correctly.
-
-  fireEvent.click(getByLabelText('Close'));
-
-  // Wait for close action to complete
-  await waitFor(() => {
-    expect(mockShowModal.mock.calls.length).toBeGreaterThanOrEqual(2);
-  });
-
-  expect(mockShowModal.mock.calls).toHaveLength(2);
-
+  const plottedRow = result.getByTestId(plottedSeries.id.toString());
+  expect(within(plottedRow).getByRole('checkbox')).toBeDisabled();
+  expect(
+    within(result.getByTestId(seriesData[1].id.toString())).getByRole(
+      'checkbox',
+    ),
+  ).not.toBeDisabled();
   mockShowModal.mockClear();
-});
-
-test('Selecting a test in the Test Data Modal adds it to Selected Tests section; deselecting a test from Selected Tests removes it', async () => {
-  const { getByText, getByTestId } = await graphsViewControls();
-
-  // Clear any previous calls from the render
-  const initialCallCount = mockShowModal.mock.calls.length;
-
-  fireEvent.click(getByText('Add test data'));
-
-  // Wait for modal to open
-  await waitFor(() => {
-    expect(getByText('Add Test Data')).toBeInTheDocument();
-  });
-
-  const selectedTests = getByTestId('selectedTests');
-  const testToSelect = await waitFor(() =>
-    getByText('about_preferences_basic opt e10s stylo'),
-  );
-  fireEvent.click(testToSelect);
-
-  // Wait for the test to be added to selected tests
-  const fullTestToSelect = await waitFor(() =>
-    getByText('mozilla-central linux64 about_preferences_basic opt e10s stylo'),
-  );
-  fireEvent.click(fullTestToSelect);
-
-  // Wait for the click to process
-  await waitFor(() => {
-    expect(mockShowModal.mock.calls.length).toBeGreaterThan(initialCallCount);
-  });
-
-  expect(mockShowModal.mock.calls.length - initialCallCount).toBe(1);
-  expect(selectedTests).not.toContain(fullTestToSelect);
 });
 
 test("Selectable tests with different units than what's already plotted show warning in the Test Data Modal", async () => {
-  const { getByText, getAllByTitle } = await graphsViewControls();
-
-  fireEvent.click(getByText('Add test data'));
-
-  // Wait for modal to open
-  await waitFor(() => {
-    expect(getByText('Add Test Data')).toBeInTheDocument();
-  });
+  const result = await graphsViewControls();
+  await openModal(result);
 
   // dromaeo_dom's unit is "score", while other tests don't have any
-  const mismatchedTests = await waitFor(() => getAllByTitle(/^Warning:.*/i));
-
-  expect(mismatchedTests).toHaveLength(1);
+  expect(result.getAllByTitle(/^Warning:.*/i)).toEqual([
+    result.getByTestId(seriesData[3].id.toString()),
+  ]);
+  mockShowModal.mockClear();
 });
 
-test("Selecting a test with similar unit in the Test Data Modal doesn't give warning", async () => {
-  const { getByText, getByTestId, queryAllByTitle } =
-    await graphsViewControls();
-
-  fireEvent.click(getByText('Add test data'));
-
-  // Wait for modal to open
-  await waitFor(() => {
-    expect(getByText('Add Test Data')).toBeInTheDocument();
-  });
-
-  const matchingTest = await waitFor(() =>
-    getByTestId(seriesData[1].id.toString()),
+test('Searching and selecting a test in the Test Data Modal plots it', async () => {
+  const getTestData = jest.fn();
+  const result = await graphsViewControls(
+    testData,
+    true,
+    false,
+    undefined,
+    undefined,
+    false,
+    false,
+    getTestData,
   );
+  await openModal(result);
 
-  fireEvent.click(matchingTest);
-
-  // Wait for click to process
-  await waitFor(() => {
-    const warnings = queryAllByTitle(/^Warning:.*/i);
-    expect(warnings).toHaveLength(1);
+  fireEvent.change(result.getByLabelText('Search tests'), {
+    target: { value: 'windows7 about_preferences' },
   });
+  await waitFor(() =>
+    expect(
+      within(result.getByTestId('tests')).queryAllByRole('row'),
+    ).toHaveLength(1),
+  );
+  fireEvent.click(result.getByTestId(seriesData2[1].id.toString()));
+  fireEvent.click(result.getByRole('button', { name: 'Plot graphs (1)' }));
 
-  const mismatchedTests = await waitFor(() => queryAllByTitle(/^Warning:.*/i));
-
-  // no extra warnings were added in selected tests' section
-  expect(mismatchedTests).toHaveLength(1);
+  expect(getTestData).toHaveBeenCalledWith([
+    {
+      repository_name: 'mozilla-central',
+      signature_id: seriesData2[1].id,
+      framework_id: 1,
+      replicates: false,
+    },
+  ]);
+  mockShowModal.mockClear();
 });
 
 test('Using select query param displays tooltip for correct datapoint', async () => {
@@ -428,236 +323,6 @@ test('Using select query param displays tooltip for correct datapoint with repli
   expect(platform).toHaveTextContent(testData[0].platform);
 });
 
-test('InputFilter from TestDataModal can filter by application name', async () => {
-  const { getByText, getByTestId, getByPlaceholderText, getByTitle } =
-    await graphsViewControls();
-
-  const { name, application, projectName, platform } = seriesData[0];
-  const fullTestName = projectName.concat(
-    ' ',
-    platform,
-    ' ',
-    name,
-    ' ',
-    application,
-  );
-
-  fireEvent.click(getByText('Add test data'));
-
-  // Wait for modal to open
-  await waitFor(() => {
-    expect(getByText('Add Test Data')).toBeInTheDocument();
-  });
-
-  const textInput = await waitFor(() => getByPlaceholderText(inputPlaceholder));
-  setFilterText(textInput, application);
-
-  // Wait for filter to apply
-  await waitFor(() => {
-    expect(getByTitle(`${name} ${application}`)).toBeInTheDocument();
-  });
-
-  const fullTestToSelect = await waitFor(() =>
-    getByTitle(`${name} ${application}`),
-  );
-
-  fireEvent.click(fullTestToSelect);
-
-  // Wait for test to be selected
-  await waitFor(() => {
-    const selectedTests = getByTestId('selectedTests');
-    expect(selectedTests.children.length).toBeGreaterThan(0);
-  });
-
-  const selectedTests = getByTestId('selectedTests');
-
-  expect(selectedTests.children).toHaveLength(1);
-  expect(selectedTests.children[0].text).toBe(fullTestName);
-});
-
-test('Platform dropdown in Test Data Modal always shows values sorted alphabetically', async () => {
-  const originalPlatforms = [...platforms];
-
-  // inject unsorted input data to verify that the UI sorts it
-  platforms.splice(
-    0,
-    platforms.length,
-    'windows7-32',
-    'linux64',
-    'windows10-64',
-  );
-
-  try {
-    const { getByText, getByTitle } = await graphsViewControls();
-
-    fireEvent.click(getByText('Add test data'));
-
-    await waitFor(() => {
-      expect(getByText('Add Test Data')).toBeInTheDocument();
-      expect(getByTitle('Platform')).toBeInTheDocument();
-    });
-
-    const platformDropdown = getByTitle('Platform');
-    const platformButton =
-      platformDropdown.querySelector('button') ||
-      platformDropdown.querySelector('.dropdown-toggle');
-
-    fireEvent.click(platformButton || platformDropdown);
-
-    await act(async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      });
-    });
-
-    const renderedPlatformOptions = await waitFor(() => {
-      const items = Array.from(
-        document.querySelectorAll('.dropdown-menu.show .dropdown-item'),
-      ).map((item) => item.textContent.replace(/^Selected\s*/i, '').trim());
-
-      expect(items).toHaveLength(platforms.length);
-      return items;
-    });
-
-    expect(renderedPlatformOptions).toEqual([...platforms].sort());
-  } finally {
-    // restore shared global state so other tests are unaffected
-    platforms.splice(0, platforms.length, ...originalPlatforms);
-  }
-});
-
-test('Changing the platform dropdown while filtered by text in the Test Data Modal displays expected tests', async () => {
-  mockShowModal.mockClear();
-  const {
-    getByText,
-    getByPlaceholderText,
-    getByTitle,
-    getByTestId,
-    queryByText,
-    container,
-  } = await graphsViewControls();
-
-  fireEvent.click(getByText('Add test data'));
-
-  // Wait for modal to open
-  await waitFor(() => {
-    expect(getByText('Add Test Data')).toBeInTheDocument();
-  });
-
-  // Wait for dropdowns to initialize (Popper.js positioning)
-  await waitFor(() => {
-    expect(getByTitle('Platform')).toBeInTheDocument();
-  });
-
-  const textInput = await waitFor(() => getByPlaceholderText(inputPlaceholder));
-  setFilterText(textInput, 'a11yr opt e10s stylo');
-
-  // This text is narrowing down the results and we have to make sure at least one
-  // of the tests that don't fit are removed
-  await waitForElementToBeRemoved(
-    await waitFor(() => getByTitle('about_preferences_basic opt e10s stylo')),
-  );
-  let presentTests = await waitFor(() => getByTestId('tests'));
-
-  const linuxTest = await waitFor(() =>
-    getByTitle('a11yr opt e10s stylo firefox'),
-  );
-
-  expect(presentTests.children).toHaveLength(1);
-  expect(linuxTest).toBeInTheDocument();
-
-  const platform = await waitFor(() => getByTitle('Platform'));
-
-  // The Platform title might be on the dropdown div, find the actual button
-  const platformButton =
-    platform.querySelector('button') ||
-    platform.querySelector('.dropdown-toggle');
-  if (platformButton) {
-    fireEvent.click(platformButton);
-  } else {
-    fireEvent.click(platform);
-  }
-
-  // Small delay to allow dropdown animation
-  await new Promise((resolve) => {
-    setTimeout(resolve, 100);
-  });
-
-  // Try to find windows7-32 in the dropdown
-  let windowsPlatform = queryByText('windows7-32');
-
-  // If not found, try clicking the dropdown again (sometimes it needs a second click)
-  if (!windowsPlatform) {
-    const dropdownButton = container.querySelector(
-      '[title="Platform"] button.dropdown-toggle',
-    );
-    if (dropdownButton) {
-      fireEvent.click(dropdownButton);
-      await new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      });
-    }
-  }
-
-  // Now wait for the platform option to appear
-  windowsPlatform = await waitFor(() => getByText('windows7-32'), {
-    timeout: 3000,
-  });
-  fireEvent.click(windowsPlatform);
-
-  // Wait for platform change to process
-  await waitFor(() => {
-    const tests = getByTestId('tests');
-    expect(tests).toBeInTheDocument();
-  });
-
-  // linux64 (default platform of the modal) and windows7-32 (the platform below)
-  // have this test so we need to make sure the test is first removed before being
-  // added back
-  // Only wait for removal if the element still exists and is in the document
-  try {
-    if (linuxTest?.isConnected && document.body.contains(linuxTest)) {
-      await waitForElementToBeRemoved(linuxTest);
-    }
-  } catch {
-    // Element was already removed, continue
-  }
-
-  // With React 18's concurrent mode, re-apply the filter after platform change
-  // to ensure filtering is correctly applied to the new platform's data
-  const reapplyFilter = await waitFor(() =>
-    getByPlaceholderText(inputPlaceholder),
-  );
-  // Clear and re-enter the filter text to trigger filtering on new data
-  fireEvent.change(reapplyFilter, { target: { value: '' } });
-  await act(async () => {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 100);
-    });
-  });
-  setFilterText(reapplyFilter, 'a11yr opt e10s stylo');
-
-  // Wait for the filter to be applied after platform change
-  presentTests = await waitFor(
-    () => {
-      const tests = getByTestId('tests');
-      // Wait until the filter has been applied and we have only 1 result
-      if (tests.children.length !== 1) {
-        throw new Error('Waiting for filter to be applied');
-      }
-      return tests;
-    },
-    { timeout: 3000 },
-  );
-
-  const windowsTest = await waitFor(() =>
-    getByTitle('a11yr opt e10s stylo firefox'),
-  );
-
-  expect(presentTests.children).toHaveLength(1);
-  expect(windowsTest).toBeInTheDocument();
-});
-
 describe('Mocked API calls', () => {
   beforeAll(() => {
     fetchMock.mock(
@@ -680,7 +345,6 @@ describe('Mocked API calls', () => {
         seriesData[0].projectName,
       )}${createQueryParams({
         interval: 1209600,
-        framework: testData[0].framework_id,
       })}`,
       [
         'windows10-64-qr',
@@ -715,7 +379,6 @@ describe('Mocked API calls', () => {
         '/performance/signatures/',
         seriesData[0].projectName,
       )}?${queryString.stringify({
-        framework: 1,
         interval: 1209600,
         platform: 'linux64',
         subtests: 0,
