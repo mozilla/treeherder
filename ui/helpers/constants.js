@@ -168,6 +168,7 @@ export const thPlatformMap = {
   'windows11-aarch64-24h2-shippable': 'Windows 11 24H2 AArch64 Shippable',
   'windows11-aarch64-24h2': 'Windows 11 24H2 AArch64',
   'windows11-64-25h2': 'Windows 11 25H2',
+  'windows11-64-25h2-artifact': 'Windows 11 25H2 artifact',
   'windows11-64-25h2-shippable': 'Windows 11 25H2 Shippable',
   'windows11-64-25h2-devedition': 'Windows 11 25H2 DevEdition',
   'windows11-64-25h2-ccov': 'Windows 11 25H2 CCov',
