@@ -34,7 +34,7 @@ const collapsableRowsTest = async () => {
           updateSelectedAlerts={() => {}}
           selectedAlerts={[{}]}
           updateViewState={() => {}}
-          modifyAlert={() => {}}
+          modifyAlerts={() => {}}
         />
       </tbody>
     </table>,

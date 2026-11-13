@@ -64,11 +64,11 @@ const testIssueTrackers = [
 
 const testActiveTags = ['first-tag', 'second-tag'];
 
-const mockModifyAlert = {
-  update(alert, params) {
+const mockModifyAlerts = {
+  update(alertIds, params) {
     return {
       data: {
-        ...alert,
+        alert_ids: alertIds,
         ...params,
       },
       failureStatus: null,
@@ -110,7 +110,9 @@ const alertsViewControls = ({
         fetchAlertSummaries={() => {}}
         updateViewState={() => {}}
         user={user}
-        modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
+        modifyAlerts={(alertIds, params) =>
+          mockModifyAlerts.update(alertIds, params)
+        }
         updateAlertSummary={() =>
           Promise.resolve({
             failureStatus: false,
@@ -140,10 +142,10 @@ const tagsList = (tags = []) => {
   return render(<TagsList tags={tags} />);
 };
 
-const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');
+const modifyAlertsSpy = jest.spyOn(mockModifyAlerts, 'update');
 
 afterEach(() => {
-  modifyAlertSpy.mockClear();
+  modifyAlertsSpy.mockClear();
 });
 
 beforeAll(() => {
@@ -362,14 +364,8 @@ test('clicking the star icon for an alert updates that alert', async () => {
   fireEvent.click(starIcon);
 
   await waitFor(() => {
-    expect(modifyAlertSpy).toHaveBeenCalled();
-    expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
-      data: {
-        ...testAlertSummaries[0].alerts[0],
-        ...{ starred: true },
-      },
-      failureStatus: null,
-    });
+    expect(modifyAlertsSpy).toHaveBeenCalledTimes(1);
+    expect(modifyAlertsSpy).toHaveBeenCalledWith([69345], { starred: true });
   });
 });
 
@@ -391,24 +387,14 @@ test('selecting all alerts and marking them as acknowledged updates all alerts',
 
   fireEvent.click(acknowledgeButton);
 
-  // all alerts have been updated
+  // all alerts have been updated with a single request
   await waitFor(() => {
-    expect(modifyAlertSpy).toHaveBeenCalledTimes(4);
-    expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
-      data: {
-        ...testAlertSummaries[0].alerts[0],
-        ...{ status: 4 },
-      },
-      failureStatus: null,
-    });
-
-    expect(modifyAlertSpy.mock.results[1].value).toStrictEqual({
-      data: {
-        ...testAlertSummaries[0].alerts[1],
-        ...{ status: 4 },
-      },
-      failureStatus: null,
-    });
+    expect(modifyAlertsSpy).toHaveBeenCalledTimes(1);
+    expect(modifyAlertsSpy.mock.calls[0][0]).toHaveLength(4);
+    expect(modifyAlertsSpy.mock.calls[0][0]).toEqual(
+      expect.arrayContaining([69344, 69345, 69346, 69347]),
+    );
+    expect(modifyAlertsSpy.mock.calls[0][1]).toStrictEqual({ status: 4 });
   });
 
   // action panel has closed and all checkboxes reset
@@ -438,14 +424,8 @@ test('selecting an alert and marking it as invalid only updates that alert', asy
   fireEvent.click(invalidButton);
   // alert has been updated
   await waitFor(() => {
-    expect(modifyAlertSpy).toHaveBeenCalledTimes(1);
-    expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
-      data: {
-        ...testAlertSummaries[0].alerts[1],
-        ...{ status: 3 },
-      },
-      failureStatus: null,
-    });
+    expect(modifyAlertsSpy).toHaveBeenCalledTimes(1);
+    expect(modifyAlertsSpy).toHaveBeenCalledWith([69344], { status: 3 });
   });
 
   // action panel has closed and checkbox has reset
@@ -490,17 +470,15 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   const acknowledgeButton = await waitFor(() => getByText('Acknowledge'));
   fireEvent.click(acknowledgeButton);
 
-  // only the selected alert has been updated
+  // only the selected alerts have been updated
   await waitFor(() => {
-    expect(modifyAlertSpy).toHaveBeenCalledTimes(3);
-    expect(modifyAlertSpy.mock.results[0].value.data.id).toBe(69345);
-    expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
-      data: {
-        ...testAlertSummaries[0].alerts[0],
-        ...{ status: 4 },
-      },
-      failureStatus: null,
-    });
+    expect(modifyAlertsSpy).toHaveBeenCalledTimes(1);
+    expect(modifyAlertsSpy.mock.calls[0][0]).toHaveLength(3);
+    expect(modifyAlertsSpy.mock.calls[0][0]).toEqual(
+      expect.arrayContaining([69345, 69346, 69347]),
+    );
+    expect(modifyAlertsSpy.mock.calls[0][0]).not.toContain(69344);
+    expect(modifyAlertsSpy.mock.calls[0][1]).toStrictEqual({ status: 4 });
   });
 
   // action panel has closed and all checkboxes reset
@@ -527,6 +505,32 @@ test('selecting the alert summary checkbox then clicking on the reassign button 
   await waitFor(() => {
     const alertModal = getByText('Reassign Alerts');
     expect(alertModal).toBeInTheDocument();
+  });
+});
+
+test('reassigning the selected alerts sends a single bulk request to the target summary', async () => {
+  const { getByTestId, getByText, getByPlaceholderText, getByRole } =
+    alertsViewControls();
+
+  fireEvent.click(getByTestId('alert summary 20174 checkbox'));
+  fireEvent.click(await waitFor(() => getByText('Reassign')));
+
+  fireEvent.change(getByPlaceholderText('123456'), {
+    target: { value: '20239' },
+  });
+  const assignButton = getByRole('button', { name: 'Assign' });
+  await waitFor(() => expect(assignButton).toBeEnabled(), { timeout: 3000 });
+  fireEvent.click(assignButton);
+
+  await waitFor(() => {
+    expect(modifyAlertsSpy).toHaveBeenCalledTimes(1);
+    expect(modifyAlertsSpy.mock.calls[0][0]).toEqual(
+      expect.arrayContaining([69344, 69345, 69346, 69347]),
+    );
+    expect(modifyAlertsSpy.mock.calls[0][1]).toStrictEqual({
+      status: 2,
+      related_summary_id: 20239,
+    });
   });
 });
 

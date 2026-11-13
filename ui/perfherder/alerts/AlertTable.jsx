@@ -310,7 +310,7 @@ export default class AlertTable extends React.Component {
       issueTrackers = [],
       fetchAlertSummaries,
       updateViewState,
-      modifyAlert = undefined,
+      modifyAlerts = undefined,
       performanceTags,
       lastClickedGraphAlertId,
       setLastClickedGraphAlertId,
@@ -448,7 +448,7 @@ export default class AlertTable extends React.Component {
                         updateSelectedAlerts={(alerts) => this.setState(alerts)}
                         selectedAlerts={selectedAlerts}
                         updateViewState={updateViewState}
-                        modifyAlert={modifyAlert}
+                        modifyAlerts={modifyAlerts}
                         fetchAlertSummaries={fetchAlertSummaries}
                         lastClickedGraphAlertId={lastClickedGraphAlertId}
                         setLastClickedGraphAlertId={setLastClickedGraphAlertId}
@@ -464,7 +464,7 @@ export default class AlertTable extends React.Component {
                       updateSelectedAlerts={(alerts) => this.setState(alerts)}
                       selectedAlerts={selectedAlerts}
                       updateViewState={updateViewState}
-                      modifyAlert={modifyAlert}
+                      modifyAlerts={modifyAlerts}
                       fetchAlertSummaries={fetchAlertSummaries}
                       lastClickedGraphAlertId={lastClickedGraphAlertId}
                       setLastClickedGraphAlertId={setLastClickedGraphAlertId}
@@ -522,7 +522,7 @@ export default class AlertTable extends React.Component {
                       fetchAlertSummaries={fetchAlertSummaries}
                       updateState={(state) => this.setState(state)}
                       updateViewState={updateViewState}
-                      modifyAlert={modifyAlert}
+                      modifyAlerts={modifyAlerts}
                     />
                   )}
                 </div>
@@ -550,7 +550,7 @@ AlertTable.propTypes = {
   }).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
   updateViewState: PropTypes.func.isRequired,
-  modifyAlert: PropTypes.func,
+  modifyAlerts: PropTypes.func,
   updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,

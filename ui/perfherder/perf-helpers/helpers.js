@@ -448,8 +448,11 @@ export const getGraphsURL = (
   return url;
 };
 
-export const modifyAlert = (alert, modification) =>
-  update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
+export const modifyAlerts = (alertIds, modification) =>
+  update(getApiUrl(`${endpoints.alert}update/`), {
+    alert_ids: alertIds,
+    ...modification,
+  });
 
 export const modifyAlertSummary = (alertSummaryId) => {
   update(getApiUrl(`${endpoints.alertSummary}${alertSummaryId}/`));
