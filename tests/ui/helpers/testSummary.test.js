@@ -11,6 +11,7 @@ import {
   INCOMPLETE_STATUS,
   HARNESS_STATUS,
 } from '../../../ui/helpers/testSummary';
+import { thBugSuggestionLimit } from '../../../ui/helpers/constants';
 
 const lines = [
   {
@@ -1298,6 +1299,46 @@ describe('classic failure summary helpers', () => {
       expect(prepared.valid_open_recent).toBe(true);
       expect(prepared.valid_all_others).toBe(false);
       expect(prepared.bugs.too_many_open_recent).toBe(false);
+    });
+
+    describe('older bugs (all_others)', () => {
+      const bugs = count =>
+        Array.from({ length: count }, (_, index) => ({
+          id: index + 1,
+          internal_id: index + 1,
+          occurrences: 1,
+          resolution: '',
+        }));
+      const prepare = (openRecent, allOthers) =>
+        prepareBugSuggestions([
+          line(
+            'TEST-UNEXPECTED-FAIL | path/a.js | assertion failed',
+            'path/a.js',
+            { bugs: { open_recent: openRecent, all_others: allOthers } },
+          ),
+        ])[0];
+
+      test('are shown when there are few enough of them', () => {
+        const prepared = prepare([], bugs(1));
+
+        expect(prepared.valid_all_others).toBe(true);
+        expect(prepared.bugs.too_many_all_others).toBe(false);
+      });
+
+      test('are hidden when there are too many of them', () => {
+        const prepared = prepare([], bugs(thBugSuggestionLimit + 1));
+
+        expect(prepared.bugs.too_many_all_others).toBe(true);
+        expect(prepared.valid_all_others).toBe(false);
+      });
+
+      test('are hidden when there are too many recent bugs', () => {
+        const prepared = prepare(bugs(thBugSuggestionLimit + 1), bugs(1));
+
+        expect(prepared.bugs.too_many_open_recent).toBe(true);
+        expect(prepared.valid_open_recent).toBe(false);
+        expect(prepared.valid_all_others).toBe(false);
+      });
     });
 
     test('filters generic lines and handles a non-array input', () => {
