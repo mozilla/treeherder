@@ -592,3 +592,57 @@ def test_ordered_subtest_replicates_are_ingested_with_run_numbers(
         )
     )
     assert stored_replicates == list(zip(subtest_replicates, range(1, len(subtest_replicates) + 1)))
+
+
+def test_detection_techniques_are_ingested(test_repository, perf_job, sample_perf_artifact):
+    suite_techniques = [
+        "ttest",
+        {"technique": "mwu", "preset": "sensitive", "args": {"p_value_threshold": 0.01}},
+    ]
+    subtest_techniques = [{"name": "mwu-custom", "technique": "mwu"}]
+    suite = sample_perf_artifact["blob"]["suites"][0]
+    suite["detectionTechniques"] = suite_techniques
+    suite["subtests"][0]["detectionTechniques"] = subtest_techniques
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+
+    store_performance_artifact(perf_job, submit_datum)
+
+    suite_signature = PerformanceSignature.objects.get(suite="youtube-watch", test="")
+    assert suite_signature.detection_techniques == suite_techniques
+    subtest_signature = PerformanceSignature.objects.get(suite="youtube-watch", test="fcp")
+    assert subtest_signature.detection_techniques == subtest_techniques
+    # subtests without their own detection techniques use the suite's
+    other_subtest_signature = PerformanceSignature.objects.get(
+        suite="youtube-watch", test="loadtime"
+    )
+    assert other_subtest_signature.detection_techniques == suite_techniques
+
+
+def test_detection_techniques_can_be_updated(test_repository, perf_job, sample_perf_artifact):
+    suite = sample_perf_artifact["blob"]["suites"][0]
+    suite["detectionTechniques"] = ["ttest"]
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+    store_performance_artifact(perf_job, submit_datum)
+
+    signature = PerformanceSignature.objects.get(suite="youtube-watch", test="")
+    original_hash = signature.signature_hash
+    assert signature.detection_techniques == ["ttest"]
+
+    suite["detectionTechniques"] = ["mwu"]
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+    store_performance_artifact(perf_job, submit_datum)
+
+    signature.refresh_from_db()
+    # changing the detection techniques doesn't decouple the signature
+    assert signature.signature_hash == original_hash
+    assert signature.detection_techniques == ["mwu"]
+
+
+def test_subtests_without_suite_detection_techniques(
+    test_repository, perf_job, sample_perf_artifact
+):
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+
+    store_performance_artifact(perf_job, submit_datum)
+
+    assert not PerformanceSignature.objects.filter(detection_techniques__isnull=False).exists()
