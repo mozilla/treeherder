@@ -956,7 +956,6 @@ class PerformanceAlertViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = PerformanceAlert.objects.all()
