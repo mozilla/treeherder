@@ -1,4 +1,11 @@
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 
 import SummaryTab from '../../../../../ui/job-view/details/tabs/summaryTab/SummaryTab';
@@ -10,6 +17,21 @@ import {
   requiredInternalOccurrences,
   thEvents,
 } from '../../../../../ui/helpers/constants';
+
+// The real filer posts to the API; a button standing for a successful
+// submission is all the tab's callback needs.
+jest.mock('../../../../../ui/shared/InternalIssueFiler', () => {
+  const { createElement } = jest.requireActual('react');
+  return {
+    __esModule: true,
+    default: ({ successCallback }) =>
+      createElement(
+        'button',
+        { type: 'button', onClick: () => successCallback({ internal_id: 42 }) },
+        'Submit internal issue',
+      ),
+  };
+});
 
 const selectedJob = {
   id: 1,
@@ -450,6 +472,18 @@ describe('SummaryTab classic section folding', () => {
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
   });
 
+  test('renders no classic section before the bug suggestions arrive', () => {
+    renderWith({
+      summary: buildTestSummary(summaryJsonl),
+      bugSuggestions: undefined,
+    });
+
+    expect(screen.getByText(/assertion failed/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).not.toBeInTheDocument();
+  });
+
   test('folds and unfolds on click', () => {
     renderSummaryTab(
       prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
@@ -621,5 +655,85 @@ describe('SummaryTab internal issue escalation', () => {
 
     addSpy.mockRestore();
     removeSpy.mockRestore();
+  });
+});
+
+describe('SummaryTab filing from the classic section', () => {
+  beforeEach(() => {
+    // The bug filer looks up a Bugzilla component when it opens.
+    window.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([{ product: 'Core', component: 'DOM' }]),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    delete window.fetch;
+  });
+
+  // A classic line with an internal issue one occurrence short of becoming a
+  // Bugzilla bug. With no summary artifact, the classic section is all there is.
+  const classicSuggestions = () => [
+    {
+      search: 'TEST-UNEXPECTED-FAIL | dom/tests/test_fail.html | boom',
+      path_end: 'dom/tests/test_fail.html',
+      search_terms: ['test_fail.html', 'boom'],
+      bugs: {
+        open_recent: [
+          {
+            id: null,
+            internal_id: 42,
+            occurrences: requiredInternalOccurrences - 1,
+          },
+        ],
+        all_others: [],
+      },
+    },
+  ];
+
+  // Lets the bug filer that just opened finish its component lookup.
+  const settleBugFiler = async () => {
+    await waitFor(() => expect(window.fetch).toHaveBeenCalled());
+    await act(async () => {});
+  };
+
+  test('pins the job when filing a bug for a classic line', async () => {
+    const pinJob = jest.fn();
+    renderWith({ pinJob, bugSuggestions: classicSuggestions() });
+
+    fireEvent.click(screen.getByTitle('File a bug for this failure'));
+
+    expect(pinJob).toHaveBeenCalledWith(selectedJob);
+    await settleBugFiler();
+  });
+
+  test('classifies with the internal issue filed for a classic line, escalating it when due', async () => {
+    const pinJob = jest.fn();
+    const addBug = jest.fn().mockResolvedValue();
+    const onSaveClassification = jest.fn();
+    window.addEventListener(thEvents.saveClassification, onSaveClassification);
+    renderWith({ pinJob, addBug, bugSuggestions: classicSuggestions() });
+
+    fireEvent.click(
+      screen.getByTitle('File an internal issue for this failure'),
+    );
+    expect(pinJob).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Submit internal issue' }),
+    );
+
+    // The new occurrence reaches the threshold: the bug filer opens, which
+    // pins the job a second time.
+    await waitFor(() => expect(pinJob).toHaveBeenCalledTimes(2));
+    expect(addBug).toHaveBeenCalledWith({ internal_id: 42, newBug: 'i42' });
+    expect(onSaveClassification).toHaveBeenCalledTimes(1);
+    await settleBugFiler();
+
+    window.removeEventListener(
+      thEvents.saveClassification,
+      onSaveClassification,
+    );
   });
 });

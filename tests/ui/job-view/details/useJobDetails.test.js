@@ -169,6 +169,63 @@ describe('useJobDetails', () => {
     unmount();
   });
 
+  describe('when loading fails', () => {
+    const props = () => ({
+      selectedJob: makeJob(),
+      currentRepo,
+      pushList: [{ id: 10, revision: 'abc123' }],
+      frameworks,
+    });
+
+    it('shows no bug suggestions when their request fails', async () => {
+      BugSuggestionsModel.get.mockRejectedValue(new Error('boom'));
+
+      const { result } = renderJobDetails(props());
+
+      await waitFor(() => expect(result.current.bugSuggestions).toEqual([]));
+      expect(result.current.bugSuggestionsLoading).toBe(false);
+    });
+
+    it('leaves the bug suggestions untouched when their request is aborted', async () => {
+      const abortError = new Error('aborted');
+      abortError.name = 'AbortError';
+      BugSuggestionsModel.get.mockRejectedValue(abortError);
+
+      const { result } = renderJobDetails(props());
+
+      await waitFor(() => expect(result.current.selectedJobFull).not.toBeNull());
+      await act(async () => {});
+
+      // Whatever aborted the request owns the state from here.
+      expect(result.current.bugSuggestions).toBeNull();
+      expect(result.current.bugSuggestionsLoading).toBe(true);
+    });
+
+    it('stops every loading state when the job itself cannot be loaded', async () => {
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const error = new Error('boom');
+      JobModel.get.mockRejectedValue(error);
+
+      const { result } = renderJobDetails(props());
+
+      await waitFor(() =>
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Error loading job details:',
+          error,
+        ),
+      );
+      await waitFor(() =>
+        expect(result.current.bugSuggestionsLoading).toBe(false),
+      );
+      expect(result.current.jobDetailLoading).toBe(false);
+      expect(result.current.jobArtifactsLoading).toBe(false);
+
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
   it('does not refetch when the selected job and push list only change identity (poll)', async () => {
     const jobA = makeJob();
     const pushList = [{ id: 10, revision: 'abc123' }];
