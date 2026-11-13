@@ -7,7 +7,13 @@ import { phTimeRanges } from '../perf-helpers/constants';
 
 class TimeRangeDropdown extends React.PureComponent {
   render() {
-    const { timeRangeText, updateTimeRange } = this.props;
+    const {
+      timeRangeText,
+      updateTimeRange,
+      size = undefined,
+      toggleClassName = '',
+      variant = 'secondary',
+    } = this.props;
 
     return (
       <Dropdown
@@ -15,7 +21,13 @@ class TimeRangeDropdown extends React.PureComponent {
         title="Time range"
         aria-label="Time range"
       >
-        <Dropdown.Toggle variant="secondary">{timeRangeText}</Dropdown.Toggle>
+        <Dropdown.Toggle
+          variant={variant}
+          size={size}
+          className={toggleClassName}
+        >
+          {timeRangeText}
+        </Dropdown.Toggle>
         <Dropdown.Menu className="overflow-auto dropdown-menu-height">
           <DropdownMenuItems
             options={phTimeRanges.map((item) => item.text)}
@@ -37,4 +49,7 @@ export default TimeRangeDropdown;
 TimeRangeDropdown.propTypes = {
   timeRangeText: PropTypes.string.isRequired,
   updateTimeRange: PropTypes.func.isRequired,
+  size: PropTypes.oneOf(['sm', 'lg']),
+  toggleClassName: PropTypes.string,
+  variant: PropTypes.string,
 };
