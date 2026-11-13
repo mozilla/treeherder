@@ -8,7 +8,7 @@ newrelic==14.2.0
 certifi==2026.10.23
 orjson==3.13.0
 
-psycopg[binary]==3.3.6
+psycopg[binary]==3.3.8
 
 jsonschema==4.26.0  # import jsonschema
 djangorestframework==3.18.3  # Imported as rest_framework
