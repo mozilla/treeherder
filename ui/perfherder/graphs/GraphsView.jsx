@@ -449,6 +449,9 @@ function GraphsView({ projects, frameworks, user }) {
         Boolean(parseInt(replicatesParam, 10)),
       );
       getTestData(seriesParams, true);
+    } else {
+      // nothing to graph yet, so start with picking tests
+      setShowModal(true);
     }
 
     if (hlAlerts) {
@@ -523,6 +526,8 @@ function GraphsView({ projects, frameworks, user }) {
     ) {
       setTestData([]);
     }
+    // e.g. Back to the bare graphs page: nothing is left to graph, so pick tests
+    if (location.search === '') setShowModal(true);
   }, [location.search, loading]);
 
   const handleUpdateTimeRange = useCallback(

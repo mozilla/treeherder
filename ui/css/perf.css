@@ -174,10 +174,80 @@ h1 {
   display: inline-block;
 }
 
-/* Test Chooser graph */
+/* Graphs "Add Test Data" modal */
 
-.test-chooser {
-  width: 650px;
+.test-search-facet-title {
+  flex: 0 0 90px;
+}
+
+.test-search-chip {
+  padding: 0.2rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+/* compact menus to match the small chip-style toggles; this also lets every
+   time range fit within the shared 300px dropdown-menu-height */
+.test-search .dropdown-item {
+  padding: 0.2rem 1rem;
+  font-size: 0.95rem;
+}
+
+.test-search-checkbox-menu {
+  min-width: 22rem;
+}
+
+.test-search-checkbox-list {
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+/* plain, single-line options (labels are bold site-wide) */
+.test-search-checkbox-list .form-check-label {
+  font-weight: normal;
+  white-space: nowrap;
+}
+
+/* the "File a bug" button takes the free space, so keep the close button
+   next to it instead of splitting the space with Bootstrap's auto margin */
+.test-search-header .btn-close {
+  margin-left: 0;
+}
+
+/* Bugzilla's green, for the "File a bug" button */
+.test-search-file-bug.btn {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #2e8540;
+  --bs-btn-border-color: #2e8540;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #256b33;
+  --bs-btn-hover-border-color: #256b33;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #1f5a2b;
+  --bs-btn-active-border-color: #1f5a2b;
+}
+
+.test-search-repo-menu {
+  max-height: 300px;
+}
+
+.test-search-results {
+  height: 45vh;
+  overflow-y: auto;
+}
+
+/* only needs to stay above the rows; Bootstrap's sticky-top z-index (1020)
+   would also cover open dropdown menus (1000) such as the time range */
+.test-search-results thead.sticky-top {
+  z-index: 1;
+}
+
+.test-search-results td {
+  white-space: nowrap;
+}
+
+.test-search-results td:nth-child(2) {
+  white-space: normal;
+  word-break: break-word;
 }
 
 .btn-group-vertical {
