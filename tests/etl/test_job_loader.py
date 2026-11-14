@@ -261,6 +261,39 @@ def test_ingest_pending_pulse_job(
     assert JobLog.objects.count() == 1
 
 
+def test_ingest_pulse_job_stores_test_manifest_fingerprint(
+    pulse_jobs, push_stored, failure_classifications, mock_log_parser
+):
+    jl = JobLoader()
+    pulse_job = pulse_jobs[0]
+    pulse_job["origin"]["revision"] = push_stored[0]["revision"]
+    pulse_job["state"] = "pending"
+    pulse_job["testManifests"] = {"hash": "0123456789abcdef", "count": 7, "chunkTotal": 10}
+
+    jl.process_job(pulse_job, "https://firefox-ci-tc.services.mozilla.com")
+
+    metadata = Job.objects.get().taskcluster_metadata
+    assert metadata.manifest_hash == "0123456789abcdef"
+    assert metadata.manifest_count == 7
+    assert metadata.chunk_total == 10
+
+
+def test_ingest_pulse_job_without_test_manifests(
+    pulse_jobs, push_stored, failure_classifications, mock_log_parser
+):
+    jl = JobLoader()
+    pulse_job = pulse_jobs[0]
+    pulse_job["origin"]["revision"] = push_stored[0]["revision"]
+    pulse_job["state"] = "pending"
+
+    jl.process_job(pulse_job, "https://firefox-ci-tc.services.mozilla.com")
+
+    metadata = Job.objects.get().taskcluster_metadata
+    assert metadata.manifest_hash is None
+    assert metadata.manifest_count is None
+    assert metadata.chunk_total is None
+
+
 def test_ingest_pulse_jobs_bad_project(
     pulse_jobs, test_repository, push_stored, failure_classifications, mock_log_parser
 ):
