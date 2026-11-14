@@ -20,7 +20,7 @@ const resultStatusMenuItems = thAllResultStatuses.filter(
   (rs) => rs !== 'runnable',
 );
 
-function FiltersMenu({ filterModel, getAllShownJobs, user }) {
+function FiltersMenu({ filterModel, getAllShownJobs, user, openFilterPanel }) {
   const selectedJob = useSelectedJobStore((state) => state.selectedJob);
   const {
     urlParams: { resultStatus, classifiedState },
@@ -51,6 +51,14 @@ function FiltersMenu({ filterModel, getAllShownJobs, user }) {
         Filters
       </Dropdown.Toggle>
       <Dropdown.Menu>
+        <Dropdown.Item
+          as="a"
+          title="Open the advanced filter panel"
+          onClick={openFilterPanel}
+        >
+          Advanced Filters…
+        </Dropdown.Item>
+        <Dropdown.Divider />
         {resultStatusMenuItems.map((filterName) => (
           <Dropdown.Item
             key={filterName}
@@ -180,6 +188,11 @@ FiltersMenu.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   user: PropTypes.shape({}).isRequired,
+  openFilterPanel: PropTypes.func,
+};
+
+FiltersMenu.defaultProps = {
+  openFilterPanel: () => {},
 };
 
 export default FiltersMenu;
