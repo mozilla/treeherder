@@ -10,8 +10,8 @@ import {
   scrollJobIntoView,
 } from '../../helpers/job';
 import { thJobNavSelectors } from '../../helpers/constants';
-import { getUrlParam, setUrlParam, setUrlParams } from '../../helpers/location';
-import { updateUrlSearch } from '../../helpers/router';
+import { getUrlParam, setUrlParams } from '../../helpers/location';
+import { replaceUrlSearch, updateUrlSearch } from '../../helpers/router';
 import JobModel from '../../models/job';
 import { getJobsUrl } from '../../helpers/url';
 
@@ -69,13 +69,28 @@ const doClearSelectedJob = (countPinnedJobs) => {
   return {};
 };
 
+// Bring the URL's selection params in line with the task resolved from it.
+// This reflects the URL the user is already on, so it replaces the current
+// history entry, and only when something changed.  Pushing entries here would
+// cost extra Back presses, and an entry pushed while the user is going Back
+// lands them on the selection again.
+const normalizeSelectionParams = (selectedTaskRun) => {
+  const params = setUrlParams([
+    ['selectedJob', null],
+    ['selectedTaskRun', selectedTaskRun],
+  ]);
+
+  if (params !== new URLSearchParams(window.location.search).toString()) {
+    replaceUrlSearch(params);
+  }
+};
+
 const searchDatabaseForTaskRun = async (jobParams, notify) => {
   const repoName = getUrlParam('repo');
   const { failureStatus, data: taskList } = await JobModel.getList(jobParams);
   const { id, task_id: taskId, retry_id: runId } = jobParams;
 
-  setUrlParam('selectedJob');
-  setUrlParam('selectedTaskRun');
+  normalizeSelectionParams(null);
 
   if (taskList.length && !failureStatus) {
     const task = taskList[0];
@@ -143,8 +158,7 @@ export const useSelectedJobStore = create(
           const { taskId, runId } = getTaskRun(selectedTaskRun);
 
           if (taskId === undefined) {
-            setUrlParam('selectedJob');
-            setUrlParam('selectedTaskRun');
+            normalizeSelectionParams(null);
             set((state) => ({ ...state, ...doClearSelectedJob({}) }));
             return;
           }
@@ -163,8 +177,7 @@ export const useSelectedJobStore = create(
           }
 
           if (task) {
-            setUrlParam('selectedJob');
-            setUrlParam('selectedTaskRun', getTaskRunStr(task));
+            normalizeSelectionParams(getTaskRunStr(task));
             set(doSelectJob(task));
             return;
           }
@@ -194,8 +207,7 @@ export const useSelectedJobStore = create(
 
           // select the job in question
           if (task) {
-            setUrlParam('selectedJob');
-            setUrlParam('selectedTaskRun', getTaskRunStr(task));
+            normalizeSelectionParams(getTaskRunStr(task));
             set(doSelectJob(task));
             return;
           }
