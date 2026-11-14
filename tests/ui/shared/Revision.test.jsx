@@ -12,6 +12,7 @@ describe('Revision', () => {
   const repo = {
     url: 'https://hg.mozilla.org/integration/autoland',
     getRevisionHref: (rev) => `https://example.com/rev/${rev}`,
+    getRevisionBaseUrl: () => 'https://hg.mozilla.org/integration/autoland',
   };
 
   it('shows the hash, author and Phabricator link inline on desktop', () => {
