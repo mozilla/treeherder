@@ -46,6 +46,34 @@ export const clearCurrentlySelectedInstance = () => {
   currentlySelectedJobId = null;
 };
 
+// Job buttons that follow the URL's selectedTaskRun.  They share a single
+// window popstate listener instead of adding one each: every listener on a
+// target makes the next addEventListener slower in Firefox, so a listener
+// per button made expanding the groups of a long push list (100k+ buttons)
+// hang the page for tens of seconds.
+const urlSelectionSubscribers = new Set();
+
+const notifyUrlSelectionSubscribers = () => {
+  const urlSelectedTaskRun = getUrlParam('selectedTaskRun');
+  urlSelectionSubscribers.forEach((onUrlChange) =>
+    onUrlChange(urlSelectedTaskRun),
+  );
+};
+
+const subscribeToUrlSelection = (onUrlChange) => {
+  if (urlSelectionSubscribers.size === 0) {
+    window.addEventListener('popstate', notifyUrlSelectionSubscribers);
+  }
+  urlSelectionSubscribers.add(onUrlChange);
+
+  return () => {
+    urlSelectionSubscribers.delete(onUrlChange);
+    if (urlSelectionSubscribers.size === 0) {
+      window.removeEventListener('popstate', notifyUrlSelectionSubscribers);
+    }
+  };
+};
+
 // Clear all registry state (useful for tests)
 export const clearJobButtonRegistry = () => {
   jobButtonRegistry.clear();
@@ -75,20 +103,14 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
   const [isRunnableSelected, setIsRunnableSelected] = useState(false);
   const buttonRef = useRef(null);
 
-  // Listen for URL changes (popstate) to update selection state
-  useEffect(() => {
-    const handleUrlChange = () => {
-      const urlSelectedTaskRun = getUrlParam('selectedTaskRun');
-      setIsSelected(urlSelectedTaskRun === job.task_run);
-    };
-
-    // Also listen for custom history changes from connected-react-router
-    window.addEventListener('popstate', handleUrlChange);
-
-    return () => {
-      window.removeEventListener('popstate', handleUrlChange);
-    };
-  }, [job.task_run]);
+  // Follow URL changes (popstate) to update selection state
+  useEffect(
+    () =>
+      subscribeToUrlSelection((urlSelectedTaskRun) =>
+        setIsSelected(urlSelectedTaskRun === job.task_run),
+      ),
+    [job.task_run],
+  );
 
   const setSelected = useCallback(
     (selected) => {
