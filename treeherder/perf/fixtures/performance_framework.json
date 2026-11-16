@@ -68,7 +68,7 @@
     "model": "perf.PerformanceFramework",
     "fields": {
       "name": "vcs",
-      "enabled": false
+      "enabled": true
     }
   },
   {
