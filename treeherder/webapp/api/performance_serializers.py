@@ -1,4 +1,5 @@
 import decimal
+import re
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -332,6 +333,9 @@ class PerformanceTagSerializer(serializers.ModelSerializer):
         fields = ["id", "name"]
 
 
+BUG_NUMBER_RE = re.compile(r"\bbug\s*(\d+)", re.IGNORECASE)
+
+
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     alerts = PerformanceAlertSerializer(many=True, read_only=True)
     related_alerts = PerformanceAlertSerializer(many=True, read_only=True)
@@ -371,6 +375,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     assignee_email = serializers.SerializerMethodField()
     duplicated_summaries = serializers.SerializerMethodField()
     change_type = serializers.SerializerMethodField()
+    push_bug_number = serializers.SerializerMethodField()
     # marking these fields as readonly, the user should not be modifying them
     # (after the item is first created, where we don't use this serializer
     # class)
@@ -420,6 +425,14 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     def get_assignee_email(self, performance_alert_summary):
         return getattr(performance_alert_summary.assignee, "email", None)
 
+    def get_push_bug_number(self, performance_alert_summary):
+        # bug referenced in the commit messages of the push the summary points to
+        for commit in performance_alert_summary.push.commits.all():
+            match = BUG_NUMBER_RE.search(commit.comments or "")
+            if match:
+                return int(match.group(1))
+        return None
+
     def get_change_type(self, performance_alert_summary):
         return getattr(performance_alert_summary, "change_type", None)
 
@@ -461,6 +474,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "bug_updated",
             "severity",
             "change_type",
+            "push_bug_number",
             "issue_tracker",
             "notes",
             "revision",

@@ -16,6 +16,18 @@ export default class FileBugModal extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { showModal, initialValue } = this.props;
+    if (showModal && !prevProps.showModal && initialValue) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        inputValue: initialValue,
+        invalidInput: false,
+        validated: false,
+      });
+    }
+  }
+
   validateInput = debounce(() => {
     const { inputValue } = this.state;
     const regex = /^[1-9]+[0-9]*$/;
@@ -148,8 +160,10 @@ FileBugModal.propTypes = {
   submitButtonText: PropTypes.string.isRequired,
   user: PropTypes.shape({}).isRequired,
   requireInput: PropTypes.bool,
+  initialValue: PropTypes.string,
 };
 
 FileBugModal.defaultProps = {
   requireInput: false,
+  initialValue: '',
 };
