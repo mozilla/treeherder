@@ -123,6 +123,7 @@ def test_alerts_put(
     test_perf_datum_2,
     test_perf_alert,
     test_perf_alert_summary_2,
+    second_perf_alert,
     test_user,
     test_sheriff,
 ):
@@ -130,10 +131,12 @@ def test_alerts_put(
     assert resp.status_code == 200
     assert resp.json()["results"][0]["related_summary_id"] is None
 
+    alert_ids = [test_perf_alert.id, second_perf_alert.id]
+
     # verify that we fail if not authenticated
     resp = client.put(
         reverse("performance-alerts-list") + "update/",
-        {"alert_ids": [1], "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
+        {"alert_ids": alert_ids, "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
         format="json",
     )
     assert resp.status_code == 403
@@ -143,7 +146,7 @@ def test_alerts_put(
     client.force_authenticate(user=test_user)
     resp = client.put(
         reverse("performance-alerts-list") + "update/",
-        {"alert_ids": [1], "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
+        {"alert_ids": alert_ids, "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
         format="json",
     )
     assert resp.status_code == 403
@@ -153,7 +156,7 @@ def test_alerts_put(
     client.force_authenticate(user=test_sheriff)
     resp = client.put(
         reverse("performance-alerts-list") + "update/",
-        {"alert_ids": [1], "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
+        {"alert_ids": alert_ids, "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
         format="json",
     )
     assert resp.status_code == 200
@@ -163,7 +166,7 @@ def test_alerts_put(
     # verify that we can unset it too
     resp = client.put(
         reverse("performance-alerts-list") + "update/",
-        {"alert_ids": [1], "related_summary_id": None, "status": PerformanceAlert.UNTRIAGED},
+        {"alert_ids": alert_ids, "related_summary_id": None, "status": PerformanceAlert.UNTRIAGED},
         format="json",
     )
     assert resp.status_code == 200
@@ -266,6 +269,7 @@ def test_reassign_different_repository(
     test_perf_datum_2,
     test_perf_alert,
     test_perf_alert_summary_2,
+    second_perf_alert,
     test_sheriff,
 ):
     # verify that we can't reassign to another performance alert summary
@@ -274,7 +278,7 @@ def test_reassign_different_repository(
     test_perf_alert_summary_2.save()
 
     assert_incompatible_alert_assignment_fails(
-        authorized_sheriff_client, test_perf_alert, test_perf_alert_summary_2
+        authorized_sheriff_client, [test_perf_alert, second_perf_alert], test_perf_alert_summary_2
     )
 
     # mark downstream of summary with different repository,
@@ -282,7 +286,7 @@ def test_reassign_different_repository(
     resp = authorized_sheriff_client.put(
         reverse("performance-alerts-list") + "update/",
         {
-            "alert_ids": [1],
+            "alert_ids": [test_perf_alert.id, second_perf_alert.id],
             "related_summary_id": test_perf_alert_summary_2.id,
             "status": PerformanceAlert.DOWNSTREAM,
         },
@@ -301,6 +305,7 @@ def test_reassign_different_framework(
     test_repository_2,
     test_perf_alert,
     test_perf_alert_summary_2,
+    second_perf_alert,
 ):
     # verify that we can't reassign to another performance alert summary
     # with a different framework
@@ -309,10 +314,25 @@ def test_reassign_different_framework(
     test_perf_alert_summary_2.save()
 
     assert_incompatible_alert_assignment_fails(
-        authorized_sheriff_client, test_perf_alert, test_perf_alert_summary_2
+        authorized_sheriff_client, [test_perf_alert, second_perf_alert], test_perf_alert_summary_2
     )
 
 
+@pytest.mark.parametrize(
+    "status, use_related_summary, expected_summary_status",
+    [
+        pytest.param(
+            PerformanceAlert.REASSIGNED, True, PerformanceAlertSummary.REASSIGNED, id="reassigned"
+        ),
+        pytest.param(
+            PerformanceAlert.INVALID, False, PerformanceAlertSummary.INVALID, id="invalid"
+        ),
+        pytest.param(PerformanceAlert.INFRA, False, PerformanceAlertSummary.INFRA, id="infra"),
+        pytest.param(
+            PerformanceAlert.DOWNSTREAM, True, PerformanceAlertSummary.DOWNSTREAM, id="downstream"
+        ),
+    ],
+)
 def test_alerts_bulk_update(
     client,
     push_stored,
@@ -320,45 +340,43 @@ def test_alerts_bulk_update(
     test_perf_datum,
     test_perf_datum_2,
     test_perf_alert,
-    test_perf_signature_2,
+    second_perf_alert,
     test_perf_alert_summary,
     test_perf_alert_summary_2,
     test_user,
     test_sheriff,
+    status,
+    use_related_summary,
+    expected_summary_status,
 ):
-    second_alert = create_perf_alert(
-        summary=test_perf_alert_summary, series_signature=test_perf_signature_2
-    )
-    alert_ids = [test_perf_alert.id, second_alert.id]
+    related_summary_id = test_perf_alert_summary_2.id if use_related_summary else None
+    alert_ids = [test_perf_alert.id, second_perf_alert.id]
     url = reverse("performance-alerts-list") + "update/"
-    reassign = {
-        "alert_ids": alert_ids,
-        "status": PerformanceAlert.REASSIGNED,
-        "related_summary_id": test_perf_alert_summary_2.id,
-    }
+    payload = {"alert_ids": alert_ids, "status": status, "related_summary_id": related_summary_id}
 
-    resp = client.put(url, reassign, format="json")
+    resp = client.put(url, payload, format="json")
     assert resp.status_code == 403
     client.force_authenticate(user=test_user)
-    resp = client.put(url, reassign, format="json")
+    resp = client.put(url, payload, format="json")
     assert resp.status_code == 403
     assert not PerformanceAlert.objects.filter(related_summary=test_perf_alert_summary_2).exists()
 
     client.force_authenticate(user=test_sheriff)
-    resp = client.put(url, reassign, format="json")
+    resp = client.put(url, payload, format="json")
     assert resp.status_code == 200
     assert resp.json() == {"alert_ids": sorted(alert_ids)}
     for alert in PerformanceAlert.objects.filter(id__in=alert_ids):
-        assert alert.related_summary_id == test_perf_alert_summary_2.id
-        assert alert.status == PerformanceAlert.REASSIGNED
+        assert alert.status == status
+        assert alert.related_summary_id == related_summary_id
         assert alert.classifier == test_sheriff
         assert alert.first_triaged is not None
 
     test_perf_alert_summary.refresh_from_db()
-    test_perf_alert_summary_2.refresh_from_db()
-    assert test_perf_alert_summary.status == PerformanceAlertSummary.REASSIGNED
-    assert test_perf_alert_summary_2.status == PerformanceAlertSummary.REASSIGNED
-    assert test_perf_alert_summary_2.first_triaged is not None
+    assert test_perf_alert_summary.status == expected_summary_status
+    if use_related_summary:
+        test_perf_alert_summary_2.refresh_from_db()
+        assert test_perf_alert_summary_2.status == expected_summary_status
+        assert test_perf_alert_summary_2.first_triaged is not None
 
     reset = {
         "alert_ids": alert_ids,
@@ -442,22 +460,31 @@ def test_alert_detail_update_is_removed(authorized_sheriff_client, test_perf_ale
     assert resp.status_code == 405
 
 
+@pytest.fixture
+def second_perf_alert(test_perf_alert_summary, test_perf_signature_2):
+    return create_perf_alert(
+        summary=test_perf_alert_summary, series_signature=test_perf_signature_2
+    )
+
+
 def assert_incompatible_alert_assignment_fails(
-    authorized_sheriff_client, perf_alert, incompatible_summary
+    authorized_sheriff_client, perf_alerts, incompatible_summary
 ):
+    alert_ids = [perf_alert.id for perf_alert in perf_alerts]
     resp = authorized_sheriff_client.put(
         reverse("performance-alerts-list") + "update/",
         {
-            "alert_ids": [1],
+            "alert_ids": alert_ids,
             "related_summary_id": incompatible_summary.id,
             "status": PerformanceAlert.REASSIGNED,
         },
         format="json",
     )
     assert resp.status_code == 400
-    perf_alert.refresh_from_db()
-    assert perf_alert.related_summary_id is None
-    assert perf_alert.status == PerformanceAlert.UNTRIAGED
+    for perf_alert in perf_alerts:
+        perf_alert.refresh_from_db()
+        assert perf_alert.related_summary_id is None
+        assert perf_alert.status == PerformanceAlert.UNTRIAGED
 
 
 @pytest.fixture
@@ -575,15 +602,17 @@ def test_alert_timestamps_via_endpoint(
     test_perf_datum,
     test_perf_datum_2,
     test_perf_alert,
+    second_perf_alert,
 ):
     # updating autogenerated alert:
     # created doesn't change, last_updated & first_triaged update
     old_created = test_perf_alert.created
     old_last_updated = test_perf_alert.last_updated
+    alert_ids = [test_perf_alert.id, second_perf_alert.id]
 
     resp = authorized_sheriff_client.put(
         reverse("performance-alerts-list") + "update/",
-        {"alert_ids": [1], "starred": True},
+        {"alert_ids": alert_ids, "starred": True},
         format="json",
     )
     assert resp.status_code == 200
@@ -605,7 +634,7 @@ def test_alert_timestamps_via_endpoint(
     authorized_sheriff_client.force_authenticate(user=test_sheriff)
     resp = authorized_sheriff_client.put(
         reverse("performance-alerts-list") + "update/",
-        {"alert_ids": [1], "status": PerformanceAlert.ACKNOWLEDGED},
+        {"alert_ids": alert_ids, "status": PerformanceAlert.ACKNOWLEDGED},
         format="json",
     )
     assert resp.status_code == 200
@@ -622,6 +651,7 @@ def test_related_alerts_timestamps_via_endpoint(
     test_perf_datum,
     test_perf_datum_2,
     test_perf_alert,
+    second_perf_alert,
     relation,
     test_perf_alert_summary,
     test_perf_alert_summary_2,
@@ -638,7 +668,7 @@ def test_related_alerts_timestamps_via_endpoint(
     resp = authorized_sheriff_client.put(
         reverse("performance-alerts-list") + "update/",
         {
-            "alert_ids": [1],
+            "alert_ids": [test_perf_alert.id, second_perf_alert.id],
             "status": relation,
             "related_summary_id": test_perf_alert_summary_2.id,
         },
