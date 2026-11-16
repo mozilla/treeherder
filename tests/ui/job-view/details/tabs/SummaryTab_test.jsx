@@ -344,19 +344,40 @@ describe('SummaryTab loading and error states', () => {
     expect(screen.queryByText(/known intermittent/)).toBeNull();
   });
 
-  test('counts a web-platform-test ending OK as passed', () => {
+  test('counts each web-platform-test once, by how it came out', () => {
     const wptJsonl = [
       '{"action":"test_start","time":0,"test":"/css/a.html"}',
       '{"action":"test_status","time":5,"test":"/css/a.html","subtest":"flaky","status":"FAIL","expected":"PASS","known_intermittent":["FAIL"]}',
       '{"action":"test_end","time":10,"test":"/css/a.html","status":"OK","known_intermittent":[]}',
+      '{"action":"test_start","time":11,"test":"/css/b.html"}',
+      '{"action":"test_end","time":12,"test":"/css/b.html","status":"OK"}',
+      // The status this test is expected to give: no `expected` field.
+      '{"action":"test_start","time":13,"test":"/css/c.html"}',
+      '{"action":"test_end","time":14,"test":"/css/c.html","status":"ERROR","message":"TypeError: x is not a function"}',
     ].join('\n');
     renderWith({ summary: buildTestSummary(wptJsonl) });
 
     expect(screen.getByText('tests:', { exact: false })).toHaveTextContent(
-      '1 tests: 1 passed, 0 failed, 0 skipped, 1 known intermittent',
+      '3 tests: 2 passed, 0 failed, 0 skipped, 1 known intermittent',
     );
     expect(screen.getByText('1 known intermittent')).toBeInTheDocument();
     expect(screen.getByText('No failures found in the summary.')).toBeInTheDocument();
+  });
+
+  test('counts the lines that are not tests apart from the failed tests', () => {
+    const jsonl = [
+      '{"action":"test_start","time":0,"test":"/css/a.html"}',
+      '{"action":"test_end","time":10,"test":"/css/a.html","status":"OK"}',
+      '{"action":"error_line","time":11,"level":"INFO","message":"KeyError: 35"}',
+      '{"action":"error_line","time":12,"level":"INFO","message":"KeyError: 61"}',
+    ].join('\n');
+    renderWith({ summary: buildTestSummary(jsonl) });
+
+    expect(screen.getByText('tests:', { exact: false })).toHaveTextContent(
+      '1 tests: 1 passed, 0 failed, 0 skipped, 2 other errors',
+    );
+    expect(screen.getByText('0 failed')).not.toHaveClass('text-danger');
+    expect(screen.getByText('KeyError: 35', { exact: false })).toBeInTheDocument();
   });
 
   test('reports an empty summary once loading is done', () => {
