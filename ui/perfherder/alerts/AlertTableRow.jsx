@@ -542,6 +542,20 @@ export default class AlertTableRow extends React.Component {
                   Failed jobs: {failedJobsCount}
                 </span>
               )}
+              {alert.backfill_record?.validated && (
+                <SimpleTooltip
+                  text={
+                    <Badge
+                      bg="success"
+                      className="ms-1"
+                      data-testid={`alert ${alert.id} validated badge`}
+                    >
+                      <FontAwesomeIcon icon={faCheck} /> Validated
+                    </Badge>
+                  }
+                  tooltipText="Sherlock's suggested culprit stabilized: it matched the previous iteration"
+                />
+              )}
               {alert.backfill_record?.needs_bisection && (
                 <SimpleTooltip
                   text={

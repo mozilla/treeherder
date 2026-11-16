@@ -546,6 +546,27 @@ describe('detected push revision', () => {
     expect(queryByTestId('failed-backfill-jobs')).toBeNull();
   });
 
+  test('renders the Validated badge when the backfill record is validated', async () => {
+    const alert = alertWithBackfill({ validated: true });
+    const { getByTestId } = alertTableRowTest({ alert, tags: false });
+
+    const badge = await waitFor(() =>
+      getByTestId(`alert ${alert.id} validated badge`),
+    );
+    expect(badge).toHaveTextContent('Validated');
+  });
+
+  test('does not render the Validated badge when not validated', async () => {
+    const alert = alertWithBackfill({ validated: false });
+    const { getByTestId, queryByTestId } = alertTableRowTest({
+      alert,
+      tags: false,
+    });
+
+    await waitFor(() => getByTestId(`alert ${alert.id} sherlock icon`));
+    expect(queryByTestId(`alert ${alert.id} validated badge`)).toBeNull();
+  });
+
   test('renders the bisection badge when needs_bisection is true', async () => {
     const alert = alertWithBackfill({
       detected_push_revision: 'a1b2c3d4e5f6',
