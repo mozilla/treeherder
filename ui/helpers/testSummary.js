@@ -242,8 +242,19 @@ const parseLines = (content) => {
     .filter(Boolean);
 };
 
+// `total` tests split into how each came out, which is what the Summary tab
+// prints: `failed` (an unexpected result), `knownIntermittent`, `skipped`, and
+// `passed`, the tests that gave their expected result, whatever its status (a
+// web-platform-test expected to FAIL or ERROR that does). The per-status
+// counts beside them are of the raw statuses.
 const emptyCounts = () => {
-  const counts = { total: 0, knownIntermittent: 0 };
+  const counts = {
+    total: 0,
+    passed: 0,
+    failed: 0,
+    skipped: 0,
+    knownIntermittent: 0,
+  };
   TEST_STATUSES.forEach((status) => {
     counts[status] = 0;
   });
@@ -258,6 +269,18 @@ const tallyStatus = (counts, status) => {
     counts[bucket] += 1;
   } else {
     counts[bucket] = (counts[bucket] || 0) + 1;
+  }
+};
+
+const tallyOutcome = (counts, { status, success, knownIntermittent }) => {
+  if (!success) {
+    counts.failed += 1;
+  } else if (knownIntermittent) {
+    counts.knownIntermittent += 1;
+  } else if (status === 'SKIP') {
+    counts.skipped += 1;
+  } else {
+    counts.passed += 1;
   }
 };
 
@@ -511,11 +534,14 @@ const crashLineOf = (record) => {
  *       success: boolean,
  *       retried: boolean,
  *       harness?: true,
+ *       crash?: true,
  *       pathEnd?: ?string,
  *       results: Array<{ status: string, success: boolean, message: ?string, messages: string[], logTime: ?number, logTimes: Array<?number>, stacks: Array<?string>, start: ?number, end: ?number, duration: ?number, classicLine?: string, logText?: string, classicStackLines?: string[] }>,
  *     }>,
  *   }>,
  *   counts: Object,
+ *   realFailCounts: Object,
+ *   otherFailures: number,
  * }}
  */
 export const buildTestSummary = (content) => {
@@ -537,6 +563,7 @@ export const buildTestSummary = (content) => {
         test.harness = true;
         test.pathEnd = entry.pathEnd;
       }
+      if (entry.crash) test.crash = true;
       tests.set(key, test);
     }
     const messages = entry.messages || (entry.message ? [entry.message] : []);
@@ -585,6 +612,7 @@ export const buildTestSummary = (content) => {
   // even when it arrives after that group's `group_end`.
   const knownGroups = new Set();
   let harnessLines = 0;
+  let crashes = 0;
   // The run of the latest `test_start` until its `test_end`, to file an
   // `error_line` under the group of the test that printed it.
   let openRun = null;
@@ -823,19 +851,28 @@ export const buildTestSummary = (content) => {
         const testName = line.test || line.signature || '(unknown test)';
         const { message, classicLine, logText } = crashLineOf(line);
         cover(classicLine);
-        recordEntry({
-          test: testName,
-          group: line.group || currentGroup,
-          status: 'CRASH',
-          success: false,
-          message,
-          logTime: logTimeOf(line),
-          start: null,
-          end: null,
-          duration: null,
-          classicLine,
-          logText,
-        });
+        // A crash is a line of its own, not a run of the test it names: that
+        // test's `test_end` says how the run came out (the harness can expect
+        // the crash, or know it as an intermittent), and two crashes of one
+        // test are two lines.
+        crashes += 1;
+        recordEntry(
+          {
+            test: testName,
+            group: line.group || currentGroup,
+            status: 'CRASH',
+            success: false,
+            message,
+            logTime: logTimeOf(line),
+            start: null,
+            end: null,
+            duration: null,
+            classicLine,
+            logText,
+            crash: true,
+          },
+          `crash:${crashes}`,
+        );
         return;
       }
       case 'log': {
@@ -966,8 +1003,12 @@ export const buildTestSummary = (content) => {
   });
 
   const overallCounts = emptyCounts();
-  // Per-status counts for tests where success=false (unexpected outcomes).
+  // Per-status counts of every failing entry, tests or not.
   const overallRealFailCounts = {};
+  // Failing entries that are not tests (harness lines, sanitizer and leak
+  // reports, console lines, crashes): the harness does not count them as
+  // failed tests, and a job can pass with some.
+  let otherFailures = 0;
 
   const groupList = Array.from(groups.entries()).map(([name, tests]) => {
     const groupCounts = emptyCounts();
@@ -976,15 +1017,15 @@ export const buildTestSummary = (content) => {
       // The "final" status/success is the last run of the test (handles retries).
       const lastResult = test.results[test.results.length - 1];
       const { status, success } = lastResult;
-      // Harness failures are not tests: they count as failures below but
-      // stay out of the test tallies, so "N tests" keeps meaning tests.
-      if (!test.harness) {
+      // Harness failures and crashes are not tests: they stay out of the test
+      // tallies, so "N tests" keeps meaning tests.
+      if (test.harness || test.crash) {
+        otherFailures += 1;
+      } else {
         tallyStatus(groupCounts, status);
         tallyStatus(overallCounts, status);
-        if (success && lastResult.knownIntermittent) {
-          groupCounts.knownIntermittent += 1;
-          overallCounts.knownIntermittent += 1;
-        }
+        tallyOutcome(groupCounts, lastResult);
+        tallyOutcome(overallCounts, lastResult);
       }
       if (!success) {
         overallRealFailCounts[status] =
@@ -1005,6 +1046,7 @@ export const buildTestSummary = (content) => {
     groups: groupList,
     counts: overallCounts,
     realFailCounts: overallRealFailCounts,
+    otherFailures,
   };
 };
 
