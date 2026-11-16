@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useLogViewer } from './useLogViewer';
+import { resolveLogLine } from './logviewerHelpers';
 import SearchBar from './SearchBar';
 import LogRow from './LogRow';
 import '../css/classic-logviewer.css';
@@ -14,6 +15,8 @@ const ClassicLogViewer = ({
   initialHighlight,
   onHighlightChange,
   errorLineNumbers,
+  logTarget = null,
+  onLogTargetResolved = null,
 }) => {
   const [caseInsensitive, setCaseInsensitive] = useState(true);
 
@@ -56,6 +59,24 @@ const ClassicLogViewer = ({
   // If initialLine was null at mount, we must scroll when it arrives later.
   const mountedWithInitialLine = useRef(initialLine != null);
 
+  // A summary.jsonl record known by its text and time rather than its line,
+  // found in the log during render so Virtuoso mounts already positioned on
+  // it (a scrollToIndex issued in the mount tick is lost).
+  const resolvedLogLine = useMemo(
+    () =>
+      logTarget && lineCount
+        ? resolveLogLine(lines, logTarget.texts, logTarget.time)
+        : null,
+    [logTarget, lines, lineCount],
+  );
+  const logTargetReportedRef = useRef(false);
+  useEffect(() => {
+    if (!logTarget || !lineCount || logTargetReportedRef.current) return;
+    logTargetReportedRef.current = true;
+    if (resolvedLogLine) setHighlight([resolvedLogLine]);
+    if (onLogTargetResolved) onLogTargetResolved(resolvedLogLine);
+  }, [logTarget, lineCount, resolvedLogLine, setHighlight, onLogTargetResolved]);
+
   // Dynamic scroll and highlight: when initialLine changes
   useEffect(() => {
     if (!initialLine || !lineCount) return;
@@ -66,7 +87,9 @@ const ClassicLogViewer = ({
       mountedWithInitialLine.current = false;
       return;
     }
-    scrollToLine(initialLine);
+    // The line may arrive in the same tick Virtuoso mounts (e.g. the first
+    // error line once a console line failed to resolve): let it lay out first.
+    requestAnimationFrame(() => scrollToLine(initialLine));
     setHighlight([initialLine]);
   }, [initialLine, lineCount, scrollToLine, setHighlight]);
 
@@ -244,7 +267,9 @@ const ClassicLogViewer = ({
         overscan={200}
         rangeChanged={setVisibleRange}
         initialTopMostItemIndex={
-          !isFiltered && initialLine ? Math.max(0, initialLine - 1) : 0
+          !isFiltered && (initialLine || resolvedLogLine)
+            ? Math.max(0, (initialLine || resolvedLogLine) - 1)
+            : 0
         }
       />
     </div>
@@ -258,6 +283,11 @@ ClassicLogViewer.propTypes = {
   initialHighlight: PropTypes.arrayOf(PropTypes.number),
   onHighlightChange: PropTypes.func,
   errorLineNumbers: PropTypes.arrayOf(PropTypes.number),
+  logTarget: PropTypes.shape({
+    texts: PropTypes.arrayOf(PropTypes.string).isRequired,
+    time: PropTypes.number,
+  }),
+  onLogTargetResolved: PropTypes.func,
 };
 
 ClassicLogViewer.defaultProps = {

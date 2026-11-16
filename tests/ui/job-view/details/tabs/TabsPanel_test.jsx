@@ -8,13 +8,6 @@ import {
 
 import TabsPanel from '../../../../../ui/job-view/details/tabs/TabsPanel';
 
-jest.mock(
-  '../../../../../ui/shared/tabs/failureSummary/FailureSummaryTab',
-  () => ({
-    __esModule: true,
-    default: () => null,
-  }),
-);
 jest.mock('../../../../../ui/job-view/details/tabs/summaryTab/SummaryTab', () => ({
   __esModule: true,
   default: () => null,
@@ -79,7 +72,7 @@ const renderTabsPanel = (props = {}) =>
     />,
   );
 
-describe('TabsPanel summary tab probing', () => {
+describe('TabsPanel summary tab', () => {
   let fetchMock;
   let originalOffsetWidth;
 
@@ -118,46 +111,11 @@ describe('TabsPanel summary tab probing', () => {
     delete window.fetch;
   });
 
-  it('shows the Summary tab after probing the summary artifact', async () => {
+  it('always shows the Summary tab without probing the artifact', () => {
     renderTabsPanel();
 
-    expect(
-      await screen.findByRole('tab', { name: 'Summary' }),
-    ).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith(summaryArtifactUrl, {
-      method: 'HEAD',
-    });
-  });
-
-  it('does not re-probe or remove the Summary tab when jobDetails is replaced with identical content', async () => {
-    const { rerender } = renderTabsPanel();
-
-    await screen.findByRole('tab', { name: 'Summary' });
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-
-    // Simulate a poll cycle delivering a new array with the same artifacts
-    await act(async () => {
-      rerender(
-        <TabsPanel
-          selectedJob={selectedJob}
-          selectedJobFull={{ ...selectedJob }}
-          currentRepo={currentRepo}
-          jobDetails={makeJobDetails()}
-          classifications={[]}
-          classificationMap={{}}
-          bugs={[]}
-          togglePinBoardVisibility={() => {}}
-          jobLogUrls={[]}
-          logParseStatus="parsed"
-          perfJobDetail={[]}
-          testGroups={[]}
-        />,
-      );
-    });
-
-    expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('tab', { name: 'Summary' })).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('preserves a user-selected tab when jobDetails is replaced with identical content', async () => {
@@ -195,14 +153,24 @@ describe('TabsPanel summary tab probing', () => {
     );
   });
 
-  it('selects the Failure Summary tab by default for a failed job', async () => {
+  it('selects the Summary tab by default for a failed job', () => {
     renderTabsPanel();
 
-    await screen.findByRole('tab', { name: 'Summary' });
-    // Must hold in the same commit that first renders the Summary tab —
-    // a transient wrong selection here is the header flicker regression.
+    expect(screen.getByRole('tab', { name: 'Summary' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+
+  it('selects the Artifacts tab by default for a non-failed job', () => {
+    const successJob = { ...selectedJob, resultStatus: 'success' };
+    renderTabsPanel({
+      selectedJob: successJob,
+      selectedJobFull: { ...successJob },
+    });
+
     expect(
-      screen.getByRole('tab', { name: 'Failure Summary' }),
+      screen.getByRole('tab', { name: 'Artifacts and Debugging Tools' }),
     ).toHaveAttribute('aria-selected', 'true');
   });
 });
