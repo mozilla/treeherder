@@ -3179,4 +3179,126 @@ describe('buildTestSummary with web-platform-tests records', () => {
       'TEST-UNEXPECTED-FAIL | a.html == b.html | image comparison, max difference: 255',
     );
   });
+
+  test('counts each test once, by how it came out', () => {
+    // An expected result can be any status: wpt metadata expects some tests
+    // to ERROR or FAIL, and mozlog then omits `expected`.
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/css/ok.html' },
+        { action: 'test_end', time: 1, test: '/css/ok.html', status: 'OK' },
+        { action: 'test_start', time: 2, test: '/css/error.html' },
+        {
+          action: 'test_end',
+          time: 3,
+          test: '/css/error.html',
+          status: 'ERROR',
+          message: 'TypeError: target.pseudo is not a function',
+        },
+        { action: 'test_start', time: 4, test: '/css/ref.html' },
+        { action: 'test_end', time: 5, test: '/css/ref.html', status: 'FAIL' },
+        { action: 'test_start', time: 6, test: '/css/skip.html' },
+        { action: 'test_end', time: 6, test: '/css/skip.html', status: 'SKIP' },
+        { action: 'test_start', time: 7, test: '/css/flaky.html' },
+        {
+          action: 'test_end',
+          time: 8,
+          test: '/css/flaky.html',
+          status: 'OK',
+          expected: 'ERROR',
+          known_intermittent: ['OK'],
+        },
+        { action: 'test_start', time: 9, test: '/css/timeout.html' },
+        {
+          action: 'test_end',
+          time: 10,
+          test: '/css/timeout.html',
+          status: 'TIMEOUT',
+          expected: 'OK',
+          message: 'TestRunner hit external timeout',
+        },
+      ]),
+    );
+
+    expect(summary.counts).toMatchObject({
+      total: 6,
+      passed: 3,
+      failed: 1,
+      skipped: 1,
+      knownIntermittent: 1,
+    });
+    expect(summary.otherFailures).toBe(0);
+    expect(buildFailureSuggestions(summary).map(s => s.search)).toEqual([
+      'TEST-UNEXPECTED-TIMEOUT | /css/timeout.html | TestRunner hit external timeout',
+    ]);
+  });
+
+  test('lists a crash the harness knows as an intermittent without failing its test', () => {
+    // The crash of try task bhIxr3MVRCW0N-lNLpbz5Q (windows opt wpt
+    // crashtest), a job that passed.
+    const testPath = '/svg/animations/end-of-time-001-crash.html';
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: testPath },
+        { action: 'group_start', time: 1, name: 'processing 1 crash' },
+        {
+          action: 'crash',
+          time: 2,
+          process: '6448',
+          test: testPath,
+          minidump_path: 'C:\\Temp\\minidumps\\f3adf5e6-388a-418b-b6c8-fe8575c6ce3e.dmp',
+          signature: '@ mozalloc_handle_oom',
+          process_type: 'content',
+          reason: 'out of memory: 0x0000000000000014 bytes requested',
+        },
+        { action: 'group_end', time: 3, name: 'processing 1 crash' },
+        {
+          action: 'test_end',
+          time: 4,
+          test: testPath,
+          status: 'CRASH',
+          expected: 'TIMEOUT',
+          known_intermittent: ['CRASH'],
+        },
+      ]),
+    );
+
+    // The crash is a line, not a second test.
+    expect(summary.counts).toMatchObject({
+      total: 1,
+      passed: 0,
+      failed: 0,
+      knownIntermittent: 1,
+    });
+    expect(summary.otherFailures).toBe(1);
+    expect(buildFailureSuggestions(summary).map(s => s.search)).toEqual([
+      `PROCESS-CRASH | f3adf5e6-388a-418b-b6c8-fe8575c6ce3e | out of memory: 0x0000000000000014 bytes requested [@ mozalloc_handle_oom] | ${testPath}`,
+    ]);
+  });
+
+  test('counts a test that crashed unexpectedly once', () => {
+    const summary = buildTestSummary(
+      wpt([
+        { action: 'test_start', time: 0, test: '/dom/a.html' },
+        { action: 'crash', time: 1, test: '/dom/a.html', signature: '@ f' },
+        { action: 'crash', time: 2, test: '/dom/a.html', signature: '@ g' },
+        {
+          action: 'test_end',
+          time: 3,
+          test: '/dom/a.html',
+          status: 'CRASH',
+          expected: 'OK',
+        },
+      ]),
+    );
+
+    expect(summary.counts).toMatchObject({ total: 1, failed: 1, CRASH: 1 });
+    // Each crash keeps its line.
+    expect(summary.otherFailures).toBe(2);
+    expect(buildFailureSuggestions(summary).map(s => s.search)).toEqual([
+      'PROCESS-CRASH | application crashed [@ f] | /dom/a.html',
+      'PROCESS-CRASH | application crashed [@ g] | /dom/a.html',
+      'TEST-UNEXPECTED-CRASH | /dom/a.html | expected OK',
+    ]);
+  });
 });
