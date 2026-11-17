@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -17,6 +17,7 @@ import { thBugSuggestionLimit } from '../../../../helpers/constants';
 import {
   createQueryParams,
   getLogViewerRecordUrl,
+  getLogViewerUrl,
   parseQueryParams,
 } from '../../../../helpers/url';
 import formatLogLineWithLinks from '../../../../helpers/logFormatting';
@@ -49,6 +50,25 @@ const SummaryItem = ({
     selectedJob,
   );
 
+  // A worker line comes from the classic list with its exact line number; a
+  // summary.jsonl record is found in the log by its text and time.
+  let logViewerUrl = null;
+  if (Number.isInteger(suggestion.line_number)) {
+    logViewerUrl = getLogViewerUrl(
+      selectedJob.id,
+      currentRepo.name,
+      suggestion.line_number + 1,
+      selectedJob,
+    );
+  } else if (suggestion.logTarget?.texts.length > 0) {
+    logViewerUrl = getLogViewerRecordUrl(
+      selectedJob.id,
+      currentRepo.name,
+      suggestion.logTarget,
+      selectedJob,
+    );
+  }
+
   const { bugs } = suggestion;
   const showOpenRecent = suggestion.valid_open_recent;
   const showAllOthers =
@@ -77,7 +97,24 @@ const SummaryItem = ({
               NEW
             </Button>
           )}
-          <span className="align-middle">{line} </span>
+          <span className="align-middle">
+            {suggestion.stack ? (
+              // The stack of the record behind the line, on hover.
+              <OverlayTrigger
+                placement="top"
+                delay={{ show: 250, hide: 100 }}
+                overlay={
+                  <Tooltip className="summary-stack-tooltip">
+                    {suggestion.stack}
+                  </Tooltip>
+                }
+              >
+                <span className="summary-stack-trigger">{line}</span>
+              </OverlayTrigger>
+            ) : (
+              line
+            )}{' '}
+          </span>
           <Clipboard
             description=" text of error line"
             text={suggestion.search}
@@ -91,14 +128,9 @@ const SummaryItem = ({
               <FontAwesomeIcon icon={faFilter} />
             </Link>
           )}
-          {suggestion.logTarget?.texts.length > 0 && (
+          {logViewerUrl && (
             <a
-              href={getLogViewerRecordUrl(
-                selectedJob.id,
-                currentRepo.name,
-                suggestion.logTarget,
-                selectedJob,
-              )}
+              href={logViewerUrl}
               target="_blank"
               rel="noopener noreferrer"
               title="Go to this line in the log viewer"
