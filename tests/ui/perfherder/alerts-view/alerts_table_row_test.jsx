@@ -56,7 +56,7 @@ const alertTableRowTest = ({
           updateSelectedAlerts={() => {}}
           selectedAlerts={[{}]}
           updateViewState={() => {}}
-          modifyAlerts={() => {}}
+          modifyAlert={() => {}}
           lastClickedGraphAlertId={lastClickedGraphAlertId}
           setLastClickedGraphAlertId={setLastClickedGraphAlertId}
         />

@@ -77,6 +77,18 @@ const mockModifyAlerts = {
   },
 };
 
+const mockModifyAlert = {
+  update(alertId, params) {
+    return {
+      data: {
+        id: alertId,
+        ...params,
+      },
+      failureStatus: null,
+    };
+  },
+};
+
 const alertsView = (search = '') => {
   return render(
     <MemoryRouter initialEntries={[`/alerts${search}`]}>
@@ -114,6 +126,9 @@ const alertsViewControls = ({
         modifyAlerts={(alertIds, params) =>
           mockModifyAlerts.update(alertIds, params)
         }
+        modifyAlert={(alert, params) =>
+          mockModifyAlert.update(alert.id, params)
+        }
         updateAlertSummary={() =>
           Promise.resolve({
             failureStatus: false,
@@ -144,9 +159,11 @@ const tagsList = (tags = []) => {
 };
 
 const modifyAlertsSpy = jest.spyOn(mockModifyAlerts, 'update');
+const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');
 
 afterEach(() => {
   modifyAlertsSpy.mockClear();
+  modifyAlertSpy.mockClear();
 });
 
 beforeAll(() => {
@@ -365,8 +382,9 @@ test('clicking the star icon for an alert updates that alert', async () => {
   fireEvent.click(starIcon);
 
   await waitFor(() => {
-    expect(modifyAlertsSpy).toHaveBeenCalledTimes(1);
-    expect(modifyAlertsSpy).toHaveBeenCalledWith([69345], { starred: true });
+    expect(modifyAlertSpy).toHaveBeenCalledTimes(1);
+    expect(modifyAlertSpy).toHaveBeenCalledWith(69345, { starred: true });
+    expect(modifyAlertsSpy).not.toHaveBeenCalled();
   });
 });
 

@@ -3,6 +3,7 @@ import decimal
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from rest_framework import exceptions, serializers
 
 from treeherder.model.models import Job, Repository, TaskclusterMetadata
@@ -188,7 +189,6 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
 class PerformanceAlertBulkUpdateSerializer(serializers.Serializer):
     alert_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
     status = serializers.ChoiceField(choices=PerformanceAlert.STATUSES, required=False)
-    starred = serializers.BooleanField(required=False)
     related_summary_id = serializers.PrimaryKeyRelatedField(
         source="related_summary",
         queryset=PerformanceAlertSummary.objects.all(),
@@ -197,9 +197,9 @@ class PerformanceAlertBulkUpdateSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        if not attrs.keys() & {"status", "starred", "related_summary"}:
+        if not attrs.keys() & {"status", "related_summary"}:
             raise serializers.ValidationError(
-                "Nothing to update, send status, starred or related_summary_id"
+                "Nothing to update, send status or related_summary_id"
             )
         return attrs
 
@@ -247,6 +247,25 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     new_value = PerformanceDecimalField(read_only=True)
     noise_profile = serializers.CharField(read_only=True)
     severity = serializers.ReadOnlyField()
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # ensure the related summary, if set, has the same repository and
+        # framework as the original summary
+        related_summary = validated_data.get("related_summary")
+        if related_summary:
+            check_related_summary_compatibility(
+                instance.summary, related_summary, validated_data.get("status", instance.status)
+            )
+
+            status = validated_data.get("status")
+            if status and status in PerformanceAlert.RELATIONAL_STATUS_IDS:
+                # we've caught a downstream/reassignment: timestamp it
+                related_summary.timestamp_first_triage().save()
+
+        instance.timestamp_first_triage()
+
+        return super().update(instance, validated_data)
 
     def get_taskcluster_metadata(self, alert):
         try:

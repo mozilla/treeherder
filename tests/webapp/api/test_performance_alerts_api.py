@@ -123,7 +123,6 @@ def test_alerts_put(
     test_perf_datum_2,
     test_perf_alert,
     test_perf_alert_summary_2,
-    second_perf_alert,
     test_user,
     test_sheriff,
 ):
@@ -131,13 +130,10 @@ def test_alerts_put(
     assert resp.status_code == 200
     assert resp.json()["results"][0]["related_summary_id"] is None
 
-    alert_ids = [test_perf_alert.id, second_perf_alert.id]
-
     # verify that we fail if not authenticated
     resp = client.put(
-        reverse("performance-alerts-list") + "update/",
-        {"alert_ids": alert_ids, "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
-        format="json",
+        reverse("performance-alerts-list") + "1/",
+        {"related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
     )
     assert resp.status_code == 403
     assert PerformanceAlert.objects.get(id=1).related_summary_id is None
@@ -145,9 +141,8 @@ def test_alerts_put(
     # verify that we fail if authenticated, but not staff
     client.force_authenticate(user=test_user)
     resp = client.put(
-        reverse("performance-alerts-list") + "update/",
-        {"alert_ids": alert_ids, "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
-        format="json",
+        reverse("performance-alerts-list") + "1/",
+        {"related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
     )
     assert resp.status_code == 403
     assert PerformanceAlert.objects.get(id=1).related_summary_id is None
@@ -155,9 +150,8 @@ def test_alerts_put(
     # verify that we succeed if authenticated + staff
     client.force_authenticate(user=test_sheriff)
     resp = client.put(
-        reverse("performance-alerts-list") + "update/",
-        {"alert_ids": alert_ids, "related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
-        format="json",
+        reverse("performance-alerts-list") + "1/",
+        {"related_summary_id": 2, "status": PerformanceAlert.DOWNSTREAM},
     )
     assert resp.status_code == 200
     assert PerformanceAlert.objects.get(id=1).related_summary_id == 2
@@ -165,9 +159,8 @@ def test_alerts_put(
 
     # verify that we can unset it too
     resp = client.put(
-        reverse("performance-alerts-list") + "update/",
-        {"alert_ids": alert_ids, "related_summary_id": None, "status": PerformanceAlert.UNTRIAGED},
-        format="json",
+        reverse("performance-alerts-list") + "1/",
+        {"related_summary_id": None, "status": PerformanceAlert.UNTRIAGED},
     )
     assert resp.status_code == 200
     assert PerformanceAlert.objects.get(id=1).related_summary_id is None
@@ -284,7 +277,7 @@ def test_reassign_different_repository(
     # mark downstream of summary with different repository,
     # should succeed
     resp = authorized_sheriff_client.put(
-        reverse("performance-alerts-list") + "update/",
+        reverse("performance-alerts-list") + "bulk-update/",
         {
             "alert_ids": [test_perf_alert.id, second_perf_alert.id],
             "related_summary_id": test_perf_alert_summary_2.id,
@@ -351,7 +344,7 @@ def test_alerts_bulk_update(
 ):
     related_summary_id = test_perf_alert_summary_2.id if use_related_summary else None
     alert_ids = [test_perf_alert.id, second_perf_alert.id]
-    url = reverse("performance-alerts-list") + "update/"
+    url = reverse("performance-alerts-list") + "bulk-update/"
     payload = {"alert_ids": alert_ids, "status": status, "related_summary_id": related_summary_id}
 
     resp = client.put(url, payload, format="json")
@@ -413,7 +406,7 @@ def test_alerts_bulk_update_rejects_incompatible_summary(
     alert_ids = [test_perf_alert.id, second_alert.id]
 
     resp = authorized_sheriff_client.put(
-        reverse("performance-alerts-list") + "update/",
+        reverse("performance-alerts-list") + "bulk-update/",
         {
             "alert_ids": alert_ids,
             "status": PerformanceAlert.REASSIGNED,
@@ -430,7 +423,7 @@ def test_alerts_bulk_update_rejects_incompatible_summary(
 def test_alerts_bulk_update_rejects_unknown_ids_and_invalid_status(
     authorized_sheriff_client, test_perf_alert
 ):
-    url = reverse("performance-alerts-list") + "update/"
+    url = reverse("performance-alerts-list") + "bulk-update/"
 
     resp = authorized_sheriff_client.put(
         url,
@@ -452,12 +445,33 @@ def test_alerts_bulk_update_rejects_unknown_ids_and_invalid_status(
     resp = authorized_sheriff_client.put(url, {"alert_ids": [test_perf_alert.id]}, format="json")
     assert resp.status_code == 400
 
-
-def test_alert_detail_update_is_removed(authorized_sheriff_client, test_perf_alert):
     resp = authorized_sheriff_client.put(
-        reverse("performance-alerts-list") + "1/", {"starred": True}, format="json"
+        url, {"alert_ids": [test_perf_alert.id], "starred": True}, format="json"
     )
-    assert resp.status_code == 405
+    assert resp.status_code == 400
+    test_perf_alert.refresh_from_db()
+    assert test_perf_alert.starred is False
+
+
+def test_single_alert_update_rejects_incompatible_summary(
+    authorized_sheriff_client,
+    test_repository,
+    test_repository_2,
+    test_perf_alert,
+    test_perf_alert_summary_2,
+):
+    test_perf_alert_summary_2.repository = test_repository_2
+    test_perf_alert_summary_2.save()
+
+    resp = authorized_sheriff_client.put(
+        reverse("performance-alerts-list") + f"{test_perf_alert.id}/",
+        {"related_summary_id": test_perf_alert_summary_2.id, "status": PerformanceAlert.REASSIGNED},
+        format="json",
+    )
+    assert resp.status_code == 400
+    test_perf_alert.refresh_from_db()
+    assert test_perf_alert.related_summary_id is None
+    assert test_perf_alert.status == PerformanceAlert.UNTRIAGED
 
 
 @pytest.fixture
@@ -472,7 +486,7 @@ def assert_incompatible_alert_assignment_fails(
 ):
     alert_ids = [perf_alert.id for perf_alert in perf_alerts]
     resp = authorized_sheriff_client.put(
-        reverse("performance-alerts-list") + "update/",
+        reverse("performance-alerts-list") + "bulk-update/",
         {
             "alert_ids": alert_ids,
             "related_summary_id": incompatible_summary.id,
@@ -611,8 +625,8 @@ def test_alert_timestamps_via_endpoint(
     alert_ids = [test_perf_alert.id, second_perf_alert.id]
 
     resp = authorized_sheriff_client.put(
-        reverse("performance-alerts-list") + "update/",
-        {"alert_ids": alert_ids, "starred": True},
+        reverse("performance-alerts-list") + f"{test_perf_alert.id}/",
+        {"starred": True},
         format="json",
     )
     assert resp.status_code == 200
@@ -633,7 +647,7 @@ def test_alert_timestamps_via_endpoint(
     # keeps first_triaged the same
     authorized_sheriff_client.force_authenticate(user=test_sheriff)
     resp = authorized_sheriff_client.put(
-        reverse("performance-alerts-list") + "update/",
+        reverse("performance-alerts-list") + "bulk-update/",
         {"alert_ids": alert_ids, "status": PerformanceAlert.ACKNOWLEDGED},
         format="json",
     )
@@ -666,7 +680,7 @@ def test_related_alerts_timestamps_via_endpoint(
     old_summary_last_updated_2 = test_perf_alert_summary_2.last_updated
 
     resp = authorized_sheriff_client.put(
-        reverse("performance-alerts-list") + "update/",
+        reverse("performance-alerts-list") + "bulk-update/",
         {
             "alert_ids": [test_perf_alert.id, second_perf_alert.id],
             "status": relation,

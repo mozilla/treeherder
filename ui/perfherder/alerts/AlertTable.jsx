@@ -340,6 +340,7 @@ export default class AlertTable extends React.Component {
       issueTrackers = [],
       fetchAlertSummaries,
       updateViewState,
+      modifyAlert = undefined,
       modifyAlerts = undefined,
       performanceTags,
       lastClickedGraphAlertId,
@@ -478,7 +479,7 @@ export default class AlertTable extends React.Component {
                         updateSelectedAlerts={(alerts) => this.setState(alerts)}
                         selectedAlerts={selectedAlerts}
                         updateViewState={updateViewState}
-                        modifyAlerts={modifyAlerts}
+                        modifyAlert={modifyAlert}
                         fetchAlertSummaries={fetchAlertSummaries}
                         lastClickedGraphAlertId={lastClickedGraphAlertId}
                         setLastClickedGraphAlertId={setLastClickedGraphAlertId}
@@ -494,7 +495,7 @@ export default class AlertTable extends React.Component {
                       updateSelectedAlerts={(alerts) => this.setState(alerts)}
                       selectedAlerts={selectedAlerts}
                       updateViewState={updateViewState}
-                      modifyAlerts={modifyAlerts}
+                      modifyAlert={modifyAlert}
                       fetchAlertSummaries={fetchAlertSummaries}
                       lastClickedGraphAlertId={lastClickedGraphAlertId}
                       setLastClickedGraphAlertId={setLastClickedGraphAlertId}
@@ -580,6 +581,7 @@ AlertTable.propTypes = {
   }).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
   updateViewState: PropTypes.func.isRequired,
+  modifyAlert: PropTypes.func,
   modifyAlerts: PropTypes.func,
   updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,

@@ -10,7 +10,7 @@ from collections.abc import Iterable, Iterator, MutableSequence, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any
+from typing import Any, NoReturn
 from urllib.parse import urlencode
 
 import django_filters
@@ -956,6 +956,7 @@ class PerformanceAlertViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = PerformanceAlert.objects.all()
@@ -973,13 +974,28 @@ class PerformanceAlertViewSet(
 
     pagination_class = AlertPagination
 
-    @action(detail=False, methods=["put"], url_path="update")
+    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        new_push_id = request.data.get("push_id")
+        new_prev_push_id = request.data.get("prev_push_id")
+
+        if new_push_id is None and new_prev_push_id is None:
+            request.data["classifier"] = request.user.username
+            return super().update(request, *args, **kwargs)
+        else:
+            alert = PerformanceAlert.objects.get(pk=kwargs["pk"])
+            if all([new_push_id, new_prev_push_id]) and alert.summary.push.id != new_push_id:
+                return self.nudge(alert, new_push_id, new_prev_push_id)
+
+            return Response({"message": "Incorrect push was provided"}, status=HTTP_400_BAD_REQUEST)
+
+    # bulk status updates for many alerts at once, used by the alerts action panel
+    # replaces per-alert saving with a set-based alternative to reduce the number queries
+    @action(detail=False, methods=["put"], url_path="bulk-update")
     def bulk_update(self, request: Request) -> Response:
         serializer = PerformanceAlertBulkUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         alert_ids = set(serializer.validated_data["alert_ids"])
         status = serializer.validated_data.get("status")
-        starred = serializer.validated_data.get("starred")
         related_summary = serializer.validated_data.get("related_summary")
         update_related = "related_summary" in serializer.validated_data
 
@@ -1018,8 +1034,6 @@ class PerformanceAlertViewSet(
                 )
                 if status is not None:
                     alert.status = status
-                if starred is not None:
-                    alert.starred = starred
                 if update_related:
                     check_related_summary_compatibility(
                         alert.summary, alert.related_summary, alert.status
@@ -1034,8 +1048,6 @@ class PerformanceAlertViewSet(
             fields = {"classifier": request.user, "last_updated": now}
             if status is not None:
                 fields["status"] = status
-            if starred is not None:
-                fields["starred"] = starred
             if update_related:
                 fields["related_summary"] = new_related_summary
 
@@ -1113,6 +1125,14 @@ class PerformanceAlertViewSet(
         new_value = sum(new_values) / len(new_values)
 
         return get_alert_properties(prev_value, new_value, series_signature.lower_is_better)
+
+    @transaction.atomic
+    def nudge(
+        self, alert: PerformanceAlert, new_push_id: int | None, new_prev_push_id: int | None
+    ) -> NoReturn:
+        # Bug 1532230 disabled nudging because it broke links
+        # Bug 1532283 will re enable a better version of it
+        raise exceptions.APIException("Nudging has been disabled", 400)
 
 
 class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
