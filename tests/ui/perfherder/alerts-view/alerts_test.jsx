@@ -21,6 +21,7 @@ import repos from '../../mock/repositories';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import AlertsView from '../../../../ui/perfherder/alerts/AlertsView';
 import AlertsViewControls from '../../../../ui/perfherder/alerts/AlertsViewControls';
+import AlertTable from '../../../../ui/perfherder/alerts/AlertTable';
 import optionCollectionMap from '../../mock/optionCollectionMap';
 import testAlertSummaries from '../../mock/alert_summaries';
 import testPerformanceTags from '../../mock/performance_tags';
@@ -370,6 +371,122 @@ test('clicking the star icon for an alert updates that alert', async () => {
       },
       failureStatus: null,
     });
+  });
+});
+
+const alertTableFilters = {
+  filterText: '',
+  hideDownstream: false,
+  hideAssignedToOthers: false,
+};
+
+const alertTable = (summary) => (
+  <MemoryRouter initialEntries={['/alerts']}>
+    <AlertTable
+      alertSummary={summary}
+      alertSummaries={[summary]}
+      user={testUser}
+      projects={repos}
+      frameworks={frameworks}
+      issueTrackers={testIssueTrackers}
+      optionCollectionMap={optionCollectionMap}
+      filters={alertTableFilters}
+      fetchAlertSummaries={() => {}}
+      updateViewState={() => {}}
+      performanceTags={testPerformanceTags}
+    />
+  </MemoryRouter>
+);
+
+const getAlertTableRowIds = (getAllByLabelText) =>
+  getAllByLabelText('Alert table row').map((row) =>
+    Number(row.getAttribute('data-testid')),
+  );
+
+test('starring an alert does not move it in the table', async () => {
+  const alertSummary = JSON.parse(JSON.stringify(testAlertSummaries[0]));
+  const { getAllByLabelText, rerender } = render(alertTable(alertSummary));
+  const idsBefore = await waitFor(() => getAlertTableRowIds(getAllByLabelText));
+
+  const starredSummary = JSON.parse(JSON.stringify(alertSummary));
+  const lastRowId = idsBefore[idsBefore.length - 1];
+  starredSummary.alerts.find((alert) => alert.id === lastRowId).starred = true;
+  rerender(alertTable(starredSummary));
+
+  await waitFor(() => {
+    expect(getAlertTableRowIds(getAllByLabelText)).toEqual(idsBefore);
+  });
+});
+
+test('starred alerts are sorted to the top when the table is loaded', async () => {
+  const unstarredRender = render(
+    alertTable(JSON.parse(JSON.stringify(testAlertSummaries[0]))),
+  );
+  const idsBefore = await waitFor(() =>
+    getAlertTableRowIds(unstarredRender.getAllByLabelText),
+  );
+  unstarredRender.unmount();
+
+  const starredId = idsBefore[idsBefore.length - 1];
+  expect(starredId).not.toEqual(idsBefore[0]);
+  const starredSummary = JSON.parse(JSON.stringify(testAlertSummaries[0]));
+  starredSummary.alerts.find((alert) => alert.id === starredId).starred = true;
+
+  const { getAllByLabelText } = render(alertTable(starredSummary));
+  await waitFor(() => {
+    expect(getAlertTableRowIds(getAllByLabelText)[0]).toEqual(starredId);
+  });
+});
+
+test('a column sort is kept when an alert is starred', async () => {
+  const alertSummary = JSON.parse(JSON.stringify(testAlertSummaries[0]));
+  const { getAllByLabelText, getAllByTitle, getByTitle, rerender } = render(
+    alertTable(alertSummary),
+  );
+  const sortByTest = await waitFor(() =>
+    getAllByTitle('Sorted in default order by test'),
+  );
+  fireEvent.click(sortByTest[0]);
+  await waitFor(() => getByTitle('Sorted in ascending order by test'));
+  const idsSorted = getAlertTableRowIds(getAllByLabelText);
+
+  const starredSummary = JSON.parse(JSON.stringify(alertSummary));
+  const lastRowId = idsSorted[idsSorted.length - 1];
+  starredSummary.alerts.find((alert) => alert.id === lastRowId).starred = true;
+  rerender(alertTable(starredSummary));
+
+  await waitFor(() => {
+    expect(getByTitle('Sorted in ascending order by test')).toBeTruthy();
+    expect(getAlertTableRowIds(getAllByLabelText)).toEqual(idsSorted);
+  });
+});
+
+test('starring an alert keeps the order of rows tied on the sorted column', async () => {
+  const alertSummary = JSON.parse(JSON.stringify(testAlertSummaries[0]));
+  const platform = alertSummary.alerts[0].series_signature.machine_platform;
+  alertSummary.alerts.forEach((alert) => {
+    alert.series_signature.machine_platform = platform;
+  });
+  const { getAllByLabelText, getAllByTitle, getByTitle, rerender } = render(
+    alertTable(alertSummary),
+  );
+  const sortByPlatform = await waitFor(() =>
+    getAllByTitle('Sorted in default order by platform'),
+  );
+  fireEvent.click(sortByPlatform[0]);
+  await waitFor(() => getByTitle('Sorted in ascending order by platform'));
+  const idsSorted = getAlertTableRowIds(getAllByLabelText);
+
+  const starredSummary = JSON.parse(JSON.stringify(alertSummary));
+  const middleRowId = idsSorted[Math.floor(idsSorted.length / 2)];
+  const middleAlert = starredSummary.alerts.find(
+    (alert) => alert.id === middleRowId,
+  );
+  middleAlert.starred = true;
+  rerender(alertTable(starredSummary));
+
+  await waitFor(() => {
+    expect(getAlertTableRowIds(getAllByLabelText)).toEqual(idsSorted);
   });
 });
 
