@@ -597,7 +597,7 @@ def test_ordered_subtest_replicates_are_ingested_with_run_numbers(
 def test_detection_techniques_are_ingested(test_repository, perf_job, sample_perf_artifact):
     suite_techniques = [
         "ttest",
-        {"technique": "mwu", "preset": "sensitive", "args": {"p_value_threshold": 0.01}},
+        {"technique": "mwu", "preset": "sensitive", "args": {"pvalue_threshold": 0.01}},
     ]
     subtest_techniques = [{"name": "mwu-custom", "technique": "mwu"}]
     suite = sample_perf_artifact["blob"]["suites"][0]
