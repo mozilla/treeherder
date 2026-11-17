@@ -444,12 +444,12 @@ def generate_new_alerts_in_series(signature):
     retryable_error = None
 
     for detection_technique in get_detection_techniques(signature):
-        if detection_technique.technique == TTEST:
-            generate_new_ttest_alerts_in_series(signature, detection_technique)
-            continue
-
-        # Best-effort here so one mozdetect technique failure doesn't break others
+        # Best-effort here so one technique failure doesn't break others
         try:
+            if detection_technique.technique == TTEST:
+                generate_new_ttest_alerts_in_series(signature, detection_technique)
+                continue
+
             generate_new_mozdetect_alerts_in_series(signature, detection_technique)
         except Exception as e:
             logger.exception(

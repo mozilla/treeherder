@@ -89,6 +89,7 @@ def parse_detection_technique(config, detectors):
         # Ttest doesn't take any args atm so just output a warning
         logger.warning(f"Ignoring arguments given to {TTEST}: {', '.join(sorted(custom_args))}")
         custom_args = {}
+        config["args"] = {}
     args.update(custom_args)
 
     # Build the technique's unique name if needed

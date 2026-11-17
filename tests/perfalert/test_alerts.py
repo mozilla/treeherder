@@ -775,7 +775,16 @@ def test_technique_added_to_legacy_alert(
     assert alert.new_value == 1.0
 
 
-def test_mwu_failure_does_not_prevent_ttest_alerts(
+@pytest.mark.parametrize(
+    ("failing_generator", "detection_techniques", "expected_detection_method"),
+    [
+        # the T-Test fails, then MWU continues
+        ("generate_new_ttest_alerts_in_series", ["ttest", "mwu"], MWU),
+        # MWU fails, then the T-Test runs
+        ("generate_new_mozdetect_alerts_in_series", ["mwu", "ttest"], TTEST),
+    ],
+)
+def test_technique_failure_does_not_prevent_other_technique_alerts(
     test_repository,
     test_issue_tracker,
     failure_classifications,
@@ -783,18 +792,27 @@ def test_mwu_failure_does_not_prevent_ttest_alerts(
     test_perf_signature,
     mock_deviance,
     monkeypatch,
+    failing_generator,
+    detection_techniques,
+    expected_detection_method,
 ):
     def _fail(*args, **kwargs):
-        raise Exception("MWU failed")
+        raise Exception("technique failed")
 
-    monkeypatch.setattr(alerts, "generate_new_mozdetect_alerts_in_series", _fail)
-    test_perf_signature.detection_techniques = ["mwu", "ttest"]
+    monkeypatch.setattr(alerts, failing_generator, _fail)
+    test_perf_signature.detection_techniques = detection_techniques
     test_perf_signature.save()
-    _generate_regression(test_repository, test_perf_signature, time.time(), 30)
+    base_time = time.time()
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, 15
+    )
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 16, 1.0, 15
+    )
 
     generate_new_alerts_in_series(test_perf_signature)
 
-    assert PerformanceAlert.objects.get().detection_method == TTEST
+    assert PerformanceAlert.objects.get().detection_method == expected_detection_method
 
 
 def test_detect_alerts_with_any_mozdetect_technique(
@@ -916,3 +934,63 @@ def test_retryable_mozdetect_failure_is_raised_after_other_techniques(
 
     # but only once the other techniques ran
     assert PerformanceAlert.objects.get().detection_method == TTEST
+
+
+def test_retryable_ttest_failure_is_raised_after_other_techniques(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+    monkeypatch,
+):
+    def _fail(*args, **kwargs):
+        raise OperationalError("connection lost")
+
+    monkeypatch.setattr(alerts, "generate_new_ttest_alerts_in_series", _fail)
+    test_perf_signature.detection_techniques = ["ttest", "mwu"]
+    test_perf_signature.save()
+    base_time = time.time()
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, 15
+    )
+    _generate_replicated_performance_data(
+        test_repository, test_perf_signature, base_time, 16, 1.0, 15
+    )
+
+    # raised so that the generate_alerts task retries it
+    with pytest.raises(OperationalError):
+        generate_new_alerts_in_series(test_perf_signature)
+
+    # but only once the other techniques ran
+    assert PerformanceAlert.objects.get().detection_method == MWU
+
+
+def test_only_first_retryable_failure_is_raised(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+    monkeypatch,
+):
+    ttest_error = OperationalError("T-Test connection lost")
+
+    def _fail_ttest(*args, **kwargs):
+        raise ttest_error
+
+    def _fail_mozdetect(*args, **kwargs):
+        raise OperationalError("MWU connection lost")
+
+    monkeypatch.setattr(alerts, "generate_new_ttest_alerts_in_series", _fail_ttest)
+    monkeypatch.setattr(alerts, "generate_new_mozdetect_alerts_in_series", _fail_mozdetect)
+    test_perf_signature.detection_techniques = ["ttest", "mwu"]
+    test_perf_signature.save()
+
+    with pytest.raises(OperationalError) as excinfo:
+        generate_new_alerts_in_series(test_perf_signature)
+
+    assert excinfo.value is ttest_error
+    assert PerformanceAlert.objects.count() == 0
