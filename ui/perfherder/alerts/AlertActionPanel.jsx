@@ -12,7 +12,7 @@ import {
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { alertStatusMap } from '../perf-helpers/constants';
-import { modifyAlert as modifyAlertHelper } from '../perf-helpers/helpers';
+import { modifyAlerts as modifyAlertsHelper } from '../perf-helpers/helpers';
 import { processErrors } from '../../helpers/http';
 
 import AlertModal from './AlertModal';
@@ -27,16 +27,10 @@ export default class AlertActionPanel extends React.Component {
   }
 
   modifySelectedAlerts = async (selectedAlerts, modification) => {
-    const { modifyAlert = modifyAlertHelper } = this.props;
-    const responses = [];
-
-    // Sequential (not parallel) to avoid a race condition where concurrent
-    // requests cause the backend to inconsistently update summary's status.
-    for (const alert of selectedAlerts) {
-      const response = await modifyAlert(alert, modification);
-      responses.push(response);
-    }
-    return responses;
+    const { modifyAlerts = modifyAlertsHelper } = this.props;
+    const alertIds = selectedAlerts.map((alert) => alert.id);
+    const response = await modifyAlerts(alertIds, modification);
+    return [response];
   };
 
   updateAndFetch = async (newStatus, alertId = null) => {
@@ -311,5 +305,5 @@ AlertActionPanel.propTypes = {
   allSelected: PropTypes.bool.isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateViewState: PropTypes.func.isRequired,
-  modifyAlert: PropTypes.func,
+  modifyAlerts: PropTypes.func,
 };

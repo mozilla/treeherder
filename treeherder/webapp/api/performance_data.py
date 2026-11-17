@@ -42,6 +42,7 @@ from rest_framework import (
     serializers,
     viewsets,
 )
+from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -76,6 +77,7 @@ from .performance_serializers import (
     PerfCompareResultsQueryParamsSerializer,
     PerfCompareResultsSerializer,
     PerfCompareResultsSerializerV2,
+    PerformanceAlertBulkUpdateSerializer,
     PerformanceAlertSerializer,
     PerformanceAlertSummarySerializer,
     PerformanceAlertSummaryTasksSerializer,
@@ -975,6 +977,37 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 return self.nudge(alert, new_push_id, new_prev_push_id)
 
             return Response({"message": "Incorrect push was provided"}, status=HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["put"], url_path="bulk-update")
+    def bulk_update(self, request: Request) -> Response:
+        bulk_serializer = PerformanceAlertBulkUpdateSerializer(data=request.data)
+        bulk_serializer.is_valid(raise_exception=True)
+
+        alert_ids = bulk_serializer.validated_data["alert_ids"]
+        alerts = list(PerformanceAlert.objects.filter(id__in=alert_ids))
+        if len(alerts) != len(alert_ids):
+            found = {a.id for a in alerts}
+            missing = sorted(set(alert_ids) - found)
+            return Response(
+                {"message": f"Alert IDs not found: {missing}"},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        update_data: dict = {
+            "status": bulk_serializer.validated_data["status"],
+            "classifier": request.user.username,
+        }
+        if "related_summary" in bulk_serializer.validated_data:
+            related = bulk_serializer.validated_data["related_summary"]
+            update_data["related_summary_id"] = related.id if related else None
+
+        with transaction.atomic():
+            for alert in alerts:
+                serializer = PerformanceAlertSerializer(alert, data=update_data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+
+        return Response({"updated": len(alerts)})
 
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         data = request.data
