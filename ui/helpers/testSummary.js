@@ -147,8 +147,9 @@ const PASSING_STATUSES = new Set(['PASS', 'OK']);
 
 // How a `test_status` or `test_end` record came out, from the least to the
 // most severe, as mozlog's `results.py` classifies it: mozlog omits `expected`
-// when the result was the expected one, and `known_intermittent` lists the
-// other statuses the test is known to give.
+// when the result was the expected one, `known_intermittent` lists the other
+// statuses the test is known to give, and `will_retry`, a field of the record
+// itself, marks a run the harness will retry.
 export const EXPECTED = 'expected';
 export const KNOWN_INTERMITTENT = 'known_intermittent';
 export const WILL_RETRY = 'will_retry';
@@ -156,7 +157,7 @@ export const UNEXPECTED = 'unexpected';
 const OUTCOMES = [EXPECTED, KNOWN_INTERMITTENT, WILL_RETRY, UNEXPECTED];
 
 export const resultOutcome = (record) => {
-  if (record.extra?.will_retry) return WILL_RETRY;
+  if (record.will_retry) return WILL_RETRY;
   if (!('expected' in record) || record.expected === record.status) {
     return EXPECTED;
   }

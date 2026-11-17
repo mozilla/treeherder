@@ -393,6 +393,85 @@ describe('buildFailureSuggestions', () => {
     ]);
   });
 
+  test('does not fail a run whose unexpected end the harness will retry', () => {
+    // mozlog flags the record with `will_retry`, a field of its own: the
+    // rerun is the result, whatever this end expected.
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'test_retry.js' },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'test_retry.js',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'Test had failures, will retry',
+        will_retry: true,
+      },
+      { action: 'test_start', time: 20, group: 'g', test: 'test_retry.js' },
+      {
+        action: 'test_end',
+        time: 30,
+        group: 'g',
+        test: 'test_retry.js',
+        status: 'PASS',
+      },
+    ]);
+
+    expect(buildFailureSuggestions(summary)).toEqual([]);
+    const [test] = summary.groups[0].tests;
+    expect(test.retried).toBe(true);
+    expect(test.results.map(result => result.success)).toEqual([true, true]);
+    expect(summary.counts).toMatchObject({ total: 1, passed: 1, failed: 0 });
+  });
+
+  test('lists no line for the unexpected subtest of a run the harness will retry', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'test_retry.js' },
+      {
+        action: 'test_status',
+        time: 5,
+        test: 'test_retry.js',
+        subtest: 'sub',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'failed on the first run',
+        will_retry: true,
+      },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'test_retry.js',
+        status: 'OK',
+      },
+    ]);
+
+    expect(buildFailureSuggestions(summary)).toEqual([]);
+    expect(summary.counts).toMatchObject({ total: 1, passed: 1, failed: 0 });
+  });
+
+  test('fails a run whose unexpected end is not flagged for a retry', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'test_fail.js' },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'test_fail.js',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'boom',
+        will_retry: false,
+      },
+    ]);
+
+    expect(buildFailureSuggestions(summary).map(line => line.search)).toEqual([
+      'TEST-UNEXPECTED-FAIL | test_fail.js | boom',
+    ]);
+    expect(summary.counts).toMatchObject({ total: 1, passed: 0, failed: 1 });
+  });
+
   test('fails a passed run on the shutdown leaks mochitest reports after its test_end', () => {
     // mochitest finds shutdown leaks once the browser has exited, so it reports
     // them after the test_end of the test they name, which passed. The first
