@@ -100,18 +100,19 @@ def test_parse_technique_args_override_preset(mozdetect_detectors):
 
 
 @pytest.mark.parametrize(
-    "config",
+    "config, expected_name",
     [
-        {"technique": "ttest", "args": {"threshold": 0.01}},
-        {"name": "ttest-custom", "technique": "ttest", "args": {"threshold": 0.01}},
+        # the ignored args aren't hashed into the default name
+        ({"technique": "ttest", "args": {"threshold": 0.01}}, "ttest"),
+        (
+            {"name": "ttest-custom", "technique": "ttest", "args": {"threshold": 0.01}},
+            "ttest-custom",
+        ),
     ],
 )
-def test_ttest_args_are_ignored(detectors, caplog, config):
+def test_ttest_args_are_ignored(detectors, caplog, config, expected_name):
     technique = parse_detection_technique(config, detectors)
-    assert technique.technique == TTEST
-    assert technique.args == {}
-    assert technique.name == (config.get("name") or technique.name)
-    assert technique.name.startswith("ttest-")
+    assert technique == DetectionTechnique(name=expected_name, technique=TTEST)
     assert "Ignoring arguments given to ttest: threshold" in caplog.text
 
 
