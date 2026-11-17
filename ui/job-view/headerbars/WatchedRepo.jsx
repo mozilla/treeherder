@@ -73,31 +73,22 @@ function WatchedRepo({
     (mustBeCurrentRepo = false) => {
       const watchedRepoName = repo.name;
 
-      if (repo.dvcs_type !== 'hg') {
-        setStatus('unsupported');
-        setReason('');
-        setMessageOfTheDay('');
-        setStatusInfo(statusInfoMap.unsupported);
-        setCurrentRepoTreeStatus('unsupported');
-        clearInterval(intervalRef.current);
-      } else {
-        TreeStatusModel.get(watchedRepoName).then((data) => {
-          const treeStatus = data.result;
+      TreeStatusModel.get(watchedRepoName).then((data) => {
+        const treeStatus = data.result;
 
-          if (mustBeCurrentRepo || watchedRepoName === repoName) {
-            setCurrentRepoTreeStatus(treeStatus.status);
-          }
+        if (mustBeCurrentRepo || watchedRepoName === repoName) {
+          setCurrentRepoTreeStatus(treeStatus.status);
+        }
 
-          setStatus(treeStatus.status);
-          setReason(treeStatus.reason);
-          setMessageOfTheDay(treeStatus.message_of_the_day);
-          setStatusInfo(statusInfoMap[treeStatus.status]);
+        setStatus(treeStatus.status);
+        setReason(treeStatus.reason);
+        setMessageOfTheDay(treeStatus.message_of_the_day);
+        setStatusInfo(statusInfoMap[treeStatus.status]);
 
-          if (treeStatus.status === 'unsupported') {
-            clearInterval(intervalRef.current);
-          }
-        });
-      }
+        if (treeStatus.status === 'unsupported') {
+          clearInterval(intervalRef.current);
+        }
+      });
     },
     [repo, repoName, setCurrentRepoTreeStatus],
   );
@@ -206,7 +197,6 @@ WatchedRepo.propTypes = {
   unwatchRepo: PropTypes.func.isRequired,
   repo: PropTypes.shape({
     name: PropTypes.string,
-    dvcs_type: PropTypes.string,
     pushLogUrl: PropTypes.string,
   }).isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
