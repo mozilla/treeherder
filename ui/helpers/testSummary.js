@@ -604,7 +604,9 @@ export const buildTestSummary = (content) => {
   };
 
   // Open `test_start` events awaiting their `test_end`, queued per run key
-  // (subsuite and test id) so retries of the same test pair up in order (FIFO).
+  // (subsuite and test id). A key holds several when the harness started the
+  // test over without ending it (it restarted the manifest): the `test_end`
+  // that follows closes them all, as the one run that did finish.
   const pending = new Map();
   // The group most recently opened by `group_start`, used as a fallback when a
   // test event carries no `group` of its own.
@@ -634,11 +636,6 @@ export const buildTestSummary = (content) => {
   const lastClosed = new Map();
   // Closed results a replayed status has already overwritten the messages of.
   const replayedInto = new WeakSet();
-
-  const takePending = (runKey) => {
-    const queue = pending.get(runKey);
-    return queue?.length ? queue.shift() : null;
-  };
 
   // File a failure that is not a test result (a harness line, a sanitizer
   // report, a leak total) as its own entry: two identical lines are two
@@ -782,13 +779,18 @@ export const buildTestSummary = (content) => {
         if (!line.test) return;
         const runKey = runKeyOf(line);
         const testName = testIdOf(line.test);
-        const run = takePending(runKey);
-        if (run && run === openRun) openRun = null;
+        // Every start of the test still open. The run ending here is the one
+        // started last; the starts before it are runs the harness started
+        // over, which only leave the results their subtests reported.
+        const started = pending.get(runKey) || [];
+        pending.delete(runKey);
+        if (started.includes(openRun)) openRun = null;
+        const run = started.length ? started[started.length - 1] : null;
         const start = run ? run.start : null;
         const end = finiteOrNull(line.time);
         const outcome = resultOutcome(line);
         const endUnexpected = outcome === UNEXPECTED;
-        const subtestFailures = run?.subtestFailures || [];
+        const subtestFailures = started.flatMap((each) => each.subtestFailures);
         // The run failed when its end did, or any of its subtests: a
         // web-platform-test with subtests ends OK whenever the harness ran it,
         // and they decide.
@@ -832,7 +834,7 @@ export const buildTestSummary = (content) => {
             knownIntermittent:
               success &&
               (outcome === KNOWN_INTERMITTENT ||
-                Boolean(run?.knownIntermittent)),
+                started.some((each) => each.knownIntermittent)),
             message,
             messages,
             statuses: failures.map((failure) => failure.status),
@@ -981,8 +983,9 @@ export const buildTestSummary = (content) => {
     }
   });
 
-  // Any `test_start` left unpaired never produced a `test_end`: the run did not
-  // finish, which we surface as a crash so it is not silently dropped.
+  // Any `test_start` still open was followed by no `test_end` of its test: the
+  // run did not finish, which we surface as a crash so it is not silently
+  // dropped.
   pending.forEach((queue, runKey) => {
     const [, testName] = JSON.parse(runKey);
     queue.forEach((run) => {

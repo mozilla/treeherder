@@ -113,6 +113,63 @@ describe('buildTestSummary', () => {
     expect(test.results[0].duration).toBe(null);
   });
 
+  test('does not count the starts of a test the harness started over once it ends', () => {
+    // The harness restarted the manifest three times, each time right after
+    // this test's `test_start`: only the fourth run ended, and it passed.
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 't' },
+      { action: 'test_start', time: 10, group: 'g', test: 't' },
+      { action: 'test_start', time: 20, group: 'g', test: 't' },
+      { action: 'test_start', time: 30, group: 'g', test: 't' },
+      { action: 'test_end', time: 35, group: 'g', test: 't', status: 'PASS' },
+    ]);
+    const test = findTest(summary, 'g', 't');
+    expect(test.status).toBe('PASS');
+    expect(test.success).toBe(true);
+    expect(test.results).toHaveLength(1);
+    // The run that ended is the one started last.
+    expect(test.results[0].start).toBe(30);
+    expect(test.results[0].duration).toBe(5);
+    expect(summary.counts).toMatchObject({ total: 1, passed: 1, failed: 0 });
+    expect(buildFailureSuggestions(summary)).toEqual([]);
+  });
+
+  test('keeps the subtest failure of a run the harness started over', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 't' },
+      {
+        action: 'test_status',
+        time: 5,
+        test: 't',
+        subtest: 'first attempt',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'broke before the restart',
+      },
+      { action: 'test_start', time: 10, group: 'g', test: 't' },
+      { action: 'test_end', time: 15, group: 'g', test: 't', status: 'OK' },
+    ]);
+    const test = findTest(summary, 'g', 't');
+    expect(test.success).toBe(false);
+    expect(test.status).toBe('FAIL');
+    expect(test.results).toHaveLength(1);
+    expect(test.results[0].messages).toEqual([
+      'first attempt - broke before the restart',
+    ]);
+  });
+
+  test('still reports a start left open after the last end of its test', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 't' },
+      { action: 'test_end', time: 5, group: 'g', test: 't', status: 'PASS' },
+      { action: 'test_start', time: 10, group: 'g', test: 't' },
+    ]);
+    const test = findTest(summary, 'g', 't');
+    expect(test.results).toHaveLength(2);
+    expect(test.status).toBe(INCOMPLETE_STATUS);
+    expect(test.success).toBe(false);
+  });
+
   test('falls back to the group_start group when a test event omits `group`', () => {
     const summary = buildTestSummary([
       { action: 'group_start', time: 0, name: 'manifest.toml' },
