@@ -177,6 +177,92 @@ class TestTelemetryProbeChangeDetection:
 
         assert probe.get_change_detection_technique() == "custom_technique"
 
+    def test_get_change_detection_args_default(self, metric_info_with_bool_true):
+        """Test no custom args are given to the technique by default."""
+        probe = TelemetryProbe(metric_info_with_bool_true)
+
+        assert probe.get_change_detection_args() == {}
+
+    def test_get_change_detection_args_custom(self, base_metric_info):
+        """Test custom args are parsed into typed values."""
+        base_metric_info["data"]["monitor"] = {
+            "alert": False,
+            "change_detection_args": [
+                "alert_threshold=0.9",
+                "multiday_average_days = 14",
+                "fast_detection=False",
+                "fast_confirm=true",
+                "dedup_window_days=None",
+                "mode=strict",
+                "expression=a=b",
+            ],
+        }
+        probe = TelemetryProbe(base_metric_info)
+
+        assert probe.get_change_detection_args() == {
+            "alert_threshold": 0.9,
+            "multiday_average_days": 14,
+            "fast_detection": False,
+            "fast_confirm": True,
+            "dedup_window_days": None,
+            "mode": "strict",
+            "expression": "a=b",
+        }
+
+    def test_get_change_detection_args_are_only_parsed_once(self, base_metric_info):
+        """Test the parsed args are stored instead of being parsed on every call."""
+        base_metric_info["data"]["monitor"] = {
+            "alert": False,
+            "change_detection_args": ["alert_threshold=0.9"],
+        }
+        probe = TelemetryProbe(base_metric_info)
+
+        args = probe.get_change_detection_args()
+
+        assert args == {"alert_threshold": 0.9}
+        # Parsing again would build a new dictionary
+        assert probe.get_change_detection_args() is args
+
+    def test_get_change_detection_args_follow_monitor_info_changes(self, base_metric_info):
+        """Test the stored args are dropped when the monitor info is replaced."""
+        base_metric_info["data"]["monitor"] = {
+            "alert": False,
+            "change_detection_args": ["alert_threshold=0.9"],
+        }
+        probe = TelemetryProbe(base_metric_info)
+        assert probe.get_change_detection_args() == {"alert_threshold": 0.9}
+
+        probe.monitor_info = {"alert": False, "change_detection_args": ["fast_detection=False"]}
+        assert probe.get_change_detection_args() == {"fast_detection": False}
+
+        probe.monitor_info = {"alert": False}
+        assert probe.get_change_detection_args() == {}
+
+    @pytest.mark.parametrize(
+        "change_detection_args",
+        [
+            ["alert_threshold"],
+            ["=0.9"],
+            ["alert threshold=0.9"],
+            [{"alert_threshold": 0.9}],
+            "alert_threshold=0.9",
+            {"alert_threshold": 0.9},
+        ],
+    )
+    def test_malformed_change_detection_args_raise_error(
+        self, base_metric_info, change_detection_args
+    ):
+        """Test probes with malformed custom args fail validation."""
+        base_metric_info["data"]["monitor"] = {
+            "alert": False,
+            "change_detection_args": change_detection_args,
+        }
+
+        with pytest.raises(TelemetryProbeValidationError) as exc_info:
+            TelemetryProbe(base_metric_info)
+
+        assert "change_detection_args" in str(exc_info.value)
+
     def test_should_detect_changes_true(self, metric_info_with_alert):
         """Test should_detect_changes returns True when enabled."""
         probe = TelemetryProbe(metric_info_with_alert)

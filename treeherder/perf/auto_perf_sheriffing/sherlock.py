@@ -415,6 +415,7 @@ class Sherlock:
 
             logger.info(f"Running detection for {probe.name} on {probe.platform}")
             cdf_ts_detector = ts_detectors[probe.get_change_detection_technique()]
+            detection_args = probe.get_change_detection_args()
 
             # Probes can have slightly different defintions between mobile and desktop
             # so we need to account for that here
@@ -469,7 +470,7 @@ class Sherlock:
                         timeseries = mozdetect.TelemetryTimeSeries(data)
 
                         ts_detector = cdf_ts_detector(timeseries)
-                        detections = ts_detector.detect_changes()
+                        detections = ts_detector.detect_changes(**detection_args)
 
                         if max_detections is not None:
                             detections = detections[:max_detections]
