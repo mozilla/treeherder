@@ -451,6 +451,12 @@ export const getGraphsURL = (
 export const modifyAlert = (alert, modification) =>
   update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
 
+export const modifyAlerts = (alertIds, modification) =>
+  update(getApiUrl(`${endpoints.alert}bulk-update/`), {
+    alert_ids: alertIds,
+    ...modification,
+  });
+
 export const modifyAlertSummary = (alertSummaryId) => {
   update(getApiUrl(`${endpoints.alertSummary}${alertSummaryId}/`));
 };

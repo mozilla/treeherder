@@ -796,3 +796,141 @@ def test_alerts_list_exposes_in_progress_in_backfill_record(
 
     backfill = resp.json()["results"][0]["backfill_record"]
     assert backfill["in_progress"] is expected_in_progress
+
+
+class TestBulkAlertUpdate:
+    BULK_UPDATE_URL = "performance-alerts-bulk-update"
+
+    def test_permission_denied_unauthenticated(self, client, test_perf_alert):
+        resp = client.put(
+            reverse(self.BULK_UPDATE_URL),
+            {"alert_ids": [test_perf_alert.id], "status": PerformanceAlert.ACKNOWLEDGED},
+            content_type="application/json",
+        )
+        assert resp.status_code == 403
+        test_perf_alert.refresh_from_db()
+        assert test_perf_alert.status == PerformanceAlert.UNTRIAGED
+
+    def test_permission_denied_non_staff(self, client, test_user, test_perf_alert):
+        client.force_authenticate(user=test_user)
+        resp = client.put(
+            reverse(self.BULK_UPDATE_URL),
+            {"alert_ids": [test_perf_alert.id], "status": PerformanceAlert.ACKNOWLEDGED},
+            content_type="application/json",
+        )
+        assert resp.status_code == 403
+        test_perf_alert.refresh_from_db()
+        assert test_perf_alert.status == PerformanceAlert.UNTRIAGED
+
+    @pytest.mark.parametrize(
+        "new_status",
+        [PerformanceAlert.ACKNOWLEDGED, PerformanceAlert.INVALID, PerformanceAlert.INFRA],
+    )
+    def test_bulk_update_non_relational_statuses(
+        self,
+        authorized_sheriff_client,
+        test_sheriff,
+        test_perf_alert,
+        test_perf_alert_2,
+        new_status,
+    ):
+        resp = authorized_sheriff_client.put(
+            reverse(self.BULK_UPDATE_URL),
+            {"alert_ids": [test_perf_alert.id, test_perf_alert_2.id], "status": new_status},
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+        assert resp.json()["updated"] == 2
+
+        test_perf_alert.refresh_from_db()
+        test_perf_alert_2.refresh_from_db()
+        assert test_perf_alert.status == new_status
+        assert test_perf_alert_2.status == new_status
+        assert test_perf_alert.classifier == test_sheriff
+        assert test_perf_alert_2.classifier == test_sheriff
+
+    def test_bulk_downstream(
+        self,
+        authorized_sheriff_client,
+        test_perf_alert,
+        test_perf_alert_2,
+        test_perf_alert_summary_2,
+    ):
+        resp = authorized_sheriff_client.put(
+            reverse(self.BULK_UPDATE_URL),
+            {
+                "alert_ids": [test_perf_alert.id, test_perf_alert_2.id],
+                "status": PerformanceAlert.DOWNSTREAM,
+                "related_summary_id": test_perf_alert_summary_2.id,
+            },
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+
+        test_perf_alert.refresh_from_db()
+        test_perf_alert_2.refresh_from_db()
+        assert test_perf_alert.status == PerformanceAlert.DOWNSTREAM
+        assert test_perf_alert.related_summary_id == test_perf_alert_summary_2.id
+        assert test_perf_alert_2.status == PerformanceAlert.DOWNSTREAM
+        assert test_perf_alert_2.related_summary_id == test_perf_alert_summary_2.id
+
+    def test_missing_alert_ids_returns_400(self, authorized_sheriff_client, test_perf_alert):
+        nonexistent_id = 99999
+        resp = authorized_sheriff_client.put(
+            reverse(self.BULK_UPDATE_URL),
+            {
+                "alert_ids": [test_perf_alert.id, nonexistent_id],
+                "status": PerformanceAlert.ACKNOWLEDGED,
+            },
+            content_type="application/json",
+        )
+        assert resp.status_code == 400
+        test_perf_alert.refresh_from_db()
+        assert test_perf_alert.status == PerformanceAlert.UNTRIAGED
+
+    def test_atomic_rollback_on_framework_mismatch(
+        self,
+        authorized_sheriff_client,
+        test_perf_alert,
+        test_perf_alert_summary,
+        test_perf_alert_summary_2,
+        test_perf_signature,
+    ):
+        # Create a second summary with a different framework so that one alert
+        # in the batch will fail the framework-compatibility check.
+        framework_b = PerformanceFramework.objects.create(name="framework_b", enabled=True)
+        test_perf_alert_summary_2.framework = framework_b
+        test_perf_alert_summary_2.save()
+
+        # This alert lives in summary_2 (framework_b); reassigning to summary_1 (framework_a) will fail.
+        alert_in_other_framework = create_perf_alert(
+            summary=test_perf_alert_summary_2, series_signature=test_perf_signature
+        )
+
+        # Create a third summary (same framework as summary_1) to use as target.
+        target_summary = PerformanceAlertSummary.objects.create(
+            repository=test_perf_alert_summary.repository,
+            framework=test_perf_alert_summary.framework,
+            prev_push_id=test_perf_alert_summary.prev_push_id + 10,
+            push_id=test_perf_alert_summary.push_id + 10,
+            manually_created=False,
+        )
+
+        resp = authorized_sheriff_client.put(
+            reverse(self.BULK_UPDATE_URL),
+            {
+                "alert_ids": [test_perf_alert.id, alert_in_other_framework.id],
+                "status": PerformanceAlert.REASSIGNED,
+                "related_summary_id": target_summary.id,
+            },
+            content_type="application/json",
+        )
+        assert resp.status_code == 400
+
+        # Both alerts must remain unchanged due to atomic rollback.
+        test_perf_alert.refresh_from_db()
+        alert_in_other_framework.refresh_from_db()
+        assert test_perf_alert.status == PerformanceAlert.UNTRIAGED
+        assert test_perf_alert.related_summary_id is None
+        assert alert_in_other_framework.status == PerformanceAlert.UNTRIAGED
+        assert alert_in_other_framework.related_summary_id is None

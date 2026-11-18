@@ -324,6 +324,17 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         ]
 
 
+class PerformanceAlertBulkUpdateSerializer(serializers.Serializer):
+    alert_ids = serializers.ListField(child=serializers.IntegerField(min_value=1), min_length=1)
+    status = serializers.ChoiceField(choices=PerformanceAlert.STATUSES)
+    related_summary_id = serializers.PrimaryKeyRelatedField(
+        queryset=PerformanceAlertSummary.objects.all(),
+        allow_null=True,
+        required=False,
+        source="related_summary",
+    )
+
+
 class PerformanceTagSerializer(serializers.ModelSerializer):
     name = serializers.CharField(read_only=True)
 
