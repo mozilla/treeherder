@@ -1818,7 +1818,8 @@ class PerfCompareResults(generics.ListAPIView):
 
             cached = PerfCompareMwuCache.objects.filter(hash_key=cache_key).first()
             if cached:
-                return Response(data=self._add_alerts(cached.results, alerts_by_signature))
+                self._add_alerts(cached.results, alerts_by_signature)
+                return Response(data=cached.results)
 
             comparison_results = PerfCompareResults._process_mann_whitney_u(
                 comparison_inputs, header_names, platforms
