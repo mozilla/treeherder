@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Container, Form, Table, Row, Col } from 'react-bootstrap';
 import orderBy from 'lodash/orderBy';
+import xor from 'lodash/xor';
 
 import {
   alertStatusMap,
@@ -31,6 +32,9 @@ import DownstreamSummary from './DownstreamSummary';
 import AlertActionPanel from './AlertActionPanel';
 import SelectAlertsDropdown from './SelectAlertsDropdown';
 import CollapsableRows from './CollapsableRows';
+
+const getStarredIds = (alerts) =>
+  alerts.filter((alert) => alert.starred).map((alert) => alert.id);
 
 export default class AlertTable extends React.Component {
   constructor(props) {
@@ -80,6 +84,8 @@ export default class AlertTable extends React.Component {
         },
       },
     };
+    this.starredOnLoad = new Set();
+    this.snapshotSummaryId = null;
   }
 
   componentDidMount() {
@@ -101,15 +107,23 @@ export default class AlertTable extends React.Component {
     const { alertSummary = null, optionCollectionMap } = this.props;
 
     const alerts = getInitializedAlerts(alertSummary, optionCollectionMap);
-    alertSummary.alerts = orderBy(
-      alerts,
-      ['starred', 'title'],
-      ['desc', 'desc'],
+    alertSummary.alerts = orderBy(alerts, ['title'], ['desc']);
+
+    const starredIds = getStarredIds(alerts);
+    const isNewSummary = alertSummary.id !== this.snapshotSummaryId;
+    if (isNewSummary) {
+      this.snapshotSummaryId = alertSummary.id;
+      this.starredOnLoad = new Set(starredIds);
+    }
+    const previousStarredIds = getStarredIds(
+      this.state.alertSummary?.alerts ?? [],
     );
+    const isStarRefresh =
+      !isNewSummary && xor(starredIds, previousStarredIds).length > 0;
 
     this.setState({ alertSummary }, () => {
       this.getDownstreamList();
-      this.updateFilteredAlerts();
+      this.updateFilteredAlerts(isStarRefresh);
     });
   };
 
@@ -181,7 +195,7 @@ export default class AlertTable extends React.Component {
 
   getAlertsSortedByDefault = (filteredAlerts) => {
     const fields = [
-      'starred',
+      (alert) => this.starredOnLoad.has(alert.id),
       'backfill_record',
       'is_regression',
       't_value',
@@ -192,18 +206,33 @@ export default class AlertTable extends React.Component {
     return orderBy(filteredAlerts, fields, sortOrders);
   };
 
-  updateFilteredAlerts = () => {
-    const { alertSummary, tableConfig } = this.state;
-    Object.keys(tableConfig).forEach((key) => {
-      tableConfig[key].currentSort = tableSort.default;
-    });
+  getAlertsInPreviousOrder = (filteredAlerts, previousAlerts) => {
+    const rankById = new Map(
+      previousAlerts.map((alert, index) => [alert.id, index]),
+    );
+    return orderBy(filteredAlerts, [
+      (alert) => rankById.get(alert.id) ?? Infinity,
+    ]);
+  };
+
+  updateFilteredAlerts = (keepOrder = false) => {
+    const {
+      alertSummary,
+      tableConfig,
+      filteredAndSortedAlerts: previousAlerts,
+    } = this.state;
+    if (!keepOrder) {
+      Object.keys(tableConfig).forEach((key) => {
+        tableConfig[key].currentSort = tableSort.default;
+      });
+    }
 
     const filteredAlerts = alertSummary.alerts.filter((alert) =>
       this.filterAlert(alert),
     );
-    const filteredAndSortedAlerts = this.getAlertsSortedByDefault(
-      filteredAlerts,
-    );
+    const filteredAndSortedAlerts = keepOrder
+      ? this.getAlertsInPreviousOrder(filteredAlerts, previousAlerts)
+      : this.getAlertsSortedByDefault(filteredAlerts);
     this.setState({
       tableConfig,
       filteredAlerts,
