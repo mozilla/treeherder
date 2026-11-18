@@ -19,13 +19,14 @@ import {
   getStatus,
   getGraphsURL,
   modifyAlert,
-  formatNumber,
+  formatConfidence,
   getFrameworkName,
   getTimeRange,
   getSideBySideLink,
 } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
+  alertConfidenceLevels,
   alertStatusMap,
   alertBackfillResultStatusMap,
   alertBackfillResultVisual,
@@ -43,6 +44,7 @@ import AlertTablePlatform from './AlertTablePlatform';
 import AlertTableTagsOptions from './AlertTableTagsOptions';
 import Magnitude from './Magnitude';
 import BadgeTooltip from './BadgeTooltip';
+import ConfidenceChevrons from './ConfidenceChevrons';
 
 export default class AlertTableRow extends React.Component {
   constructor(props) {
@@ -395,6 +397,11 @@ export default class AlertTableRow extends React.Component {
     const graphActive =
       lastClickedGraphAlertId !== null && lastClickedGraphAlertId === alert.id;
     const noiseProfile = alert.noise_profile || 'N\\A';
+    const detectionMethods = alert.detection_methods || [];
+    const confidenceLevel =
+      alertConfidenceLevels[alert.confidence_level]?.text ?? 'Unknown';
+    const confidenceValue = formatConfidence(alert.confidence ?? alert.t_value);
+    const confidenceMethod = detectionMethods[0] || 'unknown';
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
@@ -594,6 +601,22 @@ export default class AlertTableRow extends React.Component {
         )}
         <td className="table-width-lg">
           <div className="information-container">
+            {detectionMethods.length > 0 && (
+              <div className="option">
+                <BadgeTooltip
+                  textClass="detail-hint"
+                  text={detectionMethods.join(', ')}
+                  tooltipText={
+                    detectionMethods.length > 1
+                      ? `Detected by: ${detectionMethods.join(
+                          ', ',
+                        )}. The values shown come from ${detectionMethods[0]}.`
+                      : `Detected by: ${detectionMethods[0]}`
+                  }
+                  testId={`alert ${alert.id} detection method`}
+                />
+              </div>
+            )}
             <div className="option">
               <BadgeTooltip
                 textClass="detail-hint"
@@ -617,9 +640,8 @@ export default class AlertTableRow extends React.Component {
         <td className="table-width-md">
           <Magnitude alert={alert} />
         </td>
-        <td className="table-width-sm">
+        <td className="table-width-sm text-center">
           <SimpleTooltip
-            textClass="detail-hint"
             text={
               alert.manually_created ? (
                 <FontAwesomeIcon
@@ -627,13 +649,13 @@ export default class AlertTableRow extends React.Component {
                   icon={faUser}
                 />
               ) : (
-                formatNumber(alert.t_value)
+                <ConfidenceChevrons level={alert.confidence_level} />
               )
             }
             tooltipText={
               alert.manually_created
                 ? 'Alert created by a Sheriff'
-                : 'Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view'
+                : `${confidenceLevel} confidence: ${confidenceValue} (${confidenceMethod})`
             }
           />
         </td>

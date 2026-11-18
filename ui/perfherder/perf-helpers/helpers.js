@@ -13,6 +13,7 @@ import JobModel from '../../models/job';
 import { sxsTaskName } from '../../helpers/constants';
 
 import {
+  alertConfidenceLevels,
   endpoints,
   tValueCareMin,
   tValueConfidence,
@@ -32,6 +33,16 @@ const numberFormat = new Intl.NumberFormat('en-US', {
 });
 
 export const formatNumber = (input) => numberFormat.format(input);
+
+// Formats confidence values to round them, and handle differences
+// in ranges for different detection techniques.
+export const formatConfidence = (input) => {
+  if (input === null || input === undefined) return 'N/A';
+  if (input !== 0 && Math.abs(input) < 0.01) {
+    return Number(input.toPrecision(2)).toString();
+  }
+  return formatNumber(input);
+};
 
 export const abbreviatedNumber = (num) =>
   num.toString().length <= 5 ? num : numeral(num).format('0.0a');
@@ -399,6 +410,10 @@ const Alert = (alertData, optionCollectionMap) => ({
   title: getSeriesName(alertData.series_signature, optionCollectionMap, {
     includePlatformInName: true,
   }),
+  // Keep manual alerts at the top, and sort by number of chevrons for the rest
+  confidence_level_rank: alertData.manually_created
+    ? 4
+    : (alertConfidenceLevels[alertData.confidence_level]?.chevrons ?? 0),
 });
 
 export const getTimeRange = (alertSummary) => {

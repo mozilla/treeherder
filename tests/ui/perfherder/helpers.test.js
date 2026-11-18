@@ -19,6 +19,7 @@ import {
   getStatus,
   containsText,
   getFrameworkName,
+  getInitializedAlerts,
   reduceDictToKeys,
 } from '../../../ui/perfherder/perf-helpers/helpers';
 import { summaryStatusMap } from '../../../ui/perfherder/perf-helpers/constants';
@@ -328,5 +329,39 @@ describe('reduceDictToKeys', () => {
     const result = reduceDictToKeys(dict, ['a', 'z']);
 
     expect(result).toEqual({ a: 1 });
+  });
+});
+
+describe('getInitializedAlerts', () => {
+  it('ranks alerts by confidence level for sorting', () => {
+    const alert = (properties) => ({
+      series_signature: { suite: 'suite', test: 'test', extra_options: [] },
+      ...properties,
+    });
+    const alerts = getInitializedAlerts(
+      {
+        alerts: [
+          alert({ confidence_level: 'high' }),
+          alert({ confidence_level: 'medium' }),
+          alert({ confidence_level: 'low' }),
+          alert({ confidence_level: 'very low' }),
+          // the detection method didn't report a level
+          alert({ confidence_level: null }),
+          // created by a sheriff, which goes above every level
+          alert({ confidence_level: null, manually_created: true }),
+        ],
+        related_alerts: [],
+      },
+      {},
+    );
+
+    expect(alerts.map((item) => item.confidence_level_rank)).toEqual([
+      3,
+      2,
+      1,
+      1,
+      0,
+      4,
+    ]);
   });
 });

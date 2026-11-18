@@ -17,6 +17,15 @@ import {
 export const tValueCareMin = 3; // Anything below this is "low" in confidence
 export const tValueConfidence = 5; // Anything above this is "high" in confidence
 
+// How confident a detection method is in an alert, and how many chevrons to
+// use for each.
+export const alertConfidenceLevels = {
+  high: { text: 'High', chevrons: 3, color: '#2da745' },
+  medium: { text: 'Medium', chevrons: 2, color: '#b88a00' },
+  low: { text: 'Low', chevrons: 1, color: '#e8590c' },
+  'very low': { text: 'Very low', chevrons: 1, color: '#dc3545' },
+};
+
 // Backend server endpoints
 export const endpoints = {
   alert: '/performance/alert/',

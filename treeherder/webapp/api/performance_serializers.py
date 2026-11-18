@@ -7,6 +7,7 @@ from django.db import transaction
 from rest_framework import exceptions, serializers
 
 from treeherder.model.models import Job, Repository, TaskclusterMetadata
+from treeherder.perf.alerts import get_detection_methods, get_ttest_confidence_level
 from treeherder.perf.models import (
     BackfillRecord,
     IssueTracker,
@@ -202,6 +203,10 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     amount_abs = PerformanceDecimalField(read_only=True)
     amount_pct = PerformanceDecimalField(read_only=True)
     t_value = PerformanceDecimalField(read_only=True)
+    # Not rounded since its scale depends on the detection method (e.g. p-values)
+    confidence = serializers.FloatField(read_only=True)
+    confidence_level = serializers.SerializerMethodField()
+    detection_methods = serializers.SerializerMethodField()
     prev_value = PerformanceDecimalField(read_only=True)
     new_value = PerformanceDecimalField(read_only=True)
     noise_profile = serializers.CharField(read_only=True)
@@ -272,6 +277,17 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     def get_prev_profile_url(self, alert):
         return None
 
+    def get_confidence_level(self, alert):
+        # Alerts from before the level was stored only have the T-Test's t-value
+        if alert.confidence_level or alert.manually_created or alert.t_value is None:
+            return alert.confidence_level
+        return get_ttest_confidence_level(alert.t_value)
+
+    def get_detection_methods(self, alert):
+        # The first method is the one that created the alert, and the values
+        # in the alert
+        return get_detection_methods(alert)
+
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, "email", None)
 
@@ -309,6 +325,9 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             "prev_value",
             "new_value",
             "t_value",
+            "confidence",
+            "confidence_level",
+            "detection_methods",
             "amount_abs",
             "amount_pct",
             "summary_id",

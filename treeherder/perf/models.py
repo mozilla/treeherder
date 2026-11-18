@@ -762,6 +762,22 @@ class PerformanceAlert(PerformanceAlertBase):
         max_length=20, choices=PerformanceSignature.ALERT_SEVERITIES, null=True, default=None
     )
 
+    VERY_LOW_CONFIDENCE = "very low"
+    LOW_CONFIDENCE = "low"
+    MEDIUM_CONFIDENCE = "medium"
+    HIGH_CONFIDENCE = "high"
+
+    CONFIDENCE_LEVELS = (
+        (VERY_LOW_CONFIDENCE, "Very low"),
+        (LOW_CONFIDENCE, "Low"),
+        (MEDIUM_CONFIDENCE, "Medium"),
+        (HIGH_CONFIDENCE, "High"),
+    )
+
+    confidence_level = models.CharField(
+        max_length=10, choices=CONFIDENCE_LEVELS, null=True, default=None
+    )
+
     def save(self, *args, **kwargs):
         # snapshot the severity once, when the alert is first created
         if self._state.adding and self.severity is None:

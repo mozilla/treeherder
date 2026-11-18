@@ -15,6 +15,7 @@ from treeherder.perf.alerts import (
     generate_new_alerts_in_series,
     get_alert_properties,
     get_detection_alert_properties,
+    get_ttest_confidence_level,
     store_alert,
 )
 from treeherder.perf.detection_techniques import TTEST, DetectionTechnique
@@ -592,6 +593,8 @@ def test_default_detection_technique_is_ttest(
     alert = PerformanceAlert.objects.get()
     assert alert.detection_method == TTEST
     assert alert.t_value is not None
+    # T-Test alerts need a t-value above 7, which is past the "high" band
+    assert alert.confidence_level == PerformanceAlert.HIGH_CONFIDENCE
 
 
 def test_detect_mwu_alerts_in_series(
@@ -626,6 +629,7 @@ def test_detect_mwu_alerts_in_series(
     assert alert.amount_abs == pytest.approx(0.5)
     assert alert.t_value is None
     assert 0 <= alert.confidence <= 0.001
+    assert alert.confidence_level == PerformanceAlert.HIGH_CONFIDENCE
     assert alert.noise_profile == "OK"
 
     # verify that no new alerts generated if we rerun
@@ -716,6 +720,7 @@ def test_alert_found_by_another_technique_gets_technique_added(
             push_timestamp,
             get_alert_properties(0.5, 1.0, True),
             "OK",
+            confidence_level=PerformanceAlert.MEDIUM_CONFIDENCE,
         )
         store_alert(
             test_perf_signature,
@@ -726,7 +731,13 @@ def test_alert_found_by_another_technique_gets_technique_added(
             push_timestamp,
             get_alert_properties(0.5, 2.0, True),
             "OK",
+            confidence_level=PerformanceAlert.HIGH_CONFIDENCE,
         )
+
+        # the alert keeps what the technique that created it reported
+        alert = PerformanceAlert.objects.get()
+        assert alert.new_value == 1.0
+        assert alert.confidence_level == PerformanceAlert.MEDIUM_CONFIDENCE
 
         # found again by the T-Test, which updates the alert it described
         store_alert(
@@ -738,11 +749,13 @@ def test_alert_found_by_another_technique_gets_technique_added(
             push_timestamp,
             get_alert_properties(0.5, 3.0, True),
             "OK",
+            confidence_level=PerformanceAlert.LOW_CONFIDENCE,
         )
 
     alert = PerformanceAlert.objects.get()
     assert alert.detection_method == "ttest,mwu"
     assert alert.new_value == 3.0
+    assert alert.confidence_level == PerformanceAlert.LOW_CONFIDENCE
 
 
 def test_technique_added_to_legacy_alert(
@@ -768,11 +781,14 @@ def test_technique_added_to_legacy_alert(
             time.time(),
             get_alert_properties(0.5, 2.0, True),
             "OK",
+            confidence_level=PerformanceAlert.LOW_CONFIDENCE,
         )
 
     alert = PerformanceAlert.objects.get()
     assert alert.detection_method == "ttest,mwu"
     assert alert.new_value == 1.0
+    # still the T-Test's
+    assert alert.confidence_level == PerformanceAlert.HIGH_CONFIDENCE
 
 
 @pytest.mark.parametrize(
@@ -847,6 +863,7 @@ def test_detect_alerts_with_any_mozdetect_technique(
                             optional_detection_info={
                                 "change": "improvement",
                                 "delta_percentage": 42.0,
+                                "confidence_level": "medium",
                             },
                         )
                     ]
@@ -873,6 +890,7 @@ def test_detect_alerts_with_any_mozdetect_technique(
     assert alert.amount_pct == 42.0
     assert not alert.is_regression
     assert alert.confidence == 0.5
+    assert alert.confidence_level == PerformanceAlert.MEDIUM_CONFIDENCE
 
 
 def _detection(previous_value, new_value, direction, **optional_detection_info):
@@ -909,6 +927,22 @@ def _detection(previous_value, new_value, direction, **optional_detection_info):
 )
 def test_detection_alert_properties(detection, lower_is_better, expected):
     assert get_detection_alert_properties(detection, lower_is_better) == expected
+
+
+@pytest.mark.parametrize(
+    ("t_value", "expected"),
+    [
+        # the bounds of the old Perfherder compare view
+        (2.99, "low"),
+        (3, "medium"),
+        (4.99, "medium"),
+        (5, "high"),
+        # what an infinite t-value is stored as
+        (1000, "high"),
+    ],
+)
+def test_ttest_confidence_level(t_value, expected):
+    assert get_ttest_confidence_level(t_value) == expected
 
 
 def test_retryable_mozdetect_failure_is_raised_after_other_techniques(
