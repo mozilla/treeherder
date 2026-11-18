@@ -440,6 +440,110 @@ describe('SummaryTab loading and error states', () => {
   });
 });
 
+describe('SummaryTab lists behind the counts', () => {
+  afterEach(cleanup);
+
+  const listsJsonl = [
+    '{"action":"test_start","time":0,"group":"a/mochitest.toml","test":"a/test_ran.html"}',
+    '{"action":"test_end","time":1,"group":"a/mochitest.toml","test":"a/test_ran.html","status":"PASS"}',
+    '{"action":"test_start","time":2,"group":"a/mochitest.toml","test":"a/test_off.html"}',
+    '{"action":"test_end","time":3,"group":"a/mochitest.toml","test":"a/test_off.html","status":"SKIP","message":"skip-if: debug"}',
+    '{"action":"test_start","time":4,"group":"b/mochitest.toml","test":"b/test_silent.html"}',
+    '{"action":"test_end","time":5,"group":"b/mochitest.toml","test":"b/test_silent.html","status":"SKIP"}',
+    '{"action":"test_start","time":6,"test":"/css/print.html"}',
+    '{"action":"test_end","time":7,"test":"/css/print.html","status":"TIMEOUT","expected":"PASS","known_intermittent":["TIMEOUT"]}',
+  ].join('\n');
+
+  const skippedCount = () => screen.getByRole('button', { name: '2 skipped' });
+  const knownIntermittentCount = () =>
+    screen.getByRole('button', { name: '1 known intermittent' });
+
+  test('leaves a count of zero as plain text', () => {
+    renderWith({ summary: buildTestSummary(summaryJsonl) });
+
+    expect(screen.getByText('0 skipped')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /skipped/ })).toBeNull();
+  });
+
+  test('lists nothing until a count is clicked', () => {
+    renderWith({ summary: buildTestSummary(listsJsonl) });
+
+    expect(skippedCount()).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('a/test_off.html')).toBeNull();
+  });
+
+  test('lists the skipped tests by manifest, with the reason given', () => {
+    renderWith({ summary: buildTestSummary(listsJsonl) });
+    fireEvent.click(skippedCount());
+
+    expect(skippedCount()).toHaveAttribute('aria-expanded', 'true');
+    const list = screen.getByRole('region', { name: 'Skipped tests (2)' });
+    expect(list).toHaveTextContent('a/mochitest.toml');
+    expect(list).toHaveTextContent('a/test_off.html');
+    expect(list).toHaveTextContent('skip-if: debug');
+    expect(list).toHaveTextContent('b/test_silent.html');
+    // A test that ran is not in it.
+    expect(list).not.toHaveTextContent('a/test_ran.html');
+  });
+
+  test('lists the known intermittents with the status each gave', () => {
+    renderWith({ summary: buildTestSummary(listsJsonl) });
+    fireEvent.click(knownIntermittentCount());
+
+    const list = screen.getByRole('region', {
+      name: 'Known intermittent tests (1)',
+    });
+    expect(list).toHaveTextContent('/css/print.html');
+    expect(list).toHaveTextContent('TIMEOUT (expected PASS)');
+    // These tests have no manifest: no heading stands in for one.
+    expect(list).not.toHaveTextContent('(no group)');
+  });
+
+  test('folds the list on a second click', () => {
+    renderWith({ summary: buildTestSummary(listsJsonl) });
+    fireEvent.click(skippedCount());
+    fireEvent.click(skippedCount());
+
+    expect(skippedCount()).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('a/test_off.html')).toBeNull();
+  });
+
+  test('shows one list at a time', () => {
+    renderWith({ summary: buildTestSummary(listsJsonl) });
+    fireEvent.click(skippedCount());
+    fireEvent.click(knownIntermittentCount());
+
+    expect(skippedCount()).toHaveAttribute('aria-expanded', 'false');
+    expect(knownIntermittentCount()).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.queryByText('a/test_off.html')).toBeNull();
+    expect(screen.getByText('/css/print.html')).toBeInTheDocument();
+  });
+
+  test('starts folded again on another job', () => {
+    const tab = (job) => (
+      <MemoryRouter>
+        <SummaryTab
+          summary={buildTestSummary(listsJsonl)}
+          selectedJob={job}
+          jobLogUrls={[]}
+          jobDetails={[]}
+          addBug={() => {}}
+          pinJob={() => {}}
+          currentRepo={currentRepo}
+          bugSuggestions={[]}
+          bugSuggestionsLoading={false}
+        />
+      </MemoryRouter>
+    );
+    const { rerender } = render(tab(selectedJob));
+    fireEvent.click(skippedCount());
+    rerender(tab({ ...selectedJob, id: 2 }));
+
+    expect(skippedCount()).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('a/test_off.html')).toBeNull();
+  });
+});
+
 describe('SummaryTab new failure lines in the classic section', () => {
   afterEach(cleanup);
 
