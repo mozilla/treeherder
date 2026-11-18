@@ -36,6 +36,24 @@
   background: #ffffff;
 }
 
+/* A count of the summary line that shows and hides the list of its tests:
+ * a button set in the text of the line. */
+.btn.summary-count-toggle {
+  --bs-btn-font-size: 12px;
+  --bs-btn-padding-y: 0;
+  --bs-btn-padding-x: 0;
+  --bs-btn-border-width: 0;
+  vertical-align: baseline;
+}
+
+/* Underlined in every state, where the links of the app are not. */
+.btn.summary-count-toggle,
+.btn.summary-count-toggle:hover,
+.btn.summary-count-toggle:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* A summary line whose record carries a stack, shown over it on hover */
 .summary-stack-trigger {
   text-decoration: underline dotted;

@@ -13,6 +13,7 @@ import {
   matchBugSuggestions,
   computeSummaryDivergence,
   findNewFailureLines,
+  listTestsByOutcome,
   withLineBugSuggestions,
   withWorkerLines,
 } from '../../../../helpers/testSummary';
@@ -29,6 +30,49 @@ import SuggestionsListItem from '../../../../shared/tabs/failureSummary/Suggesti
 
 import NewFailuresMessage from './NewFailuresMessage';
 import SummaryItem from './SummaryItem';
+import TestOutcomeList from './TestOutcomeList';
+
+const OUTCOME_LIST_ID = 'summary-outcome-list';
+
+// The counts of the summary line that open the list of their tests.
+const OUTCOME_LISTS = [
+  { outcome: 'skipped', label: 'skipped', title: 'Skipped tests' },
+  {
+    outcome: 'knownIntermittent',
+    label: 'known intermittent',
+    title: 'Known intermittent tests',
+  },
+];
+
+// A count of the summary line. With tests behind it, it is the button that
+// shows and hides their list.
+const OutcomeCount = ({ count, label, open, onToggle }) =>
+  count > 0 ? (
+    <Button
+      variant="link"
+      className="summary-count-toggle text-muted"
+      onClick={onToggle}
+      aria-expanded={open}
+      aria-controls={open ? OUTCOME_LIST_ID : undefined}
+    >
+      {count} {label}
+      <FontAwesomeIcon
+        icon={open ? faAngleUp : faAngleDown}
+        className="ms-1"
+      />
+    </Button>
+  ) : (
+    <span className="text-muted">
+      {count} {label}
+    </span>
+  );
+
+OutcomeCount.propTypes = {
+  count: PropTypes.number.isRequired,
+  label: PropTypes.string.isRequired,
+  open: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+};
 
 const SummaryTab = ({
   summary = null,
@@ -120,6 +164,33 @@ const SummaryTab = ({
   }
   const classicOpen =
     !classicFoldable || (showClassic ?? classicOnlyCount > 0);
+
+  // The tests behind the "skipped" and "known intermittent" counts, listed
+  // on a click on the count, one list at a time. The choice is the job's: the
+  // next one starts with both folded.
+  const outcomeLists = useMemo(() => listTestsByOutcome(summary), [summary]);
+  const [outcomeChoice, setOutcomeChoice] = useState({
+    jobId: null,
+    outcome: null,
+  });
+  const openOutcome =
+    outcomeChoice.jobId === selectedJob.id ? outcomeChoice.outcome : null;
+  const openOutcomeList = OUTCOME_LISTS.find(
+    ({ outcome }) => outcome === openOutcome && outcomeLists[outcome].length,
+  );
+  const outcomeCount = ({ outcome, label }) => (
+    <OutcomeCount
+      count={summary.counts[outcome] || 0}
+      label={label}
+      open={openOutcomeList?.outcome === outcome}
+      onToggle={() =>
+        setOutcomeChoice({
+          jobId: selectedJob.id,
+          outcome: openOutcomeList?.outcome === outcome ? null : outcome,
+        })
+      }
+    />
+  );
 
   // Number of failing tests (not error lines — a test can emit several).
   const failedCount = summary?.counts.failed || 0;
@@ -219,15 +290,11 @@ const SummaryTab = ({
           </span>
           {', '}
           {/* Always rendered, zero included, so the row keeps one shape. */}
-          <span className="text-muted">
-            {summary.counts.skipped || 0} skipped
-          </span>
+          {outcomeCount(OUTCOME_LISTS[0])}
           {summary.counts.knownIntermittent > 0 && (
             <>
               {', '}
-              <span className="text-muted">
-                {summary.counts.knownIntermittent} known intermittent
-              </span>
+              {outcomeCount(OUTCOME_LISTS[1])}
             </>
           )}
           {otherFailures > 0 && (
@@ -241,6 +308,15 @@ const SummaryTab = ({
         </p>
       )}
       <ul className="list-unstyled w-100 h-100 mb-0 overflow-auto text-small font-size-11">
+        {openOutcomeList && (
+          <li>
+            <TestOutcomeList
+              id={OUTCOME_LIST_ID}
+              title={`${openOutcomeList.title} (${summary.counts[openOutcomeList.outcome]})`}
+              groups={outcomeLists[openOutcomeList.outcome]}
+            />
+          </li>
+        )}
         {summaryError && <ListItem text={summaryError} />}
 
         {!bugSuggestionsLoading &&
