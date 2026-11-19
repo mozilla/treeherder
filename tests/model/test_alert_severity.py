@@ -191,13 +191,14 @@ def test_reassigned_alert_raises_the_destination_severity(
     assert test_perf_alert_summary_2.severity == PerformanceSignature.CRITICAL
 
 
-def test_downstream_alert_does_not_count_toward_the_parent_severity(
+def test_downstream_keeps_the_severity_of_both_summaries(
     test_perf_alert_summary, test_perf_alert_summary_2, test_perf_signature, test_perf_signature_2
 ):
     critical = add_alert(
         test_perf_alert_summary, test_perf_signature, PerformanceSignature.CRITICAL
     )
     add_alert(test_perf_alert_summary, test_perf_signature_2, PerformanceSignature.NORMAL)
+    add_alert(test_perf_alert_summary_2, test_perf_signature_2, PerformanceSignature.NORMAL)
 
     critical.status = PerformanceAlert.DOWNSTREAM
     critical.related_summary = test_perf_alert_summary_2
@@ -205,8 +206,8 @@ def test_downstream_alert_does_not_count_toward_the_parent_severity(
 
     test_perf_alert_summary.refresh_from_db()
     test_perf_alert_summary_2.refresh_from_db()
-    assert test_perf_alert_summary.severity == PerformanceSignature.NORMAL
-    assert test_perf_alert_summary_2.severity == PerformanceSignature.CRITICAL
+    assert test_perf_alert_summary.severity == PerformanceSignature.CRITICAL
+    assert test_perf_alert_summary_2.severity == PerformanceSignature.NORMAL
 
 
 def test_parent_keeps_its_severity_while_a_critical_alert_remains(

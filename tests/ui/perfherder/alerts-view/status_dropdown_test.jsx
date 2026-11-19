@@ -243,6 +243,7 @@ test('The backout comment covers alerts reassigned into the summary', () => {
     related_alerts: [
       {
         severity: 'subcritical',
+        status: alertStatusMap.reassigned,
         related_summary_id: 1,
         series_signature: {
           suite: 'newssite-applink-startup',
@@ -366,10 +367,13 @@ test('The backout comment is empty once every severe alert has moved to another 
           machine_platform: 'windows11-64-24h2-shippable',
         },
       },
+    ],
+    related_alerts: [
+      // downstreamed here from another summary, so it is not part of this one
       {
         severity: 'subcritical',
         status: alertStatusMap.downstream,
-        related_summary_id: 3,
+        related_summary_id: 1,
         series_signature: {
           suite: 'newssite-applink-startup',
           test: 'applink_startup',
@@ -377,10 +381,36 @@ test('The backout comment is empty once every severe alert has moved to another 
         },
       },
     ],
-    related_alerts: [],
   });
 
   expect(severeTests).toBe('');
+});
+
+test('The backout comment keeps a critical alert downstreamed from the summary', () => {
+  const dropdown = new StatusDropdown({
+    alertSummary: testAlertSummaries[0],
+    frameworks: [],
+  });
+
+  const severeTests = dropdown.getSevereTests({
+    id: 1,
+    alerts: [
+      // downstreamed to summary 3, but it still belongs to summary 1 for severity
+      {
+        severity: 'critical',
+        status: alertStatusMap.downstream,
+        related_summary_id: 3,
+        series_signature: {
+          suite: 'speedometer3',
+          test: 'score',
+          machine_platform: 'windows11-64-24h2-shippable',
+        },
+      },
+    ],
+    related_alerts: [],
+  });
+
+  expect(severeTests).toBe('speedometer3 score windows11-64-24h2-shippable');
 });
 
 test("'Request backout' is not offered for a summary with no severity", async () => {

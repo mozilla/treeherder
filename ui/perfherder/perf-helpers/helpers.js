@@ -492,7 +492,7 @@ const getPlatformInfo = (platforms) => {
   return platformInfo;
 };
 
-export const isNotReassigned = (alert, summaryId) =>
+const isNotReassigned = (alert, summaryId) =>
   alert.related_summary_id === summaryId || alert.related_summary_id === null;
 
 export const getFilledBugSummary = (alertSummary) => {

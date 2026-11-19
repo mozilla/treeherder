@@ -577,11 +577,12 @@ class PerformanceAlertSummary(PerformanceAlertSummaryBase):
     def update_severity(self):
         # alerts reach a summary over time, since generate_alerts runs per signature,
         # so the most severe one is only known once they have all landed.
-        # An alert moved to another summary (reassigned or downstream) keeps this one
-        # as its summary, so it is excluded here and only counts for the one it moved to
+        # A reassigned alert only counts for the summary it was moved to, while a downstream
+        # one keeps counting for the summary it came from and not for the one it went to
         rank = PerformanceSignature.SEVERITY_RANK
         severities = PerformanceAlert.objects.filter(
-            Q(summary=self, related_summary__isnull=True) | Q(related_summary=self)
+            (Q(summary=self) & ~Q(status=PerformanceAlert.REASSIGNED))
+            | Q(related_summary=self, status=PerformanceAlert.REASSIGNED)
         ).values_list("severity", flat=True)
 
         self.severity = max(severities, key=lambda severity: rank.get(severity, 0), default=None)
