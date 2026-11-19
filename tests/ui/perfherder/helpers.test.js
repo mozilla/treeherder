@@ -22,7 +22,15 @@ import {
   getInitializedAlerts,
   reduceDictToKeys,
 } from '../../../ui/perfherder/perf-helpers/helpers';
-import { summaryStatusMap } from '../../../ui/perfherder/perf-helpers/constants';
+import {
+  manualAlertConfidenceRank,
+  summaryStatusMap,
+} from '../../../ui/perfherder/perf-helpers/constants';
+import {
+  sort,
+  sortTables,
+  tableSort,
+} from '../../../ui/perfherder/perf-helpers/sort';
 
 describe('Number Formatting', () => {
   describe('formatNumber', () => {
@@ -356,12 +364,57 @@ describe('getInitializedAlerts', () => {
     );
 
     expect(alerts.map((item) => item.confidence_level_rank)).toEqual([
+      4,
       3,
       2,
       1,
-      1,
       0,
-      4,
+      manualAlertConfidenceRank,
     ]);
+    expect(manualAlertConfidenceRank).toBeGreaterThan(4);
+  });
+});
+
+describe('sorting alerts by confidence', () => {
+  const sortedIds = (alerts, sortType) =>
+    sort('confidence_level_rank', sortType, [...alerts], sortTables.alert).map(
+      (alert) => alert.id,
+    );
+
+  it('orders by confidence level, then by t-value', () => {
+    const alerts = [
+      { id: 1, confidence_level_rank: 3, t_value: 4.2 },
+      { id: 2, confidence_level_rank: 4, t_value: 7 },
+      { id: 3, confidence_level_rank: 1, t_value: null },
+      { id: 4, confidence_level_rank: 4, t_value: 9 },
+      { id: 5, confidence_level_rank: 2, t_value: null },
+    ];
+
+    expect(sortedIds(alerts, tableSort.ascending)).toEqual([3, 5, 1, 2, 4]);
+    expect(sortedIds(alerts, tableSort.descending)).toEqual([4, 2, 1, 5, 3]);
+  });
+
+  it('keeps the order of alerts in the same level that have no t-value', () => {
+    // alerts from other detection methods only have a confidence
+    const alerts = [
+      { id: 1, confidence_level_rank: 4, t_value: null },
+      { id: 2, confidence_level_rank: 4 },
+      { id: 3, confidence_level_rank: 4, t_value: null },
+    ];
+
+    expect(sortedIds(alerts, tableSort.ascending)).toEqual([1, 2, 3]);
+    expect(sortedIds(alerts, tableSort.descending)).toEqual([1, 2, 3]);
+  });
+
+  it('puts alerts without a t-value below the T-Test alerts of their level', () => {
+    const alerts = [
+      { id: 1, confidence_level_rank: 4, t_value: 7 },
+      { id: 2, confidence_level_rank: 4, t_value: null },
+      { id: 3, confidence_level_rank: 4 },
+      { id: 4, confidence_level_rank: 4, t_value: 9 },
+    ];
+
+    expect(sortedIds(alerts, tableSort.ascending)).toEqual([2, 3, 1, 4]);
+    expect(sortedIds(alerts, tableSort.descending)).toEqual([4, 1, 2, 3]);
   });
 });

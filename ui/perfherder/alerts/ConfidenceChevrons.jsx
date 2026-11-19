@@ -1,6 +1,10 @@
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleUp, faMinus } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAngleDown,
+  faAngleUp,
+  faMinus,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { alertConfidenceLevels } from '../perf-helpers/constants';
 
@@ -13,8 +17,9 @@ const chevronStacks = {
 
 // Shows the confidence level of an alert as a stack of chevrons
 const ConfidenceChevrons = ({ level = null }) => {
-  const { text = 'Unknown', chevrons, color = '#6c757d' } =
+  const { text = 'Unknown', chevrons, pointsDown = false, color = '#6c757d' } =
     alertConfidenceLevels[level] ?? {};
+  const chevron = pointsDown ? faAngleDown : faAngleUp;
 
   return (
     <span
@@ -26,7 +31,7 @@ const ConfidenceChevrons = ({ level = null }) => {
     >
       {chevrons ? (
         chevronStacks[chevrons].map((transform, index) => (
-          <FontAwesomeIcon key={index} icon={faAngleUp} transform={transform} />
+          <FontAwesomeIcon key={index} icon={chevron} transform={transform} />
         ))
       ) : (
         <FontAwesomeIcon icon={faMinus} />

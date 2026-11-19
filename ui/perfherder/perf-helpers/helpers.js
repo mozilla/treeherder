@@ -15,6 +15,7 @@ import { sxsTaskName } from '../../helpers/constants';
 import {
   alertConfidenceLevels,
   endpoints,
+  manualAlertConfidenceRank,
   tValueCareMin,
   tValueConfidence,
   noiseMetricTitle,
@@ -410,10 +411,10 @@ const Alert = (alertData, optionCollectionMap) => ({
   title: getSeriesName(alertData.series_signature, optionCollectionMap, {
     includePlatformInName: true,
   }),
-  // Keep manual alerts at the top, and sort by number of chevrons for the rest
+  // Keep manual alerts at the top, and alerts without a level at the bottom
   confidence_level_rank: alertData.manually_created
-    ? 4
-    : (alertConfidenceLevels[alertData.confidence_level]?.chevrons ?? 0),
+    ? manualAlertConfidenceRank
+    : (alertConfidenceLevels[alertData.confidence_level]?.rank ?? 0),
 });
 
 export const getTimeRange = (alertSummary) => {

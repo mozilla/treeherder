@@ -10,7 +10,8 @@ export const tableSort = {
 };
 
 const compareConfidence = (a, b) =>
-  a.confidence_level_rank - b.confidence_level_rank || a.t_value - b.t_value;
+  a.confidence_level_rank - b.confidence_level_rank ||
+  (a.t_value ?? 0) - (b.t_value ?? 0);
 
 export const sortTypes = {
   [tableSort.ascending]: {

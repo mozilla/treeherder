@@ -471,14 +471,13 @@ test('Alert row is not marked out for a normal alert', async () => {
 });
 
 describe('detection method and confidence', () => {
-  const chevronCount = (chevrons) =>
-    chevrons.querySelectorAll('svg[data-icon="angle-up"]').length;
+  const chevronCount = (chevrons, direction = 'up') =>
+    chevrons.querySelectorAll(`svg[data-icon="angle-${direction}"]`).length;
 
   test.each([
     ['high', 'High', 3],
     ['medium', 'Medium', 2],
     ['low', 'Low', 1],
-    ['very low', 'Very low', 1],
   ])(
     'a %s confidence level is shown as chevrons',
     async (level, text, count) => {
@@ -490,8 +489,21 @@ describe('detection method and confidence', () => {
       const chevrons = await waitFor(() => getByTestId('alert-confidence'));
       expect(chevrons).toHaveAttribute('aria-label', `${text} confidence`);
       expect(chevronCount(chevrons)).toBe(count);
+      expect(chevronCount(chevrons, 'down')).toBe(0);
     },
   );
+
+  test('a very low confidence level differs from a low one in shape', async () => {
+    const { getByTestId } = alertTableRowTest({
+      alert: { ...testAlert, confidence_level: 'very low' },
+      tags: false,
+    });
+
+    const chevrons = await waitFor(() => getByTestId('alert-confidence'));
+    expect(chevrons).toHaveAttribute('aria-label', 'Very low confidence');
+    expect(chevronCount(chevrons)).toBe(0);
+    expect(chevronCount(chevrons, 'down')).toBe(1);
+  });
 
   test('the t-value is only shown in the tooltip', async () => {
     const {
