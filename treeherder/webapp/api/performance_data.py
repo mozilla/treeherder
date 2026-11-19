@@ -40,7 +40,6 @@ from rest_framework import (
     exceptions,
     filters,
     generics,
-    mixins,
     pagination,
     serializers,
     viewsets,
@@ -952,13 +951,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
-class PerformanceAlertViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.CreateModelMixin,
-    mixins.UpdateModelMixin,
-    viewsets.GenericViewSet,
-):
+class PerformanceAlertViewSet(viewsets.ModelViewSet):
     queryset = PerformanceAlert.objects.all()
     permission_classes = (IsStaffOrReadOnly,)
 
