@@ -49,6 +49,9 @@ def test_alerts_get(
         "summary_id",
         "status",
         "t_value",
+        "confidence",
+        "confidence_level",
+        "detection_methods",
         "classifier",
         "classifier_email",
         "backfill_record",
@@ -65,6 +68,51 @@ def test_alerts_get(
         "task_id",
         "retry_id",
     }
+
+
+@pytest.mark.parametrize(
+    ("alert_properties", "expected_confidence", "expected_level", "expected_methods"),
+    [
+        # Historical alerts have no detection method and come from the T-Test,
+        # so their level is worked out from the t-value
+        ({}, None, "high", ["ttest"]),
+        ({"t_value": 4.0}, None, "medium", ["ttest"]),
+        ({"manually_created": True}, None, None, []),
+        (
+            {
+                "detection_method": "mwu-strict,ttest",
+                "t_value": None,
+                "confidence": 0.00012,
+                "confidence_level": "high",
+            },
+            0.00012,
+            "high",
+            ["mwu-strict", "ttest"],
+        ),
+    ],
+)
+def test_alerts_get_detection_info(
+    client,
+    test_perf_signature,
+    test_perf_alert_summary,
+    alert_properties,
+    expected_confidence,
+    expected_level,
+    expected_methods,
+):
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        **alert_properties,
+    )
+
+    resp = client.get(reverse("performance-alerts-list"))
+    assert resp.status_code == 200
+
+    alert = resp.json()["results"][0]
+    assert alert["confidence"] == expected_confidence
+    assert alert["confidence_level"] == expected_level
+    assert alert["detection_methods"] == expected_methods
 
 
 def test_alerts_put(

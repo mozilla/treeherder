@@ -308,8 +308,12 @@ th {
   color: #333;
 }
 
+.compare-table .detail-hint {
+  border-bottom: 1px dotted transparent;
+}
+
 .compare-table tr:hover .detail-hint {
-  border-bottom: 1px dotted #777;
+  border-bottom-color: #777;
 }
 
 .compare-table .result-links span,

@@ -17,6 +17,23 @@ import {
 export const tValueCareMin = 3; // Anything below this is "low" in confidence
 export const tValueConfidence = 5; // Anything above this is "high" in confidence
 
+// Very low uses a chevron that points down instead of up
+export const alertConfidenceLevels = {
+  high: { text: 'High', rank: 4, chevrons: 3, color: '#2da745' },
+  medium: { text: 'Medium', rank: 3, chevrons: 2, color: '#b88a00' },
+  low: { text: 'Low', rank: 2, chevrons: 1, color: '#e8590c' },
+  'very low': {
+    text: 'Very low',
+    rank: 1,
+    chevrons: 1,
+    pointsDown: true,
+    color: '#dc3545',
+  },
+};
+
+// Alerts created by a sheriff go above every confidence level
+export const manualAlertConfidenceRank = 50;
+
 // Backend server endpoints
 export const endpoints = {
   alert: '/performance/alert/',

@@ -37,6 +37,7 @@ from treeherder.perf.models import (
 )
 from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
 from treeherder.services import taskcluster
+from treeherder.webapp.api.perfcompare_utils import T_VALUE_CARE_MIN, T_VALUE_CONFIDENCE
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +93,17 @@ def get_detection_methods(alert):
     if alert.detection_method:
         return alert.detection_method.split(DETECTION_METHOD_SEPARATOR)
     return [] if alert.manually_created else [TTEST]
+
+
+def get_ttest_confidence_level(t_value):
+    """Returns the confidence level of a T-Test alert, using the t-value
+    bounds of the old Perfherder compare view.
+    """
+    if abs(t_value) < T_VALUE_CARE_MIN:
+        return PerformanceAlert.LOW_CONFIDENCE
+    if abs(t_value) < T_VALUE_CONFIDENCE:
+        return PerformanceAlert.MEDIUM_CONFIDENCE
+    return PerformanceAlert.HIGH_CONFIDENCE
 
 
 def get_alerting_series(signature, detection_technique):
@@ -172,6 +184,7 @@ def store_alert(
     noise_profile,
     t_value=None,
     confidence=None,
+    confidence_level=None,
 ):
     """Creates, or updates, the alert a detection technique found on a push.
 
@@ -253,6 +266,7 @@ def store_alert(
             "new_value": alert_properties.new_value,
             "t_value": t_value,
             "confidence": confidence,
+            "confidence_level": confidence_level,
             "detection_method": DETECTION_METHOD_SEPARATOR.join(detection_methods),
         },
     )
@@ -357,6 +371,7 @@ def generate_new_ttest_alerts_in_series(signature, detection_technique):
                     alert_properties,
                     noise_profile,
                     t_value=t_value,
+                    confidence_level=get_ttest_confidence_level(t_value),
                 )
 
 
@@ -367,6 +382,8 @@ def get_detection_alert_properties(detection, lower_is_better):
         * delta_value: The absolute difference between the groups.
         * delat_percentage: The percentage difference between the groups.
         * change: If the change is an "improvement" or "regression".
+        * confidence_level: If the confidence in the change is "very low",
+            "low", "medium", or "high".
     """
     detection_info = detection.optional_detection_info
     prev_value = detection.previous_value
@@ -437,6 +454,7 @@ def generate_new_mozdetect_alerts_in_series(signature, detection_technique):
                 alert_properties,
                 noise_profile,
                 confidence=detection.confidence,
+                confidence_level=detection.optional_detection_info.get("confidence_level"),
             )
 
 

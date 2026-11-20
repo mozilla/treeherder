@@ -470,6 +470,132 @@ test('Alert row is not marked out for a normal alert', async () => {
   expect(row).not.toHaveClass('alert-row-severe');
 });
 
+describe('detection method and confidence', () => {
+  const chevronCount = (chevrons, direction = 'up') =>
+    chevrons.querySelectorAll(`svg[data-icon="angle-${direction}"]`).length;
+
+  test.each([
+    ['high', 'High', 3],
+    ['medium', 'Medium', 2],
+    ['low', 'Low', 1],
+  ])(
+    'a %s confidence level is shown as chevrons',
+    async (level, text, count) => {
+      const { getByTestId } = alertTableRowTest({
+        alert: { ...testAlert, confidence_level: level },
+        tags: false,
+      });
+
+      const chevrons = await waitFor(() => getByTestId('alert-confidence'));
+      expect(chevrons).toHaveAttribute('aria-label', `${text} confidence`);
+      expect(chevronCount(chevrons)).toBe(count);
+      expect(chevronCount(chevrons, 'down')).toBe(0);
+    },
+  );
+
+  test('a very low confidence level differs from a low one in shape', async () => {
+    const { getByTestId } = alertTableRowTest({
+      alert: { ...testAlert, confidence_level: 'very low' },
+      tags: false,
+    });
+
+    const chevrons = await waitFor(() => getByTestId('alert-confidence'));
+    expect(chevrons).toHaveAttribute('aria-label', 'Very low confidence');
+    expect(chevronCount(chevrons)).toBe(0);
+    expect(chevronCount(chevrons, 'down')).toBe(1);
+  });
+
+  test('the t-value is only shown in the tooltip', async () => {
+    const {
+      getByTestId,
+      getByText,
+      queryByText,
+      queryByTestId,
+    } = alertTableRowTest({
+      alert: {
+        ...testAlert,
+        t_value: 7.016,
+        confidence: null,
+        confidence_level: 'high',
+        detection_methods: ['ttest'],
+      },
+      tags: false,
+    });
+
+    const chevrons = await waitFor(() => getByTestId('alert-confidence'));
+    expect(queryByText('7.02')).not.toBeInTheDocument();
+    expect(
+      queryByTestId(`alert ${testAlert.id} detection method`).textContent,
+    ).toBe('ttest');
+
+    fireEvent.mouseOver(chevrons);
+    expect(
+      await waitFor(() => getByText('High confidence: 7.02 (ttest)')),
+    ).toBeInTheDocument();
+  });
+
+  test('the confidence of a detection method is only shown in the tooltip', async () => {
+    const { getByTestId, getByText, queryByText } = alertTableRowTest({
+      alert: {
+        ...testAlert,
+        t_value: null,
+        confidence: 0.000123,
+        confidence_level: 'high',
+        detection_methods: ['mwu-strict', 'ttest'],
+      },
+      tags: false,
+    });
+
+    const chevrons = await waitFor(() => getByTestId('alert-confidence'));
+    expect(queryByText('0.00012')).not.toBeInTheDocument();
+    expect(
+      getByTestId(`alert ${testAlert.id} detection method`).textContent,
+    ).toBe('mwu-strict, ttest');
+
+    fireEvent.mouseOver(chevrons);
+    expect(
+      await waitFor(() => getByText('High confidence: 0.00012 (mwu-strict)')),
+    ).toBeInTheDocument();
+  });
+
+  test('an alert without a confidence level gets a dash', async () => {
+    const { getByTestId, getByText } = alertTableRowTest({
+      alert: {
+        ...testAlert,
+        t_value: null,
+        confidence: 0.5,
+        confidence_level: null,
+        detection_methods: ['step'],
+      },
+      tags: false,
+    });
+
+    const chevrons = await waitFor(() => getByTestId('alert-confidence'));
+    expect(chevronCount(chevrons)).toBe(0);
+    expect(
+      chevrons.querySelector('svg[data-icon="minus"]'),
+    ).toBeInTheDocument();
+
+    // the value it does have is still there to read
+    fireEvent.mouseOver(chevrons);
+    expect(
+      await waitFor(() => getByText('Unknown confidence: 0.5 (step)')),
+    ).toBeInTheDocument();
+  });
+
+  test('a manually created alert has no chevrons', async () => {
+    const { queryByTestId, getByTitle } = alertTableRowTest({
+      alert: { ...testAlert, manually_created: true, confidence_level: null },
+      tags: false,
+    });
+
+    expect(
+      await waitFor(() => getByTitle('Alert created by a Sheriff')),
+    ).toBeInTheDocument();
+    expect(queryByTestId('alert-confidence')).not.toBeInTheDocument();
+  });
+});
+
 describe('detected push revision', () => {
   const alertWithBackfill = (backfillOverrides = {}) => ({
     ...testAlert,

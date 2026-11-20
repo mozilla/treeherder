@@ -9,6 +9,10 @@ export const tableSort = {
   default: 'default',
 };
 
+const compareConfidence = (a, b) =>
+  a.confidence_level_rank - b.confidence_level_rank ||
+  (a.t_value ?? 0) - (b.t_value ?? 0);
+
 export const sortTypes = {
   [tableSort.ascending]: {
     sortByString: (value) => (a, b) => a[value].localeCompare(b[value]),
@@ -17,6 +21,7 @@ export const sortTypes = {
     sortBySeriesSignatureValue: (value) => (a, b) =>
       a.series_signature[value].localeCompare(b.series_signature[value]),
     sortByValue: (value) => (a, b) => a[value] - b[value],
+    sortByConfidence: () => compareConfidence,
   },
   [tableSort.descending]: {
     sortByString: (value) => (a, b) => b[value].localeCompare(a[value]),
@@ -25,6 +30,7 @@ export const sortTypes = {
     sortBySeriesSignatureValue: (value) => (a, b) =>
       b.series_signature[value].localeCompare(a.series_signature[value]),
     sortByValue: (value) => (a, b) => b[value] - a[value],
+    sortByConfidence: () => (a, b) => compareConfidence(b, a),
   },
 };
 
@@ -58,6 +64,7 @@ export const sort = (sortValue, sortType, data, table) => {
     sortByValue,
     sortByStrFirstElement,
     sortBySeriesSignatureValue,
+    sortByConfidence,
   } = sortTypes[sortType];
 
   const getSortType = {
@@ -66,6 +73,7 @@ export const sort = (sortValue, sortType, data, table) => {
     tags: sortByStrFirstElement,
     machine_platform: sortBySeriesSignatureValue,
     noise_profile: sortByString,
+    confidence_level_rank: sortByConfidence,
   };
 
   let doSort = getSortType[sortValue];

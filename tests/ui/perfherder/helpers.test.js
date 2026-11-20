@@ -19,9 +19,18 @@ import {
   getStatus,
   containsText,
   getFrameworkName,
+  getInitializedAlerts,
   reduceDictToKeys,
 } from '../../../ui/perfherder/perf-helpers/helpers';
-import { summaryStatusMap } from '../../../ui/perfherder/perf-helpers/constants';
+import {
+  manualAlertConfidenceRank,
+  summaryStatusMap,
+} from '../../../ui/perfherder/perf-helpers/constants';
+import {
+  sort,
+  sortTables,
+  tableSort,
+} from '../../../ui/perfherder/perf-helpers/sort';
 
 describe('Number Formatting', () => {
   describe('formatNumber', () => {
@@ -328,5 +337,84 @@ describe('reduceDictToKeys', () => {
     const result = reduceDictToKeys(dict, ['a', 'z']);
 
     expect(result).toEqual({ a: 1 });
+  });
+});
+
+describe('getInitializedAlerts', () => {
+  it('ranks alerts by confidence level for sorting', () => {
+    const alert = (properties) => ({
+      series_signature: { suite: 'suite', test: 'test', extra_options: [] },
+      ...properties,
+    });
+    const alerts = getInitializedAlerts(
+      {
+        alerts: [
+          alert({ confidence_level: 'high' }),
+          alert({ confidence_level: 'medium' }),
+          alert({ confidence_level: 'low' }),
+          alert({ confidence_level: 'very low' }),
+          // the detection method didn't report a level
+          alert({ confidence_level: null }),
+          // created by a sheriff, which goes above every level
+          alert({ confidence_level: null, manually_created: true }),
+        ],
+        related_alerts: [],
+      },
+      {},
+    );
+
+    expect(alerts.map((item) => item.confidence_level_rank)).toEqual([
+      4,
+      3,
+      2,
+      1,
+      0,
+      manualAlertConfidenceRank,
+    ]);
+    expect(manualAlertConfidenceRank).toBeGreaterThan(4);
+  });
+});
+
+describe('sorting alerts by confidence', () => {
+  const sortedIds = (alerts, sortType) =>
+    sort('confidence_level_rank', sortType, [...alerts], sortTables.alert).map(
+      (alert) => alert.id,
+    );
+
+  it('orders by confidence level, then by t-value', () => {
+    const alerts = [
+      { id: 1, confidence_level_rank: 3, t_value: 4.2 },
+      { id: 2, confidence_level_rank: 4, t_value: 7 },
+      { id: 3, confidence_level_rank: 1, t_value: null },
+      { id: 4, confidence_level_rank: 4, t_value: 9 },
+      { id: 5, confidence_level_rank: 2, t_value: null },
+    ];
+
+    expect(sortedIds(alerts, tableSort.ascending)).toEqual([3, 5, 1, 2, 4]);
+    expect(sortedIds(alerts, tableSort.descending)).toEqual([4, 2, 1, 5, 3]);
+  });
+
+  it('keeps the order of alerts in the same level that have no t-value', () => {
+    // alerts from other detection methods only have a confidence
+    const alerts = [
+      { id: 1, confidence_level_rank: 4, t_value: null },
+      { id: 2, confidence_level_rank: 4 },
+      { id: 3, confidence_level_rank: 4, t_value: null },
+    ];
+
+    expect(sortedIds(alerts, tableSort.ascending)).toEqual([1, 2, 3]);
+    expect(sortedIds(alerts, tableSort.descending)).toEqual([1, 2, 3]);
+  });
+
+  it('puts alerts without a t-value below the T-Test alerts of their level', () => {
+    const alerts = [
+      { id: 1, confidence_level_rank: 4, t_value: 7 },
+      { id: 2, confidence_level_rank: 4, t_value: null },
+      { id: 3, confidence_level_rank: 4 },
+      { id: 4, confidence_level_rank: 4, t_value: 9 },
+    ];
+
+    expect(sortedIds(alerts, tableSort.ascending)).toEqual([2, 3, 1, 4]);
+    expect(sortedIds(alerts, tableSort.descending)).toEqual([4, 1, 2, 3]);
   });
 });

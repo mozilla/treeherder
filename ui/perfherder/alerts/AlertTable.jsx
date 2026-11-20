@@ -69,7 +69,7 @@ export default class AlertTable extends React.Component {
         },
         Confidence: {
           name: 'Confidence',
-          sortValue: 't_value',
+          sortValue: 'confidence_level_rank',
           currentSort: tableSort.default,
         },
         DebuggingInformation: {
@@ -198,11 +198,12 @@ export default class AlertTable extends React.Component {
       (alert) => this.starredOnLoad.has(alert.id),
       'backfill_record',
       'is_regression',
+      'confidence_level_rank',
       't_value',
       'amount_abs',
       'title',
     ];
-    const sortOrders = ['desc', 'asc', 'desc', 'desc', 'desc', 'asc'];
+    const sortOrders = ['desc', 'asc', 'desc', 'desc', 'desc', 'desc', 'asc'];
     return orderBy(filteredAlerts, fields, sortOrders);
   };
 
