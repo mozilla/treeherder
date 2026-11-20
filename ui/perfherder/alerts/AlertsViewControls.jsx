@@ -5,6 +5,7 @@ import FilterControls from '../../shared/FilterControls';
 import {
   bugResolutionMap,
   changeTypeOptions,
+  resolutionMap,
   severityOptions,
   summaryStatusMap,
 } from '../perf-helpers/constants';
@@ -12,6 +13,8 @@ import PaginationGroup from '../shared/Pagination';
 import { sortData } from '../perf-helpers/sort';
 
 import AlertTable from './AlertTable';
+
+const UNTRIAGED_STATUSES = ['untriaged', 'untriaged regressions', 'untriaged improvements'];
 
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
@@ -61,11 +64,34 @@ export default class AlertsViewControls extends React.Component {
       disableHideDownstream:
         status === 'all statuses' ? false : isInvalidStatus,
     });
-    setFiltersState({ status, hideDownstream: !isInvalidStatus });
+    const filterUpdates = { status, hideDownstream: !isInvalidStatus };
+    if (UNTRIAGED_STATUSES.includes(status)) {
+      filterUpdates.resolution = 'all resolutions';
+    }
+    setFiltersState(filterUpdates);
   };
 
   updateBugResolution = (bugResolution) => {
     this.props.setFiltersState({ bugResolution });
+  };
+
+  updateResolution = (resolution) => {
+    const { setFiltersState, filters } = this.props;
+
+    if (
+      resolution === 'all resolutions' ||
+      !UNTRIAGED_STATUSES.includes(filters.status)
+    ) {
+      setFiltersState({ resolution });
+      return;
+    }
+
+    this.setState({ disableHideDownstream: false });
+    setFiltersState({
+      resolution,
+      status: 'all statuses',
+      hideDownstream: false,
+    });
   };
 
   updateChangeType = (changeType) => {
@@ -126,6 +152,7 @@ export default class AlertsViewControls extends React.Component {
       framework,
       status,
       bugResolution,
+      resolution,
       changeType,
       severity,
     } = filters;
@@ -155,6 +182,12 @@ export default class AlertsViewControls extends React.Component {
         selectedItem: status,
         updateData: this.updateStatus,
         namespace: 'status',
+      },
+      {
+        options: Object.keys(resolutionMap),
+        selectedItem: resolution,
+        updateData: this.updateResolution,
+        namespace: 'resolution',
       },
       {
         options: frameworkNames,
@@ -279,6 +312,7 @@ AlertsViewControls.propTypes = {
     framework: PropTypes.shape({}).isRequired,
     status: PropTypes.string.isRequired,
     bugResolution: PropTypes.string.isRequired,
+    resolution: PropTypes.string.isRequired,
     changeType: PropTypes.string.isRequired,
     severity: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,

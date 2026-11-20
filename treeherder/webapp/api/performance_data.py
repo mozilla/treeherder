@@ -484,6 +484,9 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     id = django_filters.NumberFilter(field_name="id")
     status = django_filters.NumberFilter(field_name="status")
     bug_resolution = django_filters.NumberFilter(field_name="bug_resolution")
+    resolution = django_filters.ChoiceFilter(
+        choices=PerformanceAlertSummary.RESOLUTIONS, field_name="resolution"
+    )
     change_type = django_filters.ChoiceFilter(
         choices=[("regression", "Regression"), ("improvement", "Improvement")],
         method="_change_type",
@@ -646,6 +649,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             "id",
             "status",
             "bug_resolution",
+            "resolution",
             "change_type",
             "framework",
             "repository",
