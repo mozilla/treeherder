@@ -21,6 +21,7 @@ import {
   formatSizeTooltip,
   formatExpiresTooltip,
 } from '../helpers/display';
+import { thTryRepos } from '../helpers/constants';
 
 // Pattern to match crash dump files: UUID.{dmp,extra,json}
 const CRASH_DUMP_PATTERN = /^([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})\.(dmp|extra|json)$/i;
@@ -135,7 +136,7 @@ export default class JobArtifacts extends React.PureComponent {
 
   shouldShowPernoscoLink(repoName, selectedJob) {
     return (
-      (repoName === 'try' || repoName === 'autoland' || repoName === 'enterprise-firefox-pr') &&
+      (thTryRepos.includes(repoName) || repoName === 'autoland' || repoName === 'enterprise-firefox-pr') &&
       selectedJob &&
       selectedJob.task_id &&
       selectedJob.result === 'testfailed' &&

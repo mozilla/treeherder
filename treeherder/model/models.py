@@ -98,6 +98,11 @@ class RepositoryGroup(NamedModel):
         db_table = "repository_group"
 
 
+# Repositories that act as Firefox's "try". Unlike `Repository.is_try_repo`,
+# this excludes other projects' try repositories (try-comm-central, nss-try, ...).
+TRY_REPOSITORY_NAMES = ("try", "firefox-dev")
+
+
 class Repository(models.Model):
     id = models.AutoField(primary_key=True)
     repository_group = models.ForeignKey("RepositoryGroup", on_delete=models.CASCADE)

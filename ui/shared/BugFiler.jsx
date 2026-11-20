@@ -16,6 +16,7 @@ import {
   getApiUrl,
 } from '../helpers/url';
 import { confirmFailure } from '../helpers/job';
+import { thTryRepos } from '../helpers/constants';
 import { create } from '../helpers/http';
 import { omittedLeads, parseSummary, getCrashSignatures } from '../helpers/bug';
 import { notify } from './stores/notificationStore';
@@ -844,7 +845,7 @@ export function BugFilerClass(props) {
                 }
                 label="Report this as a security issue"
               />
-              {['autoland', 'mozilla-central', 'try'].includes(
+              {['autoland', 'mozilla-central', ...thTryRepos].includes(
                 currentRepo.name,
               ) && (
                 <div className="mb-2">

@@ -7,7 +7,7 @@ from itertools import cycle
 
 from django.db.backends.utils import CursorWrapper
 
-from treeherder.model.models import Repository
+from treeherder.model.models import TRY_REPOSITORY_NAMES, Repository
 from treeherder.perf.models import PerformanceDatum, PerformanceSignature
 
 from .utils import has_valid_explicit_days
@@ -140,7 +140,7 @@ class TryDataRemoval(RemovalStrategy):
     def __init__(self, chunk_size: int, days: int = None):
         super().__init__(chunk_size, days=days)
 
-        self.__try_repo_id = None
+        self.__try_repo_ids = None
         self.__target_signatures = None
         self.__try_signatures = None
 
@@ -149,10 +149,14 @@ class TryDataRemoval(RemovalStrategy):
         return self._max_timestamp
 
     @property
-    def try_repo(self):
-        if self.__try_repo_id is None:
-            self.__try_repo_id = Repository.objects.get(name="try").id
-        return self.__try_repo_id
+    def try_repos(self):
+        if self.__try_repo_ids is None:
+            self.__try_repo_ids = list(
+                Repository.objects.filter(name__in=TRY_REPOSITORY_NAMES).values_list(
+                    "id", flat=True
+                )
+            )
+        return self.__try_repo_ids
 
     @property
     def target_signatures(self):
@@ -168,7 +172,7 @@ class TryDataRemoval(RemovalStrategy):
     def try_signatures(self):
         if self.__try_signatures is None:
             self.__try_signatures = list(
-                PerformanceSignature.objects.filter(repository=self.try_repo)
+                PerformanceSignature.objects.filter(repository__in=self.try_repos)
                 .order_by("-id")
                 .values_list("id", flat=True)
             )
@@ -207,7 +211,7 @@ class TryDataRemoval(RemovalStrategy):
             WITH target_datum AS (
                 SELECT pd.id, pd.repository_id, pd.push_timestamp, pd.signature_id
                 FROM performance_datum pd
-                WHERE pd.repository_id = %s
+                WHERE pd.repository_id = ANY(%s)
                 AND pd.push_timestamp <= %s
                 AND pd.signature_id = ANY(%s)
                 LIMIT %s
@@ -217,7 +221,7 @@ class TryDataRemoval(RemovalStrategy):
                 WHERE r1.performance_datum_id IN (
                     SELECT td.id
                     FROM target_datum td
-                    WHERE td.repository_id = %s
+                    WHERE td.repository_id = ANY(%s)
                     AND td.push_timestamp <= %s
                     AND td.signature_id = ANY(%s)
                     AND EXISTS (
@@ -237,11 +241,11 @@ class TryDataRemoval(RemovalStrategy):
             WHERE pd.id = td.id
             """,
             [
-                self.try_repo,
+                self.try_repos,
                 self._max_timestamp,
                 list(self.target_signatures),
                 self._chunk_size,
-                self.try_repo,
+                self.try_repos,
                 self._max_timestamp,
                 list(self.target_signatures),
             ],
@@ -273,7 +277,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
 
     # `try` data has its own (longer) retention period, enforced by
     # `TryDataRemoval`, so this strategy must leave it alone.
-    EXCLUDED_REPO_NAMES = ["try"]
+    EXCLUDED_REPO_NAMES = list(TRY_REPOSITORY_NAMES)
 
     @property
     def cycle_interval(self) -> int:
