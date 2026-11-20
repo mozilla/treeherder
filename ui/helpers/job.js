@@ -4,7 +4,7 @@ import {
   getCurrentlySelectedInstance,
 } from '../hooks/useJobButtonRegistry';
 
-import { thFailureResults, thPlatformMap } from './constants';
+import { thFailureResults, thPlatformMap, thTryRepos } from './constants';
 import { getGroupMapKey } from './aggregateId';
 import { getJobGroupInstance } from '../hooks/useJobGroupRegistry';
 import { getAllUrlParams, getRepo } from './location';
@@ -57,7 +57,7 @@ export const isPerfTest = function isPerfTest(job) {
 };
 
 export const canConfirmFailure = function canConfirmFailure(job) {
-  const confirmRepos = ['autoland', 'mozilla-central', 'try'];
+  const confirmRepos = ['autoland', 'mozilla-central', ...thTryRepos];
   const repoName = getRepo();
   if (!confirmRepos.includes(repoName)) {
     return false;

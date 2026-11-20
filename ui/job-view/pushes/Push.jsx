@@ -9,6 +9,7 @@ import {
   thEvents,
   thOptionOrder,
   thPlatformMap,
+  thTryRepos,
 } from '../../helpers/constants';
 import decompress from '../../helpers/gzip';
 import {
@@ -575,10 +576,11 @@ function Push({
     const urlParams = new URLSearchParams(location.search);
 
     const isFiltered =
-      filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
+      filterParams.some((f) => urlParams.has(f)) &&
+      thTryRepos.includes(currentRepo.name);
 
     setFilteredTryPush(isFiltered);
-  }, [location.search]);
+  }, [location.search, currentRepo.name]);
 
   // componentDidUpdate - handle URL changes
   useEffect(() => {
@@ -616,7 +618,7 @@ function Push({
 
   const externalFailureUrl =
     failedMochitestXpcshellCount > 0
-      ? `https://tests.firefox.dev/try.html?rev=${revision}`
+      ? `https://tests.firefox.dev/try.html?rev=${revision}&repo=${currentRepo.name}`
       : '';
 
   const externalFailureTooltip =

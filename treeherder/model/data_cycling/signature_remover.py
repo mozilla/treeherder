@@ -6,6 +6,7 @@ from django.db import transaction
 from django.db.models import QuerySet
 from taskcluster.exceptions import TaskclusterRestFailure
 
+from treeherder.model.models import TRY_REPOSITORY_NAMES
 from treeherder.perf.models import PerformanceSignature
 
 from ...perf.email import DeletionNotificationWriter, EmailWriter
@@ -64,7 +65,7 @@ class PublicSignatureRemover:
 
     @staticmethod
     def _remove_empty_try_signatures(signatures: QuerySet):
-        try_signatures = signatures.filter(repository__name="try")
+        try_signatures = signatures.filter(repository__name__in=TRY_REPOSITORY_NAMES)
         for perf_signature in try_signatures:
             if not perf_signature.has_performance_data():
                 perf_signature.delete()

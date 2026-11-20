@@ -2055,6 +2055,7 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 1,
+      "is_try_repo": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },

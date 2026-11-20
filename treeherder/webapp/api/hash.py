@@ -6,11 +6,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.model.models import Commit
+from treeherder.model.models import TRY_REPOSITORY_NAMES, Commit
 from treeherder.webapp.api.serializers import HashQuerySerializer
 
 logger = logging.getLogger(__name__)
-TRY_REPOSITORY_NAME = "try"
 
 
 class HashViewSet(viewsets.ViewSet):
@@ -25,12 +24,12 @@ class HashViewSet(viewsets.ViewSet):
         basehashdate = query_params.validated_data["basehashdate"]
         newpush = Commit.objects.filter(
             comments__contains=newhash,
-            push__repository__name=TRY_REPOSITORY_NAME,
+            push__repository__name__in=TRY_REPOSITORY_NAMES,
             push__time__range=(newhashdate - timedelta(days=1), newhashdate + timedelta(days=1)),
         ).first()
         basepush = Commit.objects.filter(
             comments__contains=basehash,
-            push__repository__name=TRY_REPOSITORY_NAME,
+            push__repository__name__in=TRY_REPOSITORY_NAMES,
             push__time__range=(basehashdate - timedelta(days=1), basehashdate + timedelta(days=1)),
         ).first()
         query_params.validate_pushes(

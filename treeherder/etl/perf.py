@@ -7,7 +7,7 @@ import simplejson as json
 from django.conf import settings
 
 from treeherder.log_parser.utils import validate_perf_data
-from treeherder.model.models import Job, OptionCollection
+from treeherder.model.models import TRY_REPOSITORY_NAMES, Job, OptionCollection
 from treeherder.perf.models import (
     MultiCommitDatum,
     PerformanceDatum,
@@ -109,7 +109,7 @@ def _suite_should_alert_based_on(
         and new_datum_ingested
         and job.repository.performance_alerts_enabled
         and job.tier_is_sheriffable
-    ) or (signature.monitor and job.repository.name not in ("try",))
+    ) or (signature.monitor and job.repository.name not in TRY_REPOSITORY_NAMES)
 
 
 def _test_should_alert_based_on(
@@ -126,7 +126,7 @@ def _test_should_alert_based_on(
         and new_datum_ingested
         and job.repository.performance_alerts_enabled
         and job.tier_is_sheriffable
-    ) or (signature.monitor and job.repository.name not in ("try",))
+    ) or (signature.monitor and job.repository.name not in TRY_REPOSITORY_NAMES)
 
 
 def _get_replicate_run_numbers(count: int, ordered_trials: bool | None) -> list[int | None]:
