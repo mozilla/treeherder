@@ -88,7 +88,12 @@ export default class StatusDropdown extends React.Component {
 
   getSevereTests = (alertSummary) => {
     const { alerts = [], related_alerts: relatedAlerts = [] } = alertSummary;
-    const names = [...alerts, ...relatedAlerts]
+    const names = [
+      ...alerts.filter((alert) => alert.status !== alertStatusMap.reassigned),
+      ...relatedAlerts.filter(
+        (alert) => alert.status === alertStatusMap.reassigned,
+      ),
+    ]
       .filter(
         (alert) =>
           severeAlertSeverities.includes(alert.severity) &&
