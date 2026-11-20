@@ -961,7 +961,7 @@ def test_pagesize_is_limited_from_params(
     retrieved_summaries = resp.json()["results"]
     summary_ids = [summary["id"] for summary in retrieved_summaries]
 
-    assert test_perf_alert_summary_2.id in summary_ids
+    assert test_perf_alert_summary.id in summary_ids
     assert len(summary_ids) == 1
 
 
