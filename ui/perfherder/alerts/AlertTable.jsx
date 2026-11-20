@@ -341,6 +341,7 @@ export default class AlertTable extends React.Component {
       fetchAlertSummaries,
       updateViewState,
       modifyAlert = undefined,
+      modifyAlerts = undefined,
       performanceTags,
       lastClickedGraphAlertId,
       setLastClickedGraphAlertId,
@@ -552,7 +553,7 @@ export default class AlertTable extends React.Component {
                       fetchAlertSummaries={fetchAlertSummaries}
                       updateState={(state) => this.setState(state)}
                       updateViewState={updateViewState}
-                      modifyAlert={modifyAlert}
+                      modifyAlerts={modifyAlerts}
                     />
                   )}
                 </div>
@@ -581,6 +582,7 @@ AlertTable.propTypes = {
   fetchAlertSummaries: PropTypes.func.isRequired,
   updateViewState: PropTypes.func.isRequired,
   modifyAlert: PropTypes.func,
+  modifyAlerts: PropTypes.func,
   updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,

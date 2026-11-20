@@ -39,6 +39,24 @@ def get_tc_metadata(alert, push):
         return {}
 
 
+def check_related_summary_compatibility(summary, related_summary, status):
+    if not related_summary:
+        return
+    if (
+        status != PerformanceAlert.DOWNSTREAM
+        and summary.repository_id != related_summary.repository_id
+    ):
+        raise exceptions.ValidationError(
+            f"New summary's repository ({related_summary.repository}) does not match existing "
+            f"summary's repository ({summary.repository})"
+        )
+    if summary.framework_id != related_summary.framework_id:
+        raise exceptions.ValidationError(
+            f"New summary's framework ({related_summary.framework}) does not match existing "
+            f"summary's framework ({summary.framework})"
+        )
+
+
 class OptionalBooleanField(serializers.BooleanField):
     def __init__(self, *args, **kwargs):
         kwargs["default"] = False
@@ -168,6 +186,24 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
         ]
 
 
+class PerformanceAlertBulkUpdateSerializer(serializers.Serializer):
+    alert_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+    status = serializers.ChoiceField(choices=PerformanceAlert.STATUSES, required=False)
+    related_summary_id = serializers.PrimaryKeyRelatedField(
+        source="related_summary",
+        queryset=PerformanceAlertSummary.objects.all(),
+        allow_null=True,
+        required=False,
+    )
+
+    def validate(self, attrs):
+        if not attrs.keys() & {"status", "related_summary"}:
+            raise serializers.ValidationError(
+                "Nothing to update, send status or related_summary_id"
+            )
+        return attrs
+
+
 class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
     taskcluster_metadata = serializers.SerializerMethodField()
@@ -218,19 +254,9 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         # framework as the original summary
         related_summary = validated_data.get("related_summary")
         if related_summary:
-            if (
-                validated_data.get("status", instance.status) != PerformanceAlert.DOWNSTREAM
-                and instance.summary.repository_id != related_summary.repository_id
-            ):
-                raise exceptions.ValidationError(
-                    f"New summary's repository ({related_summary.repository}) does not match existing "
-                    f"summary's repository ({instance.summary.framework})"
-                )
-            elif instance.summary.framework_id != related_summary.framework_id:
-                raise exceptions.ValidationError(
-                    f"New summary's framework ({related_summary.framework}) does not match existing "
-                    f"summary's framework ({instance.summary.framework})"
-                )
+            check_related_summary_compatibility(
+                instance.summary, related_summary, validated_data.get("status", instance.status)
+            )
 
             status = validated_data.get("status")
             if status and status in PerformanceAlert.RELATIONAL_STATUS_IDS:

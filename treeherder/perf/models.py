@@ -779,21 +779,7 @@ class PerformanceAlert(PerformanceAlertBase):
         max_length=10, choices=CONFIDENCE_LEVELS, null=True, default=None
     )
 
-    def save(self, *args, **kwargs):
-        # snapshot the severity once, when the alert is first created
-        if self._state.adding and self.severity is None:
-            self.severity = self.series_signature.alert_severity
-
-        # the summary this alert was related to before this save, so it can be
-        # refreshed if the alert is moved away from it
-        previous_related_summary_id = None
-        if not self._state.adding:
-            previous_related_summary_id = (
-                PerformanceAlert.objects.filter(pk=self.pk)
-                .values_list("related_summary_id", flat=True)
-                .first()
-            )
-
+    def validate_related_summary_status(self):
         # validate that we set a status that makes sense for presence
         # or absence of a related summary
         if self.related_summary and self.status not in self.RELATIONAL_STATUS_IDS:
@@ -820,6 +806,23 @@ class PerformanceAlert(PerformanceAlertBase):
                     )
                 )
             )
+
+    def save(self, *args, **kwargs):
+        # snapshot the severity once, when the alert is first created
+        if self._state.adding and self.severity is None:
+            self.severity = self.series_signature.alert_severity
+
+        # the summary this alert was related to before this save, so it can be
+        # refreshed if the alert is moved away from it
+        previous_related_summary_id = None
+        if not self._state.adding:
+            previous_related_summary_id = (
+                PerformanceAlert.objects.filter(pk=self.pk)
+                .values_list("related_summary_id", flat=True)
+                .first()
+            )
+
+        self.validate_related_summary_status()
 
         super().save(*args, **kwargs)
 

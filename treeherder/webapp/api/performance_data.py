@@ -18,6 +18,7 @@ import numpy as np
 import orjson
 from cliffs_delta import cliffs_delta
 from django.conf import settings
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.db.models import (
     Case,
@@ -34,6 +35,7 @@ from django.db.models import (
     Window,
 )
 from django.db.models.functions import Concat, RowNumber
+from django.utils import timezone
 from rest_framework import (
     exceptions,
     filters,
@@ -42,6 +44,7 @@ from rest_framework import (
     serializers,
     viewsets,
 )
+from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -76,6 +79,7 @@ from .performance_serializers import (
     PerfCompareResultsQueryParamsSerializer,
     PerfCompareResultsSerializer,
     PerfCompareResultsSerializerV2,
+    PerformanceAlertBulkUpdateSerializer,
     PerformanceAlertSerializer,
     PerformanceAlertSummarySerializer,
     PerformanceAlertSummaryTasksSerializer,
@@ -86,6 +90,7 @@ from .performance_serializers import (
     PerformanceTagSerializer,
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,
+    check_related_summary_compatibility,
 )
 from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 
@@ -975,6 +980,86 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 return self.nudge(alert, new_push_id, new_prev_push_id)
 
             return Response({"message": "Incorrect push was provided"}, status=HTTP_400_BAD_REQUEST)
+
+    # bulk status updates for many alerts at once, used by the alerts action panel
+    # replaces per-alert saving with a set-based alternative to reduce the number queries
+    @action(detail=False, methods=["put"], url_path="bulk-update")
+    def bulk_update(self, request: Request) -> Response:
+        serializer = PerformanceAlertBulkUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        alert_ids = set(serializer.validated_data["alert_ids"])
+        status = serializer.validated_data.get("status")
+        related_summary = serializer.validated_data.get("related_summary")
+        update_related = "related_summary" in serializer.validated_data
+
+        # lock the selected alerts, then their summaries, always in id order, so
+        # overlapping requests queue up instead of recalculating stale statuses
+        with transaction.atomic():
+            alerts = list(
+                PerformanceAlert.objects.select_for_update().filter(id__in=alert_ids).order_by("id")
+            )
+            if len(alerts) != len(alert_ids):
+                missing_ids = sorted(alert_ids - {alert.id for alert in alerts})
+                return Response(
+                    {"message": f"Alerts not found: {missing_ids}"}, status=HTTP_400_BAD_REQUEST
+                )
+
+            summary_ids = {alert.summary_id for alert in alerts} | {
+                alert.related_summary_id for alert in alerts
+            }
+            if related_summary:
+                summary_ids.add(related_summary.id)
+            summary_ids.discard(None)
+            summaries = {
+                summary.id: summary
+                for summary in PerformanceAlertSummary.objects.select_for_update()
+                .filter(id__in=summary_ids)
+                .order_by("id")
+            }
+            new_related_summary = summaries[related_summary.id] if related_summary else None
+
+            for alert in alerts:
+                alert.summary = summaries[alert.summary_id]
+                alert.related_summary = (
+                    new_related_summary
+                    if update_related
+                    else summaries.get(alert.related_summary_id)
+                )
+                if status is not None:
+                    alert.status = status
+                if update_related:
+                    check_related_summary_compatibility(
+                        alert.summary, alert.related_summary, alert.status
+                    )
+                try:
+                    alert.validate_related_summary_status()
+                except DjangoValidationError as error:
+                    message = f"Alert {alert.id}: {error.messages[0]}"
+                    raise exceptions.ValidationError(message) from error
+
+            now = timezone.now()
+            fields = {"classifier": request.user, "last_updated": now}
+            if status is not None:
+                fields["status"] = status
+            if update_related:
+                fields["related_summary"] = new_related_summary
+
+            untriaged = [alert for alert in alerts if alert.first_triaged is None]
+            for alert in untriaged:
+                alert.summary.timestamp_first_triage()
+            if new_related_summary and any(
+                alert.status in PerformanceAlert.RELATIONAL_STATUS_IDS for alert in alerts
+            ):
+                new_related_summary.timestamp_first_triage()
+
+            PerformanceAlert.objects.filter(id__in=alert_ids).update(**fields)
+            PerformanceAlert.objects.filter(
+                id__in=[alert.id for alert in untriaged], first_triaged__isnull=True
+            ).update(first_triaged=now)
+            for summary in summaries.values():
+                summary.update_status()
+
+        return Response({"alert_ids": sorted(alert_ids)})
 
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         data = request.data
