@@ -58,7 +58,7 @@ jobs:
       - name: Run Playwright integration tests
         run: pnpm test:integration
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report
