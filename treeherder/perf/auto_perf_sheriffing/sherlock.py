@@ -30,8 +30,6 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe import (
     TelemetryProbeValidationError,
 )
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
-    ANDROID_ALERT_EMAIL,
-    ANDROID_PROBE_ALLOWLIST,
     DEFAULT_ALERT_EMAIL,
     DESKTOP,
     MOBILE,
@@ -388,15 +386,6 @@ class Sherlock:
             except TelemetryProbeValidationError as e:
                 logger.warning(f"Failed probe validation: {str(e)}")
                 continue
-
-            # Force some android probes to be monitored if they aren't already
-            if probe.is_mobile and probe.name in ANDROID_PROBE_ALLOWLIST:
-                probe.monitor_info = {
-                    "lower_is_better": True,
-                    "detect_changes": True,
-                    "alert": False,
-                    "notification_emails": [ANDROID_ALERT_EMAIL],
-                }
 
             if force_monitor:
                 # Monitor the probe regardless of what its definition says. Only
