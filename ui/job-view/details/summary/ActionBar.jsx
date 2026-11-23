@@ -39,7 +39,10 @@ import { pinJob } from '../../../shared/stores/pinnedJobsStore';
 import { notify } from '../../../shared/stores/notificationStore';
 import { getAction } from '../../../helpers/taskcluster';
 import { checkRootUrl } from '../../../taskcluster-auth-callback/constants';
-import { usePushesStore } from '../../../shared/stores/pushesStore';
+import {
+  usePushesStore,
+  markPushActive,
+} from '../../../shared/stores/pushesStore';
 
 import LogUrls from './LogUrls';
 
@@ -143,6 +146,9 @@ class ActionBar extends React.PureComponent {
       return undefined;
     }
 
+    // Creates a new job on this push; keep polling it.
+    markPushActive(selectedJobFull.push_id);
+
     return triggerTask(
       selectedJobFull,
       notify,
@@ -159,6 +165,9 @@ class ActionBar extends React.PureComponent {
     if (taskExpired) {
       return;
     }
+
+    // Creates a new job on this push; keep polling it.
+    markPushActive(selectedJobFull.push_id);
 
     await triggerTask(
       selectedJobFull,
@@ -191,6 +200,10 @@ class ActionBar extends React.PureComponent {
     });
 
     JobModel.retrigger(jobs, currentRepo, notify, 1, decisionTaskMap);
+
+    // Keep polling these pushes for the newly created jobs even if they
+    // otherwise looked complete.
+    jobs.forEach((job) => markPushActive(job.push_id));
   };
 
   backfillJob = async () => {
@@ -207,6 +220,9 @@ class ActionBar extends React.PureComponent {
     }
 
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
+
+    // Backfill creates new jobs on this push; keep polling it.
+    markPushActive(selectedJobFull.push_id);
 
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
       (results) => {
@@ -254,6 +270,9 @@ class ActionBar extends React.PureComponent {
     }
 
     confirmFailure(selectedJobFull, notify, decisionTaskMap, currentRepo);
+
+    // Confirming a failure retriggers the job; keep polling this push.
+    markPushActive(selectedJobFull.push_id);
   };
 
   // Can we backfill? Excludes 'try' repos and tasks whose Taskcluster
