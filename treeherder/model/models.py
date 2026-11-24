@@ -18,7 +18,7 @@ from django.core.exceptions import (
 )
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
-from django.db.models import Count, Max, Min, Q, Subquery
+from django.db.models import Count, Max, Min, Q
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
@@ -750,10 +750,10 @@ class Job(models.Model):
         return text_log_error
 
     def fetch_associated_decision_job(self):
-        decision_type = JobType.objects.filter(name="Gecko Decision Task", symbol="D")
+        decision_types = JobType.objects.filter(name__contains="Decision Task", symbol="D")
         return Job.objects.get(
             repository_id=self.repository_id,
-            job_type_id=Subquery(decision_type.values("id")[:1]),
+            job_type__in=decision_types,
             push_id=self.push_id,
         )
 

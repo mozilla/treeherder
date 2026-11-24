@@ -452,7 +452,7 @@ class PushViewSet(viewsets.ViewSet):
 
     @cache_memoize(60 * 60)
     def get_decision_jobs(self, push_ids):
-        job_types = JobType.objects.filter(name__endswith="Decision Task", symbol="D")
+        job_types = JobType.objects.filter(name__contains="Decision Task", symbol="D")
         return Job.objects.filter(
             push_id__in=push_ids,
             job_type__in=job_types,
