@@ -12,6 +12,7 @@ import {
   parseAuthor,
   isSHAorCommit,
   getRevisionTitle,
+  parsePerfCompareInfo,
   thTitleSuffixLimit,
 } from '../../../ui/helpers/revision';
 
@@ -278,5 +279,61 @@ describe('getRevisionTitle', () => {
 describe('thTitleSuffixLimit constant', () => {
   it('is defined as 70', () => {
     expect(thTitleSuffixLimit).toBe(70);
+  });
+});
+
+describe('parsePerfCompareInfo', () => {
+  it('finds a base revision', () => {
+    const comments =
+      'Perf selections=Benchmarks\nPerf base revision=d5b037941b0e\nPerf framework=13\n\nPushed via `mach try perf`';
+
+    expect(parsePerfCompareInfo(comments)).toEqual({
+      revision: 'd5b037941b0e',
+      framework: '13',
+    });
+  });
+
+  it('finds a base lando landing job', () => {
+    const comments =
+      'Perf base lando job=lando-prod-2025/72544\nPerf framework=13';
+
+    expect(parsePerfCompareInfo(comments)).toEqual({
+      landoInstance: 'lando-prod-2025',
+      landoJobId: '72544',
+      framework: '13',
+    });
+  });
+
+  it('defaults to the talos framework', () => {
+    expect(parsePerfCompareInfo('Perf base revision=d5b037941b0e')).toEqual({
+      revision: 'd5b037941b0e',
+      framework: '1',
+    });
+  });
+
+  it('finds a base that lando joined with the rest of its paragraph', () => {
+    const comments =
+      'Perf selections= Queries=[ "q" ] Perf base lando job=lando-prod-2025/125296 Perf framework=13\n\nPushed via `mach try perf`';
+
+    expect(parsePerfCompareInfo(comments)).toEqual({
+      landoInstance: 'lando-prod-2025',
+      landoJobId: '125296',
+      framework: '13',
+    });
+  });
+
+  it('finds the parts in any order', () => {
+    const comments =
+      'Perf framework=13\n\nPushed via `mach try perf`\nPerf base revision=d5b037941b0e';
+
+    expect(parsePerfCompareInfo(comments)).toEqual({
+      revision: 'd5b037941b0e',
+      framework: '13',
+    });
+  });
+
+  it('returns null when no base push is recorded', () => {
+    expect(parsePerfCompareInfo()).toBeNull();
+    expect(parsePerfCompareInfo('Bug 1 - A patch')).toBeNull();
   });
 });

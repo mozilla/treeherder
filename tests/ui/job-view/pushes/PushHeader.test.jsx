@@ -59,3 +59,37 @@ describe('PushHeader branch badge', () => {
     expect(queryByTestId('push-branch-badge')).toBeNull();
   });
 });
+
+describe('PushHeader perf compare link', () => {
+  const baseRevision = 'ba9c692786e95143b8df3f4b3e9b504dfbc589a0';
+  const renderWithComments = (comments) =>
+    renderHeader({ push: { id: 1, revisions: [{ comments }] } });
+
+  test('links to the comparison with the recorded base revision', () => {
+    const { getByTestId } = renderWithComments(
+      `Perf base revision=${baseRevision}\nPerf framework=13`,
+    );
+
+    expect(getByTestId('push-perf-compare-link')).toHaveAttribute(
+      'href',
+      `https://perf.compare/compare-results?baseRev=${baseRevision}&baseRepo=try&newRev=abc123&newRepo=try&framework=13&sort=delta|desc`,
+    );
+  });
+
+  test('links to the comparison with the recorded base lando landing job', () => {
+    const { getByTestId } = renderWithComments(
+      'Perf base lando job=lando-prod-2025/72544\nPerf framework=13',
+    );
+
+    expect(getByTestId('push-perf-compare-link')).toHaveAttribute(
+      'href',
+      'https://perf.compare/compare-lando-results?landoInstance=lando-prod-2025&baseLando=72544&baseRepo=try&newRev=abc123&newRepo=try&framework=13',
+    );
+  });
+
+  test('is hidden on pushes that record no base push', () => {
+    const { queryByTestId } = renderWithComments('Bug 1 - A patch');
+
+    expect(queryByTestId('push-perf-compare-link')).toBeNull();
+  });
+});

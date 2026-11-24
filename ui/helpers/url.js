@@ -214,6 +214,26 @@ export const getPerfCompareBaseURL = function getOldCompareWithBaseViewURL(
   )}&sort=delta|desc`;
 };
 
+export const getPerfCompareLandoBaseURL = function getPerfCompareLandoBaseURL(
+  project,
+  landoInstance,
+  baseLandoJobId,
+  newRevision,
+  framework,
+) {
+  const params = {
+    landoInstance,
+    baseLando: baseLandoJobId,
+    baseRepo: project,
+    newRev: newRevision,
+    newRepo: project,
+    framework,
+  };
+  return `https://perf.compare/compare-lando-results${createQueryParams(
+    params,
+  )}`;
+};
+
 export const getPerfCompareBaseSubtestsURL =
   function getPerfCompareBaseSubtestsURL(
     originalProject,

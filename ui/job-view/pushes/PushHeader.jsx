@@ -6,6 +6,7 @@ import {
   faPlusSquare,
 } from '@fortawesome/free-regular-svg-icons';
 import {
+  faChartLine,
   faCodeBranch,
   faExternalLinkAlt,
   faThumbtack,
@@ -16,10 +17,15 @@ import { Link } from 'react-router';
 
 import { toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
-import { getJobsUrl } from '../../helpers/url';
+import {
+  getJobsUrl,
+  getPerfCompareBaseURL,
+  getPerfCompareLandoBaseURL,
+} from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { getUrlParam } from '../../helpers/location';
+import { parsePerfCompareInfo } from '../../helpers/revision';
 import { notify } from '../../shared/stores/notificationStore';
 import { setSelectedJob } from '../../shared/stores/selectedJobStore';
 import { pinJobs } from '../../shared/stores/pinnedJobsStore';
@@ -149,6 +155,26 @@ function PushHeader({
   }[watchState];
   const countSelectedRunnableJobs = selectedRunnableJobs.length;
 
+  const perfBase = parsePerfCompareInfo(push.revisions?.[0]?.comments);
+  let perfBaseUrl = null;
+  if (perfBase?.revision) {
+    perfBaseUrl = getPerfCompareBaseURL(
+      currentRepo.name,
+      perfBase.revision,
+      currentRepo.name,
+      revision,
+      perfBase.framework,
+    );
+  } else if (perfBase) {
+    perfBaseUrl = getPerfCompareLandoBaseURL(
+      currentRepo.name,
+      perfBase.landoInstance,
+      perfBase.landoJobId,
+      revision,
+      perfBase.framework,
+    );
+  }
+
   return (
     <div className="push-header" data-testid="push-header">
       <div className="push-bar">
@@ -171,6 +197,18 @@ function PushHeader({
               -{' '}
             </span>
             <Link to={authorPushFilterUrl}>{author}</Link>
+            {perfBaseUrl && (
+              <a
+                href={perfBaseUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ms-2"
+                title="Compare performance against the base push"
+                data-testid="push-perf-compare-link"
+              >
+                <FontAwesomeIcon icon={faChartLine} />
+              </a>
+            )}
             {branch && (
               <Badge
                 bg="secondary"
