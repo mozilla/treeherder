@@ -215,6 +215,17 @@ describe('job helpers', () => {
       expect(canConfirmFailure(job)).toBe(false);
     });
 
+    it.each(['try', 'firefox-dev'])('returns true on %s', (repo) => {
+      locationHelpers.getRepo.mockReturnValue(repo);
+
+      const job = {
+        job_group_name: 'Mochitest',
+        job_type_name: 'mochitest-browser-chrome',
+      };
+
+      expect(canConfirmFailure(job)).toBe(true);
+    });
+
     it('returns false for jsreftest jobs', () => {
       const job = {
         job_group_name: 'Some Group',

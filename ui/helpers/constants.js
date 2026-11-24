@@ -389,6 +389,10 @@ export const thJobNavSelectors = {
 
 export const thPerformanceBranches = ['autoland', 'mozilla-central'];
 
+// Repositories that act as Firefox's "try". Unlike `is_try_repo`, this
+// excludes other projects' try repos.
+export const thTryRepos = ['try', 'firefox-dev'];
+
 /**
  * The set of custom Treeherder events.
  */

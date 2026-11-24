@@ -7,7 +7,7 @@ import { createDropdowns } from '../../shared/FilterControls';
 import InputFilter from '../../shared/InputFilter';
 import { processResponse } from '../../helpers/http';
 import PerfSeriesModel from '../../models/perfSeries';
-import { thPerformanceBranches } from '../../helpers/constants';
+import { thPerformanceBranches, thTryRepos } from '../../helpers/constants';
 import {
   containsText,
   getInitialData as getInitialDataFunc,
@@ -28,7 +28,12 @@ export default class TestDataModal extends React.Component {
         'mozilla-central',
       ),
       platform: 'linux64',
-      pinnedProjects: ['autoland', 'mozilla-central', 'mozilla-beta', 'try'],
+      pinnedProjects: [
+        'autoland',
+        'mozilla-central',
+        'mozilla-beta',
+        ...thTryRepos,
+      ],
       errorMessages: [],
       includeSubtests: false,
       seriesData: [],

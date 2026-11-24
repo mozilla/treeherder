@@ -8,6 +8,7 @@ import {
   thBugSuggestionLimit,
   thEvents,
   requiredInternalOccurrences,
+  thTryRepos,
 } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
 import { getReftestUrl } from '../../../helpers/url';
@@ -269,7 +270,7 @@ class FailureSummaryTab extends React.Component {
     const isNewFailureLine = (candidate) =>
       candidate.search.split(' | ').length === 3 &&
       (candidate.failure_new_in_rev === true ||
-        (candidate.counter === 0 && currentRepo.name === 'try'));
+        (candidate.counter === 0 && thTryRepos.includes(currentRepo.name)));
 
     const newFailureCount = suggestions.filter(isNewFailureLine).length;
     // Only the first new-failure line is flagged with the "NEW" button.

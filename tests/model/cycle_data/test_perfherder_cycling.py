@@ -16,7 +16,7 @@ from treeherder.model.data_cycling.removal_strategies import (
     MainRemovalStrategy,
     TryDataRemoval,
 )
-from treeherder.model.models import Push
+from treeherder.model.models import Push, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceededError
 from treeherder.perf.models import (
     BackfillReport,
@@ -190,6 +190,28 @@ def test_try_data_younger_than_two_years_is_kept(
     call_command("cycle_data", "from:perfherder")
 
     assert PerformanceDatum.objects.filter(repository=try_repository).count() == 1
+
+
+def test_firefox_dev_data_is_handled_by_try_data_removal(try_repository, test_perf_signature):
+    # firefox-dev data must be cycled by the try strategy rather than the
+    # irrelevant repositories one
+    firefox_dev = Repository.objects.create(
+        dvcs_type="git",
+        name="firefox-dev",
+        url="https://github.com/mozilla-firefox/firefox-dev",
+        active_status="active",
+        codebase="gecko",
+        repository_group=try_repository.repository_group,
+        is_try_repo=True,
+        tc_root_url="https://firefox-ci-tc.services.mozilla.com",
+    )
+    test_perf_signature.repository = firefox_dev
+    test_perf_signature.save()
+
+    assert TryDataRemoval(10_000).try_signatures == [test_perf_signature.id]
+    irrelevant_repos = IrrelevantDataRemoval(10_000).irrelevant_repositories
+    assert firefox_dev.id not in irrelevant_repos
+    assert try_repository.id not in irrelevant_repos
 
 
 @pytest.mark.parametrize(
