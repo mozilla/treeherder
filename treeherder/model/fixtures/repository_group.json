@@ -1,6 +1,5 @@
 [
   {
-    "pk": 1,
     "model": "model.repositorygroup",
     "fields": {
       "name": "development",
@@ -8,7 +7,6 @@
     }
   },
   {
-    "pk": 2,
     "model": "model.repositorygroup",
     "fields": {
       "name": "release-stabilization",
@@ -16,7 +14,6 @@
     }
   },
   {
-    "pk": 3,
     "model": "model.repositorygroup",
     "fields": {
       "name": "try",
@@ -24,7 +21,6 @@
     }
   },
   {
-    "pk": 4,
     "model": "model.repositorygroup",
     "fields": {
       "name": "taskcluster",
@@ -32,7 +28,6 @@
     }
   },
   {
-    "pk": 5,
     "model": "model.repositorygroup",
     "fields": {
       "name": "qa automation tests",
@@ -40,7 +35,6 @@
     }
   },
   {
-    "pk": 6,
     "model": "model.repositorygroup",
     "fields": {
       "name": "project repositories",
@@ -48,7 +42,6 @@
     }
   },
   {
-    "pk": 7,
     "model": "model.repositorygroup",
     "fields": {
       "name": "other",
@@ -56,7 +49,6 @@
     }
   },
   {
-    "pk": 8,
     "model": "model.repositorygroup",
     "fields": {
       "name": "comm-repositories",
@@ -64,7 +56,6 @@
     }
   },
   {
-    "pk": 9,
     "model": "model.repositorygroup",
     "fields": {
       "name": "ci",
@@ -72,7 +63,6 @@
     }
   },
   {
-    "pk": 10,
     "model": "model.repositorygroup",
     "fields": {
       "name": "servo",
@@ -80,7 +70,6 @@
     }
   },
   {
-    "pk": 11,
     "model": "model.repositorygroup",
     "fields": {
       "name": "mobile",
@@ -88,7 +77,6 @@
     }
   },
   {
-    "pk": 12,
     "model": "model.repositorygroup",
     "fields": {
       "name": "kaios",
@@ -96,7 +84,6 @@
     }
   },
   {
-    "pk": 13,
     "model": "model.repositorygroup",
     "fields": {
       "name": "enterprise-firefox",
