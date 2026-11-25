@@ -34,6 +34,7 @@ def test_push_list_basic(client, eleven_jobs_stored, test_repository):
             "revisions",
             "revision_count",
             "push_timestamp",
+            "is_git_revision",
         ]
     )
     for rs in results:

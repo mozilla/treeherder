@@ -20,8 +20,12 @@ export default class RevisionLinkify extends React.Component {
       },
       normalize: (match) => {
         const rev = match.text.replace('rev:', '');
+        const prefix =
+          props.isGitRevision && props.repo.gitRevisionHrefPrefix
+            ? props.repo.gitRevisionHrefPrefix
+            : props.repo.revisionHrefPrefix;
 
-        match.url = `${props.repo.url}/rev/${rev}`;
+        match.url = `${prefix}${rev}`;
         match.text = rev;
       },
     });

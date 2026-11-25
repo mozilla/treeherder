@@ -681,6 +681,7 @@ function Push({
                   widthClass="mb-3 ms-4"
                   commitShaClass="font-monospace"
                   mobile={isMobile}
+                  isGitRevision={push.is_git_revision}
                 >
                   {filteredTryPush && decisionTask && (
                     <PushCountsDetails
@@ -731,6 +732,7 @@ function Push({
                 key={tipRevision.revision}
                 commitShaClass="font-monospace"
                 mobile={isMobile}
+                isGitRevision={push.is_git_revision}
               />
             </ul>
           </Col>
