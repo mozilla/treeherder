@@ -689,6 +689,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             "assignee",
         )
         .prefetch_related(
+            "push__commits",
             "alerts",
             "alerts__classifier",
             "alerts__series_signature",

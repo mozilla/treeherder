@@ -39,6 +39,7 @@ const getStarredIds = (alerts) =>
 export default class AlertTable extends React.Component {
   constructor(props) {
     super(props);
+    this.statusDropdownRef = React.createRef();
     this.state = {
       alertSummary: null,
       downstreamIds: [],
@@ -393,11 +394,18 @@ export default class AlertTable extends React.Component {
                         updateAssignee={this.updateAssignee}
                         changeRevision={this.changeRevision}
                         updateViewState={updateViewState}
+                        onConfirmCulprit={(modalState, bugId) =>
+                          this.statusDropdownRef.current?.openModalWithBugId(
+                            modalState,
+                            bugId,
+                          )
+                        }
                       />
                     </Form.Group>
                   </Col>
                   <Col className="d-flex justify-content-end p-2">
                     <StatusDropdown
+                      ref={this.statusDropdownRef}
                       alertSummary={alertSummary}
                       updateState={(state) => this.setState(state)}
                       repoModel={repoModel}
