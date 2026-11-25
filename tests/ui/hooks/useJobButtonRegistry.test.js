@@ -373,6 +373,95 @@ describe('useJobButtonRegistry', () => {
       });
     });
 
+    describe('URL selection sync', () => {
+      const countPopstateAdds = (spy) =>
+        spy.mock.calls.filter(([type]) => type === 'popstate').length;
+
+      it('shares one window popstate listener across all job buttons', () => {
+        // Each window listener makes the next addEventListener slower in
+        // Firefox, so mounting a listener per button hangs the page when a
+        // push list with tens of thousands of jobs has its groups expanded.
+        const addSpy = jest.spyOn(window, 'addEventListener');
+        const removeSpy = jest.spyOn(window, 'removeEventListener');
+        const filterModel = createMockFilterModel();
+
+        const hooks = [1, 2, 3].map((id) =>
+          renderHook(() =>
+            useJobButtonRegistry(
+              createMockJob({ id, task_run: `task-${id}` }),
+              filterModel,
+              jest.fn(),
+            ),
+          ),
+        );
+
+        expect(countPopstateAdds(addSpy)).toBe(1);
+
+        hooks[0].unmount();
+        hooks[1].unmount();
+        expect(countPopstateAdds(removeSpy)).toBe(0);
+
+        hooks[2].unmount();
+        expect(countPopstateAdds(removeSpy)).toBe(1);
+
+        addSpy.mockRestore();
+        removeSpy.mockRestore();
+      });
+
+      it('selects the button matching the URL on popstate and deselects the rest', () => {
+        const filterModel = createMockFilterModel();
+        const first = renderHook(() =>
+          useJobButtonRegistry(
+            createMockJob({ id: 1, task_run: 'task-1' }),
+            filterModel,
+            jest.fn(),
+          ),
+        );
+        const second = renderHook(() =>
+          useJobButtonRegistry(
+            createMockJob({ id: 2, task_run: 'task-2' }),
+            filterModel,
+            jest.fn(),
+          ),
+        );
+
+        locationHelpers.getUrlParam.mockReturnValue('task-1');
+        act(() => {
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        });
+        expect(first.result.current.isSelected).toBe(true);
+        expect(second.result.current.isSelected).toBe(false);
+
+        locationHelpers.getUrlParam.mockReturnValue('task-2');
+        act(() => {
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        });
+        expect(first.result.current.isSelected).toBe(false);
+        expect(second.result.current.isSelected).toBe(true);
+
+        first.unmount();
+        second.unmount();
+      });
+
+      it('stops updating a button after it unmounts', () => {
+        const filterModel = createMockFilterModel();
+        const { result, unmount } = renderHook(() =>
+          useJobButtonRegistry(
+            createMockJob({ id: 3, task_run: 'task-3' }),
+            filterModel,
+            jest.fn(),
+          ),
+        );
+        unmount();
+
+        locationHelpers.getUrlParam.mockReturnValue('task-3');
+        act(() => {
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        });
+        expect(result.current.isSelected).toBe(false);
+      });
+    });
+
     describe('buttonRef', () => {
       it('returns a ref object for buttonRef', () => {
         const job = createMockJob();
