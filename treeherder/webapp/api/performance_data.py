@@ -470,7 +470,6 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
 
 class AlertSummaryPagination(pagination.PageNumberPagination):
-    ordering = ("-created", "-id")
     page_size_query_param = "limit"
     max_page_size = 100
     page_size = 10
@@ -716,7 +715,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = PerformanceAlertSummaryFilter
 
-    ordering = ("-created", "-id")
+    ordering = ("created", "id")
     pagination_class = AlertSummaryPagination
 
     def get_queryset(self) -> QuerySet[PerformanceAlertSummary]:
