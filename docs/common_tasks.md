@@ -2,12 +2,12 @@
 
 ## Serving the docs locally
 
-The docs are built using MkDocs, which has a live-reloading development server,
+The docs are built using zensical, which has a live-reloading development server,
 that makes working on the docs locally much easier.
 
 ```console
 % pip install -e ".[docs]"
-% mkdocs serve
+% zensical serve
 ```
 
 The docs will then be available at: <http://localhost:8000>

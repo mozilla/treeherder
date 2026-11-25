@@ -49,7 +49,8 @@ coverage.xml
 .tox
 
 # Docs generation
-docs.egg-info
+.build-docs/
+treeherder.egg-info/
 
 # AI config
 .roo
