@@ -104,7 +104,7 @@ async function mockJobsViewApi(page) {
 
   // External services.
   await page.route(
-    'https://treestatus.prod.lando.prod.cloudops.mozgcp.net/**',
+    'https://lando.moz.tools/**',
     (route) =>
       route.fulfill(
         json({ result: { status: 'open', reason: '', tree: 'autoland' } }),
