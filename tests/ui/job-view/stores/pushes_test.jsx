@@ -30,6 +30,7 @@ describe('Pushes Zustand store', () => {
     fetchMock.get(getApiUrl('/jobs/?push_id=1', repoName), jobListFixtureOne);
     fetchMock.get(getApiUrl('/jobs/?push_id=2', repoName), jobListFixtureTwo);
     jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    jest.spyOn(window.history, 'replaceState').mockImplementation(() => {});
     delete window.location;
     window.location = { ...originalLocation, search: '', pathname: '/jobs' };
     // Reset store to initial state before each test
@@ -147,9 +148,9 @@ describe('Pushes Zustand store', () => {
 
     await usePushesStore.getState().fetchPushes(10, true);
 
-    expect(window.history.pushState).toHaveBeenCalledWith(
-      null,
-      null,
+    expect(window.history.replaceState).toHaveBeenCalledWith(
+      {},
+      '',
       expect.stringContaining(
         'tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
       ),
