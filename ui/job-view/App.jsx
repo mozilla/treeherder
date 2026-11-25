@@ -26,6 +26,7 @@ import { endpoints } from '../perfherder/perf-helpers/constants';
 
 import Notifications from '../shared/Notifications';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
+import AdvancedFilterPanel from './headerbars/filter-panel/AdvancedFilterPanel';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
@@ -50,6 +51,7 @@ import '../css/treeherder-pinboard.css';
 import '../css/treeherder-bugfiler.css';
 import '../css/treeherder-fuzzyfinder.css';
 import '../css/treeherder-loading-overlay.css';
+import '../css/treeherder-filter-panel.css';
 
 const DEFAULT_DETAILS_PCT = 40;
 const MOBILE_DETAILS_MIN_HEIGHT = 84;
@@ -141,7 +143,7 @@ const App = () => {
   const [filterModel, setFilterModel] = useState(
     () => new FilterModel(navigate, location),
   );
-  const [isFieldFilterVisible, setIsFieldFilterVisible] = useState(false);
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [serverChangedDelayed, setServerChangedDelayed] = useState(false);
   const [serverChanged, setServerChanged] = useState(false);
   const [serverChangedTimestamp, setServerChangedTimestamp] = useState(null);
@@ -172,6 +174,9 @@ const App = () => {
   const landoIntervalRef = useRef(null);
   const notificationIntervalRef = useRef(null);
   const prevLocationSearch = useRef(location.search);
+  // The toolbar button that opens the filter panel; focus returns to it
+  // when the panel closes.
+  const filterTriggerRef = useRef(null);
 
   // Calculate splitter dimensions
   const { defaultPushListPct, defaultDetailsHeight } = useMemo(
@@ -234,8 +239,8 @@ const App = () => {
     [jobMap],
   );
 
-  const toggleFieldFilterVisible = useCallback(() => {
-    setIsFieldFilterVisible((prev) => !prev);
+  const toggleFilterPanel = useCallback(() => {
+    setIsFilterPanelOpen((prev) => !prev);
   }, []);
 
   const updateDimensions = useCallback(() => {
@@ -439,15 +444,6 @@ const App = () => {
   );
   const pushListContent = (
     <div className="d-flex flex-column w-100 h-100">
-      {(isFieldFilterVisible || !!filterBarFilters.length) && (
-        <ActiveFilters
-          classificationTypes={classificationTypes}
-          filterModel={filterModel}
-          filterBarFilters={filterBarFilters}
-          isFieldFilterVisible={isFieldFilterVisible}
-          toggleFieldFilterVisible={toggleFieldFilterVisible}
-        />
-      )}
       {serverChangedDelayed && (
         <UpdateAvailable updateButtonClick={updateButtonClick} />
       )}
@@ -487,10 +483,11 @@ const App = () => {
   );
 
   return (
-    <div id="global-container" className="height-minus-navbars">
+    <div id="global-container" className="job-view-layout">
       <KeyboardShortcuts
         filterModel={filterModel}
         showOnScreenShortcuts={showOnScreenShortcuts}
+        toggleFilterPanel={toggleFilterPanel}
       >
         <PrimaryNavBar
           repos={repos}
@@ -503,26 +500,44 @@ const App = () => {
           getAllShownJobs={getAllShownJobs}
           duplicateJobsVisible={duplicateJobsVisible}
           groupCountsExpanded={groupCountsExpanded}
-          toggleFieldFilterVisible={toggleFieldFilterVisible}
+          isFilterPanelOpen={isFilterPanelOpen}
+          toggleFilterPanel={toggleFilterPanel}
+          filterTriggerRef={filterTriggerRef}
           pushHealthVisibility={pushHealthVisibility}
           setPushHealthVisibility={setPushHealthVisibility}
+        />
+        {!!filterBarFilters.length && (
+          <ActiveFilters
+            classificationTypes={classificationTypes}
+            filterModel={filterModel}
+            filterBarFilters={filterBarFilters}
+          />
+        )}
+        <AdvancedFilterPanel
+          isOpen={isFilterPanelOpen}
+          onClose={toggleFilterPanel}
+          target={filterTriggerRef}
+          filterModel={filterModel}
+          classificationTypes={classificationTypes}
         />
         {isMobile ? (
           <div className="mobile-push-list">{pushListContent}</div>
         ) : (
-          <PanelGroup
-            ref={panelGroupRef}
-            direction="vertical"
-            onLayout={handleSplitChange}
-          >
-            <Panel defaultSize={pushListPct} minSize={20}>
-              {pushListContent}
-            </Panel>
-            <PanelResizeHandle className="resize-handle" />
-            <Panel defaultSize={100 - pushListPct} minSize={0}>
-              {detailsPanel}
-            </Panel>
-          </PanelGroup>
+          <div className="job-view-panels">
+            <PanelGroup
+              ref={panelGroupRef}
+              direction="vertical"
+              onLayout={handleSplitChange}
+            >
+              <Panel defaultSize={pushListPct} minSize={20}>
+                {pushListContent}
+              </Panel>
+              <PanelResizeHandle className="resize-handle" />
+              <Panel defaultSize={100 - pushListPct} minSize={0}>
+                {detailsPanel}
+              </Panel>
+            </PanelGroup>
+          </div>
         )}
         {isMobile && (
           <Offcanvas

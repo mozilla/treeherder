@@ -29,7 +29,8 @@ function PrimaryNavBar({
   setCurrentRepoTreeStatus,
   duplicateJobsVisible,
   groupCountsExpanded,
-  toggleFieldFilterVisible,
+  isFilterPanelOpen,
+  toggleFilterPanel,
   getAllShownJobs,
   ...rest
 }) {
@@ -44,6 +45,7 @@ function PrimaryNavBar({
         filterModel={filterModel}
         user={user}
         getAllShownJobs={getAllShownJobs}
+        openFilterPanel={toggleFilterPanel}
       />
       <HelpMenu />
       <Login user={user} setUser={setUser} notify={notify} />
@@ -85,7 +87,8 @@ function PrimaryNavBar({
             setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
             duplicateJobsVisible={duplicateJobsVisible}
             groupCountsExpanded={groupCountsExpanded}
-            toggleFieldFilterVisible={toggleFieldFilterVisible}
+            isFilterPanelOpen={isFilterPanelOpen}
+            toggleFilterPanel={toggleFilterPanel}
             {...rest}
           />
         </nav>
@@ -117,7 +120,8 @@ PrimaryNavBar.propTypes = {
   updateButtonClick: PropTypes.func.isRequired,
   setUser: PropTypes.func.isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
-  toggleFieldFilterVisible: PropTypes.func.isRequired,
+  isFilterPanelOpen: PropTypes.bool.isRequired,
+  toggleFilterPanel: PropTypes.func.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
   repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   serverChanged: PropTypes.bool.isRequired,
@@ -134,6 +138,7 @@ export default React.memo(PrimaryNavBar, (prevProps, nextProps) => {
     isEqual(prevProps.repos, nextProps.repos) &&
     prevProps.serverChanged === nextProps.serverChanged &&
     prevProps.groupCountsExpanded === nextProps.groupCountsExpanded &&
-    prevProps.duplicateJobsVisible === nextProps.duplicateJobsVisible
+    prevProps.duplicateJobsVisible === nextProps.duplicateJobsVisible &&
+    prevProps.isFilterPanelOpen === nextProps.isFilterPanelOpen
   );
 });
