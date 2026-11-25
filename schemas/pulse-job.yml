@@ -283,6 +283,25 @@ properties:
       additionalProperties: false
       required: [url, name]
 
+  testManifests:
+    description: |
+      Fingerprint of the test manifests this task was asked to run. Tasks with
+      the same name can run different manifests, so only jobs with a matching
+      hash ran the same tests.
+    type: 'object'
+    properties:
+      hash:
+        type: 'string'
+        pattern: '^[0-9a-f]{16}$'
+      count:
+        type: 'integer'
+        minimum: 0
+      chunkTotal:
+        type: 'integer'
+        minimum: 1
+    required: [hash, count]
+    additionalProperties: false
+
   version:
     type: 'integer'
     description: Message version

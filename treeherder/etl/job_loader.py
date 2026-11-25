@@ -191,6 +191,16 @@ class JobLoader:
         except Exception:
             pass
 
+        test_manifests = pulse_job.get("testManifests")
+        if test_manifests:
+            x["job"].update(
+                {
+                    "taskcluster_manifest_hash": test_manifests["hash"],
+                    "taskcluster_manifest_count": test_manifests["count"],
+                    "taskcluster_chunk_total": test_manifests.get("chunkTotal"),
+                }
+            )
+
         return x
 
     def _get_job_symbol(self, job):

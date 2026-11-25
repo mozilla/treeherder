@@ -340,8 +340,48 @@ export const addAggregateFields = function addAggregateFields(job) {
     job._durationFetchedAt = Date.now();
   }
 
-  job.hoverText = `${jobTypeName} - ${job.resultStatus} - ${formatDuration(job.duration)}`;
+  // Keep the duration last: JobButton rewrites the trailing "N mins" for running jobs.
+  const manifestText = Number.isInteger(job.manifest_count)
+    ? ` - ${job.manifest_count} test manifest${job.manifest_count === 1 ? '' : 's'}`
+    : '';
+  job.hoverText = `${jobTypeName} - ${job.resultStatus}${manifestText} - ${formatDuration(job.duration)}`;
   return job;
+};
+
+// Jobs with the same name can run different test manifests (e.g. a backfill
+// copies the manifests of the task it was backfilled from), so their results
+// are only comparable when their manifest fingerprints match.
+export const getComparableJobKey = (job) =>
+  job.manifest_hash
+    ? `${job.job_type_name}#${job.manifest_hash}`
+    : job.job_type_name;
+
+// Split a push's jobs into the ones matching the manifests each job name was
+// first scheduled with, and the ones that ran a different set of manifests.
+// The earliest job (lowest id) of each name defines its scheduled manifests,
+// so retriggers stay with the original and backfills are split out.
+export const splitJobsByManifestVariant = (jobs) => {
+  const firstJobByName = {};
+
+  jobs.forEach((job) => {
+    if (!job.manifest_hash) return;
+    const first = firstJobByName[job.job_type_name];
+    if (!first || job.id < first.id) {
+      firstJobByName[job.job_type_name] = job;
+    }
+  });
+
+  const scheduledJobs = [];
+  const variantJobs = [];
+  jobs.forEach((job) => {
+    const first = firstJobByName[job.job_type_name];
+    if (job.manifest_hash && first.manifest_hash !== job.manifest_hash) {
+      variantJobs.push(job);
+    } else {
+      scheduledJobs.push(job);
+    }
+  });
+  return { scheduledJobs, variantJobs };
 };
 
 export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
