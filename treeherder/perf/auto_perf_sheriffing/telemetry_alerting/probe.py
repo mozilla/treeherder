@@ -31,6 +31,7 @@ class TelemetryProbe:
         self._should_file_bug = None
         self._should_email = None
         self._probe_info = None  # Stores full probe info from GLEAN_PROBE_INFO
+        self._change_detection_args = None
 
         self.monitor_info = self.metric_info["data"].get("monitor")
         if self.monitor_info["detect_changes"]:
@@ -45,6 +46,7 @@ class TelemetryProbe:
     @monitor_info.setter
     def monitor_info(self, monitor_info):
         self._monitor_info = {}
+        self._change_detection_args = None
         if isinstance(monitor_info, bool):
             self._monitor_info["detect_changes"] = monitor_info
         elif isinstance(monitor_info, dict) and monitor_info:
@@ -93,6 +95,57 @@ class TelemetryProbe:
 
     def get_change_detection_technique(self):
         return self.monitor_info.get("change_detection_technique", DEFAULT_CHANGE_DETECTION)
+
+    def get_change_detection_args(self):
+        """Get the custom arguments to give to the change detection technique.
+
+        These are defined in the `change_detection_args` field of the probe's
+        `monitor` field as a list of `name=value` strings. The values are
+        converted into booleans, None, integers, or floats when they look like
+        one, and are left as strings otherwise.
+
+        :return dict: The arguments for the technique, by name.
+        """
+        if self._change_detection_args is not None:
+            return self._change_detection_args
+
+        raw_args = self.monitor_info.get("change_detection_args") or []
+        if not isinstance(raw_args, list):
+            raise TelemetryProbeValidationError(
+                self.name,
+                f"`change_detection_args` must be a list of `name=value` strings. "
+                f"Found: {type(raw_args)}",
+            )
+
+        args = {}
+        constants = {"true": True, "false": False, "none": None, "null": None}
+        for raw_arg in raw_args:
+            name, separator, value = str(raw_arg).partition("=")
+
+            name = name.strip()
+            if not separator or not name.isidentifier():
+                raise TelemetryProbeValidationError(
+                    self.name,
+                    f"`change_detection_args` entries must be `name=value` strings. "
+                    f"Found: {raw_arg!r}",
+                )
+
+            # Convert the value into the type it looks like, if any
+            value = value.strip()
+            if value.lower() in constants:
+                value = constants[value.lower()]
+            else:
+                for number_type in (int, float):
+                    try:
+                        value = number_type(value)
+                        break
+                    except ValueError:
+                        continue
+
+            args[name] = value
+
+        self._change_detection_args = args
+        return self._change_detection_args
 
     def should_file_bug(self):
         # Only file bugs when alert is set to True
@@ -168,6 +221,9 @@ class TelemetryProbe:
                 )
 
     def verify_probe_definition(self):
+        # Check the change detection args
+        self.get_change_detection_args()
+
         if self.monitor_info.get("alert", False) and not self.monitor_info.get(
             "bugzilla_notification_emails"
         ):

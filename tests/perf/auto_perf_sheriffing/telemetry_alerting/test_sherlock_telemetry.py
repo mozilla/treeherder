@@ -248,3 +248,76 @@ class TestTelemetryAlertForceMonitor:
         assert probe.should_detect_changes() is True
         assert probe.should_file_bug() is False
         assert probe.get_notification_emails() == [DEFAULT_ALERT_EMAIL]
+
+
+class TestTelemetryAlertChangeDetectionArgs:
+    @pytest.fixture
+    def detector(self, fake_mozdetect):
+        """The detector instance built for the probe's timeseries."""
+        fake_mozdetect.telemetry_query.get_metric_table.return_value = Mock(empty=False)
+        detector = fake_mozdetect.get_timeseries_detectors.return_value["cdf_squared"].return_value
+        detector.detect_changes.return_value = []
+        return detector
+
+    def test_custom_args_are_given_to_the_technique(
+        self,
+        sherlock,
+        base_metric_info,
+        detector,
+        central_repository,
+        telemetry_framework,
+        settings,
+    ):
+        """Test the probe's custom args are passed to the detection technique."""
+        settings.TELEMETRY_ENABLE_ALERTS = True
+        base_metric_info["data"]["monitor"] = {
+            "alert": False,
+            "change_detection_args": ["alert_threshold=0.9", "fast_detection=False"],
+        }
+
+        with patch.object(Sherlock, "_get_metric_definitions", return_value=[base_metric_info]):
+            sherlock.telemetry_alert()
+
+        detector.detect_changes.assert_called_once_with(alert_threshold=0.9, fast_detection=False)
+
+    def test_no_args_are_given_to_the_technique_by_default(
+        self,
+        sherlock,
+        base_metric_info,
+        detector,
+        central_repository,
+        telemetry_framework,
+        settings,
+    ):
+        """Test the detection technique uses its defaults without custom args."""
+        settings.TELEMETRY_ENABLE_ALERTS = True
+        base_metric_info["data"]["monitor"] = True
+
+        with patch.object(Sherlock, "_get_metric_definitions", return_value=[base_metric_info]):
+            sherlock.telemetry_alert()
+
+        detector.detect_changes.assert_called_once_with()
+
+    def test_probe_with_malformed_args_is_skipped(
+        self,
+        sherlock,
+        base_metric_info,
+        detector,
+        central_repository,
+        telemetry_framework,
+        settings,
+        caplog,
+    ):
+        """Test probes with malformed custom args aren't analyzed."""
+        settings.TELEMETRY_ENABLE_ALERTS = True
+        base_metric_info["data"]["monitor"] = {
+            "alert": False,
+            "change_detection_args": ["alert_threshold"],
+        }
+
+        with patch.object(Sherlock, "_get_metric_definitions", return_value=[base_metric_info]):
+            sherlock.telemetry_alert()
+
+        assert "Failed probe validation" in caplog.text
+        assert not PerformanceTelemetrySignature.objects.exists()
+        detector.detect_changes.assert_not_called()
