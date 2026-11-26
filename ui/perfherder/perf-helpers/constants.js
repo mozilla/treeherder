@@ -107,6 +107,12 @@ export const summaryStatusMap = {
   infra: 9,
 };
 
+export const untriagedStatuses = [
+  'untriaged',
+  'untriaged regressions',
+  'untriaged improvements',
+];
+
 export const alertStatusMap = {
   untriaged: 0,
   downstream: 1,
@@ -127,6 +133,15 @@ export const bugResolutionMap = {
   worksforme: 6,
   incomplete: 7,
   moved: 8,
+};
+
+export const resolutionMap = {
+  'all resolutions': null,
+  valid: 'valid',
+  invalid: 'invalid',
+  infra: 'infra',
+  downstream: 'downstream',
+  reassigned: 'reassigned',
 };
 
 export const changeTypeOptions = [

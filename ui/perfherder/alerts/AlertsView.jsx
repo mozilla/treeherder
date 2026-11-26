@@ -14,8 +14,10 @@ import {
 import {
   bugResolutionMap,
   changeTypeOptions,
+  resolutionMap,
   severityOptions,
   summaryStatusMap,
+  untriagedStatuses,
   endpoints,
   notSupportedAlertFiltersMessage,
 } from '../perf-helpers/constants';
@@ -81,11 +83,16 @@ function AlertsView({
   }, [frameworks]);
 
   const getDefaultStatus = (params) => {
-    const statusParam = convertParams(params, 'status');
-    if (!statusParam) {
-      return getStatus(summaryStatusMap.untriaged);
-    }
-    return getStatus(parseInt(params.status, 10));
+    const status = convertParams(params, 'status')
+      ? getStatus(parseInt(params.status, 10))
+      : getStatus(summaryStatusMap.untriaged);
+    const hasResolution = Object.values(resolutionMap).includes(
+      params.resolution,
+    );
+    // untriaged summaries have no resolution, so this pair would always be empty
+    return hasResolution && untriagedStatuses.includes(status)
+      ? 'all statuses'
+      : status;
   };
 
   const getDefaultFilterText = (params) => {
@@ -103,6 +110,11 @@ function AlertsView({
     );
   };
 
+  const getDefaultResolution = (params) =>
+    Object.keys(resolutionMap).find(
+      (key) => resolutionMap[key] === params.resolution,
+    ) ?? 'all resolutions';
+
   const getDefaultChangeType = (params) =>
     changeTypeOptions.includes(params.changeType)
       ? params.changeType
@@ -118,6 +130,7 @@ function AlertsView({
       return {
         status: getDefaultStatus(params),
         bugResolution: getDefaultBugResolution(params),
+        resolution: getDefaultResolution(params),
         changeType: getDefaultChangeType(params),
         framework: getFrameworkData({
           validated: params,
@@ -224,6 +237,7 @@ function AlertsView({
       const {
         status,
         bugResolution,
+        resolution,
         changeType,
         framework,
         filterText,
@@ -254,6 +268,9 @@ function AlertsView({
         }
         if (bugResolution !== 'all bug resolutions') {
           params.bug_resolution = bugResolutionMap[bugResolution];
+        }
+        if (resolution !== 'all resolutions') {
+          params.resolution = resolutionMap[resolution];
         }
         if (changeType !== 'all types') {
           params.change_type = changeType;
@@ -378,6 +395,8 @@ function AlertsView({
               return [filterName, summaryStatusMap[filterValue]];
             case 'bugResolution':
               return [filterName, bugResolutionMap[filterValue]];
+            case 'resolution':
+              return [filterName, resolutionMap[filterValue] ?? undefined];
             case 'hideDownstream':
               return ['hideDwnToInv', +filterValue];
             case 'hideAssignedToOthers':
@@ -442,6 +461,7 @@ function AlertsView({
       params.id !== prevParams.id ||
       params.status !== prevParams.status ||
       params.bugResolution !== prevParams.bugResolution ||
+      params.resolution !== prevParams.resolution ||
       params.changeType !== prevParams.changeType ||
       params.framework !== prevParams.framework ||
       params.filterText !== prevParams.filterText ||

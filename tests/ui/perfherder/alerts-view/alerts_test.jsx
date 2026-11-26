@@ -16,6 +16,7 @@ import {
   alertBackfillResultVisual,
   alertBackfillResultStatusMap,
   notSupportedAlertFiltersMessage,
+  summaryStatusMap,
 } from '../../../../ui/perfherder/perf-helpers/constants';
 import repos from '../../mock/repositories';
 import { getApiUrl } from '../../../../ui/helpers/url';
@@ -304,6 +305,66 @@ test('an unknown changeType in the URL falls back to all types', async () => {
   expect(
     fetchMock.calls().some(([url]) => url.includes('change_type=')),
   ).toBe(false);
+});
+
+test('selecting a resolution sends resolution to the API and widens the untriaged status', async () => {
+  fetchMock.resetHistory();
+  const { findByText, getAllByText } = alertsView();
+
+  fireEvent.click(await findByText('all resolutions'));
+  const validOption = await waitFor(() => {
+    const option = getAllByText('valid').find((element) =>
+      element.closest('.dropdown-item'),
+    );
+    expect(option).toBeDefined();
+    return option;
+  });
+  fireEvent.click(validOption);
+
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes('resolution=valid')),
+    ).toBe(true),
+  );
+  const resolutionCall = fetchMock
+    .calls()
+    .find(([url]) => url.includes('resolution=valid'));
+  expect(resolutionCall[0]).not.toMatch(/[?&]status=/);
+});
+
+test('resolution in the URL initialises the resolution dropdown and is sent to the API', async () => {
+  fetchMock.resetHistory();
+  const { findByText } = alertsView('?resolution=infra');
+
+  await findByText('infra');
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes('resolution=infra')),
+    ).toBe(true),
+  );
+  const resolutionCall = fetchMock
+    .calls()
+    .find(([url]) => url.includes('resolution=infra'));
+  expect(resolutionCall[0]).not.toMatch(/[?&]status=/);
+});
+
+test('an untriaged status with a resolution in the URL falls back to all statuses', async () => {
+  fetchMock.resetHistory();
+  const { findByText } = alertsView(
+    `?status=${summaryStatusMap['untriaged regressions']}&resolution=valid`,
+  );
+
+  await findByText('all statuses');
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes('resolution=valid')),
+    ).toBe(true),
+  );
+  const resolutionCall = fetchMock
+    .calls()
+    .find(([url]) => url.includes('resolution=valid'));
+  expect(resolutionCall[0]).not.toMatch(/[?&]status=/);
+  expect(resolutionCall[0]).not.toMatch(/untriaged_regressions/);
 });
 
 test('selecting a severity from the severity dropdown sends severity to the API', async () => {
