@@ -19,7 +19,6 @@ import {
   tValueCareMin,
   tValueConfidence,
   noiseMetricTitle,
-  availablePlatforms,
   summaryStatusMap,
   alertStatusMap,
   phFrameworksWithRelatedBranches,
@@ -27,6 +26,7 @@ import {
   phDefaultTimeRangeValue,
   unknownFrameworkMessage,
   permaLinkPrefix,
+  revisionDisplayLength,
 } from './constants';
 
 const numberFormat = new Intl.NumberFormat('en-US', {
@@ -504,18 +504,55 @@ export const getFrameworkName = (frameworks, frameworkId) => {
 export const formatPercent = (amountPct) =>
   amountPct.toFixed(0) === '0' ? amountPct.toFixed(2) : amountPct.toFixed(0);
 
-const getPlatformInfo = (platforms) => {
-  const platformInfo = [];
-  platforms.forEach((platform) =>
-    availablePlatforms.forEach((name) => {
-      if (platform.includes(name.toLowerCase())) {
-        if (!platformInfo.includes(name)) {
-          platformInfo.push(name);
-        }
-      }
-    }),
-  );
-  return platformInfo;
+const maxListedCommits = 10;
+
+// lists every commit, so no author assumes the top commit is the culprit
+export const formatPushDescription = (
+  revision,
+  pushLogHref,
+  pushRevisions = [],
+) => {
+  const getTitle = (commit) => commit.comments?.split('\n')[0].trim();
+  const commits = [
+    ...pushRevisions.filter((commit) => commit.revision === revision),
+    ...pushRevisions.filter((commit) => commit.revision !== revision),
+  ].filter(getTitle);
+
+  if (commits.length === 0) {
+    return `push [${revision}](${pushLogHref}).`;
+  }
+  const listed = commits
+    .slice(0, maxListedCommits)
+    .map((commit) => `- ${getTitle(commit)}`);
+  const hiddenCount = pushRevisions.length - listed.length;
+  if (hiddenCount > 0) {
+    listed.push(
+      `- _... and ${hiddenCount} more commit${
+        hiddenCount > 1 ? 's' : ''
+      } in the [push log](${pushLogHref})_`,
+    );
+  }
+  const shortRevision = revision.slice(0, revisionDisplayLength);
+  const count = pushRevisions.length;
+  return `[push ${shortRevision}](${pushLogHref}), which contains ${count} commit${
+    count === 1 ? '' : 's'
+  }:\n\n${listed.join('\n')}`;
+};
+
+const acknowledgeBusinessDays = 3;
+
+// three business days after filing, skipping weekends
+export const getAcknowledgeByDate = (filedAt = new Date()) => {
+  let date = dayjs(filedAt);
+  let remainingDays = acknowledgeBusinessDays;
+  while (remainingDays > 0) {
+    date = date.add(1, 'day');
+    const isWeekend = [0, 6].includes(date.day());
+    if (!isWeekend) {
+      remainingDays -= 1;
+    }
+  }
+  return date.format('ddd MMMM D YYYY');
 };
 
 const isNotReassigned = (alert, summaryId) =>
@@ -544,48 +581,20 @@ export const getFilledBugSummary = (alertSummary) => {
     filteredAlerts = regressions;
   }
 
-  // Find the max and min magnitude alerts
-  const { maxMagnitudeAlert, maxMagnitude, minMagnitude } =
-    filteredAlerts.reduce(
-      (acc, alert) => {
-        const val = alert.amount_pct;
-        return {
-          maxMagnitudeAlert:
-            val > acc.maxMagnitude ? alert : acc.maxMagnitudeAlert,
-          maxMagnitude: Math.max(acc.maxMagnitude, val),
-          minMagnitude: Math.min(acc.minMagnitude, val),
-        };
-      },
-      {
-        maxMagnitudeAlert: filteredAlerts[0],
-        maxMagnitude: filteredAlerts[0].amount_pct,
-        minMagnitude: filteredAlerts[0].amount_pct,
-      },
-    );
-
-  // Build string components
-  const magnitudeStr =
-    maxMagnitude === minMagnitude
-      ? `${maxMagnitude}%`
-      : `${maxMagnitude} - ${minMagnitude}%`;
-
-  const testName = getTestName(maxMagnitudeAlert.series_signature);
-  const moreAlertCount = filteredAlerts.length - 1;
-  const testInfo =
-    moreAlertCount > 0 ? `${testName} + ${moreAlertCount} more` : testName;
-
-  const platforms = [
-    ...new Set(
-      filteredAlerts.map((alert) => alert.series_signature.machine_platform),
-    ),
-  ];
-  const platformInfo = getPlatformInfo(platforms).sort().join(', ');
+  // subtests, alert counts and platforms are in the comment 0 table
+  const maxMagnitudeAlert = filteredAlerts.reduce((max, alert) =>
+    alert.amount_pct > max.amount_pct ? alert : max,
+  );
+  const { amount_pct: maxMagnitude, series_signature: signature } =
+    maxMagnitudeAlert;
 
   // add push date info
-  const pushDate = dayjs(pushTimestamp * 1000).format('ddd MMMM D YYYY');
+  const pushDate = dayjs(pushTimestamp * 1000).format('D MMMM YYYY');
 
   // Construct the summary title
-  return `${magnitudeStr} ${testInfo} (${platformInfo}) regression on ${pushDate}`;
+  return `${formatPercent(maxMagnitude)}% ${
+    signature.suite
+  } regression on ${pushDate}`;
 };
 
 export const getTitle = (alertSummary) => {

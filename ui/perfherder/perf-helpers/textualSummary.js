@@ -51,6 +51,32 @@ export const formatValueWithUnit = (value, unit, precision = 5) => {
   return unit === '%' ? `${formatted}%` : `${formatted} ${unit}`;
 };
 
+const pluralize =(count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
+// e.g. "**26 regressions and 12 improvements** on 7 talos tests across 3 platforms"
+export const getChangesSummary = (regressed, improved, frameworkName = '') => {
+  const alerts = [...regressed, ...improved];
+  if (alerts.length === 0) {
+    // keeps the first line of comment 0 a full sentence
+    return `${frameworkName ? `${frameworkName} ` : ''}performance changes`;
+  }
+  const countDistinct = (field) =>
+    new Set(alerts.map((alert) => alert.series_signature[field])).size;
+  const counts = [
+    ...(regressed.length ? [pluralize(regressed.length, 'regression')] : []),
+    ...(improved.length ? [pluralize(improved.length, 'improvement')] : []),
+  ].join(' and ');
+  const testCount = countDistinct('suite');
+  const tests = `${testCount} ${frameworkName ? `${frameworkName} ` : ''}test${
+    testCount === 1 ? '' : 's'
+  }`;
+
+  return `**${counts}** on ${tests} across ${pluralize(
+    countDistinct('machine_platform'),
+    'platform',
+  )}`;
+};
+
 // the API rounds tiny values, so trust the regression direction when they look equal
 export const getChangeArrow = (alert) => {
   const { lower_is_better: lowerIsBetter } = alert.series_signature || {};
@@ -177,6 +203,15 @@ export default class TextualSummary {
       'amount_pct',
     ).reverse();
     return { regressed, improved };
+  }
+
+  get summaryLine() {
+    const { regressed, improved } = this.getSortedAlerts();
+    return getChangesSummary(
+      regressed,
+      improved,
+      getFrameworkName(this.frameworks, this.alertSummary.framework),
+    );
   }
 
   get markdown() {

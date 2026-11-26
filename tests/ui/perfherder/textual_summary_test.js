@@ -4,6 +4,7 @@ import TextualSummary, {
   getAlertOptions,
   getAbsoluteChange,
   getChangeArrow,
+  getChangesSummary,
   valueSeparator,
 } from '../../../ui/perfherder/perf-helpers/textualSummary';
 
@@ -95,6 +96,72 @@ describe('formatValueWithUnit', () => {
     expect(formatValueWithUnit(245.49, null)).toBe('245.49');
     expect(formatValueWithUnit(245.49, '')).toBe('245.49');
     expect(formatValueWithUnit(245.49, undefined)).toBe('245.49');
+  });
+});
+
+describe('getChangesSummary', () => {
+  const windows = 'windows11-64-24h2-shippable';
+  const improvement = (id, pct) => ({
+    ...getAlert(id, {}, pct),
+    is_regression: false,
+  });
+
+  test('counts the regressions, tests and platforms', () => {
+    expect(
+      getChangesSummary(
+        [
+          getAlert(1, {}, 26.81),
+          getAlert(2, { machine_platform: windows }, 12),
+          getAlert(3, {}, 6),
+        ],
+        [],
+      ),
+    ).toBe('**3 regressions** on 1 test across 2 platforms');
+  });
+
+  test('mentions improvements alongside regressions', () => {
+    expect(
+      getChangesSummary(
+        [getAlert(1, {}, 20.16), getAlert(2, { suite: 'nytimes' }, 0.78)],
+        [improvement(3, 5)],
+      ),
+    ).toBe(
+      '**2 regressions and 1 improvement** on 2 tests across 1 platform',
+    );
+  });
+
+  test('handles a single regression and improvements only', () => {
+    expect(getChangesSummary([getAlert(1, {}, 12)], [])).toBe(
+      '**1 regression** on 1 test across 1 platform',
+    );
+    expect(getChangesSummary([], [improvement(1, 10), improvement(2, 2)])).toBe(
+      '**2 improvements** on 1 test across 1 platform',
+    );
+    expect(getChangesSummary([], [])).toBe('performance changes');
+    expect(getChangesSummary([], [], 'awsy')).toBe('awsy performance changes');
+  });
+
+  test('names the framework before the tests', () => {
+    expect(
+      getChangesSummary(
+        [getAlert(1, {}, 12), getAlert(2, { suite: 'tp6' }, 8)],
+        [],
+        'awsy',
+      ),
+    ).toBe('**2 regressions** on 2 awsy tests across 1 platform');
+  });
+
+  test('is available on its own, separate from the tables', () => {
+    const summary = new TextualSummary(
+      frameworks,
+      [getAlert(1, {}, 12)],
+      alertSummary,
+    );
+
+    expect(summary.summaryLine).toBe(
+      '**1 regression** on 1 browsertime test across 1 platform',
+    );
+    expect(summary.markdown).not.toContain('**1 regression**');
   });
 });
 

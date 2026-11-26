@@ -5,6 +5,8 @@ import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
 import {
+  formatPushDescription,
+  getAcknowledgeByDate,
   getFilledBugSummary,
   getFrameworkName,
   getStatus,
@@ -25,6 +27,7 @@ import {
 } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
+import PushModel from '../../models/push';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
 
 import AlertModal from './AlertModal';
@@ -151,7 +154,7 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const templateArgs = this.getTemplateArgs(
+    const templateArgs = await this.getTemplateArgs(
       frameworks,
       alertSummary,
       repoModel,
@@ -226,7 +229,16 @@ export default class StatusDropdown extends React.Component {
     };
   };
 
-  getTemplateArgs(
+  getPushRevisions = async (alertSummary) => {
+    const { repository, revision } = alertSummary;
+    const { data, failureStatus } = await PushModel.getList({
+      repo: repository,
+      revision,
+    });
+    return (failureStatus ? [] : data?.results?.[0]?.revisions) || [];
+  };
+
+  async getTemplateArgs(
     frameworks,
     alertSummary,
     repoModel,
@@ -235,14 +247,23 @@ export default class StatusDropdown extends React.Component {
     perfCompareURL,
   ) {
     const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
+    const revisionHref = repoModel.getPushLogHref(alertSummary.revision);
+    const pushRevisions = await this.getPushRevisions(alertSummary);
     return {
       bugType: 'defect',
       framework: frameworkName,
       revision: alertSummary.revision,
-      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
+      revisionHref,
+      pushDescription: formatPushDescription(
+        alertSummary.revision,
+        revisionHref,
+        pushRevisions,
+      ),
       alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
+      changesSummary: textualSummary.summaryLine,
       alertSummary: textualSummary.markdown,
       alertSummaryId: alertSummary.id,
+      acknowledgeByDate: getAcknowledgeByDate(),
       user: user.email,
       perfCompareURL,
     };
@@ -280,7 +301,7 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const templateArgs = this.getTemplateArgs(
+    const templateArgs = await this.getTemplateArgs(
       frameworks,
       alertSummary,
       repoModel,
@@ -393,7 +414,7 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const templateArgs = this.getTemplateArgs(
+    const templateArgs = await this.getTemplateArgs(
       frameworks,
       alertSummary,
       repoModel,
