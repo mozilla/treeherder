@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useId } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -32,6 +32,7 @@ function FuzzyJobFinder({
   toggle,
   jobList = EMPTY_JOBS,
   filteredJobList = EMPTY_JOBS,
+  pushJobs = EMPTY_JOBS,
   decisionTaskId = '',
   currentRepo,
 }) {
@@ -40,18 +41,63 @@ function FuzzyJobFinder({
   const [removeDisabled, setRemoveDisabled] = useState(true);
   const [submitDisabled, setSubmitDisabled] = useState(false);
   const [useFullList, setUseFullList] = useState(false);
+  const [showChunkNumbers, setShowChunkNumbers] = useState(false);
+  const [showSpecialized, setShowSpecialized] = useState(false);
+  const [existingBuildsOnly, setExistingBuildsOnly] = useState(false);
   const [addJobsSelected, setAddJobsSelected] = useState([]);
   const [removeJobsSelected, setRemoveJobsSelected] = useState([]);
+  const controlId = useId();
 
+  const jobsByLabel = useMemo(
+    () => new Map(jobList.map((job) => [job.name, job])),
+    [jobList],
+  );
   // By default we show a trimmed down list of runnable jobs, but there's an
   // option to show the full list.
-  const currentList = useFullList ? jobList : filteredJobList;
-
-  const { matches: fuzzyList, pending, failed } = useRunnableJobSearch(
-    currentList,
-    fuzzySearch,
-    isOpen,
+  const availableJobs = useFullList ? jobList : filteredJobList;
+  const hasBuildMetadata = jobList.some((job) => job.buildDependency);
+  const hasChunkMetadata = jobList.some(
+    (job) => job.chunkPattern && job.chunkPattern !== job.name,
   );
+  const hasSpecializedMetadata = jobList.some(
+    (job) => job.specialized || Number(job.tier) > 1,
+  );
+  const existingBuilds = useMemo(
+    () =>
+      new Set(
+        pushJobs
+          .filter(
+            (job) =>
+              ['pending', 'running'].includes(job.state) ||
+              job.result === 'success',
+          )
+          .map((job) => job.job_type_name),
+      ),
+    [pushJobs],
+  );
+  const buildFilter = existingBuildsOnly ? existingBuilds : null;
+  const currentList = useMemo(() => {
+    const groups = new Map();
+    for (const job of availableJobs) {
+      if (!showSpecialized && (job.specialized || Number(job.tier) > 1))
+        continue;
+      if (buildFilter && !buildFilter.has(job.buildDependency)) continue;
+      const name = (!showChunkNumbers && job.chunkPattern) || job.name;
+      if (!groups.has(name)) groups.set(name, { ...job, name, labels: [] });
+      groups.get(name).labels.push(job.name);
+    }
+    return [...groups.values()];
+  }, [availableJobs, buildFilter, showChunkNumbers, showSpecialized]);
+  const matchesByName = useMemo(
+    () => new Map(currentList.map((job) => [job.name, job.labels])),
+    [currentList],
+  );
+
+  const {
+    matches: fuzzyList,
+    pending,
+    failed,
+  } = useRunnableJobSearch(currentList, fuzzySearch, isOpen);
 
   // Only the first slice is turned into DOM nodes (see MAX_RENDERED_JOBS).
   const visibleJobs = useMemo(
@@ -83,31 +129,37 @@ function FuzzyJobFinder({
     setSubmitDisabled(false);
     setFuzzySearch('');
     setUseFullList(false);
+    setShowChunkNumbers(false);
+    setShowSpecialized(false);
+    setExistingBuildsOnly(false);
+    setRemoveJobsSelected([]);
     setAddJobsSelected([]);
   }, []);
 
   const addAllJobs = useCallback(() => {
-    if (pending) return;
-    const selectedOptions = Array.from(fuzzyList, (option) => option.name);
+    if (pending || submitDisabled) return;
+    const selectedOptions = fuzzyList.flatMap((option) => option.labels);
 
     // When adding jobs, add only new, unique job names to avoid duplicates
     setSelectedList((prev) => [...new Set([...prev, ...selectedOptions])]);
-  }, [fuzzyList, pending]);
+  }, [fuzzyList, pending, submitDisabled]);
 
   const removeAllJobs = useCallback(() => {
     setSelectedList([]);
     setRemoveDisabled(true);
   }, []);
 
-  const addJobs = useCallback(
-    () => {
-      if (pending) return;
-      // When adding jobs, add only new, unique job names to avoid duplicates
-      setSelectedList((prev) => [...new Set([...prev, ...addJobsSelected])]);
-      setAddJobsSelected([]);
-    },
-    [addJobsSelected, pending],
-  );
+  const addJobs = useCallback(() => {
+    if (pending || submitDisabled) return;
+    // When adding jobs, add only new, unique job names to avoid duplicates
+    setSelectedList((prev) => [
+      ...new Set([
+        ...prev,
+        ...addJobsSelected.flatMap((name) => matchesByName.get(name) ?? []),
+      ]),
+    ]);
+    setAddJobsSelected([]);
+  }, [addJobsSelected, matchesByName, pending, submitDisabled]);
 
   const removeJobs = useCallback(() => {
     setSelectedList((prev) =>
@@ -116,23 +168,25 @@ function FuzzyJobFinder({
     setRemoveDisabled(true);
   }, [removeJobsSelected]);
 
-  const submitJobs = useCallback(() => {
-    if (selectedList.length > 0) {
-      notify('Submitting selected jobs...');
-      setSubmitDisabled(true);
-      PushModel.triggerNewJobs(selectedList, decisionTaskId, currentRepo)
-        .then((result) => {
-          notify(result, 'success');
-          toggle();
-        })
-        .catch((e) => {
-          notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          setSubmitDisabled(false);
-        });
-    } else {
-      notify('Please select at least one job from the list', 'danger');
+  const canSubmit = !submitDisabled && selectedList.length > 0;
+
+  const submitJobs = useCallback(async () => {
+    if (!canSubmit) return;
+    notify('Submitting selected jobs...');
+    setSubmitDisabled(true);
+    try {
+      const result = await PushModel.triggerNewJobs(
+        selectedList,
+        decisionTaskId,
+        currentRepo,
+      );
+      notify(result, 'success');
+      toggle();
+    } catch (error) {
+      notify(formatTaskclusterError(error), 'danger', { sticky: true });
+      setSubmitDisabled(false);
     }
-  }, [selectedList, decisionTaskId, currentRepo, notify, toggle]);
+  }, [canSubmit, selectedList, decisionTaskId, currentRepo, toggle]);
 
   const toggleFullList = useCallback((evt) => {
     setUseFullList(evt.target.checked);
@@ -160,7 +214,7 @@ function FuzzyJobFinder({
         onExited={resetForm}
         size="lg"
         show={isOpen}
-        onHide={toggle}
+        onHide={submitDisabled ? undefined : toggle}
         className={className}
       >
         <ModalHeader>Add New Jobs (Search)</ModalHeader>
@@ -179,19 +233,63 @@ function FuzzyJobFinder({
             <Col sm={2} className="d-flex align-items-center">
               <Form.Check
                 type="checkbox"
+                id={`${controlId}-full-list`}
                 label="Use full job list"
+                checked={useFullList}
                 title="The full list includes thousands of jobs that don't typically get run, and is much slower to render"
                 onChange={toggleFullList}
                 className="my-2"
               />
             </Col>
           </Form.Group>
+          <div className="d-flex flex-wrap gap-3 my-2">
+            {hasChunkMetadata && (
+              <Form.Check
+                id={`${controlId}-show-chunks`}
+                label="Show chunk numbers"
+                checked={showChunkNumbers}
+                onChange={(event) => {
+                  setShowChunkNumbers(event.target.checked);
+                  setAddJobsSelected([]);
+                }}
+              />
+            )}
+            {hasSpecializedMetadata && (
+              <Form.Check
+                id={`${controlId}-show-specialized`}
+                label="Show specialized jobs"
+                title="Includes tier 2 and tier 3 jobs"
+                checked={showSpecialized}
+                onChange={(event) => setShowSpecialized(event.target.checked)}
+              />
+            )}
+            {hasBuildMetadata && (
+              <Form.Check
+                id={`${controlId}-existing-builds`}
+                label="Only tests with existing builds"
+                checked={existingBuildsOnly}
+                disabled={submitDisabled}
+                onChange={(event) => {
+                  setExistingBuildsOnly(event.target.checked);
+                  if (event.target.checked) {
+                    setSelectedList((prev) =>
+                      prev.filter((label) =>
+                        existingBuilds.has(
+                          jobsByLabel.get(label)?.buildDependency,
+                        ),
+                      ),
+                    );
+                  }
+                }}
+              />
+            )}
+          </div>
           <h4> Runnable Jobs [{fuzzyList.length}]</h4>
           <div className="fuzzybuttons">
             <Button
               onClick={addJobs}
               variant="success"
-              disabled={addJobsSelected.length === 0}
+              disabled={addJobsSelected.length === 0 || submitDisabled}
               aria-disabled={pending || undefined}
             >
               Add selected
@@ -222,9 +320,17 @@ function FuzzyJobFinder({
               {visibleJobs.map((e) => (
                 <option
                   data-testid="fuzzyList"
-                  title={`${e.name} - ${e.groupsymbol}(${e.symbol})`}
+                  title={
+                    e.labels.length > 1
+                      ? `${e.name} (${e.labels.length} chunks)`
+                      : `${e.name} - ${e.groupsymbol}(${e.symbol})`
+                  }
                   key={e.name}
-                  className={selectedSet.has(e.name) ? 'selected' : ''}
+                  className={
+                    e.labels.every((label) => selectedSet.has(label))
+                      ? 'selected'
+                      : ''
+                  }
                 >
                   {e.name}
                 </option>
@@ -237,7 +343,7 @@ function FuzzyJobFinder({
             <Button
               onClick={removeJobs}
               variant="danger"
-              disabled={removeDisabled}
+              disabled={removeDisabled || submitDisabled}
             >
               Remove selected
             </Button>
@@ -245,7 +351,7 @@ function FuzzyJobFinder({
             <Button
               variant="danger"
               onClick={removeAllJobs}
-              disabled={selectedList.length === 0}
+              disabled={selectedList.length === 0 || submitDisabled}
             >
               Remove all
             </Button>
@@ -261,14 +367,14 @@ function FuzzyJobFinder({
           </InputGroup>
         </ModalBody>
         <ModalFooter>
-          <Button
-            variant="primary"
-            onClick={submitJobs}
-            disabled={selectedList.length === 0 || submitDisabled}
-          >
+          <Button variant="primary" onClick={submitJobs} disabled={!canSubmit}>
             Trigger ({selectedList.length}) Selected Jobs
           </Button>{' '}
-          <Button variant="secondary" onClick={toggle}>
+          <Button
+            variant="secondary"
+            onClick={toggle}
+            disabled={submitDisabled}
+          >
             Cancel
           </Button>
         </ModalFooter>
@@ -284,6 +390,7 @@ FuzzyJobFinder.propTypes = {
   decisionTaskId: PropTypes.string,
   jobList: PropTypes.arrayOf(PropTypes.shape({})),
   filteredJobList: PropTypes.arrayOf(PropTypes.shape({})),
+  pushJobs: PropTypes.arrayOf(PropTypes.shape({})),
   currentRepo: PropTypes.shape({}).isRequired,
 };
 

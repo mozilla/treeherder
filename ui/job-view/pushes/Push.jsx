@@ -12,6 +12,7 @@ import {
   thTryRepos,
 } from '../../helpers/constants';
 import decompress from '../../helpers/gzip';
+import { getArtifactsUrl } from '../../helpers/url';
 import {
   getAllUrlParams,
   getUrlParam,
@@ -97,6 +98,31 @@ const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
   return artifactContents;
 };
 
+function fetchRunnableJobMetadata(decisionTask, rootUrl) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(
+      new URL('./runnableJobMetadata.worker.js', import.meta.url),
+    );
+    worker.onmessage = ({ data }) => {
+      worker.terminate();
+      if (data.error) reject(new Error(data.error));
+      else resolve(data.metadata);
+    };
+    worker.onerror = (event) => {
+      worker.terminate();
+      reject(new Error(event.message));
+    };
+    worker.postMessage(
+      getArtifactsUrl({
+        taskId: decisionTask.id,
+        run: decisionTask.run,
+        rootUrl,
+        artifactPath: 'public/full-task-graph.json',
+      }),
+    );
+  });
+}
+
 function Push({
   push,
   currentRepo,
@@ -128,6 +154,7 @@ function Push({
   const [collapsed, setCollapsed] = useState(collapsedPushes.includes(push.id));
   const [filteredTryPush, setFilteredTryPush] = useState(false);
   const [fuzzyJobList, setFuzzyJobList] = useState([]);
+  const runnableJobMetadata = useRef(null);
   const [filteredFuzzyList, setFilteredFuzzyList] = useState([]);
   const [manifestsByTask, setManifestsByTask] = useState({});
 
@@ -494,20 +521,35 @@ function Push({
 
     try {
       notify('Fetching runnable jobs... This could take a while...');
-      let fuzzyList = await RunnableJobModel.getList(currentRepo, {
-        decisionTask: decisionTaskMap[push.id],
-      });
-      fuzzyList = [
-        ...new Set(
-          fuzzyList.map((job) => {
-            const obj = {};
-            obj.name = job.job_type_name;
-            obj.symbol = job.job_type_symbol;
-            obj.groupsymbol = job.job_group_symbol;
-            return obj;
-          }),
-        ),
-      ].sort((a, b) => (a.name > b.name ? 1 : -1));
+      const decisionTask = decisionTaskMap[push.id];
+      const { tc_root_url: rootUrl } = currentRepo;
+      const metadataKey = `${rootUrl}/${decisionTask.id}/${decisionTask.run}`;
+      if (runnableJobMetadata.current?.key !== metadataKey) {
+        const promise = fetchRunnableJobMetadata(decisionTask, rootUrl).catch(
+          () => {
+            if (runnableJobMetadata.current?.key === metadataKey) {
+              runnableJobMetadata.current = null;
+            }
+            notify(
+              'Job tier, chunk, and build details are unavailable for this push.',
+            );
+            return {};
+          },
+        );
+        runnableJobMetadata.current = { key: metadataKey, promise };
+      }
+      const [runnableJobs, metadata] = await Promise.all([
+        RunnableJobModel.getList(currentRepo, { decisionTask }),
+        runnableJobMetadata.current.promise,
+      ]);
+      const fuzzyList = runnableJobs
+        .map((job) => ({
+          name: job.job_type_name,
+          symbol: job.job_type_symbol,
+          groupsymbol: job.job_group_symbol,
+          ...metadata[job.job_type_name],
+        }))
+        .sort((a, b) => (a.name > b.name ? 1 : -1));
       const filteredList = fuzzyList.filter(
         (job) => job.name.search(excludedJobNames) < 0,
       );
@@ -633,6 +675,7 @@ function Push({
         toggle={toggleFuzzyModal}
         jobList={fuzzyJobList}
         filteredJobList={filteredFuzzyList}
+        pushJobs={jobList}
         className="fuzzy-modal"
         pushId={id}
         decisionTaskId={decisionTaskId}

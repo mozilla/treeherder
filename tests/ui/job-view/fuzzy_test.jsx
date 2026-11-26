@@ -1,4 +1,3 @@
-
 import { act, render, fireEvent, waitFor } from '@testing-library/react';
 import { cloneElement } from 'react';
 
@@ -7,6 +6,8 @@ import initialJobList from '../mock/job_list/fuzzy_jobs/initial_job_list.json';
 import searchLinuxResults from '../mock/job_list/fuzzy_jobs/search_linux_results.json';
 import searchDebugResults from '../mock/job_list/fuzzy_jobs/search_debug_results.json';
 import FuzzyJobFinder from '../../../ui/job-view/pushes/FuzzyJobFinder';
+import PushModel from '../../../ui/models/push';
+import { getPickerMetadata } from '../../../ui/job-view/pushes/runnableJobMetadata.worker';
 import { createSearchHandler } from '../../../ui/job-view/pushes/runnableJobSearch.worker';
 
 class SearchWorker {
@@ -76,8 +77,110 @@ describe('FuzzyJobFinder', () => {
       }),
     );
     expect(getByText('Runnable Jobs [0]')).toBeInTheDocument();
-    fireEvent.click(getByRole('checkbox'));
+    fireEvent.click(getByRole('checkbox', { name: 'Use full job list' }));
     expect(getByText('Runnable Jobs [0]')).toBeInTheDocument();
+  });
+
+  test('Groups CLI chunk patterns and keeps tier 2 and 3 hidden when showing the full list', () => {
+    const jobs = [
+      { name: 'mochitest-media-1', tier: 1, chunkPattern: 'mochitest-media-*' },
+      { name: 'mochitest-media-2', tier: 1, chunkPattern: 'mochitest-media-*' },
+      { name: 'tier-2-job', tier: 2 },
+      { name: 'tier-3-job', tier: 3 },
+      { name: 'specialized-job', tier: 1, specialized: true },
+    ];
+    const { getByRole, queryAllByTestId } = render(
+      cloneElement(testFuzzyJobFinder, {
+        jobList: jobs,
+        filteredJobList: jobs,
+      }),
+    );
+    const labels = () =>
+      queryAllByTestId('fuzzyList').map((row) => row.textContent);
+    expect(labels()).toEqual(['mochitest-media-*']);
+    fireEvent.click(getByRole('checkbox', { name: 'Use full job list' }));
+    expect(labels()).toEqual(['mochitest-media-*']);
+    fireEvent.click(getByRole('button', { name: 'Add all' }));
+    expect(
+      getByRole('button', { name: 'Trigger (2) Selected Jobs' }),
+    ).toBeEnabled();
+    fireEvent.click(getByRole('checkbox', { name: 'Show chunk numbers' }));
+    expect(labels()).toEqual(['mochitest-media-1', 'mochitest-media-2']);
+    fireEvent.click(getByRole('checkbox', { name: 'Show specialized jobs' }));
+    expect(new Set(labels())).toEqual(
+      new Set([
+        'mochitest-media-1',
+        'mochitest-media-2',
+        'specialized-job',
+        'tier-2-job',
+        'tier-3-job',
+      ]),
+    );
+  });
+
+  test('Only tests with existing builds matches the exact dependency on this push', async () => {
+    const trigger = jest
+      .spyOn(PushModel, 'triggerNewJobs')
+      .mockResolvedValue('Requested');
+    const jobs = [
+      { name: 'test-opt', buildDependency: 'build-linux64/opt' },
+      { name: 'test-debug', buildDependency: 'build-linux64/debug' },
+    ];
+    try {
+      const { getByRole, queryAllByTestId } = render(
+        cloneElement(testFuzzyJobFinder, {
+          jobList: jobs,
+          filteredJobList: jobs,
+          pushJobs: [{ job_type_name: 'build-linux64/opt', result: 'success' }],
+        }),
+      );
+      fireEvent.click(
+        getByRole('checkbox', { name: 'Only tests with existing builds' }),
+      );
+      expect(
+        queryAllByTestId('fuzzyList').map((row) => row.textContent),
+      ).toEqual(['test-opt']);
+      fireEvent.click(getByRole('button', { name: 'Add all' }));
+      await act(async () =>
+        fireEvent.click(
+          getByRole('button', { name: 'Trigger (1) Selected Jobs' }),
+        ),
+      );
+      expect(trigger).toHaveBeenCalledWith(
+        ['test-opt'],
+        decisionTaskId,
+        currentRepo,
+      );
+    } finally {
+      trigger.mockRestore();
+    }
+  });
+
+  test('Reads picker metadata from the published full task graph', () => {
+    const label = 'test-linux2404-64/opt-mochitest-browser-chrome-swr-1';
+    expect(
+      getPickerMetadata({
+        [label]: {
+          attributes: {
+            unittest_suite: 'mochitest-browser-chrome',
+            unittest_variant: 'webrender-sw',
+            test_platform: 'linux2404-64/opt',
+          },
+          dependencies: { build: 'build-linux64/opt' },
+          task: {
+            extra: {
+              treeherder: { tier: 2 },
+              chunks: { current: 1, total: 2 },
+            },
+          },
+        },
+      })[label],
+    ).toEqual({
+      tier: 2,
+      chunkPattern: 'test-linux2404-64/opt-mochitest-browser-chrome-swr-*',
+      specialized: false,
+      buildDependency: 'build-linux64/opt',
+    });
   });
 
   test('Fuzzy search gives expected results', async () => {
@@ -194,7 +297,7 @@ describe('FuzzyJobFinder', () => {
 
     // Toggle to the full list: the source switches AND the search term stays
     // applied, so we should now see every linux job from the full list.
-    const checkbox = getByRole('checkbox');
+    const checkbox = getByRole('checkbox', { name: 'Use full job list' });
     await fireEvent.click(checkbox);
 
     await waitFor(() => {
@@ -212,7 +315,8 @@ describe('FuzzyJobFinder', () => {
   });
 
   test('Fast typing only makes the latest results available to add', async () => {
-    const { getByTitle, getByRole, queryAllByTestId } = render(testFuzzyJobFinder);
+    const { getByTitle, getByRole, queryAllByTestId } =
+      render(testFuzzyJobFinder);
     const input = getByTitle('Filter the list of runnable jobs');
     const addAll = getByRole('button', { name: 'Add all' });
 
@@ -225,9 +329,9 @@ describe('FuzzyJobFinder', () => {
     ).toBeDisabled();
 
     await waitFor(() => expect(addAll).not.toHaveAttribute('aria-disabled'));
-    expect(queryAllByTestId('fuzzyList').map((job) => job.textContent)).toEqual([
-      'addon-tps-xpi',
-    ]);
+    expect(queryAllByTestId('fuzzyList').map((job) => job.textContent)).toEqual(
+      ['addon-tps-xpi'],
+    );
 
     fireEvent.click(addAll);
     expect(
@@ -246,7 +350,7 @@ describe('FuzzyJobFinder', () => {
         target: { value: 'linux' },
       });
 
-      fireEvent.click(getByRole('checkbox'));
+      fireEvent.click(getByRole('checkbox', { name: 'Use full job list' }));
       expect(terminate).toHaveBeenCalledTimes(1);
 
       rerender(cloneElement(finder, { isOpen: false }));
@@ -270,7 +374,9 @@ describe('FuzzyJobFinder', () => {
     job.selected = true;
     fireEvent.change(job.closest('select'));
     const addSelected = getByRole('button', { name: 'Add selected' });
-    await waitFor(() => expect(addSelected).not.toHaveAttribute('aria-disabled'));
+    await waitFor(() =>
+      expect(addSelected).not.toHaveAttribute('aria-disabled'),
+    );
     expect(addSelected).toBeEnabled();
 
     rerender(cloneElement(testFuzzyJobFinder, { isOpen: false }));
