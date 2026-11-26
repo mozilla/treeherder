@@ -12,6 +12,7 @@ import {
   thTryRepos,
 } from '../../helpers/constants';
 import decompress from '../../helpers/gzip';
+import { getArtifactsUrl } from '../../helpers/url';
 import {
   getAllUrlParams,
   getUrlParam,
@@ -97,6 +98,45 @@ const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
   return artifactContents;
 };
 
+const excludedJobNames = new RegExp(
+  `
+      (balrog|beetmover|bouncer-locations-firefox|build-docker-image|build-(.+)-nightly|
+      build-(.+)-upload-symbols|checksums|cron-bouncer|dmd|fetch|google-play-strings|
+      push-to-release|mar-signing|nightly|packages|release-bouncer|release-early|
+      release-final|release-secondary|release-snap|release-source|release-update|
+      repackage-l10n|repo-update|searchfox|sign-and-push|test-(.+)-devedition|
+      test-linux(32|64)(-asan|-pgo|-qr)?/(opt|debug)-jittest|test-macosx64-ccov|
+      test-verify|test-windows10-64-ux|toolchain|upload-generated-sources)`.replace(
+    /\s/g,
+    '',
+  ),
+);
+
+function fetchRunnableJobMetadata(decisionTask, rootUrl) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(
+      new URL('./runnableJobMetadata.worker.js', import.meta.url),
+    );
+    worker.onmessage = ({ data }) => {
+      worker.terminate();
+      if (data.error) reject(new Error(data.error));
+      else resolve(data.metadata);
+    };
+    worker.onerror = (event) => {
+      worker.terminate();
+      reject(new Error(event.message));
+    };
+    worker.postMessage(
+      getArtifactsUrl({
+        taskId: decisionTask.id,
+        run: decisionTask.run,
+        rootUrl,
+        artifactPath: 'public/full-task-graph.json',
+      }),
+    );
+  });
+}
+
 function Push({
   push,
   currentRepo,
@@ -128,7 +168,7 @@ function Push({
   const [collapsed, setCollapsed] = useState(collapsedPushes.includes(push.id));
   const [filteredTryPush, setFilteredTryPush] = useState(false);
   const [fuzzyJobList, setFuzzyJobList] = useState([]);
-  const [filteredFuzzyList, setFilteredFuzzyList] = useState([]);
+  const [pickerMetadata, setPickerMetadata] = useState(null);
   const [manifestsByTask, setManifestsByTask] = useState({});
 
   const containerRef = useRef(null);
@@ -480,39 +520,57 @@ function Push({
     mapPushJobs(newJobList);
   }, [mapPushJobs]);
 
-  const showFuzzyJobs = useCallback(async () => {
-    const createRegExp = (str, opts) =>
-      new RegExp(str.raw[0].replace(/\s/gm, ''), opts || '');
-    const excludedJobNames = createRegExp`
-      (balrog|beetmover|bouncer-locations-firefox|build-docker-image|build-(.+)-nightly|
-      build-(.+)-upload-symbols|checksums|cron-bouncer|dmd|fetch|google-play-strings|
-      push-to-release|mar-signing|nightly|packages|release-bouncer|release-early|
-      release-final|release-secondary|release-snap|release-source|release-update|
-      repackage-l10n|repo-update|searchfox|sign-and-push|test-(.+)-devedition|
-      test-linux(32|64)(-asan|-pgo|-qr)?\/(opt|debug)-jittest|test-macosx64-ccov|
-      test-verify|test-windows10-64-ux|toolchain|upload-generated-sources)`;
+  const decisionTask = decisionTaskMap[push.id];
+  const rootUrl = currentRepo.tc_root_url;
+  const metadataKey = decisionTask?.id
+    ? `${rootUrl}/${decisionTask.id}/${decisionTask.run}`
+    : null;
+  const activeMetadata =
+    pickerMetadata?.key === metadataKey ? pickerMetadata : null;
+  const metadata = activeMetadata?.jobs;
+  const enrichedFuzzyList = useMemo(
+    () =>
+      metadata
+        ? fuzzyJobList.map((job) => ({ ...job, ...metadata[job.name] }))
+        : fuzzyJobList,
+    [fuzzyJobList, metadata],
+  );
+  const filteredFuzzyList = useMemo(
+    () => enrichedFuzzyList.filter((job) => !excludedJobNames.test(job.name)),
+    [enrichedFuzzyList],
+  );
 
+  const loadPickerMetadata = async () => {
+    if (!metadataKey || activeMetadata) return;
+
+    const request = { key: metadataKey, pending: true };
+    setPickerMetadata(request);
+    try {
+      const jobs = await fetchRunnableJobMetadata(decisionTask, rootUrl);
+      setPickerMetadata((current) =>
+        current === request ? { key: metadataKey, jobs } : current,
+      );
+    } catch {
+      setPickerMetadata((current) => (current === request ? null : current));
+      notify('Job filters and test paths are unavailable for this push.');
+    }
+  };
+
+  const showFuzzyJobs = useCallback(async () => {
     try {
       notify('Fetching runnable jobs... This could take a while...');
-      let fuzzyList = await RunnableJobModel.getList(currentRepo, {
-        decisionTask: decisionTaskMap[push.id],
+      const runnableJobs = await RunnableJobModel.getList(currentRepo, {
+        decisionTask,
       });
-      fuzzyList = [
-        ...new Set(
-          fuzzyList.map((job) => {
-            const obj = {};
-            obj.name = job.job_type_name;
-            obj.symbol = job.job_type_symbol;
-            obj.groupsymbol = job.job_group_symbol;
-            return obj;
-          }),
-        ),
-      ].sort((a, b) => (a.name > b.name ? 1 : -1));
-      const filteredList = fuzzyList.filter(
-        (job) => job.name.search(excludedJobNames) < 0,
+      setFuzzyJobList(
+        runnableJobs
+          .map((job) => ({
+            name: job.job_type_name,
+            symbol: job.job_type_symbol,
+            groupsymbol: job.job_group_symbol,
+          }))
+          .sort((a, b) => (a.name > b.name ? 1 : -1)),
       );
-      setFuzzyJobList(fuzzyList);
-      setFilteredFuzzyList(filteredList);
       setFuzzyModal(true);
     } catch (error) {
       notify(
@@ -520,7 +578,7 @@ function Push({
         'danger',
       );
     }
-  }, [currentRepo, decisionTaskMap, push.id]);
+  }, [currentRepo, decisionTask]);
 
   const cycleWatchState = useCallback(async () => {
     if (!notificationSupported) {
@@ -609,7 +667,6 @@ function Push({
     branch,
   } = push;
   const tipRevision = push.revisions[0];
-  const decisionTask = decisionTaskMap[push.id];
   const decisionTaskId = decisionTask ? decisionTask.id : null;
 
   if (isOnlyRevision) {
@@ -631,8 +688,14 @@ function Push({
       <FuzzyJobFinder
         isOpen={fuzzyModal}
         toggle={toggleFuzzyModal}
-        jobList={fuzzyJobList}
+        jobList={enrichedFuzzyList}
         filteredJobList={filteredFuzzyList}
+        loadPickerMetadata={
+          metadataKey && !metadata ? loadPickerMetadata : undefined
+        }
+        isLoadingPickerMetadata={activeMetadata?.pending}
+        pushJobs={jobList}
+        revision={revision}
         className="fuzzy-modal"
         pushId={id}
         decisionTaskId={decisionTaskId}
