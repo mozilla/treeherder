@@ -1,13 +1,35 @@
 
 import { render, fireEvent, waitFor } from '@testing-library/react';
+import { cloneElement } from 'react';
 
 import fuzzyJobList from '../mock/job_list/fuzzy_jobs/fuzzyJobList.json';
 import initialJobList from '../mock/job_list/fuzzy_jobs/initial_job_list.json';
 import searchLinuxResults from '../mock/job_list/fuzzy_jobs/search_linux_results.json';
 import searchDebugResults from '../mock/job_list/fuzzy_jobs/search_debug_results.json';
 import FuzzyJobFinder from '../../../ui/job-view/pushes/FuzzyJobFinder';
+import { createSearchHandler } from '../../../ui/job-view/pushes/runnableJobSearch.worker';
+
+class SearchWorker {
+  handleMessage = createSearchHandler((data) => this.onmessage({ data }));
+
+  postMessage(data) {
+    setTimeout(() => this.handleMessage?.({ data }), 0);
+  }
+
+  terminate() {
+    this.handleMessage = null;
+  }
+}
 
 describe('FuzzyJobFinder', () => {
+  const originalWorker = global.Worker;
+  beforeEach(() => {
+    global.Worker = SearchWorker;
+  });
+  afterEach(() => {
+    global.Worker = originalWorker;
+  });
+
   const isOpen = true;
   const decisionTaskId = 'YHKMjYZeSSmEZTrAPdRIag';
   const id = 705037;
@@ -62,8 +84,6 @@ describe('FuzzyJobFinder', () => {
 
     await fireEvent.change(inputElement, { target: { value: 'linux' } });
     expect(inputElement.value).toBe('linux');
-    await fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' });
-
     await waitFor(() => {
       expect(queryAllByTestId('fuzzyList')).toHaveLength(26);
       const fuzzySearchArray = queryAllByTestId('fuzzyList').map(
@@ -72,6 +92,7 @@ describe('FuzzyJobFinder', () => {
       expect(fuzzySearchArray).toStrictEqual(
         expect.arrayContaining(searchLinuxResults),
       );
+      expect(fuzzySearchArray[0]).toBe('build-linux/opt');
     });
   });
 
@@ -91,8 +112,6 @@ describe('FuzzyJobFinder', () => {
 
     await fireEvent.change(inputElement, { target: { value: 'debug$' } });
     expect(inputElement.value).toBe('debug$');
-    await fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' });
-
     await waitFor(() => {
       expect(queryAllByTestId('fuzzyList')).toHaveLength(16);
       const fuzzySearchArray = queryAllByTestId('fuzzyList').map(
@@ -101,6 +120,24 @@ describe('FuzzyJobFinder', () => {
       expect(fuzzySearchArray).toStrictEqual(
         expect.arrayContaining(searchDebugResults),
       );
+    });
+
+    fireEvent.change(inputElement, {
+      target: { value: "^build- 'linux | 'android debug$ !asan !pgo" },
+    });
+
+    await waitFor(() => {
+      const names = queryAllByTestId('fuzzyList').map((job) => job.textContent);
+      expect(names).toEqual(
+        expect.arrayContaining([
+          'build-linux/debug',
+          'build-android-aarch64/debug',
+        ]),
+      );
+      expect(
+        names.every((name) => /^build-.*(?:linux|android).*debug$/.test(name)),
+      ).toBe(true);
+      expect(names.every((name) => !/asan|pgo/.test(name))).toBe(true);
     });
   });
 
@@ -138,8 +175,6 @@ describe('FuzzyJobFinder', () => {
     // Apply a search term; only the linux job in the filtered list matches.
     const inputElement = getByTitle('Filter the list of runnable jobs');
     await fireEvent.change(inputElement, { target: { value: 'linux' } });
-    await fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' });
-
     await waitFor(() => {
       const names = queryAllByTestId('fuzzyList').map((job) => job.innerHTML);
       expect(names).toEqual(['test-linux64/opt']);
@@ -162,6 +197,86 @@ describe('FuzzyJobFinder', () => {
         ].sort(),
       );
     });
+  });
+
+  test('Fast typing only makes the latest results available to add', async () => {
+    const { getByTitle, getByRole, queryAllByTestId } = render(testFuzzyJobFinder);
+    const input = getByTitle('Filter the list of runnable jobs');
+    const addAll = getByRole('button', { name: 'Add all' });
+
+    fireEvent.change(input, { target: { value: 'linux' } });
+    fireEvent.change(input, { target: { value: '^addon-tps-xpi$' } });
+    expect(addAll).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(addAll);
+    expect(
+      getByRole('button', { name: 'Trigger (0) Selected Jobs' }),
+    ).toBeDisabled();
+
+    await waitFor(() => expect(addAll).not.toHaveAttribute('aria-disabled'));
+    expect(queryAllByTestId('fuzzyList').map((job) => job.textContent)).toEqual([
+      'addon-tps-xpi',
+    ]);
+
+    fireEvent.click(addAll);
+    expect(
+      getByRole('button', { name: 'Trigger (1) Selected Jobs' }),
+    ).toBeEnabled();
+  });
+
+  test('Terminates the search worker on list changes, close, and unmount', () => {
+    const terminate = jest.spyOn(SearchWorker.prototype, 'terminate');
+    try {
+      const finder = cloneElement(testFuzzyJobFinder, {
+        jobList: [...fuzzyJobList],
+      });
+      const { getByRole, getByTitle, rerender, unmount } = render(finder);
+      fireEvent.change(getByTitle('Filter the list of runnable jobs'), {
+        target: { value: 'linux' },
+      });
+
+      fireEvent.click(getByRole('checkbox'));
+      expect(terminate).toHaveBeenCalledTimes(1);
+
+      rerender(cloneElement(finder, { isOpen: false }));
+      expect(terminate).toHaveBeenCalledTimes(2);
+
+      rerender(finder);
+      unmount();
+      expect(terminate).toHaveBeenCalledTimes(3);
+    } finally {
+      terminate.mockRestore();
+    }
+  });
+
+  test('Keeps the results list enabled and retains selections that still match', async () => {
+    const { getByTitle, getByRole } = render(testFuzzyJobFinder);
+    const input = getByTitle('Filter the list of runnable jobs');
+    const list = document.querySelector('#addJobsGroup select');
+    const addSelected = getByRole('button', { name: 'Add selected' });
+
+    const job = getByRole('option', { name: 'addon-tps-xpi' });
+    job.selected = true;
+    fireEvent.change(list);
+
+    fireEvent.change(input, { target: { value: '^addon-tps-xpi$' } });
+    expect(list).toBeEnabled();
+    expect(job.selected).toBe(true);
+    expect(addSelected).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(addSelected);
+    expect(
+      getByRole('button', { name: 'Trigger (0) Selected Jobs' }),
+    ).toBeDisabled();
+
+    await waitFor(() => expect(list.options).toHaveLength(1));
+    expect(job.selected).toBe(true);
+    expect(addSelected).not.toHaveAttribute('aria-disabled');
+
+    fireEvent.change(input, { target: { value: 'linux' } });
+    await waitFor(() => expect(list.options).toHaveLength(26));
+    expect(addSelected).toBeDisabled();
+
+    fireEvent.change(input, { target: { value: '' } });
+    expect(getByRole('option', { name: 'addon-tps-xpi' }).selected).toBe(false);
   });
 
   test('Selecting a job marks it and moves it to the Selected Jobs list', async () => {
