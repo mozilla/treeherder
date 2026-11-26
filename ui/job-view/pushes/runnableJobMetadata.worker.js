@@ -1,13 +1,13 @@
-const uncommonJobs =
-  /build-.*-gcp|mingwclang|valgrind|android-geckoview-docs|android-hw|windows11-64-24h2-hw-ref|windows10-aarch64-qr|web-platform-tests.*backlog|-artifact[/-]|-profiling-|-32-.*-webgpu|nightly-simulation|notarization|^beetmover-integration-|upload-symbols/;
-const specializedBuild = /(?:^|[-/])(asan|tsan|ccov)(?:[-/]|$)/;
-const specializedSuites = new Set([
-  'mochitest-a11y',
-  'mochitest-browser-a11y',
-  'mochitest-browser-media',
-  'mochitest-media',
-  'talos',
+const instrumentedBuild = /(?:^|[-/])(asan|tsan|ccov)(?:[-/]|$)/;
+const supplementalVariants = new Set([
+  'a11y-checks',
+  'confirm-failure',
+  'repeat',
+  'standalone',
+  'urlbar-ipc',
+  'vertical-tabs',
 ]);
+
 function chunkPattern(label, chunks) {
   if (label.endsWith('-cf') || !/-\d+$/.test(label)) return label;
   if (Number.isInteger(chunks) && chunks > 1)
@@ -24,23 +24,26 @@ export function getPickerMetadata(graph) {
       if (!treeherder) return [];
 
       const {
+        run_on_projects: projects,
         unittest_suite: suite,
         unittest_variant: variant,
-        test_platform: platform = '',
       } = attributes;
-      const isBaseline =
-        variant === 'webrender-sw' &&
-        suite === 'mochitest-browser-chrome' &&
-        platform.startsWith('linux');
+      const buildSettings = extra['test-setting']?.build;
       const specialized =
-        uncommonJobs.test(label) ||
-        specializedBuild.test(dependencies.build ?? label) ||
+        instrumentedBuild.test(dependencies.build ?? label) ||
+        Boolean(
+          buildSettings?.asan || buildSettings?.tsan || buildSettings?.ccov,
+        ) ||
         Boolean(attributes['duplicate-of']) ||
         label.endsWith('-cf') ||
-        Boolean(variant && !isBaseline) ||
+        Boolean(
+          variant &&
+          (projects?.length === 0 ||
+            variant.split('+').some((id) => supplementalVariants.has(id))),
+        ) ||
         kind === 'browsertime' ||
         kind === 'perftest' ||
-        specializedSuites.has(suite);
+        suite === 'talos';
 
       return [
         [
