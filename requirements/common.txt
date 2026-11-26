@@ -972,9 +972,9 @@ google-cloud-core==2.4.1 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-logging
-google-cloud-logging==3.17.0 \
-    --hash=sha256:d7343f2b82b4f9e9244bfc8aba7ad034c415f9bbb405ed28d1125aa37d270b72 \
-    --hash=sha256:da2819da683a5135e21c2853ff2c86040786cd5521c3f71424755c110cf36fe2
+google-cloud-logging==3.17.1 \
+    --hash=sha256:24af44573642b4c3f0154d34511ddac89589824ee802ee743464022845322327 \
+    --hash=sha256:c347426cc8aea05ad5f6fc12ebd013329c3387c378f4669a8e53e1b44f998981
     # via -r requirements/common.in
 google-crc32c==1.8.0 \
     --hash=sha256:014a7e68d623e9a4222d663931febc3033c5c7c9730785727de2a81f87d5bab8 \
