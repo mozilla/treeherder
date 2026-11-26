@@ -1,5 +1,5 @@
 
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, fireEvent, waitFor } from '@testing-library/react';
 import { cloneElement } from 'react';
 
 import fuzzyJobList from '../mock/job_list/fuzzy_jobs/fuzzyJobList.json';
@@ -67,6 +67,18 @@ describe('FuzzyJobFinder', () => {
       notify={() => {}}
     />
   );
+
+  test('Shows an empty list while runnable jobs are unavailable', () => {
+    const { getByText, getByRole } = render(
+      cloneElement(testFuzzyJobFinder, {
+        jobList: undefined,
+        filteredJobList: undefined,
+      }),
+    );
+    expect(getByText('Runnable Jobs [0]')).toBeInTheDocument();
+    fireEvent.click(getByRole('checkbox'));
+    expect(getByText('Runnable Jobs [0]')).toBeInTheDocument();
+  });
 
   test('Fuzzy search gives expected results', async () => {
     const { getByTitle, queryAllByTestId } = await render(testFuzzyJobFinder);
@@ -247,6 +259,63 @@ describe('FuzzyJobFinder', () => {
       terminate.mockRestore();
     }
   });
+
+  test('Clears the search and selection when the modal closes', async () => {
+    const { getByRole, getByTitle, queryByRole, rerender } =
+      render(testFuzzyJobFinder);
+    const input = getByTitle('Filter the list of runnable jobs');
+    fireEvent.change(input, { target: { value: '^addon-tps-xpi$' } });
+
+    const job = getByRole('option', { name: 'addon-tps-xpi' });
+    job.selected = true;
+    fireEvent.change(job.closest('select'));
+    const addSelected = getByRole('button', { name: 'Add selected' });
+    await waitFor(() => expect(addSelected).not.toHaveAttribute('aria-disabled'));
+    expect(addSelected).toBeEnabled();
+
+    rerender(cloneElement(testFuzzyJobFinder, { isOpen: false }));
+    await waitFor(() => expect(queryByRole('dialog')).not.toBeInTheDocument());
+    rerender(testFuzzyJobFinder);
+
+    expect(getByTitle('Filter the list of runnable jobs')).toHaveValue('');
+    expect(getByRole('option', { name: 'addon-tps-xpi' }).selected).toBe(false);
+    expect(getByRole('button', { name: 'Add selected' })).toBeDisabled();
+  });
+
+  test.each(['initialization', 'execution'])(
+    'Shows an error when the search worker fails during %s',
+    (phase) => {
+      let worker;
+      global.Worker = class extends SearchWorker {
+        constructor() {
+          if (phase === 'initialization') throw new Error('Worker unavailable');
+          super();
+          worker = this;
+        }
+      };
+      const { getByRole, getByTitle, queryByRole } = render(testFuzzyJobFinder);
+      expect(queryByRole('alert')).not.toBeInTheDocument();
+
+      fireEvent.change(getByTitle('Filter the list of runnable jobs'), {
+        target: { value: 'linux' },
+      });
+      if (worker) {
+        act(() => worker.onerror(new ErrorEvent('error')));
+      }
+
+      expect(getByRole('alert')).toHaveTextContent(
+        'Unable to search runnable jobs.',
+      );
+      expect(document.getElementById('addJobsGroup')).toHaveAttribute(
+        'aria-busy',
+        'false',
+      );
+      expect(getByRole('button', { name: 'Add all' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    },
+  );
 
   test('Keeps the results list enabled and retains selections that still match', async () => {
     const { getByTitle, getByRole } = render(testFuzzyJobFinder);
