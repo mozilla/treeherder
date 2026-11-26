@@ -1,52 +1,9 @@
 const instrumentedBuild = /(?:^|[-/])(asan|tsan|ccov)(?:[-/]|$)/;
-// Task label suffixes from Gecko's taskcluster/test_configs/variants.yml.
-const specializedSuffixes = [
-  '1proc',
-  'a11y-checks',
-  'aab',
-  'async',
-  'cf',
-  'condprof',
-  'csp-next',
-  'emesigned',
-  'emewmf',
-  'fis-hv',
-  'headless',
-  'http2',
-  'http3',
-  'ioi',
-  'isolated',
-  'java-media',
-  'mda-gpu',
-  'msix',
-  'nofis',
-  'nogpu',
-  'np',
-  'openh264',
-  'pb',
-  'pb-ioi',
-  'repeat',
-  's',
-  'standalone',
-  'swr',
-  'trainhop-beta',
-  'trainhop-rel',
-  'uipc',
-  'vt',
-  'wmfme',
-  'wr-dc0',
-  'wr-dc1-p',
-  'wr-dc2-o',
-  'wr-dc3-c',
-  'xorig',
-  'zygote',
-];
-const specializedSuffix = new RegExp(`-(?:${specializedSuffixes.join('|')})$`);
 const pathSuites =
   /^(mochitest|xpcshell|reftest|crashtest|web-platform-tests)(-|$)/;
 
 function chunkPattern(label, chunks) {
-  if (label.endsWith('-cf') || !/-\d+$/.test(label)) return label;
+  if (!/-\d+$/.test(label)) return label;
   if (Number.isInteger(chunks) && chunks > 1)
     return label.replace(/-\d+$/, `-*/${chunks}`);
   return chunks?.total > 1 ? label.replace(/-\d+$/, '-*') : label;
@@ -62,8 +19,7 @@ export function getPickerMetadata(graph) {
 
       const suite = attributes.unittest_suite;
       const chunks = extra.chunks;
-      const chunked = Number.isInteger(chunks) || chunks?.total > 1;
-      const unchunkedLabel = chunked ? label.replace(/-\d+$/, '') : label;
+      const isConfirmFailure = label.endsWith('-cf');
       const buildSettings = extra['test-setting']?.build;
       const specialized =
         instrumentedBuild.test(dependencies.build ?? label) ||
@@ -71,21 +27,25 @@ export function getPickerMetadata(graph) {
           buildSettings?.asan || buildSettings?.tsan || buildSettings?.ccov,
         ) ||
         Boolean(attributes['duplicate-of']) ||
-        specializedSuffix.test(unchunkedLabel) ||
+        Boolean(attributes.unittest_variant) ||
+        isConfirmFailure ||
         kind === 'browsertime' ||
         kind === 'perftest' ||
         suite === 'talos';
 
       const metadata = {
         tier: treeherder.tier,
-        chunkPattern: chunkPattern(label, chunks),
+        chunkPattern: isConfirmFailure ? label : chunkPattern(label, chunks),
         specialized,
         buildDependency: dependencies.build,
       };
+      // Gecko's decision task does not resolve per-chunk manifests for
+      // reftest-qr and crashtest-qr. This picker needs those mappings to
+      // choose chunks from an existing graph, as opposed to recomputing them.
       if (
         pathSuites.test(suite ?? '') &&
-        !label.endsWith('-cf') &&
-        !['reftest-qr', 'crashtest-qr', 'xpcshell-msix'].includes(suite) &&
+        !isConfirmFailure &&
+        !['reftest-qr', 'crashtest-qr'].includes(suite) &&
         Array.isArray(attributes.test_manifests) &&
         attributes.test_manifests.length &&
         task.payload?.env?.MOZHARNESS_TEST_PATHS

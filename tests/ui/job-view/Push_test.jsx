@@ -236,6 +236,15 @@ describe('Push', () => {
       try {
         render(<MemoryRouter>{testPush(new FilterModel())}</MemoryRouter>);
         await openPicker();
+        expect(graphRequests).not.toHaveBeenCalled();
+        const loadMetadata = () =>
+          fireEvent.click(
+            screen.getByRole('button', {
+              name: 'Load job filters and test paths',
+            }),
+          );
+        loadMetadata();
+        await waitFor(() => expect(graphRequests).toHaveBeenCalledTimes(1));
         expect(screen.getByRole('option', { name: main })).toBeInTheDocument();
         expect(
           screen.queryByRole('option', { name: excluded }),
@@ -243,8 +252,10 @@ describe('Push', () => {
         await closePicker();
 
         await openPicker();
+        expect(graphRequests).toHaveBeenCalledTimes(1);
+        loadMetadata();
         expect(
-          screen.getByRole('option', {
+          await screen.findByRole('option', {
             name: 'test-linux64/opt-mochitest-media-*',
           }),
         ).toBeInTheDocument();

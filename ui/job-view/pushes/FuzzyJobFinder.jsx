@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useId } from 'react';
+import { useState, useCallback, useEffect, useMemo, useId } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -34,6 +34,8 @@ function FuzzyJobFinder({
   jobList = EMPTY_JOBS,
   filteredJobList = EMPTY_JOBS,
   pushJobs = EMPTY_JOBS,
+  loadPickerMetadata,
+  isLoadingPickerMetadata = false,
   decisionTaskId = '',
   revision = '',
   currentRepo,
@@ -100,8 +102,17 @@ function FuzzyJobFinder({
         continue;
       if (buildFilter && !buildFilter.has(job.buildDependency)) continue;
       const name = (!showChunkNumbers && job.chunkPattern) || job.name;
-      if (!groups.has(name)) groups.set(name, { ...job, name, labels: [] });
-      groups.get(name).labels.push(job.name);
+      if (!groups.has(name)) {
+        groups.set(name, { ...job, name, labels: [], symbolAliases: [] });
+      }
+      const group = groups.get(name);
+      group.labels.push(job.name);
+      if (job.symbol) {
+        group.symbolAliases.push(job.symbol);
+        if (job.groupsymbol && job.groupsymbol !== '?') {
+          group.symbolAliases.push(`${job.groupsymbol}(${job.symbol})`);
+        }
+      }
     }
     return [...groups.values()];
   }, [availableJobs, buildFilter, pathMode, showChunkNumbers, showSpecialized]);
@@ -122,13 +133,20 @@ function FuzzyJobFinder({
     [fuzzyList],
   );
 
-  if (addJobsSelected.length > 0) {
+  const visibleSelection = useMemo(() => {
+    if (addJobsSelected.length === 0) return addJobsSelected;
     const visibleNames = new Set(visibleJobs.map((job) => job.name));
     const remaining = addJobsSelected.filter((name) => visibleNames.has(name));
-    if (remaining.length !== addJobsSelected.length) {
-      setAddJobsSelected(remaining);
+    return remaining.length === addJobsSelected.length
+      ? addJobsSelected
+      : remaining;
+  }, [addJobsSelected, visibleJobs]);
+
+  useEffect(() => {
+    if (visibleSelection !== addJobsSelected) {
+      setAddJobsSelected(visibleSelection);
     }
-  }
+  }, [addJobsSelected, visibleSelection]);
 
   const selectedSet = useMemo(() => new Set(selectedList), [selectedList]);
   const sortedSelectedList = useMemo(
@@ -173,11 +191,11 @@ function FuzzyJobFinder({
     setSelectedList((prev) => [
       ...new Set([
         ...prev,
-        ...addJobsSelected.flatMap((name) => matchesByName.get(name) ?? []),
+        ...visibleSelection.flatMap((name) => matchesByName.get(name) ?? []),
       ]),
     ]);
     setAddJobsSelected([]);
-  }, [addJobsSelected, matchesByName, pending, submitDisabled]);
+  }, [matchesByName, pending, submitDisabled, visibleSelection]);
 
   const removeJobs = useCallback(() => {
     setSelectedList((prev) =>
@@ -341,6 +359,19 @@ function FuzzyJobFinder({
               />
             )}
           </div>
+          {loadPickerMetadata && (
+            <Button
+              size="sm"
+              variant="outline-secondary"
+              className="mb-2"
+              onClick={loadPickerMetadata}
+              disabled={isLoadingPickerMetadata || submitDisabled}
+            >
+              {isLoadingPickerMetadata
+                ? 'Loading job filters and test paths…'
+                : 'Load job filters and test paths'}
+            </Button>
+          )}
           {hasPathMetadata && (
             <Form.Group controlId={`${controlId}-test-paths`} className="my-2">
               <Form.Label>Test paths</Form.Label>
@@ -367,8 +398,9 @@ function FuzzyJobFinder({
             <Button
               onClick={addJobs}
               variant="success"
-              disabled={addJobsSelected.length === 0 || submitDisabled}
-              aria-disabled={pending || undefined}
+              disabled={
+                pending || submitDisabled || visibleSelection.length === 0
+              }
             >
               Add selected
             </Button>
@@ -376,7 +408,7 @@ function FuzzyJobFinder({
             <Button
               variant="success"
               onClick={addAllJobs}
-              aria-disabled={pending || undefined}
+              disabled={pending || submitDisabled}
             >
               Add all
             </Button>
@@ -392,7 +424,7 @@ function FuzzyJobFinder({
             <Form.Control
               as="select"
               multiple
-              value={addJobsSelected}
+              value={visibleSelection}
               onChange={updateAddButton}
             >
               {visibleJobs.map((e) => (
@@ -491,6 +523,8 @@ FuzzyJobFinder.propTypes = {
   jobList: PropTypes.arrayOf(PropTypes.shape({})),
   filteredJobList: PropTypes.arrayOf(PropTypes.shape({})),
   pushJobs: PropTypes.arrayOf(PropTypes.shape({})),
+  loadPickerMetadata: PropTypes.func,
+  isLoadingPickerMetadata: PropTypes.bool,
   currentRepo: PropTypes.shape({}).isRequired,
 };
 

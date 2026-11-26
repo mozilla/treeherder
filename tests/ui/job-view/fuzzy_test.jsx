@@ -81,37 +81,85 @@ describe('FuzzyJobFinder', () => {
   );
 
   test.each([
-    ['test-linux2404-64/opt-mochitest-media-2', { total: 3 }, false],
-    ['test-linux2404-64/opt-mochitest-browser-media', undefined, false],
-    ['test-linux2404-64/opt-mochitest-browser-a11y', undefined, false],
-    ['test-linux2404-64/opt-mochitest-media-nogpu-2', { total: 3 }, true],
+    ['test-linux2404-64/opt-mochitest-media-2', null, false],
+    ['test-linux2404-64/opt-mochitest-browser-media', null, false],
+    ['test-linux2404-64/opt-mochitest-browser-a11y', null, false],
+    ['test-linux2404-64/opt-mochitest-media-nogpu-2', 'no-gpu', true],
     [
       'test-linux2404-64/opt-mochitest-browser-chrome-swr-2',
-      { total: 3 },
+      'webrender-sw',
       true,
     ],
     [
       'test-linux2404-64/opt-mochitest-browser-chrome-swr-uipc-2',
-      { total: 3 },
+      'webrender-sw+urlbar-ipc',
       true,
     ],
-    ['test-windows11-64/opt-xpcshell-msix', undefined, true],
+    ['test-windows11-64/opt-xpcshell-msix', 'msix', true],
     [
       'test-linux2404-64/opt-mochitest-browser-chrome-a11y-checks',
-      undefined,
+      'a11y-checks',
       true,
     ],
-    ['test-linux2404-64/opt-mochitest-browser-chrome-2-cf', { total: 3 }, true],
-    ['test-linux2404-64/opt-mochitest-plain-swr-extra', undefined, false],
-    ['test-linux2404-64-asan/opt-mochitest-media', undefined, true],
-  ])('classifies the suffix of %s', (label, chunks, specialized) => {
+    ['test-linux2404-64/opt-mochitest-browser-chrome-2-cf', null, true],
+    ['test-linux2404-64/opt-mochitest-plain-swr-extra', null, false],
+    ['test-linux2404-64-asan/opt-mochitest-media', null, true],
+    ['test-variant-without-a-known-suffix', 'future-variant', true],
+  ])('classifies %s using Gecko metadata', (label, variant, specialized) => {
     const metadata = getPickerMetadata({
       [label]: {
-        attributes: { run_on_projects: ['trunk'] },
-        task: { extra: { treeherder: { tier: 1 }, chunks } },
+        attributes: { unittest_variant: variant },
+        task: { extra: { treeherder: { tier: 1 }, chunks: { total: 3 } } },
       },
     });
     expect(metadata[label].specialized).toBe(specialized);
+  });
+
+  test.each(['bc1', 'M(bc)', 'm(BC1)'])(
+    'Finds jobs by symbol %s',
+    async (query) => {
+      const jobs = [
+        { name: 'linux-chrome-1', symbol: 'bc1', groupsymbol: 'M' },
+        { name: 'linux-chrome', symbol: 'bc', groupsymbol: 'M' },
+      ];
+      const { getByTitle, getAllByRole } = render(
+        cloneElement(testFuzzyJobFinder, {
+          jobList: jobs,
+          filteredJobList: jobs,
+        }),
+      );
+
+      fireEvent.change(getByTitle('Filter the list of runnable jobs'), {
+        target: { value: query },
+      });
+      await waitFor(() =>
+        expect(
+          getAllByRole('option').map((option) => option.textContent),
+        ).toEqual([query === 'M(bc)' ? 'linux-chrome' : 'linux-chrome-1']),
+      );
+    },
+  );
+
+  test('Finds a chunk group by a later chunk’s symbol', async () => {
+    const chunkPattern = 'linux-chrome-*';
+    const jobs = [
+      { name: 'linux-chrome-1', symbol: 'bc1', chunkPattern },
+      { name: 'linux-chrome-2', symbol: 'bc2', chunkPattern },
+    ];
+    const { getByTitle, getByRole } = render(
+      cloneElement(testFuzzyJobFinder, {
+        jobList: jobs,
+        filteredJobList: jobs,
+      }),
+    );
+
+    fireEvent.change(getByTitle('Filter the list of runnable jobs'), {
+      target: { value: 'bc2' },
+    });
+    await waitFor(() =>
+      expect(getByRole('button', { name: 'Add all' })).toBeEnabled(),
+    );
+    expect(getByRole('option', { name: chunkPattern })).toBeInTheDocument();
   });
 
   test('Shows an empty list while runnable jobs are unavailable', () => {
@@ -668,13 +716,13 @@ describe('FuzzyJobFinder', () => {
 
     fireEvent.change(input, { target: { value: 'linux' } });
     fireEvent.change(input, { target: { value: '^addon-tps-xpi$' } });
-    expect(addAll).toHaveAttribute('aria-disabled', 'true');
+    expect(addAll).toBeDisabled();
     fireEvent.click(addAll);
     expect(
       getByRole('button', { name: 'Trigger (0) Selected Jobs' }),
     ).toBeDisabled();
 
-    await waitFor(() => expect(addAll).not.toHaveAttribute('aria-disabled'));
+    await waitFor(() => expect(addAll).toBeEnabled());
     expect(queryAllByTestId('fuzzyList').map((job) => job.textContent)).toEqual(
       ['addon-tps-xpi'],
     );
@@ -720,10 +768,7 @@ describe('FuzzyJobFinder', () => {
     job.selected = true;
     fireEvent.change(job.closest('select'));
     const addSelected = getByRole('button', { name: 'Add selected' });
-    await waitFor(() =>
-      expect(addSelected).not.toHaveAttribute('aria-disabled'),
-    );
-    expect(addSelected).toBeEnabled();
+    await waitFor(() => expect(addSelected).toBeEnabled());
 
     rerender(cloneElement(testFuzzyJobFinder, { isOpen: false }));
     await waitFor(() => expect(queryByRole('dialog')).not.toBeInTheDocument());
@@ -762,10 +807,7 @@ describe('FuzzyJobFinder', () => {
         'aria-busy',
         'false',
       );
-      expect(getByRole('button', { name: 'Add all' })).toHaveAttribute(
-        'aria-disabled',
-        'true',
-      );
+      expect(getByRole('button', { name: 'Add all' })).toBeDisabled();
     },
   );
 
@@ -782,7 +824,7 @@ describe('FuzzyJobFinder', () => {
     fireEvent.change(input, { target: { value: '^addon-tps-xpi$' } });
     expect(list).toBeEnabled();
     expect(job.selected).toBe(true);
-    expect(addSelected).toHaveAttribute('aria-disabled', 'true');
+    expect(addSelected).toBeDisabled();
     fireEvent.click(addSelected);
     expect(
       getByRole('button', { name: 'Trigger (0) Selected Jobs' }),
@@ -790,7 +832,7 @@ describe('FuzzyJobFinder', () => {
 
     await waitFor(() => expect(list.options).toHaveLength(1));
     expect(job.selected).toBe(true);
-    expect(addSelected).not.toHaveAttribute('aria-disabled');
+    expect(addSelected).toBeEnabled();
 
     fireEvent.change(input, { target: { value: 'linux' } });
     await waitFor(() => expect(list.options).toHaveLength(26));
