@@ -1,4 +1,3 @@
-import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 
 import {
@@ -7,8 +6,103 @@ import {
 } from '../../helpers/url';
 
 import { alertStatusMap } from './constants';
-import { getFrameworkName, getGraphsURL, getTimeRange } from './helpers';
+import {
+  formatPercent,
+  getFrameworkName,
+  getGraphsURL,
+  getTimeRange,
+} from './helpers';
 import { Perfdocs } from './perfdocs';
+
+// Options enabled by default on every platform, listing them is just noise
+const defaultOptions = ['e10s', 'stylo', 'webrender'];
+// Fission is only enabled by default on desktop
+const defaultDesktopOptions = ['fission'];
+
+const graphZoomDays = 3;
+
+// the word joiner stops a line break after the hyphen
+export const valueSeparator = '\u00a0-\u2060>\u00a0';
+
+const valueSuffixes = [
+  { scale: 1e9, suffix: 'G' },
+  { scale: 1e6, suffix: 'M' },
+  { scale: 1e3, suffix: 'K' },
+];
+
+// at most 5 significant digits, with K/M/G, so cells don't wrap
+export const formatAlertValue = (value, precision = 5) => {
+  // check the rounded value so e.g. 999,999.9 becomes 1M instead of 1000K
+  const { scale, suffix } = valueSuffixes.find(
+    (item) =>
+      Number((Math.abs(value) / item.scale).toPrecision(precision)) >= 1,
+  ) || { scale: 1, suffix: '' };
+
+  return `${Number((value / scale).toPrecision(precision))}${suffix}`;
+};
+
+// the Change column has the exact difference
+const beforeAfterPrecision = 3;
+
+// a non-breaking space keeps the value and unit together
+export const formatValueWithUnit = (value, unit, precision = 5) => {
+  const formatted = formatAlertValue(value, precision);
+  if (!unit) return formatted;
+  return unit === '%' ? `${formatted}%` : `${formatted} ${unit}`;
+};
+
+// the API rounds tiny values, so trust the regression direction when they look equal
+export const getChangeArrow = (alert) => {
+  const { lower_is_better: lowerIsBetter } = alert.series_signature || {};
+  if (typeof lowerIsBetter === 'boolean') {
+    return alert.is_regression === lowerIsBetter ? '▲' : '▼';
+  }
+  if (alert.new_value > alert.prev_value) return '▲';
+  if (alert.new_value < alert.prev_value) return '▼';
+  return '';
+};
+
+// difference of the rounded values, so it matches the values next to it
+export const getAbsoluteChange = (alert) => {
+  const { measurement_unit: unit } = alert.series_signature;
+  const round = (value) => Number(value.toPrecision(beforeAfterPrecision));
+  // round again to hide floating point noise, e.g. 15.4 - 15.6
+  const change = Number(
+    (round(alert.new_value) - round(alert.prev_value)).toPrecision(12),
+  );
+  if (change === 0) return formatValueWithUnit(0, unit);
+  const sign = change > 0 ? '+' : '-';
+  return `${sign}${formatValueWithUnit(Math.abs(change), unit)}`;
+};
+
+export const getAlertOptions = (alert) => {
+  const { extra_options: extraOptions = [], machine_platform: platform } =
+    alert.series_signature;
+  const hiddenOptions = platform.includes('android')
+    ? defaultOptions
+    : [...defaultOptions, ...defaultDesktopOptions];
+
+  return extraOptions.filter((option) => !hiddenOptions.includes(option));
+};
+
+const getOptionsText = (alert) => getAlertOptions(alert).join(', ') || '-';
+
+// Long tables only show the biggest and the smallest few changes
+const tableLimits = {
+  regression: { biggest: 10, smallest: 5 },
+  improvement: { biggest: 5, smallest: 1 },
+};
+
+export const getTableRows = (sortedAlerts, { biggest, smallest }) => {
+  if (sortedAlerts.length <= biggest + smallest) {
+    return { biggestRows: sortedAlerts, smallestRows: [], hiddenCount: 0 };
+  }
+  return {
+    biggestRows: sortedAlerts.slice(0, biggest),
+    smallestRows: sortedAlerts.slice(-smallest),
+    hiddenCount: sortedAlerts.length - biggest - smallest,
+  };
+};
 
 export default class TextualSummary {
   constructor(
@@ -26,14 +120,51 @@ export default class TextualSummary {
     this.hasProfileUrls = this.browsertimeAlertsExtraData.some(
       (a) => a.profile_url && a.prev_profile_url,
     );
-    this.headerRow = `\n|--|--|--|--|--|${this.hasProfileUrls ? '--|' : ''}`;
-    this.ellipsesRow = `\n|...|...|...|...|...|${
-      this.hasProfileUrls ? '...|' : ''
-    }`;
+    this.hasOptions = this.alerts.some(
+      (alert) => getAlertOptions(alert).length > 0,
+    );
   }
 
-  get markdown() {
-    let resultStr = '';
+  getTableHeader() {
+    const columns = [
+      // the "### Regressions" or "### Improvements" heading names the table
+      '%',
+      'Test : Subtest',
+      'Before -> After',
+      'Change',
+      'Platform',
+      ...(this.hasOptions ? ['Options'] : []),
+      ...(this.hasProfileUrls ? ['Performance Profiles'] : []),
+    ];
+    const headers = columns.map((column) => `**${column}**`).join(' | ');
+    return `\n\n| ${headers} |\n|${':--|'.repeat(columns.length)}\n`;
+  }
+
+  getGraphLink(alert) {
+    const { repository, framework, push_timestamp: pushTimestamp } =
+      this.alertSummary;
+    const timeRange = getTimeRange(this.alertSummary);
+    // zoom in around the alerting push so the regressing commit is easy to spot
+    const zoomOffset = graphZoomDays * 24 * 60 * 60 * 1000;
+    const pushTime = pushTimestamp * 1000;
+    // pad the y range well beyond the values so noisy points stay visible
+    const low = Math.min(alert.prev_value, alert.new_value);
+    const high = Math.max(alert.prev_value, alert.new_value);
+    const padding = Math.max((high - low) * 2, high * 0.15);
+    const zoom = [
+      pushTime - zoomOffset,
+      pushTime + zoomOffset,
+      Number(Math.max(0, low - padding).toFixed(2)),
+      Number((high + padding).toFixed(2)),
+    ].join(',');
+
+    return `${
+      thBaseUrl +
+      getGraphsURL(alert, timeRange, repository, framework).slice(1)
+    }&zoom=${zoom}`;
+  }
+
+  getSortedAlerts() {
     const improved = sortBy(
       this.alerts.filter((alert) => !alert.is_regression),
       'amount_pct',
@@ -45,6 +176,12 @@ export default class TextualSummary {
       ),
       'amount_pct',
     ).reverse();
+    return { regressed, improved };
+  }
+
+  get markdown() {
+    let resultStr = '';
+    const { regressed, improved } = this.getSortedAlerts();
 
     const regressionsTable = this.getFormattedRegressions(regressed);
     resultStr += regressionsTable;
@@ -72,26 +209,26 @@ export default class TextualSummary {
   };
 
   formatAlert(alert) {
-    const numFormat = '0,0.00';
-    let amountPct;
-    const { repository, framework } = this.alertSummary;
-    const timeRange = getTimeRange(this.alertSummary);
-    const graphLink =
-      thBaseUrl + getGraphsURL(alert, timeRange, repository, framework).slice(1);
-    if (alert.amount_pct.toFixed(0) === '0') {
-      // have extra fraction digits when rounding ends up with 0%
-      amountPct = alert.amount_pct.toFixed(2);
-    } else {
-      amountPct = alert.amount_pct.toFixed(0);
-    }
+    const amountPct = formatPercent(alert.amount_pct);
+    const graphLink = this.getGraphLink(alert);
 
-    const prevValue = numeral(alert.prev_value).format(numFormat);
-    const newValue = numeral(alert.new_value).format(numFormat);
-
-    const measurementUnit = alert.series_signature.measurement_unit ?? '';
-
-    const { suite, test, machine_platform: platform } = alert.series_signature;
-    const extraOptions = alert.series_signature.extra_options.join(' ');
+    const {
+      suite,
+      test,
+      machine_platform: platform,
+      measurement_unit: unit,
+    } = alert.series_signature;
+    const prevValue = formatValueWithUnit(
+      alert.prev_value,
+      unit,
+      beforeAfterPrecision,
+    );
+    const newValue = formatValueWithUnit(
+      alert.new_value,
+      unit,
+      beforeAfterPrecision,
+    );
+    const extraOptions = getOptionsText(alert);
 
     const updatedAlert = this.browsertimeAlertsExtraData.find(
       (a) => alert.id === a.id,
@@ -102,117 +239,88 @@ export default class TextualSummary {
     );
     const perfdocs = new Perfdocs(frameworkName, suite, platform);
     const url = perfdocs.documentationURL;
-    const doc = perfdocs.hasDocumentation() ? `[(doc)](${url})` : '';
+    // escape brackets so they don't break the markdown link
+    const suiteName = perfdocs.hasDocumentation()
+      ? `[${suite.replace(/[[\]\\]/g, '\\$&')}](${url})`
+      : suite;
     const suiteTestName =
-      suite === test ? `${suite} ${doc}` : `${suite} ${test} ${doc}`;
+      test && suite !== test ? `${suiteName} : ${test}` : suiteName;
 
-    const alertValues =
+    const valuePair =
       updatedAlert?.results_link &&
       updatedAlert.prev_results_link
-        ? `[${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link})`
-        : `${prevValue} ${measurementUnit} -> ${newValue} ${measurementUnit}`;
+        ? `[${prevValue}](${updatedAlert.prev_results_link})${valueSeparator}[${newValue}](${updatedAlert.results_link})`
+        : `${prevValue}${valueSeparator}${newValue}`;
 
-    let maybeProfileLinks = '';
+    const cells = [
+      // the percentage comes first so the rows read like a ranked list
+      `[${getChangeArrow(alert)}${amountPct}%](${graphLink})`,
+      suiteTestName,
+      valuePair,
+      getAbsoluteChange(alert),
+      platform,
+    ];
+    if (this.hasOptions) {
+      cells.push(extraOptions);
+    }
     if (this.hasProfileUrls) {
       // Add an additional column for the profiler before and after so users can
       // find the profiler links easily. Only add this column if at least one alert
-      // has profile urls.
-      maybeProfileLinks =
-        updatedAlert?.profile_url &&
-        updatedAlert.prev_profile_url
+      // has profile urls, with "-" for the alerts without any.
+      cells.push(
+        updatedAlert?.profile_url && updatedAlert.prev_profile_url
           ? `[Before](${getPerfAnalysisUrl(
               updatedAlert.prev_profile_url,
-            )})/[After](${getPerfAnalysisUrl(updatedAlert.profile_url)}) |`
-          : ' |';
+            )})/[After](${getPerfAnalysisUrl(updatedAlert.profile_url)})`
+          : '-',
+      );
     }
 
-    return `| [${amountPct}%](${graphLink})  | ${suiteTestName} | ${platform} | ${extraOptions} | ${alertValues} | ${maybeProfileLinks}`;
+    return `| ${cells.join(' | ')} |`;
   }
 
   formatAlertBulk(alerts) {
-    return alerts.map((alert) => this.formatAlert(alert, alerts)).join('\n');
+    return alerts.map((alert) => this.formatAlert(alert)).join('\n');
+  }
+
+  // markdown needs the blank line, or it reads the note as a table row
+  getHiddenAlertsNote(count, name) {
+    const alertLink = `${thBaseUrl}perfherder/alerts?id=${this.alertSummary.id}`;
+    return `\n_[... and ${count} more ${name}](${alertLink})_\n`;
+  }
+
+  formatTable(name, sortedAlerts, limits) {
+    const { biggestRows, smallestRows, hiddenCount } = getTableRows(
+      sortedAlerts,
+      limits,
+    );
+    const heading = `\n\n### ${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+    let resultStr = heading + this.getTableHeader();
+    resultStr += this.formatAlertBulk([...biggestRows, ...smallestRows]);
+    resultStr += '\n';
+    if (hiddenCount) {
+      resultStr += this.getHiddenAlertsNote(hiddenCount, name);
+    }
+    return resultStr;
   }
 
   getFormattedRegressions(regressed) {
-    let resultStr = '';
-    if (regressed.length > 0 && regressed.length <= 15) {
-      // add a newline if we displayed the header
-      if (this.copySummary) {
-        resultStr += '\n';
-      }
-      const formattedRegressions = this.formatAlertBulk(regressed);
-      // Add a column for the profiler links if at least one alert has them.
-      const maybeProfileColumn = this.hasProfileUrls
-        ? ' **Performance Profiles** |'
-        : '';
-      resultStr += `\n\n| **Regression** | **Test** | **Platform** | **Options** | **Absolute values [old vs new]** | ${maybeProfileColumn} ${this.headerRow} \n${formattedRegressions}\n`;
+    if (regressed.length === 0) {
+      return '';
     }
-    if (regressed.length > 15) {
-      // add a newline if we displayed the header
-      if (this.copySummary) {
-        resultStr += '\n';
-      }
-      const sortedRegressed = regressed.sort(
-        (a, b) => b.amount_pct - a.amount_pct,
-      );
-      const biggestTenRegressed = sortedRegressed.slice(0, 10);
-      const smallestFiveRegressed = sortedRegressed.slice(-5);
-      const formattedBiggestRegressions = this.formatAlertBulk(
-        biggestTenRegressed,
-      );
-      const formattedSmallestRegressions = this.formatAlertBulk(
-        smallestFiveRegressed,
-      );
-
-      // Add a column for the profiler links if at least one alert has them.
-      const maybeProfileColumn = this.hasProfileUrls
-        ? ' **Performance Profiles** |'
-        : '';
-      resultStr += `\n\n| **Regression** | **Test** | **Platform** | **Options** | **Absolute values [old vs new]** | ${maybeProfileColumn} ${this.headerRow} \n${formattedBiggestRegressions}`;
-      resultStr += this.ellipsesRow;
-      resultStr += `\n${formattedSmallestRegressions}\n`;
-    }
-    return resultStr;
+    // add a newline if we displayed the header
+    const resultStr = this.copySummary ? '\n' : '';
+    return `${resultStr}${this.formatTable(
+      'regressions',
+      regressed,
+      tableLimits.regression,
+    )}`;
   }
 
   getFormattedImprovements(improved) {
-    let resultStr = '';
-    if (improved.length > 0 && improved.length <= 6) {
-      // Add a newline if we displayed some regressions
-      if (resultStr.length > 0) {
-        resultStr += '\n';
-      }
-      const formattedImprovements = this.formatAlertBulk(improved);
-      // Add a column for the profiler links if at least one alert has them.
-      const maybeProfileColumn = this.hasProfileUrls
-        ? ' **Performance Profiles** |'
-        : '';
-      resultStr += `\n\n| **Improvement** | **Test** | **Platform** | **Options** | **Absolute values [old vs new]** | ${maybeProfileColumn} ${this.headerRow} \n${formattedImprovements}\n`;
-    } else if (improved.length > 6) {
-      // Add a newline if we displayed some regressions
-      if (resultStr.length > 0) {
-        resultStr += '\n';
-      }
-      const sortedImproved = improved.sort(
-        (a, b) => b.amount_pct - a.amount_pct,
-      );
-      const biggestFiveImprovements = sortedImproved.slice(0, 5);
-      const smallestImprovement = sortedImproved.slice(-1);
-      const formattedBiggestImprovements = this.formatAlertBulk(
-        biggestFiveImprovements,
-      );
-      const formattedSmallestImprovement = this.formatAlertBulk(
-        smallestImprovement,
-      );
-
-      // Add a column for the profiler links if at least one alert has them.
-      const maybeProfileColumn = this.hasProfileUrls
-        ? ' **Performance Profiles** |'
-        : '';
-      resultStr += `\n\n| **Improvements** | **Test** | **Platform** | **Options** | **Absolute values [old vs new]** | ${maybeProfileColumn} ${this.headerRow} \n${formattedBiggestImprovements}`;
-      resultStr += this.ellipsesRow;
-      resultStr += `\n${formattedSmallestImprovement}\n`;
+    if (improved.length === 0) {
+      return '';
     }
-    return resultStr;
+    return this.formatTable('improvements', improved, tableLimits.improvement);
   }
 }

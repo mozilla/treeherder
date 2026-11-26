@@ -500,6 +500,10 @@ export const getFrameworkName = (frameworks, frameworkId) => {
   return framework ? framework.name : unknownFrameworkMessage;
 };
 
+// extra decimals when rounding would show 0%
+export const formatPercent = (amountPct) =>
+  amountPct.toFixed(0) === '0' ? amountPct.toFixed(2) : amountPct.toFixed(0);
+
 const getPlatformInfo = (platforms) => {
   const platformInfo = [];
   platforms.forEach((platform) =>
