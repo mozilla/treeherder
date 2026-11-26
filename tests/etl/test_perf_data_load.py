@@ -638,6 +638,31 @@ def test_detection_techniques_can_be_updated(test_repository, perf_job, sample_p
     assert signature.detection_techniques == ["mwu"]
 
 
+def test_older_push_does_not_update_signature(
+    test_repository, later_perf_push, perf_job, generic_reference_data, sample_perf_artifact
+):
+    later_job = create_generic_job(
+        "lateguid", test_repository, later_perf_push.id, generic_reference_data
+    )
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+    store_performance_artifact(later_job, submit_datum)
+
+    # a job from an older push (e.g. a backfill) with different settings
+    suite = sample_perf_artifact["blob"]["suites"][0]
+    suite["detectionTechniques"] = ["mwu"]
+    suite["alertThreshold"] = 5.0
+    _, older_submit_datum = _prepare_test_data(sample_perf_artifact)
+    store_performance_artifact(perf_job, older_submit_datum)
+
+    for test in ("", "fcp"):
+        signature = PerformanceSignature.objects.get(suite="youtube-watch", test=test)
+        assert signature.detection_techniques is None
+        assert signature.alert_threshold is None
+        assert signature.last_updated == later_perf_push.time
+        # the data from the older push is still ingested
+        assert PerformanceDatum.objects.filter(signature=signature).count() == 2
+
+
 def test_subtests_without_suite_detection_techniques(
     test_repository, perf_job, sample_perf_artifact
 ):
