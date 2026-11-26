@@ -1,6 +1,12 @@
-
 import fetchMock from 'fetch-mock';
-import { render, cleanup, waitFor } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  fireEvent,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import { gzip } from 'pako';
 
 import { getProjectUrl, replaceLocation } from '../../../ui/helpers/location';
@@ -13,6 +19,8 @@ import Push, {
 } from '../../../ui/job-view/pushes/Push';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { findInstance } from '../../../ui/helpers/job';
+import RunnableJobModel from '../../../ui/models/runnableJob';
+import { usePushesStore } from '../../../ui/shared/stores/pushesStore';
 
 const manifestsByTask = {
   'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-1': [
@@ -106,6 +114,7 @@ describe('Push', () => {
   const repoName = 'autoland';
   const currentRepo = {
     name: repoName,
+    tc_root_url: 'https://firefox-ci-tc.services.mozilla.com',
     getRevisionHref: () => 'foo',
     getPushLogHref: () => 'foo',
   };
@@ -156,6 +165,138 @@ describe('Push', () => {
   afterEach(() => {
     cleanup();
     replaceLocation({});
+  });
+
+  test.each(['response', 'worker'])(
+    'Loads picker metadata, retries after a %s error, and caches success on the push',
+    async (failure) => {
+      const originalWorker = global.Worker;
+      const originalDecisionTasks = usePushesStore.getState().decisionTaskMap;
+      const decisionTask = { id: 'picker-decision-task', run: 2 };
+      const main = 'test-linux64/opt-mochitest-media-1';
+      const second = 'test-linux64/opt-mochitest-media-2';
+      const excluded = 'toolchain-linux64-clang';
+      const getList = jest
+        .spyOn(RunnableJobModel, 'getList')
+        .mockResolvedValue(
+          [second, excluded, main].map((job_type_name) => ({ job_type_name })),
+        );
+      const graphRequests = jest.fn();
+      const terminate = jest.fn();
+      let requests = 0;
+      global.Worker = class {
+        constructor(url) {
+          this.isMetadataWorker = String(url).includes(
+            'runnableJobMetadata.worker.js',
+          );
+        }
+
+        postMessage(url) {
+          if (!this.isMetadataWorker) return;
+          graphRequests(url);
+          requests += 1;
+          if (requests === 1) {
+            if (failure === 'worker')
+              this.onerror({ message: 'Worker failed' });
+            else this.onmessage({ data: { error: 'Artifact missing' } });
+          } else {
+            this.onmessage({
+              data: {
+                metadata: Object.fromEntries(
+                  [main, second].map((label) => [
+                    label,
+                    {
+                      chunkPattern: 'test-linux64/opt-mochitest-media-*',
+                      tier: 1,
+                    },
+                  ]),
+                ),
+              },
+            });
+          }
+        }
+
+        terminate() {
+          if (this.isMetadataWorker) terminate();
+        }
+      };
+      usePushesStore.setState({ decisionTaskMap: { [push.id]: decisionTask } });
+
+      const openPicker = async () => {
+        fireEvent.click(screen.getByTestId('push-action-menu-button'));
+        fireEvent.click(screen.getByText('Add new jobs (Search)'));
+        return screen.findByRole('dialog');
+      };
+      const closePicker = async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+        await waitFor(() =>
+          expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+        );
+      };
+      try {
+        render(<MemoryRouter>{testPush(new FilterModel())}</MemoryRouter>);
+        await openPicker();
+        expect(screen.getByRole('option', { name: main })).toBeInTheDocument();
+        expect(
+          screen.queryByRole('option', { name: excluded }),
+        ).not.toBeInTheDocument();
+        await closePicker();
+
+        await openPicker();
+        expect(
+          screen.getByRole('option', {
+            name: 'test-linux64/opt-mochitest-media-*',
+          }),
+        ).toBeInTheDocument();
+        fireEvent.click(
+          screen.getByRole('checkbox', { name: 'Use full job list' }),
+        );
+        expect(
+          screen.getByRole('option', { name: excluded }),
+        ).toBeInTheDocument();
+        await closePicker();
+
+        await openPicker();
+        expect(
+          screen.getByRole('option', {
+            name: 'test-linux64/opt-mochitest-media-*',
+          }),
+        ).toBeInTheDocument();
+        expect(getList).toHaveBeenCalledTimes(3);
+        expect(getList).toHaveBeenLastCalledWith(currentRepo, { decisionTask });
+        expect(graphRequests).toHaveBeenCalledTimes(2);
+        expect(graphRequests).toHaveBeenLastCalledWith(
+          `${currentRepo.tc_root_url}/api/queue/v1/task/${decisionTask.id}/runs/2/artifacts/public/full-task-graph.json`,
+        );
+        expect(terminate).toHaveBeenCalledTimes(2);
+      } finally {
+        cleanup();
+        global.Worker = originalWorker;
+        getList.mockRestore();
+        usePushesStore.setState({ decisionTaskMap: originalDecisionTasks });
+      }
+    },
+  );
+
+  test('Keeps the picker closed if runnable jobs cannot be loaded', async () => {
+    const getList = jest
+      .spyOn(RunnableJobModel, 'getList')
+      .mockRejectedValue(new Error('Unavailable'));
+    const originalDecisionTasks = usePushesStore.getState().decisionTaskMap;
+    usePushesStore.setState({
+      decisionTaskMap: { [push.id]: { id: 'picker-decision-task', run: 0 } },
+    });
+    try {
+      render(<MemoryRouter>{testPush(new FilterModel())}</MemoryRouter>);
+      fireEvent.click(screen.getByTestId('push-action-menu-button'));
+      fireEvent.click(screen.getByText('Add new jobs (Search)'));
+      await waitFor(() => expect(getList).toHaveBeenCalled());
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    } finally {
+      cleanup();
+      getList.mockRestore();
+      usePushesStore.setState({ decisionTaskMap: originalDecisionTasks });
+    }
   });
 
   // eslint-disable-next-line jest/no-disabled-tests

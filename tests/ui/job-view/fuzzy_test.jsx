@@ -1,4 +1,10 @@
-import { act, render, fireEvent, waitFor } from '@testing-library/react';
+import {
+  act,
+  render,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { cloneElement } from 'react';
 
 import fuzzyJobList from '../mock/job_list/fuzzy_jobs/fuzzyJobList.json';
@@ -173,13 +179,13 @@ describe('FuzzyJobFinder', () => {
           pushJobs: [{ job_type_name: 'build-linux64/opt', result: 'success' }],
         }),
       );
+      fireEvent.click(getByRole('button', { name: 'Add all' }));
       fireEvent.click(
         getByRole('checkbox', { name: 'Only tests with existing builds' }),
       );
       expect(
         queryAllByTestId('fuzzyList').map((row) => row.textContent),
       ).toEqual(['test-opt']);
-      fireEvent.click(getByRole('button', { name: 'Add all' }));
       await act(async () =>
         fireEvent.click(
           getByRole('button', { name: 'Trigger (1) Selected Jobs' }),
@@ -281,6 +287,100 @@ describe('FuzzyJobFinder', () => {
         currentRepo,
         revision,
       );
+    } finally {
+      trigger.mockRestore();
+    }
+  });
+
+  test('Retries only failed path jobs with their original paths after partial submission', async () => {
+    const load = jest.spyOn(TaskclusterModel, 'load').mockResolvedValue({
+      actions: [{ name: 'backfill-task' }],
+      staticActionVariables: {},
+    });
+    const submit = jest
+      .spyOn(TaskclusterModel, 'submit')
+      .mockResolvedValueOnce('first-action')
+      .mockRejectedValueOnce(new Error('Could not request second action'))
+      .mockResolvedValueOnce('retried-action');
+    const jobs = ['first', 'second'].map((name) => ({
+      name,
+      symbol: 'X',
+      pathScope: {
+        suite: 'xpcshell',
+        manifests: [`dom/${name}/xpcshell.toml`],
+      },
+    }));
+    const toggle = jest.fn();
+    try {
+      const { getByRole, getByLabelText } = render(
+        cloneElement(testFuzzyJobFinder, {
+          revision: 'the-revision',
+          jobList: jobs,
+          filteredJobList: jobs,
+          toggle,
+        }),
+      );
+      fireEvent.click(getByRole('button', { name: 'Add all' }));
+      const input = getByLabelText('Test paths');
+      fireEvent.change(input, { target: { value: '../invalid' } });
+      expect(getByRole('alert')).toHaveTextContent(
+        'Expected a repository-relative test path',
+      );
+      fireEvent.change(input, { target: { value: 'dom/first\ndom/second' } });
+
+      await act(async () =>
+        fireEvent.click(
+          getByRole('button', { name: 'Trigger (2) Selected Jobs' }),
+        ),
+      );
+      expect(toggle).not.toHaveBeenCalled();
+      expect(input).toHaveValue('dom/second');
+      const selectedJobs = within(document.getElementById('removeJobsGroup'));
+      const selectedOption = selectedJobs.getByRole('option', {
+        name: 'second',
+      });
+      selectedOption.selected = true;
+      fireEvent.change(selectedJobs.getByRole('listbox'));
+      expect(getByRole('button', { name: 'Remove selected' })).toBeEnabled();
+
+      await act(async () =>
+        fireEvent.click(
+          getByRole('button', { name: 'Trigger (1) Selected Jobs' }),
+        ),
+      );
+      expect(submit.mock.calls.map(([request]) => request.input.label)).toEqual(
+        ['first', 'second', 'second'],
+      );
+      expect(submit.mock.calls.at(-1)[0].input.test_manifests).toEqual({
+        xpcshell: ['dom/second/xpcshell.toml'],
+      });
+      expect(toggle).toHaveBeenCalledTimes(1);
+    } finally {
+      submit.mockRestore();
+      load.mockRestore();
+    }
+  });
+
+  test('Allows retry when submitting selected jobs fails', async () => {
+    const trigger = jest
+      .spyOn(PushModel, 'triggerNewJobs')
+      .mockRejectedValueOnce(new Error('Taskcluster unavailable'));
+    const toggle = jest.fn();
+    const jobs = [{ name: 'one-job' }];
+    try {
+      const { getByRole } = render(
+        cloneElement(testFuzzyJobFinder, {
+          jobList: jobs,
+          filteredJobList: jobs,
+          toggle,
+        }),
+      );
+      fireEvent.click(getByRole('button', { name: 'Add all' }));
+      const submit = getByRole('button', { name: 'Trigger (1) Selected Jobs' });
+      await act(async () => fireEvent.click(submit));
+      expect(trigger).toHaveBeenCalledTimes(1);
+      expect(submit).toBeEnabled();
+      expect(toggle).not.toHaveBeenCalled();
     } finally {
       trigger.mockRestore();
     }
@@ -403,6 +503,30 @@ describe('FuzzyJobFinder', () => {
       },
     ]);
     expect(unmatched).toEqual([paths[1]]);
+  });
+
+  test('Matches Mozilla-specific WPT paths against the published test group', () => {
+    const path = 'testing/web-platform/mozilla/tests/fetch';
+    const job = {
+      name: 'test-wpt-mozilla-1',
+      symbol: 'W1',
+      pathScope: {
+        suite: 'web-platform-tests',
+        manifests: ['/_mozilla/fetch/api'],
+      },
+    };
+    expect(planPathJobs([job], [path])).toEqual({
+      plan: [
+        {
+          label: job.name,
+          suite: 'web-platform-tests',
+          symbol: 'W1',
+          paths: ['/_mozilla/fetch/api'],
+          requestedPaths: [path],
+        },
+      ],
+      unmatched: [],
+    });
   });
 
   test('Fuzzy search gives expected results', async () => {
