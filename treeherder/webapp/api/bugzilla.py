@@ -1,3 +1,7 @@
+import base64
+import json
+import logging
+
 import requests
 from django.conf import settings
 from django.utils import timezone
@@ -10,6 +14,8 @@ from treeherder.auth.backends import get_scm_level
 from treeherder.model.models import Bugscache, BugzillaSecurityGroup
 from treeherder.utils.bugzilla import get_bug_url
 from treeherder.utils.http import make_request
+
+logger = logging.getLogger(__name__)
 
 
 def _bugzilla_permission_error(user):
@@ -26,6 +32,23 @@ def _bugzilla_permission_error(user):
         },
         status=HTTP_403_FORBIDDEN,
     )
+
+
+def _attach_agent_data(bug_id, agent_data, file_name, headers):
+    """The bug is already filed, so a failure is only logged."""
+    url = f"{settings.BUGFILER_API_URL}/rest/bug/{bug_id}/attachment"
+    try:
+        content = json.dumps(agent_data, indent=2).encode("utf-8")
+        data = {
+            "ids": [bug_id],
+            "data": base64.b64encode(content).decode("ascii"),
+            "file_name": file_name,
+            "summary": "Alert data for agents and tools",
+            "content_type": "application/json",
+        }
+        make_request(url, method="POST", headers=headers, json=data)
+    except Exception:
+        logger.warning("Failed to attach the alert data to bug %s", bug_id, exc_info=True)
 
 
 class BugzillaViewSet(viewsets.ViewSet):
@@ -134,6 +157,10 @@ class BugzillaViewSet(viewsets.ViewSet):
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
 
         bug_id = response.json()["id"]
+        agent_data = params.get("agent_data") if is_perf_bug else None
+        if agent_data:
+            file_name = params.get("agent_data_file_name") or "perf-alert.json"
+            _attach_agent_data(bug_id, agent_data, file_name, headers)
         summary = summary.decode("utf-8")
         # Creation API only returns the ID, but the bug will be updated later on by `treeherder.etl.bugzilla.BzApiBugProcess`
         internal_id = (

@@ -456,3 +456,50 @@ test('filterValidAlerts defaults to an empty array if filteredAlerts is undefine
 
   expect(dropdown.filterValidAlerts()).toEqual([]);
 });
+
+describe('Agent data for the bug attachment', () => {
+  const dropdown = new StatusDropdown({
+    alertSummary: testAlertSummaries[0],
+    frameworks: [],
+  });
+  const textualSummaryWith = (getAgentData) => ({ getAgentData });
+
+  test('is passed on when it can be made', () => {
+    const agentData = { alert_summary: 1, alerts: [] };
+
+    expect(
+      dropdown.getAgentData(
+        textualSummaryWith(() => agentData),
+        [],
+        null,
+        null,
+      ),
+    ).toBe(agentData);
+  });
+
+  test('is left out when it fails, so the bug is still filed', () => {
+    expect(
+      dropdown.getAgentData(
+        textualSummaryWith(() => {
+          throw new Error('no alerts');
+        }),
+        [],
+        null,
+        null,
+      ),
+    ).toBeNull();
+  });
+
+  test('is left out when it is too big for the request', () => {
+    const agentData = { alerts: ['x'.repeat(2 * 1000 * 1000)] };
+
+    expect(
+      dropdown.getAgentData(
+        textualSummaryWith(() => agentData),
+        [],
+        null,
+        null,
+      ),
+    ).toBeNull();
+  });
+});

@@ -3,6 +3,7 @@ import sortBy from 'lodash/sortBy';
 import {
   thBaseUrl,
   getPerfAnalysisUrl,
+  getPerfCompareBaseURL,
 } from '../../helpers/url';
 
 import { alertStatusMap } from './constants';
@@ -129,6 +130,36 @@ export const getTableRows = (sortedAlerts, { biggest, smallest }) => {
     hiddenCount: sortedAlerts.length - biggest - smallest,
   };
 };
+
+// Days of data before and after the alerting push in the agent data URLs
+const seriesDataDays = 14;
+const dayInMs = 24 * 60 * 60 * 1000;
+
+const phabricatorPattern =
+  /Differential Revision: (https:\/\/phabricator\.services\.mozilla\.com\/D\d+)/;
+
+export const getAgentCommit = (commit, repoModel = null) => {
+  const { revision, author = null, comments = '' } = commit;
+  const [title = ''] = comments.split('\n');
+  const bug = title.match(/\bBug (\d+)/i);
+  const isGit = repoModel?.dvcs_type === 'git';
+  return {
+    revision,
+    author,
+    title,
+    bug: bug ? Number(bug[1]) : null,
+    phabricator_url: comments.match(phabricatorPattern)?.[1] || null,
+    diff_url: repoModel ? repoModel.getRevisionHref(revision) : null,
+    raw_diff_url: repoModel
+      ? `${repoModel.url}/${isGit ? 'commit' : 'raw-rev'}/${revision}${
+          isGit ? '.diff' : ''
+        }`
+      : null,
+  };
+};
+
+export const getAgentAttachmentName = (alertSummaryId) =>
+  `perf-alert-${alertSummaryId}.json`;
 
 export default class TextualSummary {
   constructor(
@@ -357,5 +388,153 @@ export default class TextualSummary {
       return '';
     }
     return this.formatTable('improvements', improved, tableLimits.improvement);
+  }
+
+  // every alert, not only the table rows; labels need alertTasks
+  getAgentData(pushRevisions = [], repoModel = null, alertTasks = null) {
+    const { regressed, improved } = this.getSortedAlerts();
+    const alerts = [...regressed, ...improved];
+    if (alerts.length === 0) {
+      return null;
+    }
+
+    const {
+      id,
+      framework,
+      repository,
+      revision,
+      prev_push_revision: prevRevision,
+      push_timestamp: pushTimestamp,
+    } = this.alertSummary;
+    const frameworkName = getFrameworkName(this.frameworks, framework);
+    const commits = [
+      ...pushRevisions.filter((commit) => commit.revision === revision),
+      ...pushRevisions.filter((commit) => commit.revision !== revision),
+    ].map((commit) => getAgentCommit(commit, repoModel));
+    // the task behind a value, and whether it ran on the alerting push
+    const getTask = (task, metadata, alertRevision) => {
+      const known =
+        task ||
+        (metadata?.task_id && {
+          task_id: metadata.task_id,
+          retry_id: metadata.retry_id ?? null,
+          label: null,
+          revision: alertRevision,
+        });
+      return known
+        ? { ...known, is_alert_push: known.revision === alertRevision }
+        : null;
+    };
+
+    return {
+      alert_summary: id,
+      alert_summary_url: `${thBaseUrl}perfherder/alerts?id=${id}`,
+      framework: frameworkName,
+      framework_id: framework,
+      repository,
+      push_time: pushTimestamp
+        ? new Date(pushTimestamp * 1000).toISOString()
+        : null,
+      revisions: { before: prevRevision || null, after: revision },
+      pushlog_url: repoModel ? repoModel.getPushLogHref(revision) : null,
+      perfcompare_url: prevRevision
+        ? getPerfCompareBaseURL(
+            repository,
+            prevRevision,
+            repository,
+            revision,
+            framework,
+          )
+        : null,
+      commands: {
+        try: `./mach try perf --alert ${id}`,
+        local: `./mach perftest ${id}`,
+      },
+      commits,
+      regression_count: regressed.length,
+      improvement_count: improved.length,
+      alerts: alerts.map((alert) => {
+        const {
+          id: signatureId,
+          suite,
+          test,
+          machine_platform: platform,
+          extra_options: options = [],
+          measurement_unit: unit,
+          lower_is_better: lowerIsBetter,
+        } = alert.series_signature;
+        const perfdocs = new Perfdocs(frameworkName, suite, platform);
+        const tasks = alertTasks?.get(alert.id);
+        const extraData = this.browsertimeAlertsExtraData.find(
+          (item) => item.id === alert.id,
+        );
+        return {
+          alert_id: alert.id,
+          signature_id: signatureId,
+          test: suite,
+          subtest: test && test !== suite ? test : null,
+          platform,
+          options,
+          unit: unit || null,
+          lower_is_better:
+            typeof lowerIsBetter === 'boolean' ? lowerIsBetter : null,
+          is_regression: alert.is_regression,
+          before: alert.prev_value,
+          after: alert.new_value,
+          change_pct: alert.amount_pct,
+          change_abs: alert.amount_abs,
+          tasks: {
+            before: getTask(
+              tasks?.before,
+              alert.prev_taskcluster_metadata,
+              prevRevision,
+            ),
+            after: getTask(tasks?.after, alert.taskcluster_metadata, revision),
+          },
+          profile_urls: {
+            before: extraData?.prev_profile_url || null,
+            after: extraData?.profile_url || null,
+          },
+          docs_url: perfdocs.hasDocumentation()
+            ? perfdocs.documentationURL
+            : null,
+          graph_url: this.getGraphLink(alert),
+          data_url: this.getSeriesDataUrl(alert),
+        };
+      }),
+    };
+  }
+
+  // fixed dates keep the link useful later on
+  getSeriesDataUrl(alert) {
+    const { repository, push_timestamp: pushTimestamp } = this.alertSummary;
+    const { id: signatureId, framework_id: frameworkId } =
+      alert.series_signature;
+    const pushTime = pushTimestamp * 1000;
+    const toDay = (time) => new Date(time).toISOString().slice(0, 19);
+    const params = new URLSearchParams({
+      repository,
+      signature: signatureId,
+      framework: frameworkId,
+      startday: toDay(pushTime - seriesDataDays * dayInMs),
+      endday: toDay(pushTime + seriesDataDays * dayInMs),
+      all_data: true,
+      replicates: false,
+    });
+    return `${thBaseUrl}api/performance/summary/?${params}`;
+  }
+
+  // a copied summary can only point to the API
+  getAgentDetails(isAttached = false) {
+    const { regressed, improved } = this.getSortedAlerts();
+    if (regressed.length + improved.length === 0) {
+      return '';
+    }
+    const { id } = this.alertSummary;
+    return isAttached
+      ? `**For agents and tools:** the alert data is in the attachment \`${getAgentAttachmentName(
+          id,
+        )}\`.`
+      : `**For agents and tools:** the alert data is at ${thBaseUrl}api/performance/alertsummary/${id}/`;
   }
 }

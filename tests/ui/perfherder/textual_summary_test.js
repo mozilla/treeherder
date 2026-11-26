@@ -1,12 +1,15 @@
 import TextualSummary, {
   formatAlertValue,
   formatValueWithUnit,
+  getAgentAttachmentName,
+  getAgentCommit,
   getAlertOptions,
   getAbsoluteChange,
   getChangeArrow,
   getChangesSummary,
   valueSeparator,
 } from '../../../ui/perfherder/perf-helpers/textualSummary';
+import RepositoryModel from '../../../ui/models/repository';
 
 const frameworks = [{ id: 13, name: 'browsertime' }];
 const pushTimestamp = 1775822400; // Fri April 10 2026
@@ -485,5 +488,306 @@ describe('TextualSummary markdown', () => {
     ]);
 
     expect(row).toMatch(/&zoom=\d+,\d+,0,28\)/);
+  });
+});
+
+describe('agent data', () => {
+  const summaryWithRevisions = {
+    ...alertSummary,
+    revision: '7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+    prev_push_revision: '2d8cbc2c234e41ebcd36241c25f50f6ab61b8852',
+  };
+  const withTasks = (alert, before, after) => ({
+    ...alert,
+    prev_taskcluster_metadata: before ? { task_id: before, retry_id: 0 } : {},
+    taskcluster_metadata: after ? { task_id: after, retry_id: 0 } : {},
+  });
+
+  test('lists the alert, revisions, commits and task IDs for agents', () => {
+    const data = new TextualSummary(
+      frameworks,
+      [
+        withTasks(
+          getAlert(1, { extra_options: ['cold'] }, 12),
+          'prevTaskA',
+          'newTaskA',
+        ),
+        withTasks(getAlert(2, { test: '' }, 8), 'prevTaskB', null),
+      ],
+      summaryWithRevisions,
+    ).getAgentData([
+      { revision: '1339e591bd8b4c7e0a9f2d3b5c6e7f8091a2b3c4' },
+      { revision: '7ffa8f5446bf1b4e9318cb30f26576f5ee06a999' },
+    ]);
+
+    expect(data).toMatchObject({
+      alert_summary: 49649,
+      alert_summary_url:
+        'https://treeherder.mozilla.org/perfherder/alerts?id=49649',
+      framework: 'browsertime',
+      framework_id: 13,
+      repository: 'autoland',
+      push_time: '2026-04-10T12:00:00.000Z',
+      revisions: {
+        before: '2d8cbc2c234e41ebcd36241c25f50f6ab61b8852',
+        after: '7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+      },
+      perfcompare_url:
+        'https://perf.compare/compare-results?baseRev=2d8cbc2c234e41ebcd36241c25f50f6ab61b8852&baseRepo=autoland&newRev=7ffa8f5446bf1b4e9318cb30f26576f5ee06a999&newRepo=autoland&framework=13&sort=delta|desc',
+      commands: {
+        try: './mach try perf --alert 49649',
+        local: './mach perftest 49649',
+      },
+      regression_count: 2,
+      improvement_count: 0,
+    });
+    expect(data.alerts[0]).toMatchObject({
+      alert_id: 1,
+      signature_id: 10,
+      test: 'speedometer3',
+      subtest: 'Charts-observable-plot/Dotted/Async',
+      platform: 'linux2404-64-shippable',
+      options: ['cold'],
+      unit: 'ms',
+      lower_is_better: true,
+      is_regression: true,
+      before: 7.41,
+      after: 8.28,
+      change_pct: 12,
+      tasks: {
+        before: {
+          task_id: 'prevTaskA',
+          retry_id: 0,
+          label: null,
+          revision: '2d8cbc2c234e41ebcd36241c25f50f6ab61b8852',
+          is_alert_push: true,
+        },
+        after: {
+          task_id: 'newTaskA',
+          retry_id: 0,
+          label: null,
+          revision: '7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+          is_alert_push: true,
+        },
+      },
+      profile_urls: { before: null, after: null },
+      docs_url:
+        'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#speedometer3-b',
+    });
+    expect(data.commits.map((commit) => commit.revision)).toEqual([
+      '7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+      '1339e591bd8b4c7e0a9f2d3b5c6e7f8091a2b3c4',
+    ]);
+    expect(data.alerts[0].graph_url).toMatch(
+      /^https:\/\/treeherder\.mozilla\.org\/perfherder\/graphs\?/,
+    );
+    expect(data.alerts[1]).toMatchObject({
+      subtest: null,
+      tasks: {
+        before: expect.objectContaining({ task_id: 'prevTaskB' }),
+        after: null,
+      },
+    });
+  });
+
+  test('leaves out the push commits when they are unavailable', () => {
+    const data = new TextualSummary(
+      frameworks,
+      [getAlert(1)],
+      summaryWithRevisions,
+    ).getAgentData();
+
+    expect(data.commits).toEqual([]);
+    expect(data.pushlog_url).toBeNull();
+    expect(data.alerts[0].tasks).toEqual({ before: null, after: null });
+  });
+
+  test('lists every alert, not only the rows shown in long tables', () => {
+    const alerts = Array.from({ length: 18 }, (_, i) =>
+      getAlert(i + 1, {}, 30 - i),
+    );
+    const data = new TextualSummary(
+      frameworks,
+      alerts,
+      summaryWithRevisions,
+    ).getAgentData();
+
+    expect(data.alerts).toHaveLength(18);
+    expect(data.regression_count).toBe(18);
+  });
+
+  test('keeps unknown units and directions as null', () => {
+    const data = new TextualSummary(
+      frameworks,
+      [getAlert(1, { measurement_unit: '', lower_is_better: undefined })],
+      summaryWithRevisions,
+    ).getAgentData();
+
+    expect(data.alerts[0].unit).toBeNull();
+    expect(data.alerts[0].lower_is_better).toBeNull();
+  });
+
+  test('points to the attachment in filed bugs', () => {
+    const details = new TextualSummary(
+      frameworks,
+      [getAlert(1)],
+      summaryWithRevisions,
+    ).getAgentDetails(true);
+
+    expect(details).toBe(
+      '**For agents and tools:** the alert data is in the attachment `perf-alert-49649.json`.',
+    );
+    expect(getAgentAttachmentName(49649)).toBe('perf-alert-49649.json');
+  });
+
+  test('points to the API when there is no attachment', () => {
+    const details = new TextualSummary(
+      frameworks,
+      [getAlert(1)],
+      summaryWithRevisions,
+    ).getAgentDetails();
+
+    expect(details).toBe(
+      '**For agents and tools:** the alert data is at https://treeherder.mozilla.org/api/performance/alertsummary/49649/',
+    );
+  });
+
+  test('links each alert to two weeks of data around the push', () => {
+    const data = new TextualSummary(
+      frameworks,
+      [getAlert(1)],
+      summaryWithRevisions,
+    ).getAgentData();
+
+    expect(data.alerts[0].data_url).toBe(
+      'https://treeherder.mozilla.org/api/performance/summary/?repository=autoland&signature=10&framework=13&startday=2026-03-27T12%3A00%3A00&endday=2026-04-24T12%3A00%3A00&all_data=true&replicates=false',
+    );
+  });
+
+  test('adds the profiles from the browsertime extra data', () => {
+    const data = new TextualSummary(
+      frameworks,
+      [getAlert(1)],
+      summaryWithRevisions,
+      null,
+      [{ id: 1, prev_profile_url: 'https://before.zip', profile_url: 'https://after.zip' }],
+    ).getAgentData();
+
+    expect(data.alerts[0].profile_urls).toEqual({
+      before: 'https://before.zip',
+      after: 'https://after.zip',
+    });
+  });
+
+  test('links the push and its commits on hg repositories', () => {
+    const repoModel = new RepositoryModel({
+      name: 'autoland',
+      dvcs_type: 'hg',
+      url: 'https://hg.mozilla.org/integration/autoland',
+    });
+    const data = new TextualSummary(
+      frameworks,
+      [getAlert(1)],
+      summaryWithRevisions,
+    ).getAgentData(
+      [
+        {
+          revision: '7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+          author: 'Dev <dev@mozilla.com>',
+          comments:
+            'Bug 2069235 - Update PDF.js r=marco\n\nDifferential Revision: https://phabricator.services.mozilla.com/D323500\n',
+        },
+      ],
+      repoModel,
+    );
+
+    expect(data.pushlog_url).toBe(
+      'https://hg.mozilla.org/integration/autoland/pushloghtml?changeset=7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+    );
+    expect(data.commits).toEqual([
+      {
+        revision: '7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+        author: 'Dev <dev@mozilla.com>',
+        title: 'Bug 2069235 - Update PDF.js r=marco',
+        bug: 2069235,
+        phabricator_url: 'https://phabricator.services.mozilla.com/D323500',
+        diff_url:
+          'https://hg.mozilla.org/integration/autoland/rev/7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+        raw_diff_url:
+          'https://hg.mozilla.org/integration/autoland/raw-rev/7ffa8f5446bf1b4e9318cb30f26576f5ee06a999',
+      },
+    ]);
+  });
+
+  test('links git commits to their diff', () => {
+    const repoModel = new RepositoryModel({
+      name: 'firefox',
+      dvcs_type: 'git',
+      url: 'https://github.com/mozilla-firefox/firefox',
+    });
+
+    expect(
+      getAgentCommit({ revision: 'abc123', comments: 'No bug here' }, repoModel),
+    ).toEqual({
+      revision: 'abc123',
+      author: null,
+      title: 'No bug here',
+      bug: null,
+      phabricator_url: null,
+      diff_url: 'https://github.com/mozilla-firefox/firefox/commit/abc123',
+      raw_diff_url:
+        'https://github.com/mozilla-firefox/firefox/commit/abc123.diff',
+    });
+  });
+
+  test('uses the looked up tasks and their labels', () => {
+    const alertTasks = new Map([
+      [
+        1,
+        {
+          before: {
+            task_id: 'prevTask',
+            retry_id: 0,
+            label: 'test-linux/opt-browsertime-sp3',
+            revision: '2d8cbc2c234e41ebcd36241c25f50f6ab61b8852',
+          },
+          // the alerting push didn't run the test, a later push did
+          after: {
+            task_id: 'laterTask',
+            retry_id: 1,
+            label: 'test-linux/opt-browsertime-sp3',
+            revision: 'later0000000000000000000000000000000000000',
+          },
+        },
+      ],
+    ]);
+    const data = new TextualSummary(
+      frameworks,
+      [getAlert(1)],
+      summaryWithRevisions,
+    ).getAgentData([], null, alertTasks);
+
+    expect(data.alerts[0].tasks).toEqual({
+      before: {
+        task_id: 'prevTask',
+        retry_id: 0,
+        label: 'test-linux/opt-browsertime-sp3',
+        revision: '2d8cbc2c234e41ebcd36241c25f50f6ab61b8852',
+        is_alert_push: true,
+      },
+      after: {
+        task_id: 'laterTask',
+        retry_id: 1,
+        label: 'test-linux/opt-browsertime-sp3',
+        revision: 'later0000000000000000000000000000000000000',
+        is_alert_push: false,
+      },
+    });
+  });
+
+  test('is empty when there are no alerts', () => {
+    const summary = new TextualSummary(frameworks, [], summaryWithRevisions);
+    expect(summary.getAgentDetails(true)).toBe('');
+    expect(summary.getAgentData()).toBeNull();
   });
 });

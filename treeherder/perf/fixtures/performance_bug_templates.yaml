@@ -30,6 +30,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -51,6 +53,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -65,6 +69,8 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
 - model: perf.PerformanceBugTemplate
   pk: 2
   fields:
@@ -96,6 +102,8 @@
       5. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -116,6 +124,8 @@
       5. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -130,6 +140,8 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
 - model: perf.PerformanceBugTemplate
   pk: 4
   fields:
@@ -162,6 +174,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -183,6 +197,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -197,6 +213,8 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
 - model: perf.PerformanceBugTemplate
   pk: 5
   fields:
@@ -228,6 +246,8 @@
       5. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -248,6 +268,8 @@
       5. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -262,6 +284,8 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
 - model: perf.PerformanceBugTemplate
   pk: 6
   fields:
@@ -293,6 +317,8 @@
       5. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -313,6 +339,8 @@
       5. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -327,6 +355,8 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
 - model: perf.PerformanceBugTemplate
   pk: 8
   fields:
@@ -359,6 +389,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -380,6 +412,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -394,6 +428,8 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
 - model: perf.PerformanceBugTemplate
   pk: 9
   fields:
@@ -425,6 +461,8 @@
       5. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -445,6 +483,8 @@
       5. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -459,6 +499,8 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
 - model: perf.PerformanceBugTemplate
   pk: 10
   fields:
@@ -491,6 +533,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -512,6 +556,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -526,6 +572,8 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
 - model: perf.PerformanceBugTemplate
   pk: 11
   fields:
@@ -558,6 +606,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from {{ pushDescription }}
 
@@ -579,6 +629,8 @@
       6. [Get a profile](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) to compare what Firefox is doing before and after the change.
 
       For questions, please contact {{ user }}, or ask in [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ) / [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+      {{ agentDetails }}
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from {{ pushDescription }}
 
@@ -593,3 +645,5 @@
       If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+      {{ agentDetails }}
