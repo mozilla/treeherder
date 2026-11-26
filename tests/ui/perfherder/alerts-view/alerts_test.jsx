@@ -16,6 +16,7 @@ import {
   alertBackfillResultVisual,
   alertBackfillResultStatusMap,
   notSupportedAlertFiltersMessage,
+  summaryStatusMap,
 } from '../../../../ui/perfherder/perf-helpers/constants';
 import repos from '../../mock/repositories';
 import { getApiUrl } from '../../../../ui/helpers/url';
@@ -345,6 +346,25 @@ test('resolution in the URL initialises the resolution dropdown and is sent to t
     .calls()
     .find(([url]) => url.includes('resolution=infra'));
   expect(resolutionCall[0]).not.toMatch(/[?&]status=/);
+});
+
+test('an untriaged status with a resolution in the URL falls back to all statuses', async () => {
+  fetchMock.resetHistory();
+  const { findByText } = alertsView(
+    `?status=${summaryStatusMap['untriaged regressions']}&resolution=valid`,
+  );
+
+  await findByText('all statuses');
+  await waitFor(() =>
+    expect(
+      fetchMock.calls().some(([url]) => url.includes('resolution=valid')),
+    ).toBe(true),
+  );
+  const resolutionCall = fetchMock
+    .calls()
+    .find(([url]) => url.includes('resolution=valid'));
+  expect(resolutionCall[0]).not.toMatch(/[?&]status=/);
+  expect(resolutionCall[0]).not.toMatch(/untriaged_regressions/);
 });
 
 test('selecting a severity from the severity dropdown sends severity to the API', async () => {

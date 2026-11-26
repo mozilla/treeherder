@@ -17,6 +17,7 @@ import {
   resolutionMap,
   severityOptions,
   summaryStatusMap,
+  untriagedStatuses,
   endpoints,
   notSupportedAlertFiltersMessage,
 } from '../perf-helpers/constants';
@@ -82,14 +83,16 @@ function AlertsView({
   }, [frameworks]);
 
   const getDefaultStatus = (params) => {
-    const statusParam = convertParams(params, 'status');
-    if (!statusParam) {
-      const hasResolution = Object.values(resolutionMap).includes(params.resolution);
-      return getStatus(
-        summaryStatusMap[hasResolution ? 'all statuses' : 'untriaged'],
-      );
-    }
-    return getStatus(parseInt(params.status, 10));
+    const status = convertParams(params, 'status')
+      ? getStatus(parseInt(params.status, 10))
+      : getStatus(summaryStatusMap.untriaged);
+    const hasResolution = Object.values(resolutionMap).includes(
+      params.resolution,
+    );
+    // untriaged summaries have no resolution, so this pair would always be empty
+    return hasResolution && untriagedStatuses.includes(status)
+      ? 'all statuses'
+      : status;
   };
 
   const getDefaultFilterText = (params) => {

@@ -8,13 +8,12 @@ import {
   resolutionMap,
   severityOptions,
   summaryStatusMap,
+  untriagedStatuses,
 } from '../perf-helpers/constants';
 import PaginationGroup from '../shared/Pagination';
 import { sortData } from '../perf-helpers/sort';
 
 import AlertTable from './AlertTable';
-
-const UNTRIAGED_STATUSES = ['untriaged', 'untriaged regressions', 'untriaged improvements'];
 
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
@@ -65,7 +64,7 @@ export default class AlertsViewControls extends React.Component {
         status === 'all statuses' ? false : isInvalidStatus,
     });
     const filterUpdates = { status, hideDownstream: !isInvalidStatus };
-    if (UNTRIAGED_STATUSES.includes(status)) {
+    if (untriagedStatuses.includes(status)) {
       filterUpdates.resolution = 'all resolutions';
     }
     setFiltersState(filterUpdates);
@@ -80,7 +79,7 @@ export default class AlertsViewControls extends React.Component {
 
     if (
       resolution === 'all resolutions' ||
-      !UNTRIAGED_STATUSES.includes(filters.status)
+      !untriagedStatuses.includes(filters.status)
     ) {
       setFiltersState({ resolution });
       return;

@@ -107,6 +107,12 @@ export const summaryStatusMap = {
   infra: 9,
 };
 
+export const untriagedStatuses = [
+  'untriaged',
+  'untriaged regressions',
+  'untriaged improvements',
+];
+
 export const alertStatusMap = {
   untriaged: 0,
   downstream: 1,

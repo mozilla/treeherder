@@ -29,6 +29,7 @@ def backfill_resolution(apps, schema_editor):
 
     PerformanceAlertSummary = apps.get_model("perf", "PerformanceAlertSummary")
     PerformanceTag = apps.get_model("perf", "PerformanceTag")
+    tag, _ = PerformanceTag.objects.get_or_create(name=BACKED_OUT_TAG)
 
     backed_out_summaries = PerformanceAlertSummary.objects.filter(
         status=BACKED_OUT_STATUS, resolution__isnull=True
@@ -38,7 +39,6 @@ def backfill_resolution(apps, schema_editor):
         return
 
     backed_out_summaries.update(resolution="valid")
-    tag, _ = PerformanceTag.objects.get_or_create(name=BACKED_OUT_TAG)
 
     through = PerformanceTag.alert_summaries.through
     through.objects.bulk_create(
@@ -52,7 +52,7 @@ def backfill_resolution(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0087_performancealertsummary_resolution_and_more"),
+        ("perf", "0089_performancealertsummary_resolution_and_more"),
     ]
 
     operations = [

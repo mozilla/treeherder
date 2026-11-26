@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('perf', '0086_backfillrecord_needs_bisection'),
+        ('perf', '0088_alert_confidence_level'),
     ]
 
     operations = [
