@@ -1,4 +1,6 @@
+import base64
 import json
+from types import SimpleNamespace
 
 import pytest
 import responses
@@ -609,3 +611,97 @@ def test_create_bug_links_internal_bug_by_summary(
 
     existing.refresh_from_db()
     assert existing.bugzilla_id == 323
+
+
+AGENT_DATA = {"alert_summary": 52787, "alerts": [{"alert_id": 1, "unit": "ms"}]}
+
+
+@responses.activate
+@override_settings(PERF_SHERIFF_API_KEY="perf-key", BUGFILER_API_KEY="bug-key")
+def test_create_perf_bug_attaches_agent_data(client, test_scm_level_1_user):
+    responses.add(responses.POST, "https://thisisnotbugzilla.org/rest/bug", json={"id": 7})
+    responses.add(
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug/7/attachment",
+        json={"ids": [100]},
+    )
+    client.force_authenticate(user=test_scm_level_1_user)
+
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {
+            **PERF_BUG_PAYLOAD,
+            "agent_data": AGENT_DATA,
+            "agent_data_file_name": "perf-alert-52787.json",
+        },
+        format="json",
+    )
+
+    assert resp.status_code == 200
+    assert resp.json()["id"] == 7
+    assert "agent_data" not in json.loads(responses.calls[0].request.body)
+    attachment = json.loads(responses.calls[1].request.body)
+    assert responses.calls[1].request.headers["x-bugzilla-api-key"] == "perf-key"
+    assert attachment["ids"] == [7]
+    assert attachment["file_name"] == "perf-alert-52787.json"
+    assert attachment["content_type"] == "application/json"
+    assert json.loads(base64.b64decode(attachment["data"])) == AGENT_DATA
+
+
+@responses.activate
+@override_settings(PERF_SHERIFF_API_KEY="perf-key", BUGFILER_API_KEY="bug-key")
+def test_create_perf_bug_succeeds_when_attachment_fails(client, test_scm_level_1_user):
+    responses.add(responses.POST, "https://thisisnotbugzilla.org/rest/bug", json={"id": 7})
+    responses.add(
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug/7/attachment",
+        status=500,
+    )
+    client.force_authenticate(user=test_scm_level_1_user)
+
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {**PERF_BUG_PAYLOAD, "agent_data": AGENT_DATA},
+        format="json",
+    )
+
+    assert resp.status_code == 200
+    assert resp.json()["id"] == 7
+
+
+@responses.activate
+@override_settings(PERF_SHERIFF_API_KEY="perf-key", BUGFILER_API_KEY="bug-key")
+def test_create_perf_bug_succeeds_when_attachment_cannot_be_made(
+    client, test_scm_level_1_user, monkeypatch
+):
+    responses.add(responses.POST, "https://thisisnotbugzilla.org/rest/bug", json={"id": 7})
+    client.force_authenticate(user=test_scm_level_1_user)
+
+    def broken_b64encode(*args, **kwargs):
+        raise ValueError("can't encode")
+
+    monkeypatch.setattr(
+        "treeherder.webapp.api.bugzilla.base64", SimpleNamespace(b64encode=broken_b64encode)
+    )
+
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {**PERF_BUG_PAYLOAD, "agent_data": AGENT_DATA},
+        format="json",
+    )
+
+    assert resp.status_code == 200
+    assert resp.json()["id"] == 7
+    assert len(responses.calls) == 1
+
+
+@responses.activate
+@override_settings(PERF_SHERIFF_API_KEY="perf-key", BUGFILER_API_KEY="bug-key")
+def test_create_perf_bug_without_agent_data_skips_attachment(client, test_scm_level_1_user):
+    responses.add(responses.POST, "https://thisisnotbugzilla.org/rest/bug", json={"id": 7})
+    client.force_authenticate(user=test_scm_level_1_user)
+
+    resp = client.post(reverse("bugzilla-create-bug"), PERF_BUG_PAYLOAD, format="json")
+
+    assert resp.status_code == 200
+    assert len(responses.calls) == 1

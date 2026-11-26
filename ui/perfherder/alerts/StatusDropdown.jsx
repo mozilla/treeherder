@@ -5,13 +5,17 @@ import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
 import {
+  formatPushDescription,
+  getAcknowledgeByDate,
   getFilledBugSummary,
   getFrameworkName,
   getStatus,
   updateAlertSummary,
 } from '../perf-helpers/helpers';
 import { create, getData } from '../../helpers/http';
-import TextualSummary from '../perf-helpers/textualSummary';
+import TextualSummary, {
+  getAgentAttachmentName,
+} from '../perf-helpers/textualSummary';
 import {
   bugzillaBugsApi,
   bzBaseUrl,
@@ -25,6 +29,8 @@ import {
 } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
+import PushModel from '../../models/push';
+import { getAlertTasks } from '../perf-helpers/alertTasks';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
 
 import AlertModal from './AlertModal';
@@ -32,6 +38,9 @@ import FileBugModal from './FileBugModal';
 import NotesModal from './NotesModal';
 import TagsModal from './TagsModal';
 import AlertStatusCountdown from './AlertStatusCountdown';
+
+// below the 2.5 MB request limit, which also carries comment 0
+const maxAgentDataBytes = 2 * 1000 * 1000;
 
 export default class StatusDropdown extends React.Component {
   constructor(props) {
@@ -151,13 +160,17 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const templateArgs = this.getTemplateArgs(
+    const templateArgs = await this.getTemplateArgs(
       frameworks,
       alertSummary,
       repoModel,
       textualSummary,
       user,
       perfCompareURL,
+      {
+        attachAgentData: true,
+        alertTasks: await this.fetchAlertTasks(alertSummary, validAlerts),
+      },
     );
 
     if (showCriticalFileBugModal) {
@@ -188,6 +201,8 @@ export default class StatusDropdown extends React.Component {
       whiteboard: result.status_whiteboard,
       needinfo_from: componentInfo.data.triage_owner,
       is_backout_requested: showCriticalFileBugModal,
+      agent_data: templateArgs.agentData,
+      agent_data_file_name: getAgentAttachmentName(alertSummary.id),
     };
 
     if (!culpritDetails.failureStatus) {
@@ -226,23 +241,76 @@ export default class StatusDropdown extends React.Component {
     };
   };
 
-  getTemplateArgs(
+  // null on failure, so the bug is still filed
+  fetchAlertTasks = async (alertSummary, alerts) => {
+    try {
+      return await getAlertTasks(alertSummary, alerts);
+    } catch {
+      return null;
+    }
+  };
+
+  getPushRevisions = async (alertSummary) => {
+    const { repository, revision } = alertSummary;
+    const { data, failureStatus } = await PushModel.getList({
+      repo: repository,
+      revision,
+    });
+    return (failureStatus ? [] : data?.results?.[0]?.revisions) || [];
+  };
+
+  // null if it fails or is too big, so the bug is filed without it
+  getAgentData = (textualSummary, pushRevisions, repoModel, alertTasks) => {
+    try {
+      const agentData = textualSummary.getAgentData(
+        pushRevisions,
+        repoModel,
+        alertTasks,
+      );
+      const size = new Blob([JSON.stringify(agentData)]).size;
+      return size <= maxAgentDataBytes ? agentData : null;
+    } catch {
+      return null;
+    }
+  };
+
+  async getTemplateArgs(
     frameworks,
     alertSummary,
     repoModel,
     textualSummary,
     user,
     perfCompareURL,
+    { attachAgentData = false, alertTasks = null } = {},
   ) {
     const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
+    const revisionHref = repoModel.getPushLogHref(alertSummary.revision);
+    const pushRevisions = await this.getPushRevisions(alertSummary);
     return {
       bugType: 'defect',
       framework: frameworkName,
       revision: alertSummary.revision,
-      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
+      revisionHref,
+      pushDescription: formatPushDescription(
+        alertSummary.revision,
+        revisionHref,
+        pushRevisions,
+      ),
       alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
+      changesSummary: textualSummary.summaryLine,
       alertSummary: textualSummary.markdown,
+      // only filed bugs get the attachment, other comments point to the API
+      agentDetails: textualSummary.getAgentDetails(attachAgentData),
+      agentData: attachAgentData
+        ? this.getAgentData(
+            textualSummary,
+            pushRevisions,
+            repoModel,
+            alertTasks,
+          )
+        : null,
       alertSummaryId: alertSummary.id,
+      acknowledgeByDate: getAcknowledgeByDate(),
       user: user.email,
       perfCompareURL,
     };
@@ -280,7 +348,7 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const templateArgs = this.getTemplateArgs(
+    const templateArgs = await this.getTemplateArgs(
       frameworks,
       alertSummary,
       repoModel,
@@ -393,7 +461,7 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const templateArgs = this.getTemplateArgs(
+    const templateArgs = await this.getTemplateArgs(
       frameworks,
       alertSummary,
       repoModel,
