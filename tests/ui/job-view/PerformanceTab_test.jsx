@@ -306,4 +306,79 @@ describe('PerformanceTab', () => {
         `?profileName=${encodeURIComponent('build-linux/opt (task-id.0)')}`,
     );
   });
+
+  test('A/B job shows a comparison link for each base/new profile pair', () => {
+    const artifact = (path, value) => ({
+      url: `https://tc.example/artifacts/public/${path}/${value}`,
+      path,
+      value,
+    });
+    const { getAllByTestId } = render(
+      testPerformanceTab({
+        selectedJobFull: {
+          job_type_name: 'browsertime-benchmark-firefox-sp3-vs-custom-car',
+          job_type_symbol: 'sp3',
+          job_group_name: 'Browsertime',
+          abSideNames: ['Chrome', 'Firefox'],
+        },
+        jobDetails: [
+          artifact('test_info/base', 'profile_sp3_compact.jslb.gz'),
+          artifact('test_info/new', 'profile_sp3_compact.jslb.gz'),
+          artifact('test_info/base', 'profile_sp3_all_processes.jslb.gz'),
+          artifact('test_info/new', 'profile_sp3_all_processes.jslb.gz'),
+          artifact('test_info/base', 'profile_only-base_compact.jslb.gz'),
+        ],
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: { hasDocumentation: () => false },
+          },
+        ],
+      }),
+    );
+
+    const links = getAllByTestId('compare-ab-profiles');
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveTextContent('Open profile comparison');
+    const url = new URL(links[0].href);
+    expect(url.origin + url.pathname).toBe(
+      'https://deploy-preview-6012--perf-html.netlify.app/compare-benchmark/',
+    );
+    expect(url.searchParams.getAll('names[]')).toEqual(['Chrome', 'Firefox']);
+    expect(url.searchParams.getAll('profiles[]')).toEqual(
+      ['base', 'new'].map(
+        (side) =>
+          `https://profiler.firefox.com/from-url/${encodeURIComponent(
+            `https://tc.example/artifacts/public/test_info/${side}/profile_sp3_compact.jslb.gz`,
+          )}/calltree/?globalTrackOrder=0&thread=0&v=17`,
+      ),
+    );
+  });
+
+  test('A/B job with the same browser on both sides uses Base and New', () => {
+    const { getByTestId } = render(
+      testPerformanceTab({
+        selectedJobFull: {
+          job_type_name: 'browsertime-benchmark-firefox-sp3-ab',
+          job_type_symbol: 'sp3',
+          job_group_name: 'Browsertime',
+          abSideNames: null,
+        },
+        jobDetails: ['base', 'new'].map((side) => ({
+          url: `https://tc.example/test_info/${side}/profile_sp3_compact.jslb.gz`,
+          path: `test_info/${side}`,
+          value: 'profile_sp3_compact.jslb.gz',
+        })),
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: { hasDocumentation: () => false },
+          },
+        ],
+      }),
+    );
+
+    const url = new URL(getByTestId('compare-ab-profiles').href);
+    expect(url.searchParams.getAll('names[]')).toEqual(['Base', 'New']);
+  });
 });
