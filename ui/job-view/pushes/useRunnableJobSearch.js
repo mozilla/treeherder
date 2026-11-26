@@ -45,7 +45,14 @@ export default function useRunnableJobSearch(jobs, query, isOpen) {
       }
     };
     worker.onerror = () => setFailedJobs(jobs);
-    worker.postMessage(jobs.map((job) => job.name));
+    worker.postMessage(
+      jobs.map(({ name, symbol, groupsymbol, symbolAliases }) => ({
+        name,
+        symbol,
+        groupsymbol,
+        symbolAliases,
+      })),
+    );
 
     return () => {
       search.current = null;

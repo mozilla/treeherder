@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -47,11 +47,11 @@ function FuzzyJobFinder({
   // option to show the full list.
   const currentList = useFullList ? jobList : filteredJobList;
 
-  const { matches: fuzzyList, pending, failed } = useRunnableJobSearch(
-    currentList,
-    fuzzySearch,
-    isOpen,
-  );
+  const {
+    matches: fuzzyList,
+    pending,
+    failed,
+  } = useRunnableJobSearch(currentList, fuzzySearch, isOpen);
 
   // Only the first slice is turned into DOM nodes (see MAX_RENDERED_JOBS).
   const visibleJobs = useMemo(
@@ -59,13 +59,20 @@ function FuzzyJobFinder({
     [fuzzyList],
   );
 
-  if (addJobsSelected.length > 0) {
+  const visibleSelection = useMemo(() => {
+    if (addJobsSelected.length === 0) return addJobsSelected;
     const visibleNames = new Set(visibleJobs.map((job) => job.name));
     const remaining = addJobsSelected.filter((name) => visibleNames.has(name));
-    if (remaining.length !== addJobsSelected.length) {
-      setAddJobsSelected(remaining);
+    return remaining.length === addJobsSelected.length
+      ? addJobsSelected
+      : remaining;
+  }, [addJobsSelected, visibleJobs]);
+
+  useEffect(() => {
+    if (visibleSelection !== addJobsSelected) {
+      setAddJobsSelected(visibleSelection);
     }
-  }
+  }, [addJobsSelected, visibleSelection]);
 
   const selectedSet = useMemo(() => new Set(selectedList), [selectedList]);
   const sortedSelectedList = useMemo(
@@ -99,15 +106,12 @@ function FuzzyJobFinder({
     setRemoveDisabled(true);
   }, []);
 
-  const addJobs = useCallback(
-    () => {
-      if (pending) return;
-      // When adding jobs, add only new, unique job names to avoid duplicates
-      setSelectedList((prev) => [...new Set([...prev, ...addJobsSelected])]);
-      setAddJobsSelected([]);
-    },
-    [addJobsSelected, pending],
-  );
+  const addJobs = useCallback(() => {
+    if (pending) return;
+    // When adding jobs, add only new, unique job names to avoid duplicates
+    setSelectedList((prev) => [...new Set([...prev, ...visibleSelection])]);
+    setAddJobsSelected([]);
+  }, [visibleSelection, pending]);
 
   const removeJobs = useCallback(() => {
     setSelectedList((prev) =>
@@ -191,17 +195,12 @@ function FuzzyJobFinder({
             <Button
               onClick={addJobs}
               variant="success"
-              disabled={addJobsSelected.length === 0}
-              aria-disabled={pending || undefined}
+              disabled={pending || visibleSelection.length === 0}
             >
               Add selected
             </Button>
             &nbsp;
-            <Button
-              variant="success"
-              onClick={addAllJobs}
-              aria-disabled={pending || undefined}
-            >
+            <Button variant="success" onClick={addAllJobs} disabled={pending}>
               Add all
             </Button>
           </div>
@@ -216,7 +215,7 @@ function FuzzyJobFinder({
             <Form.Control
               as="select"
               multiple
-              value={addJobsSelected}
+              value={visibleSelection}
               onChange={updateAddButton}
             >
               {visibleJobs.map((e) => (

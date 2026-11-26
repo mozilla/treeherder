@@ -1,6 +1,8 @@
 test('The worker entry point posts matching indices and transfers their buffer', async () => {
   const originalOnMessage = self.onmessage;
-  const postMessage = jest.spyOn(self, 'postMessage').mockImplementation(() => {});
+  const postMessage = jest
+    .spyOn(self, 'postMessage')
+    .mockImplementation(() => {});
   global.WorkerGlobalScope = class WorkerGlobalScope {};
 
   try {
@@ -8,7 +10,9 @@ test('The worker entry point posts matching indices and transfers their buffer',
       await import('../../../ui/job-view/pushes/runnableJobSearch.worker');
     });
 
-    self.onmessage({ data: ['test-linux64/opt', 'asan', 'build'] });
+    self.onmessage({
+      data: [{ name: 'test-linux64/opt' }, { name: 'asan' }, { name: 'build' }],
+    });
     expect(postMessage).not.toHaveBeenCalled();
 
     self.onmessage({ data: '!asan' });
