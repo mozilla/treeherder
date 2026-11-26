@@ -7,7 +7,12 @@ import searchLinuxResults from '../mock/job_list/fuzzy_jobs/search_linux_results
 import searchDebugResults from '../mock/job_list/fuzzy_jobs/search_debug_results.json';
 import FuzzyJobFinder from '../../../ui/job-view/pushes/FuzzyJobFinder';
 import PushModel from '../../../ui/models/push';
+import TaskclusterModel from '../../../ui/models/taskcluster';
 import { getPickerMetadata } from '../../../ui/job-view/pushes/runnableJobMetadata.worker';
+import {
+  normalizeTestPaths,
+  planPathJobs,
+} from '../../../ui/job-view/pushes/runnableJobPaths';
 import { createSearchHandler } from '../../../ui/job-view/pushes/runnableJobSearch.worker';
 
 class SearchWorker {
@@ -190,8 +195,149 @@ describe('FuzzyJobFinder', () => {
     }
   });
 
+  test('Filters by existing builds and submits only the chunks matching test paths', async () => {
+    const trigger = jest
+      .spyOn(PushModel, 'triggerJobsForPaths')
+      .mockResolvedValue({
+        submitted: [{ label: 'test-a', taskId: 'task-id' }],
+        failed: [],
+      });
+    const suite = 'mochitest-browser-chrome';
+    const revision = 'the-revision';
+    const jobs = [
+      {
+        name: 'test-a',
+        symbol: 'bc',
+        buildDependency: 'build-a',
+        pathScope: {
+          suite,
+          manifests: ['browser/components/one/browser.toml'],
+        },
+      },
+      {
+        name: 'test-unused-chunk',
+        symbol: 'bc2',
+        buildDependency: 'build-a',
+        pathScope: {
+          suite,
+          manifests: ['browser/components/unrelated/browser.toml'],
+        },
+      },
+      {
+        name: 'test-b',
+        symbol: 'bc',
+        buildDependency: 'build-b',
+        pathScope: {
+          suite,
+          manifests: ['browser/components/two/browser.toml'],
+        },
+      },
+    ];
+    try {
+      const { getByRole, getByLabelText, findByText, queryAllByTestId } =
+        render(
+          cloneElement(testFuzzyJobFinder, {
+            revision,
+            jobList: jobs,
+            filteredJobList: jobs,
+            pushJobs: [{ job_type_name: 'build-a', result: 'success' }],
+          }),
+        );
+      fireEvent.click(
+        getByRole('checkbox', { name: 'Only tests with existing builds' }),
+      );
+      expect(
+        queryAllByTestId('fuzzyList').map((row) => row.textContent),
+      ).toEqual(['test-a', 'test-unused-chunk']);
+      fireEvent.click(getByRole('button', { name: 'Add all' }));
+      const input = getByLabelText('Test paths');
+      fireEvent.change(input, { target: { value: 'browser/components/one' } });
+      await findByText('1 task matches the test paths');
+
+      fireEvent.change(input, { target: { value: 'browser/components/two' } });
+      expect(
+        getByRole('button', { name: 'Trigger (0) Selected Jobs' }),
+      ).toBeDisabled();
+      expect(getByRole('alert')).toHaveTextContent(
+        'No selected test groups match',
+      );
+
+      fireEvent.change(input, { target: { value: 'browser/components/one' } });
+      const triggerButton = getByRole('button', {
+        name: 'Trigger (1) Selected Jobs',
+      });
+      await act(async () => fireEvent.click(triggerButton));
+      expect(trigger).toHaveBeenCalledWith(
+        [
+          {
+            label: 'test-a',
+            suite,
+            symbol: 'bc',
+            paths: ['browser/components/one/browser.toml'],
+            requestedPaths: ['browser/components/one'],
+          },
+        ],
+        decisionTaskId,
+        currentRepo,
+        revision,
+      );
+    } finally {
+      trigger.mockRestore();
+    }
+  });
+
+  test('Uses the push backfill action with the existing manifest payload contract', async () => {
+    const action = { name: 'backfill-task' };
+    const load = jest.spyOn(TaskclusterModel, 'load').mockResolvedValue({
+      actions: [action],
+      staticActionVariables: {},
+    });
+    const submit = jest
+      .spyOn(TaskclusterModel, 'submit')
+      .mockResolvedValue('action-task-id');
+    const plan = [
+      {
+        label: 'test-label',
+        suite: 'xpcshell',
+        symbol: 'X1',
+        paths: ['dom/test/xpcshell.toml'],
+      },
+    ];
+    try {
+      await expect(
+        PushModel.triggerJobsForPaths(
+          plan,
+          decisionTaskId,
+          currentRepo,
+          'revision',
+        ),
+      ).resolves.toEqual({
+        failed: [],
+        submitted: [{ label: 'test-label', taskId: 'action-task-id' }],
+      });
+      expect(submit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action,
+          decisionTaskId,
+          input: {
+            label: 'test-label',
+            revision: 'revision',
+            symbol: 'X1',
+            test_manifests: { xpcshell: ['dom/test/xpcshell.toml'] },
+            times: 1,
+            retrigger: true,
+          },
+        }),
+      );
+    } finally {
+      submit.mockRestore();
+      load.mockRestore();
+    }
+  });
+
   test('Reads picker metadata from the published full task graph', () => {
     const label = 'test-linux2404-64/opt-mochitest-browser-chrome-swr-1';
+    const manifests = ['browser/components/one/browser.toml'];
     expect(
       getPickerMetadata({
         [label]: {
@@ -199,6 +345,7 @@ describe('FuzzyJobFinder', () => {
             unittest_suite: 'mochitest-browser-chrome',
             unittest_variant: 'webrender-sw',
             test_platform: 'linux2404-64/opt',
+            test_manifests: manifests,
           },
           dependencies: { build: 'build-linux64/opt' },
           task: {
@@ -206,6 +353,7 @@ describe('FuzzyJobFinder', () => {
               treeherder: { tier: 2 },
               chunks: { current: 1, total: 2 },
             },
+            payload: { env: { MOZHARNESS_TEST_PATHS: '{}' } },
           },
         },
       })[label],
@@ -214,7 +362,47 @@ describe('FuzzyJobFinder', () => {
       chunkPattern: 'test-linux2404-64/opt-mochitest-browser-chrome-swr-*',
       specialized: true,
       buildDependency: 'build-linux64/opt',
+      pathScope: { suite: 'mochitest-browser-chrome', manifests },
     });
+  });
+
+  test('Matches paths at directory boundaries and narrows WPT groups', () => {
+    expect(normalizeTestPaths('../outside').error).toBeTruthy();
+    expect(normalizeTestPaths('./browser/components/one/')).toEqual({
+      paths: ['browser/components/one'],
+    });
+    const paths = [
+      'testing/web-platform/tests/css/subdir',
+      'browser/components/one',
+    ];
+    const { plan, unmatched } = planPathJobs(
+      [
+        {
+          name: 'wpt',
+          symbol: 'w',
+          pathScope: { suite: 'web-platform-tests', manifests: ['/css'] },
+        },
+        {
+          name: 'mochitest',
+          symbol: 'm',
+          pathScope: {
+            suite: 'mochitest-browser-chrome',
+            manifests: ['browser/components/one-more/browser.toml'],
+          },
+        },
+      ],
+      paths,
+    );
+    expect(plan).toEqual([
+      {
+        label: 'wpt',
+        symbol: 'w',
+        suite: 'web-platform-tests',
+        paths: [paths[0]],
+        requestedPaths: [paths[0]],
+      },
+    ]);
+    expect(unmatched).toEqual([paths[1]]);
   });
 
   test('Fuzzy search gives expected results', async () => {

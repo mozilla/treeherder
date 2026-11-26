@@ -42,6 +42,8 @@ const specializedSuffixes = [
   'zygote',
 ];
 const specializedSuffix = new RegExp(`-(?:${specializedSuffixes.join('|')})$`);
+const pathSuites =
+  /^(mochitest|xpcshell|reftest|crashtest|web-platform-tests)(-|$)/;
 
 function chunkPattern(label, chunks) {
   if (label.endsWith('-cf') || !/-\d+$/.test(label)) return label;
@@ -74,17 +76,24 @@ export function getPickerMetadata(graph) {
         kind === 'perftest' ||
         suite === 'talos';
 
-      return [
-        [
-          label,
-          {
-            tier: treeherder.tier,
-            chunkPattern: chunkPattern(label, chunks),
-            specialized,
-            buildDependency: dependencies.build,
-          },
-        ],
-      ];
+      const metadata = {
+        tier: treeherder.tier,
+        chunkPattern: chunkPattern(label, chunks),
+        specialized,
+        buildDependency: dependencies.build,
+      };
+      if (
+        pathSuites.test(suite ?? '') &&
+        !label.endsWith('-cf') &&
+        !['reftest-qr', 'crashtest-qr', 'xpcshell-msix'].includes(suite) &&
+        Array.isArray(attributes.test_manifests) &&
+        attributes.test_manifests.length &&
+        task.payload?.env?.MOZHARNESS_TEST_PATHS
+      ) {
+        metadata.pathScope = { suite, manifests: attributes.test_manifests };
+      }
+
+      return [[label, metadata]];
     }),
   );
 }

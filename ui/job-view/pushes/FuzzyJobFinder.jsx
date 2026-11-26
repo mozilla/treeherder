@@ -16,6 +16,7 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { sortAlphaNum } from '../../helpers/sort';
 import { notify } from '../../shared/stores/notificationStore';
 
+import { normalizeTestPaths, planPathJobs } from './runnableJobPaths';
 import useRunnableJobSearch from './useRunnableJobSearch';
 
 // Cap how many <option> nodes we actually render. On firefox repos the
@@ -34,6 +35,7 @@ function FuzzyJobFinder({
   filteredJobList = EMPTY_JOBS,
   pushJobs = EMPTY_JOBS,
   decisionTaskId = '',
+  revision = '',
   currentRepo,
 }) {
   const [fuzzySearch, setFuzzySearch] = useState('');
@@ -46,12 +48,26 @@ function FuzzyJobFinder({
   const [existingBuildsOnly, setExistingBuildsOnly] = useState(false);
   const [addJobsSelected, setAddJobsSelected] = useState([]);
   const [removeJobsSelected, setRemoveJobsSelected] = useState([]);
+  const [pathInput, setPathInput] = useState('');
   const controlId = useId();
+  const pathMode = Boolean(pathInput.trim());
 
   const jobsByLabel = useMemo(
     () => new Map(jobList.map((job) => [job.name, job])),
     [jobList],
   );
+  const hasPathMetadata = revision && jobList.some((job) => job.pathScope);
+  const { pathError, pathJobs, unmatchedPaths } = useMemo(() => {
+    if (!pathMode) return {};
+    const { paths, error } = normalizeTestPaths(pathInput);
+    if (error) return { pathError: error };
+    const { plan, unmatched } = planPathJobs(
+      selectedList.map((label) => jobsByLabel.get(label)),
+      paths,
+    );
+    return { pathJobs: plan, unmatchedPaths: unmatched };
+  }, [jobsByLabel, pathInput, pathMode, selectedList]);
+
   // By default we show a trimmed down list of runnable jobs, but there's an
   // option to show the full list.
   const availableJobs = useFullList ? jobList : filteredJobList;
@@ -79,6 +95,7 @@ function FuzzyJobFinder({
   const currentList = useMemo(() => {
     const groups = new Map();
     for (const job of availableJobs) {
+      if (pathMode && !job.pathScope) continue;
       if (!showSpecialized && (job.specialized || Number(job.tier) > 1))
         continue;
       if (buildFilter && !buildFilter.has(job.buildDependency)) continue;
@@ -87,7 +104,7 @@ function FuzzyJobFinder({
       groups.get(name).labels.push(job.name);
     }
     return [...groups.values()];
-  }, [availableJobs, buildFilter, showChunkNumbers, showSpecialized]);
+  }, [availableJobs, buildFilter, pathMode, showChunkNumbers, showSpecialized]);
   const matchesByName = useMemo(
     () => new Map(currentList.map((job) => [job.name, job.labels])),
     [currentList],
@@ -132,6 +149,7 @@ function FuzzyJobFinder({
     setShowChunkNumbers(false);
     setShowSpecialized(false);
     setExistingBuildsOnly(false);
+    setPathInput('');
     setRemoveJobsSelected([]);
     setAddJobsSelected([]);
   }, []);
@@ -168,25 +186,64 @@ function FuzzyJobFinder({
     setRemoveDisabled(true);
   }, [removeJobsSelected]);
 
-  const canSubmit = !submitDisabled && selectedList.length > 0;
+  const canSubmit =
+    !submitDisabled &&
+    selectedList.length > 0 &&
+    (!pathMode || (pathJobs?.length > 0 && !unmatchedPaths.length));
 
   const submitJobs = useCallback(async () => {
     if (!canSubmit) return;
     notify('Submitting selected jobs...');
     setSubmitDisabled(true);
     try {
-      const result = await PushModel.triggerNewJobs(
-        selectedList,
-        decisionTaskId,
-        currentRepo,
-      );
-      notify(result, 'success');
+      if (pathMode) {
+        const { failed, submitted } = await PushModel.triggerJobsForPaths(
+          pathJobs,
+          decisionTaskId,
+          currentRepo,
+          revision,
+        );
+        if (failed.length) {
+          const failedLabels = new Set(failed.map((job) => job.label));
+          const retryPaths = new Set(
+            pathJobs
+              .filter((job) => failedLabels.has(job.label))
+              .flatMap((job) => job.requestedPaths),
+          );
+          setSelectedList([...failedLabels]);
+          setPathInput([...retryPaths].join('\n'));
+          notify(
+            `Requested ${submitted.length} of ${pathJobs.length} path-scoped jobs. ${formatTaskclusterError(failed[0].error)}`,
+            'danger',
+            { sticky: true },
+          );
+          setSubmitDisabled(false);
+          return;
+        }
+        notify(`Requested ${submitted.length} path-scoped jobs.`, 'success');
+      } else {
+        const result = await PushModel.triggerNewJobs(
+          selectedList,
+          decisionTaskId,
+          currentRepo,
+        );
+        notify(result, 'success');
+      }
       toggle();
     } catch (error) {
       notify(formatTaskclusterError(error), 'danger', { sticky: true });
       setSubmitDisabled(false);
     }
-  }, [canSubmit, selectedList, decisionTaskId, currentRepo, toggle]);
+  }, [
+    canSubmit,
+    pathMode,
+    pathJobs,
+    decisionTaskId,
+    currentRepo,
+    revision,
+    selectedList,
+    toggle,
+  ]);
 
   const toggleFullList = useCallback((evt) => {
     setUseFullList(evt.target.checked);
@@ -284,6 +341,27 @@ function FuzzyJobFinder({
               />
             )}
           </div>
+          {hasPathMetadata && (
+            <Form.Group controlId={`${controlId}-test-paths`} className="my-2">
+              <Form.Label>Test paths</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                placeholder="One repository-relative directory per line"
+                value={pathInput}
+                disabled={submitDisabled}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setPathInput(value);
+                  if (value.trim()) {
+                    setSelectedList((prev) =>
+                      prev.filter((label) => jobsByLabel.get(label)?.pathScope),
+                    );
+                  }
+                }}
+              />
+            </Form.Group>
+          )}
           <h4> Runnable Jobs [{fuzzyList.length}]</h4>
           <div className="fuzzybuttons">
             <Button
@@ -365,10 +443,31 @@ function FuzzyJobFinder({
               ))}
             </Form.Control>
           </InputGroup>
+          {pathError && <div role="alert">{pathError}</div>}
+          {selectedList.length > 0 && unmatchedPaths?.length > 0 && (
+            <div role="alert">
+              No selected test groups match {unmatchedPaths.join(', ')}.
+            </div>
+          )}
+          {pathJobs?.length > 0 && (
+            <details className="mt-2">
+              <summary>
+                {pathJobs.length === 1
+                  ? '1 task matches the test paths'
+                  : `${pathJobs.length} tasks match the test paths`}
+              </summary>
+              <ul>
+                {pathJobs.slice(0, MAX_RENDERED_JOBS).map(({ label }) => (
+                  <li key={label}>{label}</li>
+                ))}
+              </ul>
+            </details>
+          )}
         </ModalBody>
         <ModalFooter>
           <Button variant="primary" onClick={submitJobs} disabled={!canSubmit}>
-            Trigger ({selectedList.length}) Selected Jobs
+            Trigger ({pathMode ? (pathJobs?.length ?? 0) : selectedList.length})
+            Selected Jobs
           </Button>{' '}
           <Button
             variant="secondary"
@@ -388,6 +487,7 @@ FuzzyJobFinder.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   decisionTaskId: PropTypes.string,
+  revision: PropTypes.string,
   jobList: PropTypes.arrayOf(PropTypes.shape({})),
   filteredJobList: PropTypes.arrayOf(PropTypes.shape({})),
   pushJobs: PropTypes.arrayOf(PropTypes.shape({})),

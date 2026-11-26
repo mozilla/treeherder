@@ -531,7 +531,7 @@ function Push({
               runnableJobMetadata.current = null;
             }
             notify(
-              'Job tier, chunk, and build details are unavailable for this push.',
+              'Job tier, chunk, build, and path details are unavailable for this push.',
             );
             return {};
           },
@@ -676,6 +676,7 @@ function Push({
         jobList={fuzzyJobList}
         filteredJobList={filteredFuzzyList}
         pushJobs={jobList}
+        revision={revision}
         className="fuzzy-modal"
         pushId={id}
         decisionTaskId={decisionTaskId}

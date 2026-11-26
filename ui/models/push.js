@@ -27,6 +27,8 @@ const convertDates = function convertDates(locationParams) {
   return locationParams;
 };
 
+const pathActionConcurrency = 4;
+
 export const decisionTaskIdCache = {};
 
 export default class PushModel {
@@ -120,6 +122,58 @@ export default class PushModel {
         );
       },
     );
+  }
+
+  static async triggerJobsForPaths(
+    plan,
+    decisionTaskId,
+    currentRepo,
+    revision,
+  ) {
+    const results = await TaskclusterModel.load(
+      decisionTaskId,
+      null,
+      currentRepo,
+    );
+    const action = getAction(results.actions, 'backfill-task');
+    const failed = [];
+    const submitted = [];
+    for (
+      let offset = 0;
+      offset < plan.length;
+      offset += pathActionConcurrency
+    ) {
+      const batch = plan.slice(offset, offset + pathActionConcurrency);
+      const requests = await Promise.allSettled(
+        batch.map((job) =>
+          TaskclusterModel.submit({
+            action,
+            decisionTaskId,
+            taskId: null,
+            task: null,
+            input: {
+              label: job.label,
+              revision,
+              symbol: job.symbol,
+              test_manifests: { [job.suite]: job.paths },
+              times: 1,
+              retrigger: true,
+            },
+            staticActionVariables: results.staticActionVariables,
+            currentRepo,
+          }),
+        ),
+      );
+      requests.forEach((request, index) => {
+        const { label } = batch[index];
+        if (request.status === 'fulfilled') {
+          submitted.push({ label, taskId: request.value });
+        } else {
+          failed.push({ label, error: request.reason });
+        }
+      });
+    }
+    return { failed, submitted };
   }
 
   static getHealth(repoName, revision) {
