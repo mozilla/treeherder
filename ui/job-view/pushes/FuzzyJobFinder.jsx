@@ -10,21 +10,13 @@ import {
   ModalFooter,
   InputGroup,
 } from 'react-bootstrap';
-import Fuse from 'fuse.js';
 
 import PushModel from '../../models/push';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { sortAlphaNum } from '../../helpers/sort';
 import { notify } from '../../shared/stores/notificationStore';
 
-const FUSE_OPTIONS = {
-  // http://fusejs.io/ describes the options available
-  useExtendedSearch: true,
-  keys: ['name', 'symbol'],
-  threshold: 0.4, // This seems like a good threshold to remove most false matches, lower is stricter
-  matchAllTokens: true,
-  tokenize: true,
-};
+import useRunnableJobSearch from './useRunnableJobSearch';
 
 // Cap how many <option> nodes we actually render. On firefox repos the
 // runnable list can be tens of thousands of jobs; mounting (and later tearing
@@ -32,20 +24,20 @@ const FUSE_OPTIONS = {
 // slice keeps the modal responsive; the header still shows the true match
 // count, and narrowing the search brings the real matches under the cap.
 const MAX_RENDERED_JOBS = 500;
+const EMPTY_JOBS = [];
 
 function FuzzyJobFinder({
   className,
   isOpen,
   toggle,
-  jobList = [],
-  filteredJobList = [],
+  jobList = EMPTY_JOBS,
+  filteredJobList = EMPTY_JOBS,
   decisionTaskId = '',
   currentRepo,
 }) {
   const [fuzzySearch, setFuzzySearch] = useState('');
   const [selectedList, setSelectedList] = useState([]);
   const [removeDisabled, setRemoveDisabled] = useState(true);
-  const [addDisabled, setAddDisabled] = useState(true);
   const [submitDisabled, setSubmitDisabled] = useState(false);
   const [useFullList, setUseFullList] = useState(false);
   const [addJobsSelected, setAddJobsSelected] = useState([]);
@@ -55,32 +47,25 @@ function FuzzyJobFinder({
   // option to show the full list.
   const currentList = useFullList ? jobList : filteredJobList;
 
-  // Build the Fuse index only when the underlying list changes, instead of
-  // rebuilding it from scratch on every search (expensive with tens of
-  // thousands of runnable tasks).
-  const fuse = useMemo(() => new Fuse(currentList, FUSE_OPTIONS), [currentList]);
-
-  /*
-   *  The list of runnable jobs to display, derived from the current search term.
-   *  Filtering only happens when `enter` is pressed (which updates `fuzzySearch`)
-   *  rather than on every keystroke, as the fuzzy search is costly over large
-   *  lists. When the search is empty we fall back to the full (filtered) list of
-   *  runnable jobs. Memoized so the search + sort only reruns when the term or
-   *  source list changes, not on every re-render (e.g. selecting an option).
-   */
-  const fuzzyList = useMemo(() => {
-    const matches = fuzzySearch
-      ? fuse.search(fuzzySearch).map((job) => job.item)
-      : currentList;
-    // Sort a copy.
-    return [...matches].sort(sortAlphaNum);
-  }, [fuse, fuzzySearch, currentList]);
+  const { matches: fuzzyList, pending, failed } = useRunnableJobSearch(
+    currentList,
+    fuzzySearch,
+    isOpen,
+  );
 
   // Only the first slice is turned into DOM nodes (see MAX_RENDERED_JOBS).
   const visibleJobs = useMemo(
     () => fuzzyList.slice(0, MAX_RENDERED_JOBS),
     [fuzzyList],
   );
+
+  if (addJobsSelected.length > 0) {
+    const visibleNames = new Set(visibleJobs.map((job) => job.name));
+    const remaining = addJobsSelected.filter((name) => visibleNames.has(name));
+    if (remaining.length !== addJobsSelected.length) {
+      setAddJobsSelected(remaining);
+    }
+  }
 
   const selectedSet = useMemo(() => new Set(selectedList), [selectedList]);
   const sortedSelectedList = useMemo(
@@ -89,9 +74,7 @@ function FuzzyJobFinder({
   );
 
   const filterJobs = useCallback((ev) => {
-    if (ev && ev.type === 'keydown' && ev.key === 'Enter') {
-      setFuzzySearch(ev.target.value);
-    }
+    setFuzzySearch(ev.target.value);
   }, []);
 
   const resetForm = useCallback(() => {
@@ -100,14 +83,16 @@ function FuzzyJobFinder({
     setSubmitDisabled(false);
     setFuzzySearch('');
     setUseFullList(false);
+    setAddJobsSelected([]);
   }, []);
 
   const addAllJobs = useCallback(() => {
+    if (pending) return;
     const selectedOptions = Array.from(fuzzyList, (option) => option.name);
 
     // When adding jobs, add only new, unique job names to avoid duplicates
     setSelectedList((prev) => [...new Set([...prev, ...selectedOptions])]);
-  }, [fuzzyList]);
+  }, [fuzzyList, pending]);
 
   const removeAllJobs = useCallback(() => {
     setSelectedList([]);
@@ -115,12 +100,13 @@ function FuzzyJobFinder({
   }, []);
 
   const addJobs = useCallback(
-    (evt) => {
+    () => {
+      if (pending) return;
       // When adding jobs, add only new, unique job names to avoid duplicates
       setSelectedList((prev) => [...new Set([...prev, ...addJobsSelected])]);
-      evt.target.parentNode.previousElementSibling.selectedIndex = -1;
+      setAddJobsSelected([]);
     },
-    [addJobsSelected],
+    [addJobsSelected, pending],
   );
 
   const removeJobs = useCallback(() => {
@@ -149,19 +135,14 @@ function FuzzyJobFinder({
   }, [selectedList, decisionTaskId, currentRepo, notify, toggle]);
 
   const toggleFullList = useCallback((evt) => {
-    // `currentList` (and therefore `fuzzyList`) derives from this state, so the
-    // list re-derives automatically with the current search term applied.
     setUseFullList(evt.target.checked);
+    setAddJobsSelected([]);
   }, []);
 
   const updateAddButton = useCallback((evt) => {
-    const selectedOptions = Array.from(
-      evt.target.selectedOptions,
-      (option) => option.textContent,
+    setAddJobsSelected(
+      Array.from(evt.target.selectedOptions, (option) => option.value),
     );
-
-    setAddDisabled(selectedOptions.length === 0);
-    setAddJobsSelected(selectedOptions);
   }, []);
 
   const updateRemoveButton = useCallback((evt) => {
@@ -188,8 +169,9 @@ function FuzzyJobFinder({
             <Col sm={10}>
               <Form.Control
                 type="search"
-                onKeyDown={filterJobs}
-                placeholder="Filter runnable jobs: 'Android', 'Mochitest', 'Build', etc..."
+                value={fuzzySearch}
+                onChange={filterJobs}
+                placeholder="Try: ^test- 'mochitest !asan !tsan"
                 className="my-2"
                 title="Filter the list of runnable jobs"
               />
@@ -206,11 +188,20 @@ function FuzzyJobFinder({
           </Form.Group>
           <h4> Runnable Jobs [{fuzzyList.length}]</h4>
           <div className="fuzzybuttons">
-            <Button onClick={addJobs} variant="success" disabled={addDisabled}>
+            <Button
+              onClick={addJobs}
+              variant="success"
+              disabled={addJobsSelected.length === 0}
+              aria-disabled={pending || undefined}
+            >
               Add selected
             </Button>
             &nbsp;
-            <Button variant="success" onClick={addAllJobs}>
+            <Button
+              variant="success"
+              onClick={addAllJobs}
+              aria-disabled={pending || undefined}
+            >
               Add all
             </Button>
           </div>
@@ -220,8 +211,14 @@ function FuzzyJobFinder({
               Refine your search to narrow the list.
             </small>
           )}
-          <InputGroup id="addJobsGroup">
-            <Form.Control as="select" multiple onChange={updateAddButton}>
+          {failed && <div role="alert">Unable to search runnable jobs.</div>}
+          <InputGroup id="addJobsGroup" aria-busy={pending && !failed}>
+            <Form.Control
+              as="select"
+              multiple
+              value={addJobsSelected}
+              onChange={updateAddButton}
+            >
               {visibleJobs.map((e) => (
                 <option
                   data-testid="fuzzyList"
