@@ -1,5 +1,6 @@
 import base64
 import json
+from types import SimpleNamespace
 
 import pytest
 import responses
@@ -676,10 +677,12 @@ def test_create_perf_bug_succeeds_when_attachment_cannot_be_made(
     responses.add(responses.POST, "https://thisisnotbugzilla.org/rest/bug", json={"id": 7})
     client.force_authenticate(user=test_scm_level_1_user)
 
-    def broken_dumps(*args, **kwargs):
+    def broken_b64encode(*args, **kwargs):
         raise ValueError("can't encode")
 
-    monkeypatch.setattr("treeherder.webapp.api.bugzilla.json.dumps", broken_dumps)
+    monkeypatch.setattr(
+        "treeherder.webapp.api.bugzilla.base64", SimpleNamespace(b64encode=broken_b64encode)
+    )
 
     resp = client.post(
         reverse("bugzilla-create-bug"),
