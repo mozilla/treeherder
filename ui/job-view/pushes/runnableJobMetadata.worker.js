@@ -1,12 +1,47 @@
 const instrumentedBuild = /(?:^|[-/])(asan|tsan|ccov)(?:[-/]|$)/;
-const supplementalVariants = new Set([
+// Task label suffixes from Gecko's taskcluster/test_configs/variants.yml.
+const specializedSuffixes = [
+  '1proc',
   'a11y-checks',
-  'confirm-failure',
+  'aab',
+  'async',
+  'cf',
+  'condprof',
+  'csp-next',
+  'emesigned',
+  'emewmf',
+  'fis-hv',
+  'headless',
+  'http2',
+  'http3',
+  'ioi',
+  'isolated',
+  'java-media',
+  'mda-gpu',
+  'msix',
+  'nofis',
+  'nogpu',
+  'np',
+  'openh264',
+  'pb',
+  'pb-ioi',
   'repeat',
+  's',
   'standalone',
-  'urlbar-ipc',
-  'vertical-tabs',
-]);
+  'swr',
+  'trainhop-beta',
+  'trainhop-rel',
+  'uipc',
+  'vt',
+  'wmfme',
+  'wr-dc0',
+  'wr-dc1-p',
+  'wr-dc2-o',
+  'wr-dc3-c',
+  'xorig',
+  'zygote',
+];
+const specializedSuffix = new RegExp(`-(?:${specializedSuffixes.join('|')})$`);
 
 function chunkPattern(label, chunks) {
   if (label.endsWith('-cf') || !/-\d+$/.test(label)) return label;
@@ -23,11 +58,10 @@ export function getPickerMetadata(graph) {
       const treeherder = extra?.treeherder;
       if (!treeherder) return [];
 
-      const {
-        run_on_projects: projects,
-        unittest_suite: suite,
-        unittest_variant: variant,
-      } = attributes;
+      const suite = attributes.unittest_suite;
+      const chunks = extra.chunks;
+      const chunked = Number.isInteger(chunks) || chunks?.total > 1;
+      const unchunkedLabel = chunked ? label.replace(/-\d+$/, '') : label;
       const buildSettings = extra['test-setting']?.build;
       const specialized =
         instrumentedBuild.test(dependencies.build ?? label) ||
@@ -35,12 +69,7 @@ export function getPickerMetadata(graph) {
           buildSettings?.asan || buildSettings?.tsan || buildSettings?.ccov,
         ) ||
         Boolean(attributes['duplicate-of']) ||
-        label.endsWith('-cf') ||
-        Boolean(
-          variant &&
-          (projects?.length === 0 ||
-            variant.split('+').some((id) => supplementalVariants.has(id))),
-        ) ||
+        specializedSuffix.test(unchunkedLabel) ||
         kind === 'browsertime' ||
         kind === 'perftest' ||
         suite === 'talos';
@@ -50,7 +79,7 @@ export function getPickerMetadata(graph) {
           label,
           {
             tier: treeherder.tier,
-            chunkPattern: chunkPattern(label, extra.chunks),
+            chunkPattern: chunkPattern(label, chunks),
             specialized,
             buildDependency: dependencies.build,
           },

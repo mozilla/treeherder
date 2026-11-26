@@ -70,97 +70,38 @@ describe('FuzzyJobFinder', () => {
   );
 
   test.each([
+    ['test-linux2404-64/opt-mochitest-media-2', { total: 3 }, false],
+    ['test-linux2404-64/opt-mochitest-browser-media', undefined, false],
+    ['test-linux2404-64/opt-mochitest-browser-a11y', undefined, false],
+    ['test-linux2404-64/opt-mochitest-media-nogpu-2', { total: 3 }, true],
     [
-      'mochitest-media',
-      'linux2404-64/opt',
-      null,
-      ['trunk'],
-      'build-linux64/opt',
-      false,
-    ],
-    [
-      'mochitest-media',
-      'linux2404-64/opt',
-      'no-gpu-process',
-      ['trunk'],
-      'build-linux64/opt',
-      false,
-    ],
-    [
-      'mochitest-browser-media',
-      'linux2404-64/opt',
-      null,
-      ['trunk'],
-      'build-linux64/opt',
-      false,
-    ],
-    [
-      'mochitest-browser-a11y',
-      'linux2404-64/opt',
-      null,
-      ['trunk'],
-      'build-linux64/opt',
-      false,
-    ],
-    [
-      'mochitest-a11y',
-      'linux2404-64/opt',
-      '1proc',
-      ['trunk'],
-      'build-linux64/opt',
-      false,
-    ],
-    [
-      'mochitest-plain',
-      'android-hw-a55/opt',
-      null,
-      ['trunk'],
-      'build-android-aarch64/opt',
-      false,
-    ],
-    [
-      'mochitest-media',
-      'linux2404-64-asan/opt',
-      null,
-      ['trunk'],
-      'build-linux64-asan/opt',
+      'test-linux2404-64/opt-mochitest-browser-chrome-swr-2',
+      { total: 3 },
       true,
     ],
     [
-      'mochitest-browser-chrome',
-      'linux2404-64/opt',
-      'webrender-sw+a11y-checks',
-      ['trunk'],
-      'build-linux64/opt',
+      'test-linux2404-64/opt-mochitest-browser-chrome-swr-uipc-2',
+      { total: 3 },
       true,
     ],
+    ['test-windows11-64/opt-xpcshell-msix', undefined, true],
     [
-      'mochitest-browser-chrome',
-      'linux2404-64/opt',
-      'headless',
-      [],
-      'build-linux64/opt',
+      'test-linux2404-64/opt-mochitest-browser-chrome-a11y-checks',
+      undefined,
       true,
     ],
-  ])(
-    'classifies %s on %s with variant %s',
-    (suite, platform, variant, projects, build, specialized) => {
-      const label = `test-${platform}-${suite}`;
-      const metadata = getPickerMetadata({
-        [label]: {
-          kind: 'mochitest',
-          attributes: {
-            run_on_projects: projects,
-            unittest_suite: suite,
-            unittest_variant: variant,
-          },
-          dependencies: { build },
-          task: { extra: { treeherder: { tier: 1 } } },
-        },
-      });
-      expect(metadata[label].specialized).toBe(specialized);
-    },
-  );
+    ['test-linux2404-64/opt-mochitest-browser-chrome-2-cf', { total: 3 }, true],
+    ['test-linux2404-64/opt-mochitest-plain-swr-extra', undefined, false],
+    ['test-linux2404-64-asan/opt-mochitest-media', undefined, true],
+  ])('classifies the suffix of %s', (label, chunks, specialized) => {
+    const metadata = getPickerMetadata({
+      [label]: {
+        attributes: { run_on_projects: ['trunk'] },
+        task: { extra: { treeherder: { tier: 1 }, chunks } },
+      },
+    });
+    expect(metadata[label].specialized).toBe(specialized);
+  });
 
   test('Shows an empty list while runnable jobs are unavailable', () => {
     const { getByText, getByRole } = render(
@@ -271,7 +212,7 @@ describe('FuzzyJobFinder', () => {
     ).toEqual({
       tier: 2,
       chunkPattern: 'test-linux2404-64/opt-mochitest-browser-chrome-swr-*',
-      specialized: false,
+      specialized: true,
       buildDependency: 'build-linux64/opt',
     });
   });
