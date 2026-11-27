@@ -19,8 +19,7 @@ import { thBugSuggestionLimit } from './constants';
 //    "signature": "<crash signature>", ...}
 //
 //   {"action": "log", "time": <ms>, "level": "ERROR" | "CRITICAL",
-//    "message": "TEST-UNEXPECTED-FAIL | <what> | <detail>",
-//    "stack": "<frames, one per line>"}   // `stack` is optional
+//    "message": "TEST-UNEXPECTED-FAIL | <what> | <detail>"}
 //
 //   {"action": "ubsan_error", "time": <ms>, "kind": "undefined-behavior",
 //    "message": "<runtime error message>", "file": "<path>", "lineno": <n>,
@@ -47,9 +46,7 @@ import { thBugSuggestionLimit } from './constants';
 // (LeakSanitizer/TSan reports, shutdown leak checks, harness errors). It
 // carries no `test`/`group`, so it is filed under the manifest it names or
 // the group open at the time, as its own entry, and never mistaken for a
-// test run. The TBPL formatter prints its `stack` under the message, and
-// mozharness logs each line of that at the record's level: each is a line of
-// the entry, as in the classic Failure Summary.
+// test run.
 //
 // A `ubsan_error` line is an UndefinedBehaviorSanitizer report the harness
 // attributed to the test it was running (`test`), or to the manifest open
@@ -433,7 +430,6 @@ export const buildTestSummary = (content) => {
   // nothing, so a second identical one is still filed.
   const recordHarnessLine = ({
     message,
-    moreLines = [],
     group,
     logTime,
     classicLine,
@@ -443,7 +439,6 @@ export const buildTestSummary = (content) => {
     if (!consoleLine) {
       cover(message);
       cover(classicLine);
-      moreLines.forEach(cover);
     }
     const pathEnd = pathEndOfLine(message);
     harnessLines += 1;
@@ -454,7 +449,7 @@ export const buildTestSummary = (content) => {
         status: HARNESS_STATUS,
         success: false,
         message,
-        messages: [message, ...moreLines],
+        messages: [message],
         logTime,
         start: null,
         end: null,
@@ -595,21 +590,12 @@ export const buildTestSummary = (content) => {
         // Only ERROR/CRITICAL lines reach the artifact (mozlog's
         // TestSummaryFormatter filters the rest); be defensive anyway.
         if (!line.message || !FAILURE_LOG_LEVELS.has(line.level)) return;
-        const printed =
-          typeof line.stack === 'string' && line.stack
-            ? `${line.message}\n${line.stack}`
-            : line.message;
-        const [message, ...moreLines] = printed
-          .split(PYTHON_LINE_BREAK_RE)
-          .map((part) => part.trimEnd())
-          .filter((part) => part.trim());
-        if (!message) return;
+        const { message } = line;
         const tokens = message.split(' | ');
         const scope =
           tokens.length > 1 ? tokens[tokens.length - 1].trim() : '';
         recordHarnessLine({
           message,
-          moreLines,
           group: knownGroups.has(scope) ? scope : currentGroup,
           logTime: logTimeOf(line),
         });
