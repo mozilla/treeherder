@@ -203,8 +203,24 @@ button.btn.runnable-job-btn.filter-shown {
   .push-jobs-scroll button.btn.group-symbol,
   .push-jobs-scroll button.btn.runnable-job-btn {
     min-height: 26px;
-    min-width: 26px;
+    margin-left: 2px;
     margin-right: 2px;
+  }
+
+  .push-jobs-scroll .platform-group {
+    display: inline-block;
+  }
+
+  .push-jobs-scroll button.btn:has(+ button.btn) {
+    margin-right: 6px;
+  }
+
+  /* The job list and the count list are separate spans, so the last job
+     before a count (e.g. "rust(cargo-audit +3)") needs its own rule. */
+  .push-jobs-scroll
+    .group-job-list:has(+ .group-count-list > button)
+    > button:last-child {
+    margin-right: 6px;
   }
 }
 
