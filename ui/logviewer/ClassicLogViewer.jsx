@@ -65,12 +65,7 @@ const ClassicLogViewer = ({
   const resolvedLogLine = useMemo(
     () =>
       logTarget && lineCount
-        ? resolveLogLine(
-            lines,
-            logTarget.texts,
-            logTarget.time,
-            logTarget.after,
-          )
+        ? resolveLogLine(lines, logTarget.texts, logTarget.time)
         : null,
     [logTarget, lines, lineCount],
   );
@@ -291,7 +286,6 @@ ClassicLogViewer.propTypes = {
   logTarget: PropTypes.shape({
     texts: PropTypes.arrayOf(PropTypes.string).isRequired,
     time: PropTypes.number,
-    after: PropTypes.arrayOf(PropTypes.string),
   }),
   onLogTargetResolved: PropTypes.func,
 };
