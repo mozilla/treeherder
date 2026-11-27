@@ -8,6 +8,7 @@ import {
   faRedo,
   faTable,
   faFilm,
+  faColumns,
 } from '@fortawesome/free-solid-svg-icons';
 import { faYoutube } from '@fortawesome/free-brands-svg-icons';
 
@@ -15,6 +16,7 @@ import {
   getPerfCompareChooserUrl,
   getJobsUrl,
   getPerfAnalysisUrl,
+  getProfilerCompareUrl,
   isResourceUsageProfile,
 } from '../../../helpers/url';
 import { triggerTask } from '../../../helpers/performance';
@@ -136,6 +138,48 @@ class PerformanceTab extends React.PureComponent {
     );
   };
 
+  // A/B perf jobs upload one profile per side, in test_info/base and
+  // test_info/new. Returns one comparison link per profile name that exists
+  // on both sides.
+  getAbProfileCompareLinks = () => {
+    const { jobDetails = [], selectedJobFull } = this.props;
+    const sideProfiles = (path) =>
+      new Map(
+        jobDetails
+          .filter(
+            ({ path: detailPath, value }) =>
+              detailPath === path &&
+              value.startsWith('profile_') &&
+              value.endsWith('_compact.jslb.gz'),
+          )
+          .map(({ value, url }) => [value, url]),
+      );
+    const baseProfiles = sideProfiles('test_info/base');
+    const newProfiles = sideProfiles('test_info/new');
+    const names = selectedJobFull.abSideNames || ['Base', 'New'];
+
+    return [...baseProfiles.keys()]
+      .filter((profile) => newProfiles.has(profile))
+      .sort()
+      .map((profile) => (
+        <a
+          key={profile}
+          title={`Compare ${names.join(' and ')} profiles: ${profile}`}
+          href={getProfilerCompareUrl(
+            [baseProfiles.get(profile), newProfiles.get(profile)],
+            names,
+          )}
+          className="btn btn-darker-secondary btn-sm"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid="compare-ab-profiles"
+        >
+          <FontAwesomeIcon icon={faColumns} className="me-2" />
+          Open profile comparison
+        </a>
+      ));
+  };
+
   render() {
     const {
       repoName,
@@ -164,6 +208,7 @@ class PerformanceTab extends React.PureComponent {
             // the primary action of the user here.
             profilerLink
           }
+          {this.getAbProfileCompareLinks()}
           {perfTest ? (
             <Button
               className={`btn ${

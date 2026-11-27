@@ -311,6 +311,7 @@ describe('fetchTaskData', () => {
       testGroups: [],
       taskQueueId: null,
       dependencies: [],
+      abSideNames: null,
       taskExpired: false,
     });
   });
@@ -326,6 +327,7 @@ describe('fetchTaskData', () => {
       testGroups: [],
       taskQueueId: null,
       dependencies: [],
+      abSideNames: null,
       taskExpired: true,
     });
   });
@@ -345,7 +347,29 @@ describe('fetchTaskData', () => {
       testGroups: [],
       taskQueueId: 'gecko-3/b-linux',
       dependencies: ['BUILD_TASK', 'DOCKER_TASK'],
+      abSideNames: null,
       taskExpired: false,
     });
+  });
+
+  it('returns browser names for A/B tasks comparing different browsers', async () => {
+    Queue.mockImplementationOnce(() => ({
+      task: jest.fn().mockResolvedValue({
+        payload: {
+          env: {
+            RAPTOR_AB_CONFIG: JSON.stringify({
+              runs: {
+                base: { browser: 'custom-car' },
+                new: { browser: 'firefox' },
+              },
+            }),
+          },
+        },
+      }),
+    }));
+
+    const result = await fetchTaskData('AB_TASK', 'https://tc.example');
+
+    expect(result.abSideNames).toEqual(['Chrome', 'Firefox']);
   });
 });

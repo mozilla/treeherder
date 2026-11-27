@@ -161,6 +161,31 @@ export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url, job) {
   return profilerUrl;
 };
 
+// The profiler's benchmark comparison view is not deployed to
+// profiler.firefox.com yet, so it is served from a deploy preview.
+const profilerCompareBenchmarkUrl =
+  'https://deploy-preview-6012--perf-html.netlify.app/compare-benchmark/';
+
+// Returns a URL that compares two or more profiles side by side.
+// `profileUrls` and `names` have one entry per profile.
+export const getProfilerCompareUrl = function getProfilerCompareUrl(
+  profileUrls,
+  names,
+) {
+  const params = [
+    ...names.map((name) => ['names[]', name]),
+    ...profileUrls.map((url) => [
+      'profiles[]',
+      `https://profiler.firefox.com/from-url/${encodeURIComponent(
+        url,
+      )}/calltree/?globalTrackOrder=0&thread=0&v=17`,
+    ]),
+  ];
+  return `${profilerCompareBenchmarkUrl}?${params
+    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+    .join('&')}`;
+};
+
 export const getCrashViewerUrl = function getCrashViewerUrl(crashJsonUrl) {
   return `https://tests.firefox.dev/crash-viewer.html?url=${encodeURIComponent(
     crashJsonUrl,

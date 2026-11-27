@@ -20,13 +20,43 @@ import useLineBugSuggestions from './useLineBugSuggestions';
 // Debounce delay for loading job details when rapidly switching jobs
 const JOB_DETAILS_DEBOUNCE_MS = 200;
 
+const AB_BROWSER_NAMES = { firefox: 'Firefox', 'custom-car': 'Chrome' };
+
+// Returns the display names of the base and new sides of an A/B perf task.
+// The names are the browsers if the two sides run different browsers, and
+// null otherwise.
+const getAbSideNames = (env) => {
+  if (!env?.RAPTOR_AB_CONFIG) {
+    return null;
+  }
+  try {
+    const { runs } = JSON.parse(env.RAPTOR_AB_CONFIG);
+    const browsers = [runs.base.browser, runs.new.browser];
+    if (browsers[0] === browsers[1]) {
+      return null;
+    }
+    return browsers.map((browser) => AB_BROWSER_NAMES[browser] || browser);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error parsing RAPTOR_AB_CONFIG:', error);
+    return null;
+  }
+};
+
 export const fetchTaskData = async (taskId, rootUrl) => {
   let testGroups = [];
   let taskQueueId = null;
   let dependencies = [];
+  let abSideNames = null;
 
   if (!taskId || !rootUrl) {
-    return { testGroups, taskQueueId, dependencies, taskExpired: false };
+    return {
+      testGroups,
+      taskQueueId,
+      dependencies,
+      abSideNames,
+      taskExpired: false,
+    };
   }
 
   const queue = new Queue({ rootUrl });
@@ -39,11 +69,18 @@ export const fetchTaskData = async (taskId, rootUrl) => {
     // and flag the task as expired so the UI can communicate the degraded state.
     // eslint-disable-next-line no-console
     console.error('Error fetching Taskcluster task definition:', error);
-    return { testGroups, taskQueueId, dependencies, taskExpired: true };
+    return {
+      testGroups,
+      taskQueueId,
+      dependencies,
+      abSideNames,
+      taskExpired: true,
+    };
   }
   if (taskDefinition) {
     taskQueueId = taskDefinition.taskQueueId;
     dependencies = taskDefinition.dependencies || [];
+    abSideNames = getAbSideNames(taskDefinition.payload.env);
     if (taskDefinition.payload.env?.MOZHARNESS_TEST_PATHS) {
       try {
         const testPathsData = JSON.parse(
@@ -61,7 +98,13 @@ export const fetchTaskData = async (taskId, rootUrl) => {
     }
   }
 
-  return { testGroups, taskQueueId, dependencies, taskExpired: false };
+  return {
+    testGroups,
+    taskQueueId,
+    dependencies,
+    abSideNames,
+    taskExpired: false,
+  };
 };
 
 const fetchClassifications = async (jobId, signal) => {
@@ -321,6 +364,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
           hasSideBySide: selectedJob.hasSideBySide,
           taskQueueId: taskData.taskQueueId,
           taskDependencies: taskData.dependencies,
+          abSideNames: taskData.abSideNames,
         };
         addAggregateFields(fullJob);
 
