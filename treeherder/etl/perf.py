@@ -74,9 +74,9 @@ def _create_or_update_signature(repository, signature_hash, framework, applicati
         application=application,
         defaults=defaults,
     )
-    if not created:
-        if signature.last_updated > defaults["last_updated"]:
-            defaults["last_updated"] = signature.last_updated
+    # Jobs from older pushes (e.g. backfills) must not overwrite the settings
+    # that were set by newer pushes.
+    if not created and signature.last_updated <= defaults["last_updated"]:
         signature, _ = PerformanceSignature.objects.update_or_create(
             repository=repository,
             signature_hash=signature_hash,
