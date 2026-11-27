@@ -122,10 +122,9 @@ const SummaryTab = ({
     !classicFoldable || (showClassic ?? classicOnlyCount > 0);
 
   // Number of failing tests (not error lines — a test can emit several).
-  const failedCount = summary?.counts.failed || 0;
-  // Failures that are not tests (harness errors, leaks, crashes): listed below
-  // but not counted as failed tests, a job can pass with some.
-  const otherFailures = summary?.otherFailures || 0;
+  const failedCount = summary
+    ? Object.values(summary.realFailCounts || {}).reduce((a, b) => a + b, 0)
+    : 0;
 
   const fileBug = useCallback(
     (suggestion) => {
@@ -211,7 +210,7 @@ const SummaryTab = ({
         <p className="failure-summary-line-empty mb-0">
           <strong>{summary.counts.total}</strong> tests:{' '}
           <span className="text-success">
-            {summary.counts.passed || 0} passed
+            {summary.counts.PASS || 0} passed
           </span>
           {', '}
           <span className={failedCount ? 'text-danger' : ''}>
@@ -219,22 +218,12 @@ const SummaryTab = ({
           </span>
           {', '}
           {/* Always rendered, zero included, so the row keeps one shape. */}
-          <span className="text-muted">
-            {summary.counts.skipped || 0} skipped
-          </span>
+          <span className="text-muted">{summary.counts.SKIP || 0} skipped</span>
           {summary.counts.knownIntermittent > 0 && (
             <>
               {', '}
               <span className="text-muted">
                 {summary.counts.knownIntermittent} known intermittent
-              </span>
-            </>
-          )}
-          {otherFailures > 0 && (
-            <>
-              {', '}
-              <span className="text-muted">
-                {otherFailures} other {otherFailures === 1 ? 'error' : 'errors'}
               </span>
             </>
           )}
