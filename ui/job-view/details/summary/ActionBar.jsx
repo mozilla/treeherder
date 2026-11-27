@@ -217,7 +217,7 @@ class ActionBar extends React.PureComponent {
             action: backfilltask,
             decisionTaskId,
             taskId: results.originalTaskId,
-            input: {},
+            input: { depth: 19 },
             staticActionVariables: results.staticActionVariables,
             currentRepo,
           }).then(
