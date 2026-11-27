@@ -3,8 +3,11 @@ import json
 import pytest
 import responses
 from django.conf import settings
+from django.db import connection
+from django.db.utils import DataError
 from requests.exceptions import HTTPError
 
+from treeherder.log_parser import failureline
 from treeherder.log_parser.failureline import get_group_results, write_failure_lines
 from treeherder.log_parser.tasks import store_failure_lines
 from treeherder.model.models import FailureLine, Group, GroupStatus, Job, JobLog
@@ -607,3 +610,44 @@ def test_store_error_summary_empty_body(activate_responses, test_repository, tes
     assert FailureLine.objects.count() == 0
     log_obj.refresh_from_db()
     assert log_obj.status == JobLog.PENDING
+
+
+def _store_mochitest_errorsummary(test_job):
+    log_path = SampleData().get_log_path("mochitest-browser-chrome_errorsummary.log")
+    log_url = "http://my-log.mozilla.org"
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url, body=log_handler.read(), status=200)
+
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
+    store_failure_lines(log_obj)
+    log_obj.refresh_from_db()
+    return log_obj
+
+
+def test_group_result_failure_keeps_failure_lines(activate_responses, test_repository, test_job):
+    # Bug 2084135: an exhausted group_status id sequence used to roll back the
+    # failure lines and the parse status along with the group results.
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT setval('group_status_id_seq', 2147483647)")
+
+    log_obj = _store_mochitest_errorsummary(test_job)
+
+    assert GroupStatus.objects.count() == 0
+    assert FailureLine.objects.count() == 5
+    assert log_obj.status == JobLog.PARSED
+
+
+def test_failure_line_data_error_marks_log_failed(
+    activate_responses, test_repository, test_job, monkeypatch
+):
+    def raise_data_error(job_log, failure_line):
+        raise DataError("value too long")
+
+    monkeypatch.setattr(failureline, "create_failure_line", raise_data_error)
+
+    log_obj = _store_mochitest_errorsummary(test_job)
+
+    assert FailureLine.objects.count() == 0
+    assert GroupStatus.objects.count() == 0
+    assert log_obj.status == JobLog.FAILED
