@@ -5,8 +5,16 @@ from django.contrib.postgres.search import SearchVector
 from django.urls import reverse
 
 from tests.conftest import IS_WINDOWS
+from tests.test_utils import create_generic_job
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import Commit, FailureClassification, JobNote, Push
+from treeherder.model.models import (
+    Commit,
+    FailureClassification,
+    JobNote,
+    JobType,
+    Push,
+    TaskclusterMetadata,
+)
 from treeherder.webapp.api import utils
 
 
@@ -586,3 +594,30 @@ def test_push_status(client, test_job, test_user):
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
     assert resp.json() == {"completed": 0, "pending": 0, "running": 0}
+
+
+@pytest.mark.parametrize(
+    "job_type_name",
+    ["Gecko Decision Task", "Decision Task", "Decision Task (push)"],
+)
+def test_push_decisiontask(
+    client,
+    test_repository,
+    push_stored,
+    failure_classifications,
+    generic_reference_data,
+    job_type_name,
+):
+    push = Push.objects.get(revision=push_stored[0]["revision"])
+    job = create_generic_job(f"{'a' * 40}/0", test_repository, push.id, generic_reference_data)
+    job.job_type = JobType.objects.create(name=job_type_name, symbol="D")
+    job.result = "success"
+    job.save()
+    TaskclusterMetadata.objects.create(job=job, task_id="XaZ3nv77QrmgvzciUTkKyA", retry_id=0)
+
+    resp = client.get(
+        reverse("push-decisiontask", kwargs={"project": test_repository.name}),
+        {"push_ids": push.id},
+    )
+    assert resp.status_code == 200
+    assert resp.json() == {str(push.id): {"id": "XaZ3nv77QrmgvzciUTkKyA", "run": "0"}}
