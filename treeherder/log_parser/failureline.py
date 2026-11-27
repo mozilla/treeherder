@@ -7,7 +7,7 @@ from itertools import islice
 import newrelic.agent
 from django.conf import settings
 from django.db import transaction
-from django.db.utils import DataError, IntegrityError, OperationalError
+from django.db.utils import DatabaseError, DataError, IntegrityError, OperationalError
 from requests.exceptions import HTTPError
 
 from treeherder.etl.text import astral_filter
@@ -87,31 +87,36 @@ def write_failure_lines(job_log, log_iter):
         log_list[-1].update(action="truncated")
 
     transformer = None
-    with transaction.atomic():
-        try:
+    # Catch outside the atomic block so it rolls back before the handlers run.
+    try:
+        with transaction.atomic():
             failure_lines = create(job_log, log_list)
-        except DataError as e:
-            logger.warning(f"Got DataError inserting failure_line: {e.args} for job_log: {job_log}")
-        except OperationalError as e:
-            logger.warning("Got OperationalError inserting failure_line")
-            # Retry iff this error is the "incorrect String Value" error
-            if e.args[0] == 1366:
-                # Sometimes get an error if we can't save a string as MySQL pseudo-UTF8
-                transformer = replace_astral
-            else:
-                raise
-        except IntegrityError:
-            logger.warning("Got IntegrityError inserting failure_line")
+    except DataError as e:
+        # Nothing from this log was stored. Mark it FAILED rather than leaving
+        # it PENDING, so the loss is visible and the log can be reparsed.
+        newrelic.agent.notice_error()
+        logger.error("Got DataError inserting failure_line: %s for job_log: %s", e.args, job_log)
+        job_log.update_status(JobLog.FAILED)
+    except OperationalError as e:
+        logger.warning("Got OperationalError inserting failure_line")
+        # Retry iff this error is the "incorrect String Value" error
+        if e.args[0] == 1366:
+            # Sometimes get an error if we can't save a string as MySQL pseudo-UTF8
+            transformer = replace_astral
+        else:
+            raise
+    except IntegrityError:
+        logger.warning("Got IntegrityError inserting failure_line")
 
-            def exclude_lines(log_list):
-                exclude = set(
-                    FailureLine.objects.filter(
-                        job_log=job_log, line__in=[item["line"] for item in log_list]
-                    ).values_list("line", flat=True)
-                )
-                return (item for item in log_list if item["line"] not in exclude)
+        def exclude_lines(log_list):
+            exclude = set(
+                FailureLine.objects.filter(
+                    job_log=job_log, line__in=[item["line"] for item in log_list]
+                ).values_list("line", flat=True)
+            )
+            return (item for item in log_list if item["line"] not in exclude)
 
-            transformer = exclude_lines
+        transformer = exclude_lines
 
     # If we hit an error that might be solved by transofrming the data then retry
     if transformer is not None:
@@ -188,6 +193,20 @@ def create_group_result(job_log, line):
         )
 
 
+def store_group_results(job_log, group_results):
+    """Store a log's group results in their own savepoint, so that a database
+    error here (for example an exhausted ``group_status`` id sequence, bug
+    2084135) loses only the group results instead of rolling back the log's
+    failure lines and parse status too."""
+    try:
+        with transaction.atomic():
+            for group in group_results:
+                create_group_result(job_log, group)
+    except DatabaseError as e:
+        newrelic.agent.notice_error()
+        logger.error("Failed to store group results for job_log %s: %s", job_log.id, e)
+
+
 def create(job_log, log_list):
     # Split the lines of this log between group_results and failure_lines because we
     # store them in separate tables.
@@ -207,8 +226,7 @@ def create(job_log, log_list):
         else:
             failure_lines.append(line)
 
-    for group in group_results:
-        create_group_result(job_log, group)
+    store_group_results(job_log, group_results)
 
     failure_line_results = [
         create_failure_line(job_log, failure_line) for failure_line in failure_lines
