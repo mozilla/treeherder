@@ -204,6 +204,7 @@ function PushHeader({
                 rel="noopener noreferrer"
                 className="ms-2"
                 title="Compare performance against the base push"
+                aria-label={`${perfCompareTitle} (opens in a new tab)`}
                 data-testid="push-perf-compare-link"
               >
                 <FontAwesomeIcon icon={faChartLine} />
