@@ -27,6 +27,7 @@ import {
   phDefaultTimeRangeValue,
   unknownFrameworkMessage,
   permaLinkPrefix,
+  revisionDisplayLength,
 } from './constants';
 
 const numberFormat = new Intl.NumberFormat('en-US', {
@@ -441,6 +442,7 @@ export const getGraphsURL = (
   alertRepository,
   performanceFrameworkId,
   highlightedToRevision,
+  highlightedRevision,
 ) => {
   let url = `/perfherder/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1,${alert.series_signature.framework_id}`;
 
@@ -459,6 +461,12 @@ export const getGraphsURL = (
 
   if (highlightedToRevision) {
     url = url.concat(`&highlightedToRevision=${highlightedToRevision}`);
+  }
+
+  if (highlightedRevision) {
+    url = url.concat(
+      `&highlightedRevisions=${highlightedRevision.slice(0, revisionDisplayLength)}`,
+    );
   }
 
   return url;
