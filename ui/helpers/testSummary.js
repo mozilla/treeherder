@@ -1,5 +1,5 @@
 import { getSearchWords } from './display';
-import { thBugSuggestionLimit } from './constants';
+import { thBugSuggestionLimit, thTryRepos } from './constants';
 
 // Parses the contents of a `*_testsummary.jsonl` artifact into a structured
 // object for the job-view Summary tab.
@@ -703,7 +703,7 @@ const decorateBugs = (suggestion) => {
 export const isNewFailureLine = (suggestion, repoName) =>
   suggestion.search.split(' | ').length === 3 &&
   (suggestion.failure_new_in_rev === true ||
-    (suggestion.counter === 0 && repoName === 'try'));
+    (suggestion.counter === 0 && thTryRepos.includes(repoName)));
 
 /**
  * Where the new failure lines of a list are: how many there are, for the
