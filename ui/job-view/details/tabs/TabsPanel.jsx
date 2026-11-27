@@ -69,7 +69,6 @@ const TabsPanel = ({
   testGroups = [],
   bugSuggestions = null,
   bugSuggestionsLoading = false,
-  lineBugSuggestions = null,
   summary = null,
   summaryLoading = false,
   summaryError = null,
@@ -426,7 +425,6 @@ const TabsPanel = ({
               currentRepo={currentRepo}
               bugSuggestions={bugSuggestions}
               bugSuggestionsLoading={bugSuggestionsLoading}
-              lineBugSuggestions={lineBugSuggestions}
             />
           </TabPanel>
           <TabPanel>
@@ -494,7 +492,6 @@ TabsPanel.propTypes = {
   testGroups: PropTypes.arrayOf(PropTypes.string),
   bugSuggestions: PropTypes.arrayOf(PropTypes.shape({})),
   bugSuggestionsLoading: PropTypes.bool,
-  lineBugSuggestions: PropTypes.instanceOf(Map),
   summary: PropTypes.shape({}),
   summaryLoading: PropTypes.bool,
   summaryError: PropTypes.string,
