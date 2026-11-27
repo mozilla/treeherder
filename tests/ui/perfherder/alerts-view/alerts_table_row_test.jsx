@@ -608,15 +608,13 @@ describe('detected push revision', () => {
 
   test('renders the suggested culprit revision, styled italic/muted/small', async () => {
     const revision = 'a1b2c3d4e5f6';
-    const { getByText } = alertTableRowTest({
+    const { getByTestId } = alertTableRowTest({
       alert: alertWithBackfill({ detected_push_revision: revision }),
       tags: false,
     });
 
-    const revisionEl = await waitFor(() =>
-      getByText(`Suggested culprit: ${revision}`),
-    );
-    expect(revisionEl).toBeInTheDocument();
+    const revisionEl = await waitFor(() => getByTestId('suggested-culprit'));
+    expect(revisionEl).toHaveTextContent(`Suggested culprit: ${revision}`);
     expect(revisionEl).toHaveClass('fst-italic');
     expect(revisionEl).toHaveClass('text-muted');
     expect(revisionEl).toHaveClass('small');
@@ -624,17 +622,33 @@ describe('detected push revision', () => {
 
   test('truncates the suggested culprit revision to 12 characters', async () => {
     const revision = 'abcdef0123456789abcdef0123456789abcdef01'; // 40-char sha
-    const { getByText, queryByText } = alertTableRowTest({
+    const { getByTestId } = alertTableRowTest({
       alert: alertWithBackfill({ detected_push_revision: revision }),
       tags: false,
     });
 
-    const revisionEl = await waitFor(() =>
-      getByText(`Suggested culprit: ${revision.slice(0, 12)}`),
+    const revisionEl = await waitFor(() => getByTestId('suggested-culprit'));
+    // only the truncated revision is shown, not the full sha
+    expect(revisionEl.textContent).toBe(
+      `Suggested culprit: ${revision.slice(0, 12)}`,
     );
-    expect(revisionEl).toBeInTheDocument();
-    // the full, untruncated revision is not shown
-    expect(queryByText(`Suggested culprit: ${revision}`)).toBeNull();
+  });
+
+  test('links the suggested culprit to the graph with the culprit highlighted', async () => {
+    const revision = 'abcdef0123456789abcdef0123456789abcdef01'; // 40-char sha
+    const { getByTestId } = alertTableRowTest({
+      alert: alertWithBackfill({ detected_push_revision: revision }),
+      tags: false,
+    });
+
+    const link = await waitFor(() => getByTestId('suggested-culprit-link'));
+    expect(link).toHaveTextContent(revision.slice(0, 12));
+    expect(link).toHaveAttribute(
+      'href',
+      `/perfherder/graphs?timerange=31536000&series=autoland,1944439,1,1&highlightedToRevision=930f0f51b681aea2a5e915a2770f80a9914ed3df&highlightedRevisions=${revision.slice(0, 12)}`,
+    );
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   test('does not render the revision span when detected_push_revision is absent', async () => {

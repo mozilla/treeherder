@@ -538,7 +538,22 @@ export default class AlertTableRow extends React.Component {
                   data-testid="suggested-culprit"
                 >
                   Suggested culprit:{' '}
-                  {detectedPushRevision.slice(0, revisionDisplayLength)}
+                  <a
+                    href={getGraphsURL(
+                      alert,
+                      timeRange,
+                      repository,
+                      framework,
+                      revision,
+                      detectedPushRevision,
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Show the suggested culprit on the graph"
+                    data-testid="suggested-culprit-link"
+                  >
+                    {detectedPushRevision.slice(0, revisionDisplayLength)}
+                  </a>
                 </span>
               )}
               {failedJobsCount > 0 && (
