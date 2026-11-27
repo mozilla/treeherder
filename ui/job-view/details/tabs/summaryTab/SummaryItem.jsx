@@ -17,7 +17,6 @@ import { thBugSuggestionLimit } from '../../../../helpers/constants';
 import {
   createQueryParams,
   getLogViewerRecordUrl,
-  getLogViewerUrl,
   parseQueryParams,
 } from '../../../../helpers/url';
 import formatLogLineWithLinks from '../../../../helpers/logFormatting';
@@ -49,25 +48,6 @@ const SummaryItem = ({
     jobDetails,
     selectedJob,
   );
-
-  // A worker line comes from the classic list with its exact line number; a
-  // summary.jsonl record is found in the log by its text and time.
-  let logViewerUrl = null;
-  if (Number.isInteger(suggestion.line_number)) {
-    logViewerUrl = getLogViewerUrl(
-      selectedJob.id,
-      currentRepo.name,
-      suggestion.line_number + 1,
-      selectedJob,
-    );
-  } else if (suggestion.logTarget?.texts.length > 0) {
-    logViewerUrl = getLogViewerRecordUrl(
-      selectedJob.id,
-      currentRepo.name,
-      suggestion.logTarget,
-      selectedJob,
-    );
-  }
 
   const { bugs } = suggestion;
   const showOpenRecent = suggestion.valid_open_recent;
@@ -111,9 +91,14 @@ const SummaryItem = ({
               <FontAwesomeIcon icon={faFilter} />
             </Link>
           )}
-          {logViewerUrl && (
+          {suggestion.logTarget?.texts.length > 0 && (
             <a
-              href={logViewerUrl}
+              href={getLogViewerRecordUrl(
+                selectedJob.id,
+                currentRepo.name,
+                suggestion.logTarget,
+                selectedJob,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               title="Go to this line in the log viewer"

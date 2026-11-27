@@ -13,7 +13,6 @@ import {
   matchBugSuggestions,
   computeSummaryDivergence,
   findNewFailureLines,
-  withWorkerLines,
 } from '../../../../helpers/testSummary';
 import {
   requiredInternalOccurrences,
@@ -54,16 +53,10 @@ const SummaryTab = ({
     [summary],
   );
 
-  // The worker's own lines (a max-run-time abort) cannot be in the artifact,
-  // so they are taken from the classic list. Without an artifact there is no
-  // summary to complete: the classic list is then shown as is.
-  const suggestions = useMemo(() => {
-    const matched = matchBugSuggestions(
-      failureSuggestions,
-      bugSuggestions || [],
-    );
-    return summary ? withWorkerLines(matched, bugSuggestions || []) : matched;
-  }, [summary, failureSuggestions, bugSuggestions]);
+  const suggestions = useMemo(
+    () => matchBugSuggestions(failureSuggestions, bugSuggestions || []),
+    [failureSuggestions, bugSuggestions],
+  );
 
   // Compare the two summaries once both are loaded. When they disagree, the
   // classic Failure Summary is rendered stacked below the summary so no
@@ -71,9 +64,9 @@ const SummaryTab = ({
   const divergence = useMemo(
     () =>
       summary && bugSuggestions && !bugSuggestionsLoading
-        ? computeSummaryDivergence(suggestions, bugSuggestions)
+        ? computeSummaryDivergence(failureSuggestions, bugSuggestions)
         : { diverged: false, onlyInSummary: [], onlyInClassic: [] },
-    [summary, suggestions, bugSuggestions, bugSuggestionsLoading],
+    [summary, failureSuggestions, bugSuggestions, bugSuggestionsLoading],
   );
 
   // New failure lines of both lists, flagged exactly as the Failure Summary tab
