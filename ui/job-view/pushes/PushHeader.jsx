@@ -155,6 +155,7 @@ function PushHeader({
   }[watchState];
   const countSelectedRunnableJobs = selectedRunnableJobs.length;
 
+  const perfCompareTitle = 'Compare performance against the base push';
   const perfBase = parsePerfCompareInfo(push.revisions?.[0]?.comments);
   let perfBaseUrl = null;
   if (perfBase?.revision) {
@@ -203,7 +204,7 @@ function PushHeader({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ms-2"
-                title="Compare performance against the base push"
+                title={perfCompareTitle}
                 aria-label={`${perfCompareTitle} (opens in a new tab)`}
                 data-testid="push-perf-compare-link"
               >

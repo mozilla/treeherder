@@ -74,6 +74,10 @@ describe('PushHeader perf compare link', () => {
       'href',
       `https://perf.compare/compare-results?baseRev=${baseRevision}&baseRepo=try&newRev=abc123&newRepo=try&framework=13&sort=delta|desc`,
     );
+    expect(getByTestId('push-perf-compare-link')).toHaveAttribute(
+      'aria-label',
+      'Compare performance against the base push (opens in a new tab)',
+    );
   });
 
   test('links to the comparison with the recorded base lando landing job', () => {
