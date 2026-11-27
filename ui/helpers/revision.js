@@ -39,3 +39,16 @@ export const getRevisionTitle = function getRevisionTitle(revisions) {
   }
   return title;
 };
+
+export const parsePerfCompareInfo = function parsePerfCompareInfo(comments = '') {
+  const revision = comments.match(/Perf base revision=([a-f\d]+)/)?.[1];
+  const framework = comments.match(/Perf framework=(\d+)/)?.[1] ?? '1';
+  const [, landoInstance, landoJobId] = comments.match(
+    /Perf base lando job=([\w-]+)\/(\d+)/
+  ) ?? [];
+
+  if (!revision && !landoJobId) {
+    return null;
+  }
+  return { revision, landoInstance, landoJobId, framework };
+};
